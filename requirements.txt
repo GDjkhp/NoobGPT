@@ -1,0 +1,6 @@
+beautifulsoup4
+lxml
+httpx
+pycryptodome
+py-cord
+flask
