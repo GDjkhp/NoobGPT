@@ -41,10 +41,8 @@ async def on_ready():
 async def anime(ctx, *, arg):
     await ctx.reply(f"Searching \"{arg}\". Please wait...")
     result = resultsAnime(searchAnime(arg))
-    embed = discord.Embed()
-    for ix, vl in enumerate(result):
-        embed.add_field(name=f"[{ix + 1}] {vl[title]}", value=f"{vl[url]}", inline=True)
-    await ctx.reply(embed = embed, view = MyView4(result, 0))
+    embed = buildSearch(arg, result, 0)
+    await ctx.reply(embed = embed, view = MyView4(arg, result, 0))
 
 def searchAnime(q: str):
     return q.replace(" ", "-")
@@ -75,16 +73,34 @@ def doodstream(url):
     print(streamlink)
     return streamlink
 
+# embed builders
+def buildAnime(details: list) -> discord.Embed():
+    embed = discord.Embed(title=details[title], description=details[desc], color=0x00ff00)
+    embed.set_image(url = details[poster])
+    embed.add_field(name="Type", value=details[animetype], inline=True)
+    embed.add_field(name="Episodes", value=details[ep], inline=True)
+    embed.add_field(name="Released", value=details[released], inline=True)
+    embed.add_field(name="Genre", value=details[genre], inline=True)
+    return embed
+def buildSearch(arg: str, result: list, index: int) -> discord.Embed():
+    embed = discord.Embed(title=f"Search results: {arg}", description=f"{len(result)} found.", color=0x00ff00)
+    embed.set_thumbnail(url = bot.user.avatar)
+    i = index
+    while i < len(result):
+        if (i < index+24): embed.add_field(name=f"[{i + 1}] {result[i][title]}", value=f"{result[i][url]}", inline=True)
+        i += 1
+    return embed
+
 # search
 class MyView4(discord.ui.View):
-    def __init__(self, result: list, index: int):
+    def __init__(self, arg: str, result: list, index: int):
         super().__init__(timeout=None)
         i = index
         while i < len(result):
             if (i < index+24): self.add_item(ButtonSelect4(i + 1, result[i]))
-            if (i == index+24): self.add_item(nextPage(result, i))
+            if (i == index+24): self.add_item(nextPage(arg, result, i))
             i += 1
-
+desc, ep, animetype, released, genre = 2, 3, 5, 6, 7, 
 class ButtonSelect4(discord.ui.Button):
     def __init__(self, index: int, result: list):
         super().__init__(label=index, style=discord.ButtonStyle.primary)
@@ -94,34 +110,37 @@ class ButtonSelect4(discord.ui.Button):
         # await interaction.response.send_message(f"You clicked the button [{self.label}] {self.result[title]} ({self.result[mv_tv]})!") # Send a message when the button is clicked
         req = client.get(f"{gogoanime}{self.result[url]}")
         soup = BS(req, "lxml")
-        episodes = soup.find("ul", {"id": "episode_page"}).find_all("a")[-1]["ep_end"]
-        desc: str = soup.find_all("p", {"class": "type"})[1].get_text().replace("Plot Summary:", "")
-        embed = discord.Embed(title=self.result[title], description=desc)
-        embed.set_image(url = self.result[poster])
-        await interaction.response.edit_message(embed = embed, view = MyView5(int(episodes), self.result[url], 0, self.result[poster], desc, self.result[title]))
+
+        episodes: int = soup.find("ul", {"id": "episode_page"}).find_all("a")[-1]["ep_end"]
+        types = soup.find_all("p", {"class": "type"})
+        desc: str = types[1].get_text().replace("Plot Summary:", "")
+        animetype: str = types[0].get_text().split(": ")[1]
+        genre: str = types[2].get_text().split(": ")[1]
+        released: str = types[3].get_text().split(": ")[1]
+        details = [self.result[title], self.result[url], desc, episodes, self.result[poster], animetype, released, genre]
+
+        embed = buildAnime(details)
+        await interaction.response.edit_message(embed = embed, view = MyView5(details, 0))
 
 class nextPage(discord.ui.Button):
-    def __init__(self, result: list, index: int):
+    def __init__(self, arg: str, result: list, index: int):
         super().__init__(label=">", style=discord.ButtonStyle.success)
         self.result = result
         self.index = index
+        self.arg = arg
     
     async def callback(self, interaction: discord.Interaction):
-        embed = discord.Embed()
-        i = self.index
-        while i < len(self.result):
-            if (i < self.index+24): embed.add_field(name=f"[{i + 1}] {self.result[i][title]}", value=f"{self.result[i][url]}", inline=True)
-            i += 1
+        embed = buildSearch(self.arg, self.result, self.index)
         await interaction.response.edit_message(embed = embed, view = MyView4(self.result, self.index))
 
 # episode
 class MyView5(discord.ui.View):
-    def __init__(self, episodes: int, sUrl: str, index: int, poster: str, desc: str, title: str):
+    def __init__(self, details: list, index: int):
         super().__init__(timeout=None)
         i = index
-        while i < episodes:
-            if (i < index+24): self.add_item(ButtonSelect5(i + 1, sUrl))
-            if (i == index+24): self.add_item(nextPageEP(episodes, sUrl, i, poster, desc, title))
+        while i < int(details[ep]):
+            if (i < index+24): self.add_item(ButtonSelect5(i + 1, details[url]))
+            if (i == index+24): self.add_item(nextPageEP(details, i))
             i += 1
 
 class ButtonSelect5(discord.ui.Button):
@@ -141,19 +160,14 @@ class ButtonSelect5(discord.ui.Button):
         await interaction.response.send_message(f"{url}-episode-{self.index}: {video}")
 
 class nextPageEP(discord.ui.Button):
-    def __init__(self, episodes: int, sUrl: str, index: int, poster: str, desc: str, title: str):
+    def __init__(self, details: list, index: int):
         super().__init__(label=">", style=discord.ButtonStyle.success)
-        self.episodes = episodes
+        self.details = details
         self.index = index
-        self.sUrl = sUrl
-        self.poster = poster
-        self.desc = desc
-        self.title = title
     
     async def callback(self, interaction: discord.Interaction):
-        embed = discord.Embed(title=self.title, description=self.desc)
-        embed.set_image(url = self.poster)
-        await interaction.response.edit_message(embed = embed, view = MyView5(self.episodes, self.sUrl, self.index, self.poster, self.desc, self.title))
+        embed = buildAnime(self.details)
+        await interaction.response.edit_message(embed = embed, view = MyView5(self.details, self.index))
 
 # Defines a custom button that contains the logic of the game.
 # The ['TicTacToe'] bit is for type hinting purposes to tell your IDE or linter
