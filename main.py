@@ -279,8 +279,8 @@ from bardapi import Bard
 
 @bot.command()
 async def bard(ctx, *, arg):
-    bard = Bard(token=os.getenv("BARD"))
-    response = bard.get_answer(arg)['content']
+    os.environ['_BARD_API_KEY'] = os.getenv("BARD")
+    response = Bard().get_answer(arg)['content']
     await ctx.reply(response[:2000])
 
 bot.run(os.getenv("TOKEN"))
