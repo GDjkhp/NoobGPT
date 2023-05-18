@@ -288,10 +288,11 @@ session.headers = {
             "Referer": "https://bard.google.com/",
         }
 session.cookies.set("__Secure-1PSID", os.getenv("BARD"))
+bardSession = Bard(session=session, timeout=60)
 
 @bot.command()
 async def bard(ctx, *, arg):
-    bard = Bard(session=session, timeout=60)
-    await ctx.reply(bard.get_answer(arg)['content'])
+    response = bardSession.get_answer(arg)['content']
+    await ctx.reply(response[:2000])
 
 bot.run(os.getenv("TOKEN"))
