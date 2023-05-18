@@ -4,3 +4,4 @@ httpx
 pycryptodome
 py-cord
 flask
+bardapi

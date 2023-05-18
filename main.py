@@ -95,11 +95,10 @@ class ButtonSelect4(discord.ui.Button):
         req = client.get(f"{gogoanime}{self.result[url]}")
         soup = BS(req, "lxml")
         episodes = soup.find("ul", {"id": "episode_page"}).find_all("a")[-1]["ep_end"]
-        embed = discord.Embed(title=self.result[title])
+        desc: str = soup.find_all("p", {"class": "type"})[1].get_text().replace("Plot Summary:", "")
+        embed = discord.Embed(title=self.result[title], description=desc)
         embed.set_image(url = self.result[poster])
-        for i in range(int(episodes)):
-            if (i < 24): embed.add_field(name=f"Episode {i+1}", value=f"{i+1}", inline=True)
-        await interaction.response.edit_message(embed = embed, view = MyView5(int(episodes), self.result[url], 0, self.result[poster]))
+        await interaction.response.edit_message(embed = embed, view = MyView5(int(episodes), self.result[url], 0, self.result[poster], desc, self.result[title]))
 
 class nextPage(discord.ui.Button):
     def __init__(self, result: list, index: int):
@@ -117,12 +116,12 @@ class nextPage(discord.ui.Button):
 
 # episode
 class MyView5(discord.ui.View):
-    def __init__(self, episodes: int, sUrl: str, index: int, poster: str):
+    def __init__(self, episodes: int, sUrl: str, index: int, poster: str, desc: str, title: str):
         super().__init__(timeout=None)
         i = index
         while i < episodes:
             if (i < index+24): self.add_item(ButtonSelect5(i + 1, sUrl))
-            if (i == index+24): self.add_item(nextPageEP(episodes, sUrl, i, poster))
+            if (i == index+24): self.add_item(nextPageEP(episodes, sUrl, i, poster, desc, title))
             i += 1
 
 class ButtonSelect5(discord.ui.Button):
@@ -142,21 +141,19 @@ class ButtonSelect5(discord.ui.Button):
         await interaction.response.send_message(f"{url}-episode-{self.index}: {video}")
 
 class nextPageEP(discord.ui.Button):
-    def __init__(self, episodes: int, sUrl: str, index: int, poster: str):
+    def __init__(self, episodes: int, sUrl: str, index: int, poster: str, desc: str, title: str):
         super().__init__(label=">", style=discord.ButtonStyle.success)
         self.episodes = episodes
         self.index = index
         self.sUrl = sUrl
         self.poster = poster
+        self.desc = desc
+        self.title = title
     
     async def callback(self, interaction: discord.Interaction):
-        embed = discord.Embed()
+        embed = discord.Embed(title=self.title, description=self.desc)
         embed.set_image(url = self.poster)
-        i = self.index
-        while i < self.episodes:
-            if (i < self.index+24): embed.add_field(name=f"Episode {i+1}", value=f"{i+1}", inline=True)
-            i += 1
-        await interaction.response.edit_message(embed = embed, view = MyView5(self.episodes, self.sUrl, self.index, self.poster))
+        await interaction.response.edit_message(embed = embed, view = MyView5(self.episodes, self.sUrl, self.index, self.poster, self.desc, self.title))
 
 # Defines a custom button that contains the logic of the game.
 # The ['TicTacToe'] bit is for type hinting purposes to tell your IDE or linter
@@ -276,5 +273,25 @@ class TicTacToe(discord.ui.View):
 async def tic(ctx: commands.Context):
     """Starts a tic-tac-toe game with yourself."""
     await ctx.send('Tic Tac Toe: X goes first', view=TicTacToe())
+
+# bard
+from bardapi import Bard
+import requests
+
+session = requests.Session()
+session.headers = {
+            "Host": "bard.google.com",
+            "X-Same-Domain": "1",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36",
+            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+            "Origin": "https://bard.google.com",
+            "Referer": "https://bard.google.com/",
+        }
+session.cookies.set("__Secure-1PSID", os.getenv("BARD"))
+
+@bot.command()
+async def bard(ctx, *, arg):
+    bard = Bard(session=session, timeout=60)
+    await ctx.reply(bard.get_answer(arg)['content'])
 
 bot.run(os.getenv("TOKEN"))
