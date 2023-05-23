@@ -47,15 +47,21 @@ async def anime(ctx, *, arg):
 def searchAnime(q: str):
     return q.replace(" ", "-")
 def resultsAnime(data: str) -> list:
-    req = client.get(f"{gogoanime}/search.html?keyword={data}")
-    soup = BS(req, "lxml")
-    items = soup.find("ul", {"class": "items"}).findAll("li")
-    img = [items[i].find("img")["src"] for i in range(len(items))]
-    urls = [items[i].find("a")["href"] for i in range(len(items))]
-    title = [items[i].find("a")["title"] for i in range(len(items))]
-    ids = [items[i].find("a")["title"] for i in range(len(items))]
-    mov_or_tv = ["TV" for i in range(len(items))]
-    return [list(sublist) for sublist in zip(title, urls, ids, mov_or_tv, img)]
+    results = []
+    page = 1
+    while True:
+        req = client.get(f"{gogoanime}/search.html?keyword={data}&page={page}")
+        soup = BS(req, "lxml")
+        items = soup.find("ul", {"class": "items"}).findAll("li")
+        if len(items) == 0: break
+        img = [items[i].find("img")["src"] for i in range(len(items))]
+        urls = [items[i].find("a")["href"] for i in range(len(items))]
+        title = [items[i].find("a")["title"] for i in range(len(items))]
+        ids = [items[i].find("a")["title"] for i in range(len(items))]
+        mov_or_tv = ["TV" for i in range(len(items))]
+        results.extend([list(sublist) for sublist in zip(title, urls, ids, mov_or_tv, img)])
+        page += 1
+    return results
 def doodstream(url):
     domain = re.findall("""([^"']*)\/e""", url)[0]
     req = client.get(url).text
@@ -131,7 +137,7 @@ class nextPage(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         embed = buildSearch(self.arg, self.result, self.index)
-        await interaction.response.edit_message(embed = embed, view = MyView4(self.result, self.index))
+        await interaction.response.edit_message(embed = embed, view = MyView4(self.arg, self.result, self.index))
 
 # episode
 class MyView5(discord.ui.View):
