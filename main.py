@@ -328,7 +328,7 @@ class ImageView(discord.ui.View):
     def __init__(self, results, index):
         super().__init__(timeout=None)
         if not index == 0: self.add_item(ButtonPrev(results, index))
-        if index < len(results): self.add_item(ButtonNext(results, index))
+        if index + 1 < len(results): self.add_item(ButtonNext(results, index))
 
 class ButtonNext(discord.ui.Button):
     def __init__(self, results, index):
