@@ -297,4 +297,55 @@ async def bard(ctx, *, arg):
     response = Bard(timeout=60).get_answer(arg)['content']
     await ctx.reply(response[:2000])
 
+# :|
+from pygelbooru import Gelbooru
+
+@bot.command()
+async def r34(ctx, *, arg):
+    if not ctx.channel.nsfw: return await ctx.reply("**No.**")
+    results = await Gelbooru(api='https://api.rule34.xxx/').search_posts(tags=[arg])
+    if len(results) == 0: return await ctx.reply("**No results found.**")
+    await ctx.reply(embed = BuildEmbed(str(results[0])), view = ImageView(results, 0))
+@bot.command()
+async def gel(ctx, *, arg):
+    if not ctx.channel.nsfw: return await ctx.reply("**No.**")
+    results = await Gelbooru().search_posts(tags=[arg])
+    if len(results) == 0: return await ctx.reply("**No results found.**")
+    await ctx.reply(embed = BuildEmbed(str(results[0])), view = ImageView(results, 0))
+@bot.command()
+async def safe(ctx, *, arg):
+    results = await Gelbooru(api='https://safebooru.org/').search_posts(tags=[arg])
+    if len(results) == 0: return await ctx.reply("**No results found.**")
+    await ctx.reply(embed = BuildEmbed(str(results[0])), view = ImageView(results, 0))
+
+def BuildEmbed(url: str) -> discord.Embed():
+    embed = discord.Embed()
+    if url.endswith(".mp4"): embed.add_field(name="Video link:", value=url)
+    else: embed.set_image(url = url)
+    return embed
+
+class ImageView(discord.ui.View):
+    def __init__(self, results, index):
+        super().__init__(timeout=None)
+        if not index == 0: self.add_item(ButtonPrev(results, index))
+        if index < len(results): self.add_item(ButtonNext(results, index))
+
+class ButtonNext(discord.ui.Button):
+    def __init__(self, results, index):
+        super().__init__(label="Next >", style=discord.ButtonStyle.success)
+        self.results, self.index = results, index
+    
+    async def callback(self, interaction: discord.Interaction):
+        self.index+=1
+        await interaction.response.edit_message(embed = BuildEmbed(str(self.results[self.index])), view = ImageView(self.results, self.index))
+
+class ButtonPrev(discord.ui.Button):
+    def __init__(self, results, index):
+        super().__init__(label="< Prev", style=discord.ButtonStyle.success)
+        self.results, self.index = results, index
+
+    async def callback(self, interaction: discord.Interaction):
+        self.index-=1
+        await interaction.response.edit_message(embed = BuildEmbed(str(self.results[self.index])), view = ImageView(self.results, self.index))
+
 bot.run(os.getenv("TOKEN"))

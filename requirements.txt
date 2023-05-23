@@ -5,3 +5,4 @@ pycryptodome
 py-cord
 flask
 bardapi
+pygelbooru
