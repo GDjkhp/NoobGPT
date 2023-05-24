@@ -9,6 +9,12 @@ from typing import List
 from flask import Flask
 from threading import Thread 
 
+from urllib import parse as p
+import base64
+from Crypto.Cipher import AES
+import hashlib
+import json
+
 load_dotenv()
 intents = discord.Intents.default()
 intents.message_content = True
@@ -35,6 +41,207 @@ keep_alive()
 async def on_ready():
     print(":)")
     await bot.change_presence(status=discord.Status.dnd)
+
+def parse(txt: str) -> str:
+    return re.sub(r"\W+", "-", txt.lower())
+def searchQuery(q) -> str:
+    return client.get(f"https://www.actvid.com/search/{parse(q)}").text
+def results(html: str) -> list:
+    soup = BS(html, "lxml")
+    img = [i["data-src"] for i in soup.select(".film-poster-img")]
+    urls = [i["href"] for i in soup.select(".film-poster-ahref")]
+    mov_or_tv = [
+        "MOVIE" if i["href"].__contains__("/movie/") else "TV"
+        for i in soup.select(".film-poster-ahref")
+    ]
+    title = [
+        re.sub(
+            pattern="full|/tv/|/movie/|hd|watch|[0-9]{2,}",
+            repl="",
+            string=" ".join(i.split("-")),
+        )
+        for i in urls
+    ]
+    ids = [i.split("-")[-1] for i in urls]
+    return [list(sublist) for sublist in zip(title, urls, ids, mov_or_tv, img)]
+
+@bot.command()
+async def search(ctx, *, arg):
+    await ctx.reply(f"Searching \"{arg}\". Please wait...")
+    result = results(searchQuery(arg))
+    embed = buildSearch(arg, result, 0)
+    await ctx.reply(embed = embed, view = MyView(result, arg, 0))
+
+# search
+class MyView(discord.ui.View):
+    def __init__(self, result: list, arg: str, index: int):
+        super().__init__(timeout=None)
+        i = index
+        while i < len(result):
+            if (i < index+24): self.add_item(ButtonSelect(i + 1, result[i]))
+            if (i == index+24): self.add_item(ButtonNextSearch(arg, result, i))
+            i += 1
+
+class ButtonSelect(discord.ui.Button):
+    def __init__(self, index: int, result: list):
+        super().__init__(label=index, style=discord.ButtonStyle.primary)
+        self.result = result
+    
+    async def callback(self, interaction: discord.Interaction):
+        if self.result[mv_tv] == "TV":
+            r = client.get(f"https://www.actvid.com/ajax/v2/tv/seasons/{self.result[aid]}")
+            season_ids = [i["data-id"] for i in BS(r, "lxml").select(".dropdown-item")]
+            embed = buildSeasons(self.result[title], self.result[poster], season_ids)
+            await interaction.response.edit_message(embed = embed, view = MyView2(self.result, season_ids, 0))
+
+        else:
+            sid = server_id(self.result[aid])
+            iframe_url, tv_id = get_link(sid)
+            iframe_link, iframe_id = rabbit_id(iframe_url)
+            url = cdn_url(iframe_link, iframe_id)
+            try:
+                await interaction.response.defer()
+                await interaction.followup.send(f"{self.result[title]}: {url}")
+            except: await interaction.followup.send("**UnicodeDecodeError: The Current Key is not correct, Wake up <@729554186777133088> :(**")
+
+class ButtonNextSearch(discord.ui.Button):
+    def __init__(self, arg: str, result: list, index: int):
+        super().__init__(label=">", style=discord.ButtonStyle.success)
+        self.result = result
+        self.index = index
+        self.arg = arg
+
+    async def callback(self, interaction: discord.Interaction):
+        embed = buildSearch(self.arg, self.result, self.index)
+        await interaction.response.edit_message(embed = embed, view = MyView(self.result, self.arg, self.index))
+
+# season
+class MyView2(discord.ui.View):
+    def __init__(self, result: list, season_ids: list, index: int):
+        super().__init__(timeout=None)
+        i = index
+        while i < len(season_ids):
+            if (i < index+24): self.add_item(ButtonSelect2(i + 1, season_ids[i], result))
+            if (i == index+24): self.add_item(ButtonNextSeason(result, season_ids, i))
+            i += 1
+
+class ButtonSelect2(discord.ui.Button):
+    def __init__(self, index: int, season_id: str, result: list):
+        super().__init__(label=index, style=discord.ButtonStyle.primary)
+        self.result = result
+        self.season_id = season_id
+        self.index = index
+    
+    async def callback(self, interaction: discord.Interaction):
+        z = f"https://www.actvid.com/ajax/v2/season/episodes/{self.season_id}"
+        rf = client.get(z)
+        episodes = [i["data-id"] for i in BS(rf, "lxml").select(".nav-item > a")]
+        embed = buildEpisodes(self.result[title], self.result[poster], episodes, self.index)
+        await interaction.response.edit_message(embed = embed, view = MyView3(self.season_id, episodes, self.result, 0, self.index))
+
+class ButtonNextSeason(discord.ui.Button):
+    def __init__(self, result: list, season_ids: list, index: int):
+        super().__init__(label=">", style=discord.ButtonStyle.success)
+        self.result, self.season_ids, self.index = result, season_ids, index
+    
+    async def callback(self, interaction: discord.Interaction):
+        embed = buildSeasons(self.result[title], self.result[poster], self.season_ids)
+        await interaction.response.edit_message(embed = embed, view = MyView2(self.result, self.season_ids, self.index))
+
+# episode
+class MyView3(discord.ui.View):
+    def __init__(self, season_id: str, episodes: list, result: list, index: int, season: int):
+        super().__init__(timeout=None)
+        i = index
+        while i < len(episodes):
+            if (i < index+24): self.add_item(ButtonSelect3(i + 1, season_id, episodes[i], season, result[title]))
+            if (i == index+24): self.add_item(ButtonNextEp(season_id, episodes, result, i, season))
+            i += 1
+
+class ButtonNextEp(discord.ui.Button):
+    def __init__(self, season_id: str, episodes: list, result: list, index: int, season: int):
+        super().__init__(label=">", style=discord.ButtonStyle.success)
+        self.season_id, self.episodes, self.result, self.index, self.season = season_id, episodes, result, index, season
+    
+    async def callback(self, interaction: discord.Interaction):
+        embed = buildEpisodes(self.result[title], self.result[poster], self.episodes, self.season)
+        await interaction.response.edit_message(embed = embed, view = MyView3(self.season_id, self.episodes, self.result, self.index, self.season))
+
+class ButtonSelect3(discord.ui.Button):
+    def __init__(self, index: int, season_id: str, episode: str, season: int, title: str):
+        super().__init__(label=index, style=discord.ButtonStyle.primary)
+        self.episode = episode
+        self.season_id = season_id
+        self.season = season
+        self.title = title
+        self.index = index
+    
+    async def callback(self, interaction: discord.Interaction):
+        sid = ep_server_id(self.episode)
+        iframe_url, tv_id = get_link(sid)
+        iframe_link, iframe_id = rabbit_id(iframe_url)
+        try:
+            url = cdn_url(iframe_link, iframe_id)
+            await interaction.response.defer()
+            await interaction.followup.send(f"{self.title} [S{self.season}E{self.index}]: {url}")
+        except: await interaction.followup.send("**UnicodeDecodeError: The Current Key is not correct, Wake up <@729554186777133088> :(**")
+
+# actvid utils
+def server_id(mov_id: str) -> str:
+    req = client.get(f"https://www.actvid.com/ajax/movie/episodes/{mov_id}")
+    soup = BS(req, "lxml")
+    return [i["data-linkid"] for i in soup.select(".nav-item > a")][0]        
+def ep_server_id(ep_id: str) -> str:
+    req = client.get(
+        f"https://www.actvid.com/ajax/v2/episode/servers/{ep_id}/#servers-list"
+    )
+    soup = BS(req, "lxml")
+    return [i["data-id"] for i in soup.select(".nav-item > a")][0]
+def get_link(thing_id: str) -> tuple:
+    req = client.get(f"https://www.actvid.com/ajax/get_link/{thing_id}").json()[
+        "link"
+    ]
+    print(req)
+    return req, rabbit_id(req)
+def rabbit_id(url: str) -> tuple:
+    parts = p.urlparse(url, allow_fragments=True, scheme="/").path.split("/")
+    return (
+        re.findall(r"(https:\/\/.*\/embed-4)", url)[0].replace(
+            "embed-4", "ajax/embed-4/"
+        ),
+        parts[-1],
+    )
+def cdn_url(final_link: str, rabb_id: str) -> str:
+    client.set_headers({"X-Requested-With": "XMLHttpRequest"})
+    data = client.get(f"{final_link}getSources?id={rabb_id}").json()
+    source = data["sources"]
+    link = f"{source}"
+    if link.endswith("==") or link.endswith("="):
+        n = json.loads(decrypt(data["sources"], gh_key()))
+        return n[0]["file"]
+    return source[0]["file"]
+def decrypt(data, key):
+    k = get_key(base64.b64decode(data)[8:16], key)
+    dec_key = k[:32]
+    iv = k[32:]
+    p = AES.new(dec_key, AES.MODE_CBC, iv=iv).decrypt(base64.b64decode(data)[16:])
+    return unpad(p).decode()
+def md5(data):
+    return hashlib.md5(data).digest()
+def gh_key():
+    u = client.get(
+        "https://raw.githubusercontent.com/enimax-anime/key/e4/key.txt"
+    ).text
+    return bytes(u, "utf-8")
+def get_key(salt, key):
+    x = md5(key + salt)
+    currentkey = x
+    while len(currentkey) < 48:
+        x = md5(x + key + salt)
+        currentkey += x
+    return currentkey
+def unpad(s):
+    return s[: -ord(s[len(s) - 1 :])]
 
 # search anime
 @bot.command()
@@ -80,6 +287,18 @@ def doodstream(url):
     return streamlink
 
 # embed builders
+def buildSeasons(title, img, season_ids) -> discord.Embed():
+    embed = discord.Embed(title=title)
+    embed.set_image(url = img)
+    for i in range(len(season_ids)):
+        embed.add_field(name=f"Season {i+1}", value=f"{season_ids[i]}", inline=True)
+    return embed
+def buildEpisodes(title, img, episodes, season) -> discord.Embed():
+    embed = discord.Embed(title=f"{title} (Season {season})")
+    embed.set_image(url = img)
+    for i in range(len(episodes)):
+        embed.add_field(name=f"Episode {i+1}", value=f"{episodes[i]}", inline=True)
+    return embed
 def buildAnime(details: list) -> discord.Embed():
     embed = discord.Embed(title=details[title], description=details[desc], color=0x00ff00)
     embed.set_image(url = details[poster])
@@ -113,7 +332,6 @@ class ButtonSelect4(discord.ui.Button):
         self.result = result
     
     async def callback(self, interaction: discord.Interaction):
-        # await interaction.response.send_message(f"You clicked the button [{self.label}] {self.result[title]} ({self.result[mv_tv]})!") # Send a message when the button is clicked
         req = client.get(f"{gogoanime}{self.result[url]}")
         soup = BS(req, "lxml")
 
