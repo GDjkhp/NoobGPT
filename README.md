@@ -1,3 +1,5 @@
+![amogus](https://gdjkhp.github.io/NoobGPT/noob%20new.png "amogus")
+
 A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you.
 
 [Add to Server](https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=277028662336&scope=applications.commands%20bot)
