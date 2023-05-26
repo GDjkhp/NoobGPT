@@ -1,5 +1,3 @@
-import sys
-
 import httpx
 
 default_header: dict = {
@@ -26,7 +24,6 @@ class HttpClient:
                 f"Error: {e}",
                 "\n Please open an issue if this is not due due to your internet connection",
             )
-            sys.exit(-1)
         return req
 
     def post(self, page: str, data: dict = None, json=None) -> httpx.Response:
@@ -40,7 +37,6 @@ class HttpClient:
                     f"Error: {e}",
                     "\n Please open an issue if this is not due due to your internet connection",
                 )
-                sys.exit(-1)
             return req
         else:
             try:
@@ -51,7 +47,6 @@ class HttpClient:
                     f"Error: {e}",
                     "\n Please open an issue if this is not due due to your internet connection",
                 )
-                sys.exit(-1)
             return req
 
     def head(self, page: str, redirects: False) -> httpx.Response:
@@ -64,7 +59,6 @@ class HttpClient:
                 f"Error: {e}",
                 "\n Please open an issue if this is not due due to your internet connection",
             )
-            sys.exit(-1)
         return req
 
     def set_headers(self, header: dict) -> None:

@@ -339,14 +339,14 @@ def doodstream(url):
     req = client.get(url).text
     pass_md = re.findall(r"/pass_md5/[^']*", req)[0]
     token = pass_md.split("/")[-1]
-    client.set_headers(
+    client0.set_headers(
         {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0",
             "Referer": f"{url}",
             "Accept-Language": "en-GB,en;q=0.5",
         }
     )
-    drylink = client.get(f"{domain}{pass_md}").text
+    drylink = client0.get(f"{domain}{pass_md}").text
     streamlink = f"{drylink}zUEJeL3mUN?token={token}"
     print(streamlink)
     return streamlink
