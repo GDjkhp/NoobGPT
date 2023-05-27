@@ -13,7 +13,8 @@ color: white;
 <div id="particles-js"></div>
 <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 <script src="https://gdjkhp.github.io/meeseeks-leaderboard-api/particlesjs-config.js"></script>
-<div markdown="1">    
+
+<div style="z-index: 1;" markdown="1">    
 ![amogus](https://gdjkhp.github.io/NoobGPT/noob%20new.png "amogus")
 
 A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you.
