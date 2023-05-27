@@ -43,6 +43,14 @@ async def on_ready():
     print(":)")
     await bot.change_presence(status=discord.Status.dnd)
 
+class MyNewHelp(commands.MinimalHelpCommand):
+    async def send_pages(self):
+        destination = self.get_destination()
+        emby = discord.Embed(title="NoobGPT Official Website", description="https://gdjkhp.github.io/NoobGPT/")
+        await destination.send(embed=emby)
+
+bot.help_command = MyNewHelp()
+
 # embed builders
 def detail(result) -> list:
     req = client.get(f"https://www.actvid.com{result[1]}")
