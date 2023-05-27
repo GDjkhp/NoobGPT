@@ -1,14 +1,15 @@
-<head>
 <style>
 #particles-js {
 width: 100%;
 height: 100%;
 position: fixed;
 }
+body {
+background-color: black;
+color: white;
+}
 </style>
-</head>
 
-<body>
 <div id="particles-js"></div>
 <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 <script src="https://gdjkhp.github.io/meeseeks-leaderboard-api/particlesjs-config.js"></script>
@@ -78,4 +79,3 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 * <https://github.com/MrAugu/discord-xp>
 * <https://github.com/neplextech/canvacord>
 </div>
-</body>
