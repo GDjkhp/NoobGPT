@@ -74,7 +74,8 @@ def detailed(embed: discord.Embed, details: list):
 def buildMovie(url, result) -> discord.Embed():
     details = detail(result)
     embed = discord.Embed(title=result[title], description=details[0])
-    embed.set_image(url = result[poster])
+    valid_url = p.quote(result[poster], safe=":/")
+    embed.set_image(url = valid_url)
     detailed(embed, details)
     embed.add_field(name="Stream Link:", value=url)
     embed.set_footer(text="Note: Play the file using VLC/MPV media player :)")
@@ -82,13 +83,15 @@ def buildMovie(url, result) -> discord.Embed():
 def buildSeasons(season_ids, result) -> discord.Embed():
     details = detail(result)
     embed = discord.Embed(title=result[title], description=details[0])
-    embed.set_image(url = result[poster])
+    valid_url = p.quote(result[poster], safe=":/")
+    embed.set_image(url = valid_url)
     detailed(embed, details)
     embed.add_field(name="Seasons", value=len(season_ids))
     return embed
 def buildEpisodes(episodes, season, result) -> discord.Embed():
     embed = discord.Embed(title=f"{result[title]}", description=f"Season {season}")
-    embed.set_image(url = result[poster])
+    valid_url = p.quote(result[poster], safe=":/")
+    embed.set_image(url = valid_url)
     details = detail(result)
     detailed(embed, details)
     embed.add_field(name="Episodes", value=len(episodes))
@@ -96,7 +99,8 @@ def buildEpisodes(episodes, season, result) -> discord.Embed():
     return embed
 def buildAnime(details: list) -> discord.Embed():
     embed = discord.Embed(title=details[title], description=details[desc], color=0x00ff00)
-    embed.set_image(url = details[poster])
+    valid_url = p.quote(details[poster], safe=":/")
+    embed.set_image(url = valid_url)
     embed.add_field(name="Type", value=details[animetype])
     embed.add_field(name="Episodes", value=details[ep])
     embed.add_field(name="Released", value=details[released])
@@ -570,18 +574,21 @@ from pygelbooru import Gelbooru
 @bot.command()
 async def r34(ctx, *, arg):
     if not ctx.channel.nsfw: return await ctx.reply("**No.**")
-    results = await Gelbooru(api='https://api.rule34.xxx/').search_posts(tags=[arg])
+    tags = re.split(r'\s*,\s*', arg)
+    results = await Gelbooru(api='https://api.rule34.xxx/').search_posts(tags=tags)
     if len(results) == 0: return await ctx.reply("**No results found.**")
     await ctx.reply(embed = BuildEmbed(str(results[0])), view = ImageView(results, 0))
 @bot.command()
 async def gel(ctx, *, arg):
     if not ctx.channel.nsfw: return await ctx.reply("**No.**")
-    results = await Gelbooru().search_posts(tags=[arg])
+    tags = re.split(r'\s*,\s*', arg)
+    results = await Gelbooru().search_posts(tags=tags)
     if len(results) == 0: return await ctx.reply("**No results found.**")
     await ctx.reply(embed = BuildEmbed(str(results[0])), view = ImageView(results, 0))
 @bot.command()
 async def safe(ctx, *, arg):
-    results = await Gelbooru(api='https://safebooru.org/').search_posts(tags=[arg])
+    tags = re.split(r'\s*,\s*', arg)
+    results = await Gelbooru(api='https://safebooru.org/').search_posts(tags=tags)
     if len(results) == 0: return await ctx.reply("**No results found.**")
     await ctx.reply(embed = BuildEmbed(str(results[0])), view = ImageView(results, 0))
 
