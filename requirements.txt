@@ -6,3 +6,4 @@ py-cord
 flask
 bardapi
 pygelbooru
+yt-dlp

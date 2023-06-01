@@ -144,7 +144,7 @@ def results(html: str) -> list:
     return [list(sublist) for sublist in zip(title, urls, ids, mov_or_tv, img)]
 
 @bot.command()
-async def search(ctx, *, arg):
+async def search(ctx: commands.Context, *, arg):
     await ctx.reply(f"Searching \"{arg}\". Please wait...")
     result = results(searchQuery(arg))
     embed = buildSearch(arg, result, 0)
@@ -350,7 +350,7 @@ def unpad(s):
 
 # gogoanime
 @bot.command()
-async def anime(ctx, *, arg):
+async def anime(ctx: commands.Context, *, arg):
     await ctx.reply(f"Searching \"{arg}\". Please wait...")
     result = resultsAnime(searchAnime(arg))
     embed = buildSearch(arg, result, 0)
@@ -609,16 +609,28 @@ async def tic(ctx: commands.Context):
 
 # ytdlp
 import yt_dlp
+import glob
 @bot.command()
-async def ytdlp(ctx, arg1, arg2):
-    URLS = [arg2]
+async def ytdlp(ctx: commands.Context, arg1, arg2=None):
+    formats = ['mp3']
+    if arg2 and not arg1 in formats: return await ctx.reply(f"Unsupported format :(")
+    elif not arg2: arg2, arg1 = arg1, None
     ydl_opts = get_ydl_opts(arg1)
-    if arg1 != 'mp3' and arg1 != 'mp4': return
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.download(URLS)
-        info_dict = ydl.extract_info(URLS[0], download=False)
-        filename = f"{os.path.splitext(ydl.prepare_filename(info_dict))[0]}.{arg1}"
-        await ctx.reply(file=discord.File(filename))
+        info_dict = ydl.extract_info(arg2, download=False)
+        filename = ydl.prepare_filename(info_dict) if not arg1 else f"{os.path.splitext(ydl.prepare_filename(info_dict))[0]}.{arg1}"
+        await ctx.reply(f"Preparing `{filename}`\nLet me cook.")
+        error_code = ydl.download(arg2)
+        if error_code: 
+            print(f"yt-dlp issue: {error_code}")
+            await ctx.reply(f"Error {error_code}: An error occured while cooking `{filename}`")
+        else: 
+            try: await ctx.reply(file=discord.File(filename))
+            except discord.errors.HTTPException as error: 
+                print(error)
+                if error.code == 40005:
+                    await ctx.reply(f"Error {error.code}: An error occured while cooking `{filename}`\nFile too large!")
+                else: await ctx.reply(f"Error {error.code}: An error occured while cooking `{filename}`")
         os.remove(filename)
 
 def get_ydl_opts(arg):
@@ -642,11 +654,11 @@ def get_ydl_opts(arg):
 
 # bard
 @bot.command()
-async def bard(ctx, *, arg):
+async def bard(ctx: commands.Context, *, arg):
     os.environ['_BARD_API_KEY'] = os.getenv("BARD")
     response = Bard(timeout=60).get_answer(arg)
-    await ctx.reply(response['content'][:2000])
-    if response['links']: await ctx.reply(embed = discord.Embed().set_image(url = response['links'][0]))
+    if response['links']: await ctx.reply(content = response['content'][:2000], embed = discord.Embed().set_image(url = response['links'][0]))
+    else: await ctx.reply(response['content'][:2000])
 
 import os
 import string
@@ -866,21 +878,21 @@ class Bard:
 from pygelbooru import Gelbooru
 
 @bot.command()
-async def r34(ctx, *, arg):
+async def r34(ctx: commands.Context, *, arg):
     if not ctx.channel.nsfw: return await ctx.reply("**No.**")
     tags = re.split(r'\s*,\s*', arg)
     results = await Gelbooru(api='https://api.rule34.xxx/').search_posts(tags=tags)
     if len(results) == 0: return await ctx.reply("**No results found.**")
     await ctx.reply(embed = BuildEmbed(str(results[0])), view = ImageView(results, 0))
 @bot.command()
-async def gel(ctx, *, arg):
+async def gel(ctx: commands.Context, *, arg):
     if not ctx.channel.nsfw: return await ctx.reply("**No.**")
     tags = re.split(r'\s*,\s*', arg)
     results = await Gelbooru().search_posts(tags=tags)
     if len(results) == 0: return await ctx.reply("**No results found.**")
     await ctx.reply(embed = BuildEmbed(str(results[0])), view = ImageView(results, 0))
 @bot.command()
-async def safe(ctx, *, arg):
+async def safe(ctx: commands.Context, *, arg):
     tags = re.split(r'\s*,\s*', arg)
     results = await Gelbooru(api='https://safebooru.org/').search_posts(tags=tags)
     if len(results) == 0: return await ctx.reply("**No results found.**")
