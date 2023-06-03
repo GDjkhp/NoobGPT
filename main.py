@@ -657,8 +657,10 @@ def get_ydl_opts(arg):
 async def bard(ctx: commands.Context, *, arg):
     os.environ['_BARD_API_KEY'] = os.getenv("BARD")
     response = Bard(timeout=60).get_answer(arg)
-    if response['links']: await ctx.reply(content = response['content'][:2000], embed = discord.Embed().set_image(url = response['links'][0]))
-    else: await ctx.reply(response['content'][:2000])
+    await ctx.reply(response['content'][:2000])
+    if response['links']:
+        for img in range(5): # hard limit
+            await ctx.reply(response['links'][img])
 
 import os
 import string
