@@ -46,7 +46,7 @@ async def on_ready():
 class MyNewHelp(commands.MinimalHelpCommand):
     async def send_pages(self):
         destination = self.get_destination()
-        emby = discord.Embed(title="NoobGPT Official Website", description="https://gdjkhp.github.io/NoobGPT/")
+        emby = discord.Embed(title="NoobGPT Official Website", description="https://gdjkhp.github.io/NoobGPT/", color=0x00ff00)
         await destination.send(embed=emby)
 
 bot.help_command = MyNewHelp()
@@ -73,7 +73,7 @@ def detailed(embed: discord.Embed, details: list):
     embed.add_field(name="Production", value=details[6])
 def buildMovie(url, result) -> discord.Embed():
     details = detail(result)
-    embed = discord.Embed(title=result[title], description=details[0])
+    embed = discord.Embed(title=result[title], description=details[0], color=0x00ff00)
     valid_url = p.quote(result[poster], safe=":/")
     embed.set_image(url = valid_url)
     detailed(embed, details)
@@ -82,14 +82,14 @@ def buildMovie(url, result) -> discord.Embed():
     return embed
 def buildSeasons(season_ids, result) -> discord.Embed():
     details = detail(result)
-    embed = discord.Embed(title=result[title], description=details[0])
+    embed = discord.Embed(title=result[title], description=details[0], color=0x00ff00)
     valid_url = p.quote(result[poster], safe=":/")
     embed.set_image(url = valid_url)
     detailed(embed, details)
     embed.add_field(name="Seasons", value=len(season_ids))
     return embed
 def buildEpisodes(episodes, season, result) -> discord.Embed():
-    embed = discord.Embed(title=f"{result[title]}", description=f"Season {season}")
+    embed = discord.Embed(title=f"{result[title]}", description=f"Season {season}", color=0x00ff00)
     valid_url = p.quote(result[poster], safe=":/")
     embed.set_image(url = valid_url)
     details = detail(result)
@@ -885,49 +885,45 @@ async def r34(ctx: commands.Context, *, arg):
     tags = re.split(r'\s*,\s*', arg)
     results = await Gelbooru(api='https://api.rule34.xxx/').search_posts(tags=tags)
     if len(results) == 0: return await ctx.reply("**No results found.**")
-    await ctx.reply(embed = BuildEmbed(str(results[0])), view = ImageView(results, 0))
+    await ctx.reply(embed = await BuildEmbed(tags, results, 0, False), view = ImageView(tags, results, 0, False))
 @bot.command()
 async def gel(ctx: commands.Context, *, arg):
     if not ctx.channel.nsfw: return await ctx.reply("**No.**")
     tags = re.split(r'\s*,\s*', arg)
     results = await Gelbooru().search_posts(tags=tags)
     if len(results) == 0: return await ctx.reply("**No results found.**")
-    await ctx.reply(embed = BuildEmbed(str(results[0])), view = ImageView(results, 0))
+    await ctx.reply(embed = await BuildEmbed(tags, results, 0, False), view = ImageView(tags, results, 0, False))
 @bot.command()
 async def safe(ctx: commands.Context, *, arg):
     tags = re.split(r'\s*,\s*', arg)
     results = await Gelbooru(api='https://safebooru.org/').search_posts(tags=tags)
     if len(results) == 0: return await ctx.reply("**No results found.**")
-    await ctx.reply(embed = BuildEmbed(str(results[0])), view = ImageView(results, 0))
+    await ctx.reply(embed = await BuildEmbed(tags, results, 0, True), view = ImageView(tags, results, 0, True))
 
-def BuildEmbed(url: str) -> discord.Embed():
-    embed = discord.Embed()
-    if url.endswith(".mp4"): embed.add_field(name="Video link:", value=url)
-    else: embed.set_image(url = url)
+async def BuildEmbed(tags: list, results, index: int, safe: bool) -> discord.Embed():
+    embed = discord.Embed(title=f"Search results: `{tags}`", description=f"{index+1}/{len(results)} found.", color=0x00ff00)
+    # if safe and not await Gelbooru(api='https://safebooru.org/').is_deleted(results[index].hash): 
+    #     embed.add_field(name="This post was deleted.", value=results[index].hash)
+    #     return embed
+    embed.add_field(name="Tags", value=f"`{results[index].tags}`", inline=False)
+    embed.add_field(name="Source", value=results[index].source, inline=False)
+    if results[index].file_url.endswith(".mp4"): embed.add_field(name="Video link:", value=results[index].file_url)
+    else: embed.set_image(url = results[index].file_url)
     return embed
 
 class ImageView(discord.ui.View):
-    def __init__(self, results, index):
+    def __init__(self, tags, results, index, safe):
         super().__init__(timeout=None)
-        if not index == 0: self.add_item(ButtonPrev(results, index))
-        if index + 1 < len(results): self.add_item(ButtonNext(results, index))
+        if not index == 0: self.add_item(ButtonAction(tags, safe, results, index - 1, "<"))
+        if index + 1 < len(results): self.add_item(ButtonAction(tags, safe, results, index + 1, ">"))
 
-class ButtonNext(discord.ui.Button):
-    def __init__(self, results, index):
-        super().__init__(label="Next >", style=discord.ButtonStyle.success)
-        self.results, self.index = results, index
+class ButtonAction(discord.ui.Button):
+    def __init__(self, tags, safe, results, index, l):
+        super().__init__(label=l, style=discord.ButtonStyle.success)
+        self.results, self.index, self.tags, self.safe = results, index, tags, safe
     
     async def callback(self, interaction: discord.Interaction):
-        self.index+=1
-        await interaction.response.edit_message(embed = BuildEmbed(str(self.results[self.index])), view = ImageView(self.results, self.index))
-
-class ButtonPrev(discord.ui.Button):
-    def __init__(self, results, index):
-        super().__init__(label="< Prev", style=discord.ButtonStyle.success)
-        self.results, self.index = results, index
-
-    async def callback(self, interaction: discord.Interaction):
-        self.index-=1
-        await interaction.response.edit_message(embed = BuildEmbed(str(self.results[self.index])), view = ImageView(self.results, self.index))
+        await interaction.response.edit_message(embed = BuildEmbed(self.tags, self.results, self.index, self.safe), \
+                                                view = ImageView(self.tags, self.results, self.index, self.safe))
 
 bot.run(os.getenv("TOKEN"))
