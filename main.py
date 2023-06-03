@@ -923,7 +923,7 @@ class ButtonAction(discord.ui.Button):
         self.results, self.index, self.tags, self.safe = results, index, tags, safe
     
     async def callback(self, interaction: discord.Interaction):
-        await interaction.response.edit_message(embed = BuildEmbed(self.tags, self.results, self.index, self.safe), \
+        await interaction.response.edit_message(embed = await BuildEmbed(self.tags, self.results, self.index, self.safe), \
                                                 view = ImageView(self.tags, self.results, self.index, self.safe))
 
 bot.run(os.getenv("TOKEN"))
