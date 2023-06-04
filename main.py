@@ -883,20 +883,43 @@ from pygelbooru import Gelbooru
 async def r34(ctx: commands.Context, *, arg):
     if not ctx.channel.nsfw: return await ctx.reply("**No.**")
     tags = re.split(r'\s*,\s*', arg)
-    results = await Gelbooru(api='https://api.rule34.xxx/').search_posts(tags=tags)
+    await ctx.reply(f"Searching posts with tags `{tags}`. Please wait!")
+    results = []
+    page = 0
+    while True:
+        cached = await Gelbooru(api='https://api.rule34.xxx/').search_posts(tags=tags, page=page)
+        if not cached: break
+        results.extend(cached)
+        page+=1
     if len(results) == 0: return await ctx.reply("**No results found.**")
     await ctx.reply(embed = await BuildEmbed(tags, results, 0, False), view = ImageView(tags, results, 0, False))
 @bot.command()
 async def gel(ctx: commands.Context, *, arg):
     if not ctx.channel.nsfw: return await ctx.reply("**No.**")
     tags = re.split(r'\s*,\s*', arg)
-    results = await Gelbooru().search_posts(tags=tags)
+    await ctx.reply(f"Searching posts with tags `{tags}`. Please wait!")
+    results = []
+    page = 0
+    while True:
+        cached = await Gelbooru().search_posts(tags=tags, page=page)
+        if not cached: break
+        results.extend(cached)
+        page+=1
+    
     if len(results) == 0: return await ctx.reply("**No results found.**")
     await ctx.reply(embed = await BuildEmbed(tags, results, 0, False), view = ImageView(tags, results, 0, False))
 @bot.command()
 async def safe(ctx: commands.Context, *, arg):
     tags = re.split(r'\s*,\s*', arg)
-    results = await Gelbooru(api='https://safebooru.org/').search_posts(tags=tags)
+    await ctx.reply(f"Searching posts with tags `{tags}`. Please wait!")
+    results = []
+    page = 0
+    while True:
+        cached = await Gelbooru(api='https://safebooru.org/').search_posts(tags=tags, page=page)
+        if not cached: break
+        results.extend(cached)
+        page+=1
+    
     if len(results) == 0: return await ctx.reply("**No results found.**")
     await ctx.reply(embed = await BuildEmbed(tags, results, 0, True), view = ImageView(tags, results, 0, True))
 
@@ -905,7 +928,7 @@ async def BuildEmbed(tags: list, results, index: int, safe: bool) -> discord.Emb
     # if safe and not await Gelbooru(api='https://safebooru.org/').is_deleted(results[index].hash): 
     #     embed.add_field(name="This post was deleted.", value=results[index].hash)
     #     return embed
-    embed.add_field(name="Tags", value=f"`{results[index].tags}`", inline=False)
+    embed.add_field(name="Tags", value=f"`{results[index].tags}`"[:1024], inline=False)
     embed.add_field(name="Source", value=results[index].source, inline=False)
     if results[index].file_url.endswith(".mp4"): embed.add_field(name="Video link:", value=results[index].file_url)
     else: embed.set_image(url = results[index].file_url)
@@ -914,8 +937,12 @@ async def BuildEmbed(tags: list, results, index: int, safe: bool) -> discord.Emb
 class ImageView(discord.ui.View):
     def __init__(self, tags, results, index, safe):
         super().__init__(timeout=None)
-        if not index == 0: self.add_item(ButtonAction(tags, safe, results, index - 1, "<"))
-        if index + 1 < len(results): self.add_item(ButtonAction(tags, safe, results, index + 1, ">"))
+        if not index == 0: 
+            self.add_item(ButtonAction(tags, safe, results, 0, "<<"))
+            self.add_item(ButtonAction(tags, safe, results, index - 1, "<"))
+        if index + 1 < len(results): 
+            self.add_item(ButtonAction(tags, safe, results, index + 1, ">"))
+            self.add_item(ButtonAction(tags, safe, results, len(results)-1, ">>"))
 
 class ButtonAction(discord.ui.Button):
     def __init__(self, tags, safe, results, index, l):
