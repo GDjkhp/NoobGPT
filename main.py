@@ -145,7 +145,7 @@ def results(html: str) -> list:
 
 @bot.command()
 async def search(ctx: commands.Context, *, arg):
-    await ctx.reply(f"Searching \"{arg}\". Please wait...")
+    await ctx.reply(f"Searching \"{arg}\". Please wait…")
     result = results(searchQuery(arg))
     embed = buildSearch(arg, result, 0)
     await ctx.reply(embed = embed, view = MyView(result, arg, 0))
@@ -351,7 +351,7 @@ def unpad(s):
 # gogoanime
 @bot.command()
 async def anime(ctx: commands.Context, *, arg):
-    await ctx.reply(f"Searching \"{arg}\". Please wait...")
+    await ctx.reply(f"Searching \"{arg}\". Please wait…")
     result = resultsAnime(searchAnime(arg))
     embed = buildSearch(arg, result, 0)
     await ctx.reply(embed = embed, view = MyView4(arg, result, 0))
@@ -609,10 +609,9 @@ async def tic(ctx: commands.Context):
 
 # ytdlp
 import yt_dlp
-import glob
 @bot.command()
 async def ytdlp(ctx: commands.Context, arg1, arg2=None):
-    formats = ['mp3']
+    formats = ['mp3', "m4a"]
     if arg2 and not arg1 in formats: return await ctx.reply(f"Unsupported format :(")
     elif not arg2: arg2, arg1 = arg1, None
     ydl_opts = get_ydl_opts(arg1)
@@ -634,18 +633,21 @@ async def ytdlp(ctx: commands.Context, arg1, arg2=None):
         os.remove(filename)
 
 def get_ydl_opts(arg):
-    if arg == 'mp3':
+    audio_formats = ["mp3", "m4a"]
+    video_formats = ["mp4", "webm"]
+    if arg in audio_formats:
         return {
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
+                'preferredcodec': arg,
             }]
         }
-    elif arg == 'mp4':
+    
+    elif arg in video_formats:
         return {
             'postprocessors': [{
                 'key': 'FFmpegVideoConvertor',
-                'preferedformat': 'mp4',
+                'preferedformat': arg,
             }]
         }
     else:
