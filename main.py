@@ -885,13 +885,14 @@ from pygelbooru import Gelbooru
 async def r34(ctx: commands.Context, *, arg):
     if not ctx.channel.nsfw: return await ctx.reply("**No.**")
     tags = re.split(r'\s*,\s*', arg)
-    await ctx.reply(f"Searching posts with tags `{tags}`. Please wait!")
+    message = await ctx.reply(f"Searching posts with tags `{tags}`. Please wait!")
     results = []
     page = 0
     while True:
         cached = await Gelbooru(api='https://api.rule34.xxx/').search_posts(tags=tags, page=page)
         if not cached: break
         results.extend(cached)
+        await message.edit(content=f"Searching posts with tags `{tags}`. Please wait!\n{len(results)} found.")
         page+=1
     if len(results) == 0: return await ctx.reply("**No results found.**")
     await ctx.reply(embed = await BuildEmbed(tags, results, 0, False), view = ImageView(tags, results, 0, False))
@@ -899,29 +900,29 @@ async def r34(ctx: commands.Context, *, arg):
 async def gel(ctx: commands.Context, *, arg):
     if not ctx.channel.nsfw: return await ctx.reply("**No.**")
     tags = re.split(r'\s*,\s*', arg)
-    await ctx.reply(f"Searching posts with tags `{tags}`. Please wait!")
+    message = await ctx.reply(f"Searching posts with tags `{tags}`. Please wait!")
     results = []
     page = 0
     while True:
         cached = await Gelbooru().search_posts(tags=tags, page=page)
         if not cached: break
         results.extend(cached)
+        await message.edit(content=f"Searching posts with tags `{tags}`. Please wait!\n{len(results)} found.")
         page+=1
-    
     if len(results) == 0: return await ctx.reply("**No results found.**")
     await ctx.reply(embed = await BuildEmbed(tags, results, 0, False), view = ImageView(tags, results, 0, False))
 @bot.command()
 async def safe(ctx: commands.Context, *, arg):
     tags = re.split(r'\s*,\s*', arg)
-    await ctx.reply(f"Searching posts with tags `{tags}`. Please wait!")
+    message = await ctx.reply(f"Searching posts with tags `{tags}`. Please wait!")
     results = []
     page = 0
     while True:
         cached = await Gelbooru(api='https://safebooru.org/').search_posts(tags=tags, page=page)
         if not cached: break
         results.extend(cached)
+        await message.edit(content=f"Searching posts with tags `{tags}`. Please wait!\n{len(results)} found.")
         page+=1
-    
     if len(results) == 0: return await ctx.reply("**No results found.**")
     await ctx.reply(embed = await BuildEmbed(tags, results, 0, True), view = ImageView(tags, results, 0, True))
 
