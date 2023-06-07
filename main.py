@@ -108,7 +108,7 @@ def buildAnime(details: list) -> discord.Embed():
     embed.set_footer(text="Note: Use Adblockers :)")
     return embed
 def buildSearch(arg: str, result: list, index: int) -> discord.Embed():
-    embed = discord.Embed(title=f"Search results: {arg}", description=f"{len(result)} found.", color=0x00ff00)
+    embed = discord.Embed(title=f"Search results: `{arg}`", description=f"{len(result)} found", color=0x00ff00)
     embed.set_thumbnail(url = bot.user.avatar)
     i = index
     while i < len(result):
@@ -145,7 +145,7 @@ def results(html: str) -> list:
 
 @bot.command()
 async def search(ctx: commands.Context, *, arg):
-    await ctx.reply(f"Searching \"{arg}\". Please wait…")
+    await ctx.reply(f"Searching `{arg}` Please wait…")
     result = results(searchQuery(arg))
     embed = buildSearch(arg, result, 0)
     await ctx.reply(embed = embed, view = MyView(result, arg, 0))
@@ -351,7 +351,7 @@ def unpad(s):
 # gogoanime
 @bot.command()
 async def anime(ctx: commands.Context, *, arg):
-    await ctx.reply(f"Searching \"{arg}\". Please wait…")
+    await ctx.reply(f"Searching `{arg}`. Please wait…")
     result = resultsAnime(searchAnime(arg))
     embed = buildSearch(arg, result, 0)
     await ctx.reply(embed = embed, view = MyView4(arg, result, 0))
@@ -619,24 +619,26 @@ async def ytdlp(ctx: commands.Context, arg1, arg2=None):
         info_dict = ydl.extract_info(arg2, download=False)
         filename = ydl.prepare_filename(info_dict) if not arg1 else f"{os.path.splitext(ydl.prepare_filename(info_dict))[0]}.{arg1}"
         await ctx.reply(f"Preparing `{filename}`\nLet me cook.")
-        error_code = ydl.download(arg2)
-        if error_code: 
-            print(f"yt-dlp issue: {error_code}")
-            await ctx.reply(f"Error {error_code}: An error occured while cooking `{filename}`")
-        else: 
+        ydl.download(arg2) # this is faulty
+        if os.path.isfile(filename):
             try: await ctx.reply(file=discord.File(filename))
-            except discord.errors.HTTPException as error: 
-                print(error)
-                if error.code == 40005:
-                    await ctx.reply(f"Error {error.code}: An error occured while cooking `{filename}`\nFile too large!")
-                else: await ctx.reply(f"Error {error.code}: An error occured while cooking `{filename}`")
-        os.remove(filename)
+            except: ctx.reply(f"Error: An error occured while cooking `{filename}`\nFile too large!")
+            os.remove(filename)
+        else: 
+            await ctx.reply(f"Error: An error occured while cooking `{filename}`\nFile too large!")
+
+def checkSize(info, *, incomplete):
+    filesize = info.get('filesize')
+    if filesize and filesize > 100000000: # 100mb
+        return f'File too large! {filesize} bytes'
 
 def get_ydl_opts(arg):
     audio_formats = ["mp3", "m4a"]
     video_formats = ["mp4", "webm"]
     if arg in audio_formats:
         return {
+            'format': 'm4a/bestaudio/best',
+            'match_filter': checkSize,
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': arg,
@@ -645,14 +647,14 @@ def get_ydl_opts(arg):
     
     elif arg in video_formats:
         return {
+            'match_filter': checkSize,
             'postprocessors': [{
                 'key': 'FFmpegVideoConvertor',
                 'preferedformat': arg,
             }]
         }
     else:
-        return None
-
+        return None # TODO: checkSize for streams
 
 # bard
 @bot.command()
@@ -885,49 +887,49 @@ from pygelbooru import Gelbooru
 async def r34(ctx: commands.Context, *, arg):
     if not ctx.channel.nsfw: return await ctx.reply("**No.**")
     tags = re.split(r'\s*,\s*', arg)
-    message = await ctx.reply(f"Searching posts with tags `{tags}`. Please wait!")
+    message = await ctx.reply(f"Searching posts with tags `{tags}` Please wait…")
     results = []
     page = 0
-    while True:
+    while len(results) < 10000: # hard limit
         cached = await Gelbooru(api='https://api.rule34.xxx/').search_posts(tags=tags, page=page)
         if not cached: break
         results.extend(cached)
-        await message.edit(content=f"Searching posts with tags `{tags}`. Please wait!\n{len(results)} found.")
+        await message.edit(content=f"Searching posts with tags `{tags}` Please wait…\n{len(results)} found")
         page+=1
-    if len(results) == 0: return await ctx.reply("**No results found.**")
+    if len(results) == 0: return await ctx.reply("**No results found**")
     await ctx.reply(embed = await BuildEmbed(tags, results, 0, False), view = ImageView(tags, results, 0, False))
 @bot.command()
 async def gel(ctx: commands.Context, *, arg):
     if not ctx.channel.nsfw: return await ctx.reply("**No.**")
     tags = re.split(r'\s*,\s*', arg)
-    message = await ctx.reply(f"Searching posts with tags `{tags}`. Please wait!")
+    message = await ctx.reply(f"Searching posts with tags `{tags}` Please wait…")
     results = []
     page = 0
-    while True:
+    while len(results) < 10000: # hard limit
         cached = await Gelbooru().search_posts(tags=tags, page=page)
         if not cached: break
         results.extend(cached)
-        await message.edit(content=f"Searching posts with tags `{tags}`. Please wait!\n{len(results)} found.")
+        await message.edit(content=f"Searching posts with tags `{tags}` Please wait…\n{len(results)} found")
         page+=1
-    if len(results) == 0: return await ctx.reply("**No results found.**")
+    if len(results) == 0: return await ctx.reply("**No results found**")
     await ctx.reply(embed = await BuildEmbed(tags, results, 0, False), view = ImageView(tags, results, 0, False))
 @bot.command()
 async def safe(ctx: commands.Context, *, arg):
     tags = re.split(r'\s*,\s*', arg)
-    message = await ctx.reply(f"Searching posts with tags `{tags}`. Please wait!")
+    message = await ctx.reply(f"Searching posts with tags `{tags}` Please wait…")
     results = []
     page = 0
-    while True:
+    while len(results) < 10000: # hard limit
         cached = await Gelbooru(api='https://safebooru.org/').search_posts(tags=tags, page=page)
         if not cached: break
         results.extend(cached)
-        await message.edit(content=f"Searching posts with tags `{tags}`. Please wait!\n{len(results)} found.")
+        await message.edit(content=f"Searching posts with tags `{tags}` Please wait…\n{len(results)} found")
         page+=1
-    if len(results) == 0: return await ctx.reply("**No results found.**")
+    if len(results) == 0: return await ctx.reply("**No results found**")
     await ctx.reply(embed = await BuildEmbed(tags, results, 0, True), view = ImageView(tags, results, 0, True))
 
 async def BuildEmbed(tags: list, results, index: int, safe: bool) -> discord.Embed():
-    embed = discord.Embed(title=f"Search results: `{tags}`", description=f"{index+1}/{len(results)} found.", color=0x00ff00)
+    embed = discord.Embed(title=f"Search results: `{tags}`", description=f"{index+1}/{len(results)} found", color=0x00ff00)
     # if safe and not await Gelbooru(api='https://safebooru.org/').is_deleted(results[index].hash): 
     #     embed.add_field(name="This post was deleted.", value=results[index].hash)
     #     return embed
