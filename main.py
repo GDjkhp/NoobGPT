@@ -611,7 +611,7 @@ async def tic(ctx: commands.Context):
 import yt_dlp
 @bot.command()
 async def ytdlp(ctx: commands.Context, arg1, arg2=None):
-    formats = ['mp3', "m4a"]
+    formats = ['mp3', 'm4a']
     if arg2 and not arg1 in formats: return await ctx.reply(f"Unsupported format :(")
     elif not arg2: arg2, arg1 = arg1, None
     ydl_opts = get_ydl_opts(arg1)
@@ -622,14 +622,17 @@ async def ytdlp(ctx: commands.Context, arg1, arg2=None):
         ydl.download(arg2) # this is faulty
         if os.path.isfile(filename):
             try: await ctx.reply(file=discord.File(filename))
-            except: ctx.reply(f"Error: An error occured while cooking `{filename}`\nFile too large!")
+            except: await ctx.reply(f"Error: An error occured while cooking `{filename}`\nFile too large!")
             os.remove(filename)
         else: 
             await ctx.reply(f"Error: An error occured while cooking `{filename}`\nFile too large!")
 
 def checkSize(info, *, incomplete):
     filesize = info.get('filesize')
-    if filesize and filesize > 100000000: # 100mb
+    if filesize and filesize > 25000000: # 25mb
+        return f'File too large! {filesize} bytes'
+    filesize = info.get('filesize_approx')
+    if filesize and filesize > 25000000: # 25mb
         return f'File too large! {filesize} bytes'
 
 def get_ydl_opts(arg):
@@ -645,16 +648,17 @@ def get_ydl_opts(arg):
             }]
         }
     
-    elif arg in video_formats:
+    elif arg in video_formats: # disabled
         return {
-            'match_filter': checkSize,
             'postprocessors': [{
                 'key': 'FFmpegVideoConvertor',
                 'preferedformat': arg,
             }]
         }
-    else:
-        return None # TODO: checkSize for streams
+    else: 
+        return {
+            'match_filter': checkSize,
+        }
 
 # bard
 @bot.command()
