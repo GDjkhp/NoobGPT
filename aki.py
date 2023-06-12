@@ -52,7 +52,7 @@ class ButtonAction(discord.ui.Button):
             return await interaction.response.send_message(content=f"@{self.ctx.author} is playing this game! Use `-aki` to create your game.", 
                                                            ephemeral=True)
         if self.action == 's':
-            return await interaction.response.edit_message(content=f"Skill issue @{interaction.user}!", view=None, embed=None)
+            return await interaction.response.edit_message(content=f"Skill issue <@{interaction.user.id}>!", view=None, embed=None)
         if self.aki.progression <= 85 and self.aki.step < 79:
             if self.action == 'b':
                 try:
