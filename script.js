@@ -4,12 +4,12 @@ document.head.appendChild(style);
 
 var particlesDiv = document.createElement("div");
 particlesDiv.setAttribute("id", "particles-js");
-document.body.appendChild(particlesDiv);
+document.body.insertBefore(particlesDiv, document.body.firstChild);
 
 var particlesScript = document.createElement("script");
 particlesScript.setAttribute("src", "https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js");
-document.body.appendChild(particlesScript);
+document.body.insertBefore(particlesScript, document.body.firstChild);
 
 var configScript = document.createElement("script");
 configScript.setAttribute("src", "https://gdjkhp.github.io/meeseeks-leaderboard-api/particlesjs-config.js");
-document.body.appendChild(configScript);
+document.body.insertBefore(configScript, document.body.firstChild);
