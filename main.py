@@ -71,4 +71,11 @@ async def gel(ctx: commands.Context, *, arg):
 async def safe(ctx: commands.Context, *, arg):
     await SAFE(ctx, arg)
 
+# aki
+from aki import Aki
+@bot.command(name='aki')
+# @commands.max_concurrency(1, per=BucketType.default, wait=False)
+async def aki(ctx: commands.Context, *, extra=None):
+    await Aki(ctx, extra)
+
 bot.run(os.getenv("TOKEN"))
