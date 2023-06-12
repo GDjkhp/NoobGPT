@@ -7,6 +7,9 @@ style.innerHTML = `
 } 
 .markdown-body {
     position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 1;
 }
 body { 
     background-color: black; 
