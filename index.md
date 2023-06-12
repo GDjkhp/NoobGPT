@@ -1,18 +1,4 @@
-<style>
-#particles-js {
-width: 100%;
-height: 100%;
-position: fixed;
-}
-body {
-background-color: black;
-color: white;
-}
-</style>
-
-<div id="particles-js"></div>
-<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-<script src="https://gdjkhp.github.io/meeseeks-leaderboard-api/particlesjs-config.js"></script>
+<script src="script.js"></script>
 
 <div style="position: relative;" markdown="1">    
 ![amogus](https://gdjkhp.github.io/NoobGPT/noob%20new.png "amogus")
@@ -45,7 +31,9 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 * `-bard [prompt]` Google Bard chat completion.
 * `-anime [query]` Search and stream anime using Gogoanime.
 * `-search [query]` Search and stream TV shows and movies using Actvid.
-* `-tic` Play tic-tac-toe with someone.
+* `-tic` Play tic-tac-toe with someone. (Deprecated)
+* `-ytdlp (optional: [format = mp3/m4a]) [link]` Downloads and coverts a YouTube video below 25MB. [(Supported sites)](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md)
+* `-aki (optional: [category = people/animals/objects])` Play Akinator.
 
 ## Node.js Computer #3
 ### Prefix: !!
@@ -79,4 +67,6 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 * <https://github.com/rainyDayDevs/pygelbooru>
 * <https://github.com/MrAugu/discord-xp>
 * <https://github.com/neplextech/canvacord>
+* <https://github.com/yt-dlp/yt-dlp>
+* <https://github.com/Infiniticity/akinator.py>
 </div>
