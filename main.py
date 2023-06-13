@@ -55,9 +55,10 @@ os.environ['_BARD_API_KEY'] = os.getenv("BARD")
 async def bard(ctx: commands.Context, *, arg):
     response = Bard(timeout=60).get_answer(arg)
     await ctx.reply(response['content'][:2000])
-    if response['links']:
-        for img in range(5): # hard limit
-            await ctx.reply(response['links'][img])
+    if response['images']:
+        img = list(response['images'])
+        for i in range(len(img)):
+            await ctx.reply(img[i])
 
 # :|
 from gelbooru import R34, GEL, SAFE
