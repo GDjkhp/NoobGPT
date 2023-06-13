@@ -24,7 +24,7 @@ def w(ctx: commands.Context, aki: Akinator) -> discord.Embed():
     embed_win.set_image(url=aki.first_guess['absolute_picture_path'])
     embed_win.add_field(name="Ranking", value="#"+aki.first_guess['ranking'], inline=True)
     embed_win.add_field(name="Questions", value=aki.step+1, inline=True)
-    embed_win.add_field(name="Progress", value=aki.progression+"%", inline=True)
+    embed_win.add_field(name="Progress", value=f"{aki.progression}%", inline=True)
     return embed_win
 def qEmbed(aki: Akinator, ctx: commands.Context, q: str) -> discord.Embed():
     e = discord.Embed(title=f"{aki.step+1}. {q}", description=f"{aki.progression}%", color=0x00FF00)
@@ -88,7 +88,7 @@ class ButtonAction0(discord.ui.Button):
             embed_win.set_image(url=self.aki.first_guess['absolute_picture_path'])
             embed_win.add_field(name="Ranking", value="#"+self.aki.first_guess['ranking'], inline=True)
             embed_win.add_field(name="Questions", value=self.aki.step+1, inline=True)
-            embed_win.add_field(name="Progress", value=self.aki.progression+"%", inline=True)
+            embed_win.add_field(name="Progress", value=f"{self.aki.progression}%", inline=True)
             embed_win.set_author(name=self.ctx.author, icon_url=self.ctx.message.author.avatar.url)
             await interaction.response.edit_message(embed=embed_win, view=None)
         else: 
