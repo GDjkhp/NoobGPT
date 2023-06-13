@@ -59,7 +59,7 @@ class ButtonAction(discord.ui.Button):
                 try: q = await self.aki.back()
                 except akinator.exceptions.CantGoBackAnyFurther:
                     return await interaction.response.send_message(content=f"akinator.exceptions.CantGoBackAnyFurther", 
-                                                                ephemeral=True)
+                                                                   ephemeral=True)
             else: q = await self.aki.answer(self.action)
             if self.aki.progression <= 90 and self.aki.step < 79:
                 await interaction.response.edit_message(embed=qEmbed(self.aki, self.ctx, q), view=QView(self.aki, self.ctx))
