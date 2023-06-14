@@ -103,6 +103,7 @@ class ButtonAction0(discord.ui.Button):
 # @commands.max_concurrency(1, per=BucketType.default, wait=False)
 import aiohttp
 async def Aki(ctx: commands.Context, extra: str=None):
+    msg = await ctx.reply('Starting game…')
     session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False))
     aki = Akinator()
     categories = ['people', 'objects', 'animals']
@@ -112,8 +113,8 @@ async def Aki(ctx: commands.Context, extra: str=None):
         else: q = await aki.start_game(language=f'en_{extra}',
                                     child_mode=True, client_session=session)
     elif not extra: q = await aki.start_game(child_mode=True, client_session=session)
-    else: return await ctx.reply(f'Category `{extra}` not found.')
-    await ctx.reply(embed=qEmbed(aki, ctx, q), view=QView(aki, ctx))
+    else: return await msg.edit(content=f'Category `{extra}` not found.\nAvailable categories: `{categories}`')
+    await msg.edit(content=None, embed=qEmbed(aki, ctx, q), view=QView(aki, ctx))
 
 # @bot.event
 # async def on_command_error(ctx, error):
