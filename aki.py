@@ -117,7 +117,6 @@ async def Aki(ctx: commands.Context, extra: str=None):
 
 # @bot.event
 # async def on_command_error(ctx, error):
-#         await ctx.reply(embed=embed_var_two)
 #     if isinstance(error, commands.MaxConcurrencyReached):
 #         title_error_four = 'Someone is already playing'
 #         desc_error_four = 'Please wait until the person currently playing is done with their turn'

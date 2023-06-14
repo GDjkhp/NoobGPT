@@ -16,7 +16,7 @@ async def R34(ctx: commands.Context, arg: str):
         await message.edit(content=f"Searching posts with tags `{tags}` Please wait…\n{len(results)} found")
         page+=1
     if len(results) == 0: return await ctx.reply("**No results found**")
-    await message.edit(embed = await BuildEmbed(tags, results, 0, False), view = ImageView(tags, results, 0, False))
+    await message.edit(content=None, embed = await BuildEmbed(tags, results, 0, False), view = ImageView(tags, results, 0, False))
 
 async def GEL(ctx: commands.Context, arg: str):
     if not ctx.channel.nsfw: return await ctx.reply("**No.**")
@@ -31,7 +31,7 @@ async def GEL(ctx: commands.Context, arg: str):
         await message.edit(content=f"Searching posts with tags `{tags}` Please wait…\n{len(results)} found")
         page+=1
     if len(results) == 0: return await ctx.reply("**No results found**")
-    await message.edit(embed = await BuildEmbed(tags, results, 0, False), view = ImageView(tags, results, 0, False))
+    await message.edit(content=None, embed = await BuildEmbed(tags, results, 0, False), view = ImageView(tags, results, 0, False))
 
 async def SAFE(ctx: commands.Context, arg: str):
     tags = re.split(r'\s*,\s*', arg)
@@ -45,7 +45,7 @@ async def SAFE(ctx: commands.Context, arg: str):
         await message.edit(content=f"Searching posts with tags `{tags}` Please wait…\n{len(results)} found")
         page+=1
     if len(results) == 0: return await ctx.reply("**No results found**")
-    await message.edit(embed = await BuildEmbed(tags, results, 0, True), view = ImageView(tags, results, 0, True))
+    await message.edit(content=None, embed = await BuildEmbed(tags, results, 0, True), view = ImageView(tags, results, 0, True))
 
 async def BuildEmbed(tags: list, results, index: int, safe: bool) -> discord.Embed():
     embed = discord.Embed(title=f"Search results: `{tags}`", description=f"{index+1}/{len(results)} found", color=0x00ff00)
