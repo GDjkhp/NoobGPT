@@ -48,28 +48,26 @@ class ButtonAction(discord.ui.Button):
         self.aki, self.action, self.ctx = aki, action, ctx
     
     async def callback(self, interaction: discord.Interaction):
-        if interaction.user != self.ctx.author:
-            return await interaction.response.send_message(content=f"<@{self.ctx.message.author.id}> is playing this game! Use `-aki` to create your own game.", 
-                                                           ephemeral=True)
         await interaction.response.defer()
+        if interaction.user != self.ctx.author:
+            return await interaction.followup.send(content=f"<@{self.ctx.message.author.id}> is playing this game! Use `-aki` to create your own game.", 
+                                                   ephemeral=True)
         try:
             if self.action == 's':
-                return await interaction.response.edit_message(content=f"Skill issue <@{interaction.user.id}>!", view=None, embed=None)
+                return await interaction.message.edit(content=f"Skill issue <@{interaction.user.id}>!", view=None, embed=None)
             if self.action == 'b':
                 try: q = await self.aki.back()
                 except akinator.exceptions.CantGoBackAnyFurther:
-                    return await interaction.response.send_message(content=f"akinator.exceptions.CantGoBackAnyFurther", 
-                                                                   ephemeral=True)
+                    return await interaction.followup.send(content=f"akinator.exceptions.CantGoBackAnyFurther", ephemeral=True)
             else: q = await self.aki.answer(self.action)
             if self.aki.progression <= 90 and self.aki.step < 79:
-                await interaction.response.edit_message(embed=qEmbed(self.aki, self.ctx, q), view=QView(self.aki, self.ctx))
+                await interaction.message.edit(embed=qEmbed(self.aki, self.ctx, q), view=QView(self.aki, self.ctx))
             else: 
                 await self.aki.win()
                 embed = w(self.ctx, self.aki)
-                await interaction.response.edit_message(embed=embed, view=RView(self.aki, self.ctx))
+                await interaction.message.edit(embed=embed, view=RView(self.aki, self.ctx))
         except akinator.exceptions.AkiTimedOut:
-            await interaction.response.send_message(content=f"Your session has timed out! Use `-aki` to create a new game.", 
-                                                    ephemeral=True)
+            await interaction.followup.send(content=f"Your session has timed out! Use `-aki` to create a new game.", ephemeral=True)
 
 class RView(discord.ui.View):
     def __init__(self, aki: Akinator, ctx):
@@ -97,9 +95,7 @@ class ButtonAction0(discord.ui.Button):
             embed_win.set_author(name=self.ctx.author, icon_url=self.ctx.message.author.avatar.url)
             await interaction.response.edit_message(embed=embed_win, view=None)
         else: 
-            embed_loss = discord.Embed(title="Game over!",
-                                       description="Here's some of my guesses:",
-                                       color=0xFF0000)
+            embed_loss = discord.Embed(title="Game over!", description="Here's some of my guesses:",color=0xFF0000)
             for times in self.aki.guesses:
                 embed_loss.add_field(name=times['name'], value=times['description'])
             embed_loss.set_author(name=self.ctx.author, icon_url=self.ctx.message.author.avatar.url)
