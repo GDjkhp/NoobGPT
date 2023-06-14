@@ -13,9 +13,9 @@ gogoanime = "https://gogoanime.hu"
 
 async def Gogoanime(msg: discord.Message, arg: str):
     try: result = resultsAnime(searchAnime(arg))
-    except: await msg.edit("Error!")
+    except: return await msg.edit(content="Error! Domain changed most likely. Wake up <@729554186777133088> :(")
     embed = buildSearch(arg, result, 0)
-    await msg.edit(embed = embed, view = MyView4(arg, result, 0))
+    await msg.edit(content=None, embed = embed, view = MyView4(arg, result, 0))
 
 def buildAnime(details: list) -> discord.Embed():
     embed = discord.Embed(title=details[title], description=details[desc], color=0x00ff00)

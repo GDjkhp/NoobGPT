@@ -15,7 +15,7 @@ pagelimit = 12
 async def Actvid(msg: discord.Message, arg: str):
     result = results(searchQuery(arg))
     embed = buildSearch(arg, result, 0)
-    await msg.edit(embed = embed, view = MyView(result, arg, 0))
+    await msg.edit(content=None, embed = embed, view = MyView(result, arg, 0))
 
 # embed builders
 def detail(result) -> list:
@@ -140,8 +140,8 @@ class ButtonSelect(discord.ui.Button):
             try:
                 url = cdn_url(iframe_link, iframe_id)
                 embed = buildMovie(url, self.result)
-                await interaction.followup.send(embed=embed)
-            except: await interaction.followup.send("**UnicodeDecodeError: The Current Key is not correct, Wake up <@729554186777133088> :(**")
+                await interaction.message.edit(embed=embed)
+            except: await interaction.message.edit("**UnicodeDecodeError: The Current Key is not correct. Wake up <@729554186777133088> :(**")
             
 class ButtonNextSearch(discord.ui.Button):
     def __init__(self, arg: str, result: list, index: int, row: int, l: str):
@@ -237,7 +237,7 @@ class ButtonSelect3(discord.ui.Button):
         try:
             url = cdn_url(iframe_link, iframe_id)
             await interaction.followup.send(f"{self.title} [S{self.season}E{self.index}]: {url}")
-        except: await interaction.followup.send("**UnicodeDecodeError: The Current Key is not correct, Wake up <@729554186777133088> :(**")
+        except: await interaction.followup.send("**UnicodeDecodeError: The Current Key is not correct. Wake up <@729554186777133088> :(**")
 
 # actvid utils
 def server_id(mov_id: str) -> str:
