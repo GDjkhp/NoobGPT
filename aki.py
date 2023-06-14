@@ -85,8 +85,7 @@ class ButtonAction0(discord.ui.Button):
             return await interaction.response.send_message(content=f"{self.ctx.author} is playing this game! Use `-aki` to create your own game.", 
                                                            ephemeral=True)
         if self.action == 'y':
-            embed_win = discord.Embed(
-            title='GG!', color=0x00FF00)
+            embed_win = discord.Embed(title='GG!', color=0x00FF00)
             embed_win.add_field(name=self.aki.first_guess['name'], value=self.aki.first_guess['description'], inline=False)
             embed_win.set_image(url=self.aki.first_guess['absolute_picture_path'])
             embed_win.add_field(name="Ranking", value="#"+self.aki.first_guess['ranking'], inline=True)
@@ -95,7 +94,7 @@ class ButtonAction0(discord.ui.Button):
             embed_win.set_author(name=self.ctx.author, icon_url=self.ctx.message.author.avatar.url)
             await interaction.response.edit_message(embed=embed_win, view=None)
         else: 
-            embed_loss = discord.Embed(title="Game over!", description="Here's some of my guesses:",color=0xFF0000)
+            embed_loss = discord.Embed(title="Game over!", description="Here's some of my guesses:", color=0xFF0000)
             for times in self.aki.guesses:
                 embed_loss.add_field(name=times['name'], value=times['description'])
             embed_loss.set_author(name=self.ctx.author, icon_url=self.ctx.message.author.avatar.url)
