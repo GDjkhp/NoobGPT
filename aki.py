@@ -82,8 +82,8 @@ class ButtonAction0(discord.ui.Button):
 
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author:
-            return await interaction.response.send_message(content=f"{self.ctx.author} is playing this game! Use `-aki` to create your own game.", 
-                                                           ephemeral=True)
+            return await interaction.followup.send(content=f"<@{self.ctx.message.author.id}> is playing this game! Use `-aki` to create your own game.", 
+                                                   ephemeral=True)
         if self.action == 'y':
             embed_win = discord.Embed(title='GG!', color=0x00FF00)
             embed_win.add_field(name=self.aki.first_guess['name'], value=self.aki.first_guess['description'], inline=False)
