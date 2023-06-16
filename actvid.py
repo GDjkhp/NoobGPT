@@ -140,8 +140,9 @@ class ButtonSelect(discord.ui.Button):
             try:
                 url = cdn_url(iframe_link, iframe_id)
                 embed = buildMovie(url, self.result)
-                await interaction.message.edit(embed=embed)
-            except: await interaction.message.edit("**UnicodeDecodeError: The Current Key is not correct. Wake up <@729554186777133088> :(**")
+                await interaction.message.edit(embed=embed, view=None)
+            except: await interaction.message.edit(content="**UnicodeDecodeError: The Current Key is not correct. Wake up <@729554186777133088> :(**",
+                                                   view=None)
             
 class ButtonNextSearch(discord.ui.Button):
     def __init__(self, arg: str, result: list, index: int, row: int, l: str):
