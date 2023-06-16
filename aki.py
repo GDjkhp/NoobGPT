@@ -104,8 +104,6 @@ class ButtonAction0(discord.ui.Button):
 import aiohttp
 async def Aki(ctx: commands.Context, cat: str='people', lang: str='en'):
     msg = await ctx.reply('Starting game…')
-    session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False))
-    aki = Akinator()
     categories = ['people', 'objects', 'animals']
     sfw = not ctx.channel.nsfw
     # Add support for different languages
@@ -114,6 +112,8 @@ async def Aki(ctx: commands.Context, cat: str='people', lang: str='en'):
     if not lang in languages:
         return await msg.edit(content=f"Invalid language parameter.\nSupported languages:\n`{languages}`")
     if cat in categories:
+        aki = Akinator()
+        session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False))
         if cat != 'people':
             q = await aki.start_game(language=f'{lang}_{cat}', child_mode=sfw, client_session=session)
         else: 
