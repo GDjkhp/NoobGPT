@@ -76,7 +76,7 @@ async def safe(ctx: commands.Context, *, arg):
 from aki import Aki
 @bot.command(name='aki')
 # @commands.max_concurrency(1, per=BucketType.default, wait=False)
-async def aki(ctx: commands.Context, *, extra=None):
-    await Aki(ctx, extra)
+async def aki(ctx: commands.Context, arg1='people', arg2='en'):
+    await Aki(ctx, arg1, arg2)
 
 bot.run(os.getenv("TOKEN"))
