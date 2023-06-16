@@ -15,7 +15,6 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 * <https://github.com/SudhanPlayz/Discord-MusicBot>
 * <https://github.com/scott-serven/Chess-Bot>
 
-
 # Bot Commands
 
 ## Node.js Computer #1
@@ -23,17 +22,18 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 
 * `-ask [prompt]` OpenAI GPT-3.5-Turbo (ChatGPT) chat completion.
 * `-imagine [prompt]` OpenAI Dall-E image generation.
-* `-quote` Make it a quote. (Source: replied message)
+* `-quote` Reply to a message to make it a quote.
+* `-ms` Play minesweeper (Deprecated)
 
 ## Python Computer #2
 ### Prefix: -
 
 * `-bard [prompt]` Google Bard chat completion.
-* `-anime [query]` Search and stream anime using Gogoanime.
+* `-anime [query]` Search and stream Anime using Gogoanime.
 * `-search [query]` Search and stream TV shows and movies using Actvid.
+* `-aki (optional: [category = people/animals/objects] [language])` Play Akinator.
+* `-ytdlp (optional: [format = mp3/m4a]) [link]` Downloads and coverts a YouTube video below 25MB. ([Supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md))
 * `-tic` Play tic-tac-toe with someone. (Deprecated)
-* `-ytdlp (optional: [format = mp3/m4a]) [link]` Downloads and coverts a YouTube video below 25MB. [(Supported sites)](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md)
-* `-aki (optional: [category = people/animals/objects])` Play Akinator.
 
 ## Node.js Computer #3
 ### Prefix: !!
@@ -42,7 +42,7 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 * `!!np` Now playing.
 * `!!q` Show query.
 * `!!s` Skip track.
-* `!!help` Show music commands help. [(More info)](https://discord-musicbot.gdjkhp.repl.co/)
+* `!!help` Show music commands help. ([More info](https://discord-musicbot.gdjkhp.repl.co/))
 
 ## Python Computer #4
 ### Slash commands
@@ -67,6 +67,7 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 * <https://github.com/rainyDayDevs/pygelbooru>
 * <https://github.com/MrAugu/discord-xp>
 * <https://github.com/neplextech/canvacord>
+* <https://github.com/JochCool/minesweeper-bot>
 * <https://github.com/yt-dlp/yt-dlp>
 * <https://github.com/Infiniticity/akinator.py>
 </div>
