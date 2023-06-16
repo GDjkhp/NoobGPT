@@ -102,18 +102,23 @@ class ButtonAction0(discord.ui.Button):
 
 # @commands.max_concurrency(1, per=BucketType.default, wait=False)
 import aiohttp
-async def Aki(ctx: commands.Context, extra: str=None):
+async def Aki(ctx: commands.Context, cat: str='people', lang: str='en'):
     msg = await ctx.reply('Starting game…')
     session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False))
     aki = Akinator()
     categories = ['people', 'objects', 'animals']
-    if extra in categories:
-        if extra == 'people':
-            q = await aki.start_game(child_mode=True, client_session=session)
-        else: q = await aki.start_game(language=f'en_{extra}',
-                                    child_mode=True, client_session=session)
-    elif not extra: q = await aki.start_game(child_mode=True, client_session=session)
-    else: return await msg.edit(content=f'Category `{extra}` not found.\nAvailable categories: `{categories}`')
+    sfw = not ctx.channel.nsfw
+    # Add support for different languages
+    languages = ['en', 'ar', 'cn', 'de', 'es', 'fr', 'it', 'jp', 'kr', 'nl', 'pl', 'pt', 'ru', 'tr', 'id']
+    # Check if the language parameter was provided
+    if not lang in languages:
+        return await msg.edit(content=f"Invalid language parameter.\nSupported languages:\n`{languages}`")
+    if cat in categories:
+        if cat != 'people':
+            q = await aki.start_game(language=f'{lang}_{cat}', child_mode=sfw, client_session=session)
+        else: 
+            q = await aki.start_game(language=f'{lang}', child_mode=sfw, client_session=session)
+    else: return await msg.edit(content=f'Category `{cat}` not found.\nAvailable categories:\n`{categories}`')
     await msg.edit(content=None, embed=qEmbed(aki, ctx, q), view=QView(aki, ctx))
 
 # @bot.event
