@@ -28,13 +28,13 @@ bot.help_command = MyNewHelp()
 from actvid import Actvid
 @bot.command()
 async def search(ctx: commands.Context, *, arg):
-    msg = await ctx.reply(f"Searching `{arg}` Please wait…")
+    msg = await ctx.reply(f"Searching `{arg}`\nPlease wait…")
     await Actvid(msg, arg)
 
 from gogoanime import Gogoanime
 @bot.command()
 async def anime(ctx: commands.Context, *, arg):
-    msg = await ctx.reply(f"Searching `{arg}` Please wait…")
+    msg = await ctx.reply(f"Searching `{arg}`\nPlease wait…")
     await Gogoanime(msg, arg)
 
 from tictactoe import TicTacToe
