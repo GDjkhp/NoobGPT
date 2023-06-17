@@ -6,14 +6,14 @@ import discord
 async def R34(ctx: commands.Context, arg: str):
     if not ctx.channel.nsfw: return await ctx.reply("**No.**")
     tags = re.split(r'\s*,\s*', arg)
-    message = await ctx.reply(f"Searching posts with tags `{tags}` Please wait…")
+    message = await ctx.reply(f"Searching posts with tags `{tags}`\nPlease wait…")
     results = []
     page = 0
     while len(results) < 10000: # hard limit
         cached = await Gelbooru(api='https://api.rule34.xxx/').search_posts(tags=tags, page=page)
         if not cached: break
         results.extend(cached)
-        await message.edit(content=f"Searching posts with tags `{tags}` Please wait…\n{len(results)} found")
+        await message.edit(content=f"Searching posts with tags `{tags}`\nPlease wait…\n{len(results)} found")
         page+=1
     if len(results) == 0: return await ctx.reply("**No results found**")
     await message.edit(content=None, embed = await BuildEmbed(tags, results, 0, False), view = ImageView(tags, results, 0, False))
@@ -21,28 +21,28 @@ async def R34(ctx: commands.Context, arg: str):
 async def GEL(ctx: commands.Context, arg: str):
     if not ctx.channel.nsfw: return await ctx.reply("**No.**")
     tags = re.split(r'\s*,\s*', arg)
-    message = await ctx.reply(f"Searching posts with tags `{tags}` Please wait…")
+    message = await ctx.reply(f"Searching posts with tags `{tags}`\nPlease wait…")
     results = []
     page = 0
     while len(results) < 10000: # hard limit
         cached = await Gelbooru().search_posts(tags=tags, page=page)
         if not cached: break
         results.extend(cached)
-        await message.edit(content=f"Searching posts with tags `{tags}` Please wait…\n{len(results)} found")
+        await message.edit(content=f"Searching posts with tags `{tags}`\nPlease wait…\n{len(results)} found")
         page+=1
     if len(results) == 0: return await ctx.reply("**No results found**")
     await message.edit(content=None, embed = await BuildEmbed(tags, results, 0, False), view = ImageView(tags, results, 0, False))
 
 async def SAFE(ctx: commands.Context, arg: str):
     tags = re.split(r'\s*,\s*', arg)
-    message = await ctx.reply(f"Searching posts with tags `{tags}` Please wait…")
+    message = await ctx.reply(f"Searching posts with tags `{tags}`\nPlease wait…")
     results = []
     page = 0
     while len(results) < 10000: # hard limit
         cached = await Gelbooru(api='https://safebooru.org/').search_posts(tags=tags, page=page)
         if not cached: break
         results.extend(cached)
-        await message.edit(content=f"Searching posts with tags `{tags}` Please wait…\n{len(results)} found")
+        await message.edit(content=f"Searching posts with tags `{tags}`\nPlease wait…\n{len(results)} found")
         page+=1
     if len(results) == 0: return await ctx.reply("**No results found**")
     await message.edit(content=None, embed = await BuildEmbed(tags, results, 0, True), view = ImageView(tags, results, 0, True))
