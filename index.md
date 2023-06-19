@@ -21,6 +21,7 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 ### Prefix: -
 
 * `-ask [prompt]` OpenAI GPT-3.5-Turbo (ChatGPT) chat completion.
+* `-gpt [prompt]` OpenAI GPT-3 text completion.
 * `-imagine [prompt]` OpenAI Dall-E image generation.
 * `-quote` Reply to a message to make it a quote.
 * `-ms` Play minesweeper (Deprecated)
