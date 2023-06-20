@@ -97,7 +97,6 @@ def results(html: str) -> list:
     ids = [i.split("-")[-1] for i in urls]
     return [list(sublist) for sublist in zip(title, urls, ids, mov_or_tv, img)]
 
-
 # search
 class MyView(discord.ui.View):
     def __init__(self, result: list, arg: str, index: int):
@@ -268,12 +267,8 @@ def rabbit_id(url: str) -> tuple:
 def cdn_url(final_link: str, rabb_id: str) -> str:
     client0.set_headers({"X-Requested-With": "XMLHttpRequest"})
     data = client0.get(f"{final_link}getSources?id={rabb_id}").json()
-    source = data["sources"]
-    link = f"{source}"
-    if link.endswith("==") or link.endswith("="):
-        n = json.loads(decrypt(data["sources"], gh_key()))
-        return n[0]["file"]
-    return source[0]["file"]
+    n = json.loads(decrypt(data["sources"], gh_key()))
+    return n[0]["file"]
 def decrypt(data, key):
     k = get_key(base64.b64decode(data)[8:16], key)
     dec_key = k[:32]
