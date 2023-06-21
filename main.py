@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 intents = discord.Intents.default()
 intents.message_content = True
-bot = commands.Bot(command_prefix="-", intents = intents)
+bot = commands.Bot(command_prefix="-", intents = intents, help_command=None)
 
 # open server
 from request_listener import keep_alive
@@ -17,13 +17,38 @@ async def on_ready():
     print(":)")
     await bot.change_presence(status=discord.Status.dnd)
 
-class MyNewHelp(commands.MinimalHelpCommand):
-    async def send_pages(self):
-        destination = self.get_destination()
-        emby = discord.Embed(title="NoobGPT Official Website", description="https://gdjkhp.github.io/NoobGPT/", color=0x00ff00)
-        await destination.send(embed=emby)
-
-bot.help_command = MyNewHelp()
+@bot.command()
+async def halp(ctx: commands.Context):
+    emby = discord.Embed(title="NoobGPT", 
+                         description="A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you.", 
+                         url="https://gdjkhp.github.io/NoobGPT/", color=0x00ff00)
+    emby.add_field(name='`-ask [prompt]`', 
+                   value='OpenAI GPT-3.5-Turbo (ChatGPT) chat completion.', inline=False)
+    emby.add_field(name='`-gpt [prompt]`', 
+                   value='OpenAI GPT-3 text completion.', inline=False)
+    emby.add_field(name='`-imagine [prompt]`', 
+                   value='OpenAI Dall-E image generation.', inline=False)
+    emby.add_field(name='`-quote`', 
+                   value='Reply to a message to make it a quote.', inline=False)
+    emby.add_field(name='`-ms`', 
+                   value='Play minesweeper (Deprecated)', inline=False)
+    emby.add_field(name='`-bard [prompt]`', 
+                   value='Google Bard chat completion.', inline=False)
+    emby.add_field(name='`-anime [query]`', 
+                   value='Search and stream Anime using Gogoanime.', inline=False)
+    emby.add_field(name='`-search [query]`', 
+                   value='Search and stream TV shows and movies using Actvid.', inline=False)
+    emby.add_field(name='`-aki (optional: [category = people/animals/objects] [language])`', 
+                   value='Play Akinator.', inline=False)
+    emby.add_field(name='`-ytdlp (optional: [format = mp3/m4a]) [link]`', 
+                   value='Downloads and coverts a YouTube video below 25MB.', inline=False)
+    emby.add_field(name='`-tic`', 
+                   value='Play tic-tac-toe with someone. (Deprecated)', inline=False)
+    emby.add_field(name='`-lex`', 
+                   value='Search AI Generated art (Stable Diffusion) made by the prompts of the community using Lexica', inline=False)
+    emby.set_thumbnail(url=bot.user.avatar)
+    emby.set_footer(text='Hi Mom! Look I\'m famous!\nBot by GDjkhp', icon_url='https://i.imgur.com/ZbnJAHI.gif')
+    await ctx.reply(embed=emby)
 
 from actvid import Actvid
 @bot.command()
@@ -78,5 +103,11 @@ from aki import Aki
 # @commands.max_concurrency(1, per=BucketType.default, wait=False)
 async def aki(ctx: commands.Context, arg1='people', arg2='en'):
     await Aki(ctx, arg1, arg2)
+
+# lexica art
+from lex import LEX
+@bot.command()
+async def lex(ctx: commands.Context, *, arg):
+    await LEX(ctx, arg)
 
 bot.run(os.getenv("TOKEN"))

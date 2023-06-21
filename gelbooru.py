@@ -15,7 +15,7 @@ async def R34(ctx: commands.Context, arg: str):
         results.extend(cached)
         await message.edit(content=f"Searching posts with tags `{tags}`\nPlease wait…\n{len(results)} found")
         page+=1
-    if len(results) == 0: return await ctx.reply("**No results found**")
+    if len(results) == 0: return await message.edit("**No results found**")
     await message.edit(content=None, embed = await BuildEmbed(tags, results, 0, False), view = ImageView(tags, results, 0, False))
 
 async def GEL(ctx: commands.Context, arg: str):
@@ -30,7 +30,7 @@ async def GEL(ctx: commands.Context, arg: str):
         results.extend(cached)
         await message.edit(content=f"Searching posts with tags `{tags}`\nPlease wait…\n{len(results)} found")
         page+=1
-    if len(results) == 0: return await ctx.reply("**No results found**")
+    if len(results) == 0: return await message.edit("**No results found**")
     await message.edit(content=None, embed = await BuildEmbed(tags, results, 0, False), view = ImageView(tags, results, 0, False))
 
 async def SAFE(ctx: commands.Context, arg: str):
@@ -44,7 +44,7 @@ async def SAFE(ctx: commands.Context, arg: str):
         results.extend(cached)
         await message.edit(content=f"Searching posts with tags `{tags}`\nPlease wait…\n{len(results)} found")
         page+=1
-    if len(results) == 0: return await ctx.reply("**No results found**")
+    if len(results) == 0: return await message.edit("**No results found**")
     await message.edit(content=None, embed = await BuildEmbed(tags, results, 0, True), view = ImageView(tags, results, 0, True))
 
 async def BuildEmbed(tags: list, results, index: int, safe: bool) -> discord.Embed():
@@ -62,17 +62,17 @@ class ImageView(discord.ui.View):
     def __init__(self, tags, results, index, safe):
         super().__init__(timeout=None)
         if not index == 0: 
-            self.add_item(ButtonAction(tags, safe, results, 0, "<<"))
-            self.add_item(ButtonAction(tags, safe, results, index - 1, "<"))
+            self.add_item(ButtonAction(tags, safe, results, 0, "⏪", 0))
+            self.add_item(ButtonAction(tags, safe, results, index - 1, "◀️", 0))
         if index + 1 < len(results): 
-            self.add_item(ButtonAction(tags, safe, results, index + 1, ">"))
-            self.add_item(ButtonAction(tags, safe, results, len(results)-1, ">>"))
+            self.add_item(ButtonAction(tags, safe, results, index + 1, "▶️", 0))
+            self.add_item(ButtonAction(tags, safe, results, len(results)-1, "⏩", 0))
 
 class ButtonAction(discord.ui.Button):
-    def __init__(self, tags, safe, results, index, l):
-        super().__init__(label=l, style=discord.ButtonStyle.success)
+    def __init__(self, tags, safe, results, index, l, row):
+        super().__init__(label=l, style=discord.ButtonStyle.success, row=row)
         self.results, self.index, self.tags, self.safe = results, index, tags, safe
     
     async def callback(self, interaction: discord.Interaction):
-        await interaction.response.edit_message(embed = await BuildEmbed(self.tags, self.results, self.index, self.safe), \
+        await interaction.response.edit_message(embed = await BuildEmbed(self.tags, self.results, self.index, self.safe),
                                                 view = ImageView(self.tags, self.results, self.index, self.safe))

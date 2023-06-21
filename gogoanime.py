@@ -10,7 +10,6 @@ desc, ep, animetype, released, genre = 2, 3, 5, 6, 7
 pagelimit = 12
 gogoanime = "https://gogoanime.hu"
 
-
 async def Gogoanime(msg: discord.Message, arg: str):
     try: result = resultsAnime(searchAnime(arg))
     except: return await msg.edit(content="Error! Domain changed most likely. Wake up <@729554186777133088> :(")
