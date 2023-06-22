@@ -35,6 +35,7 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 * `-aki (optional: [category = people/animals/objects] [language])` Play Akinator.
 * `-ytdlp (optional: [format = mp3/m4a]) [link]` Downloads and coverts a YouTube video below 25MB. ([Supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md))
 * `-tic` Play tic-tac-toe with someone. (Deprecated)
+[//]: # (* `-lex [query]` Search AI Generated art (Stable Diffusion) made by the prompts of the community using [Lexica](https://lexica.art))
 
 ## Node.js Computer #3
 ### Prefix: !!
@@ -58,8 +59,9 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 * `/stats (optional: [user])` Show the stats of the player.
 * `/leaderboard` Show top chess players.
 
-### Credits
+## Credits
 
+### Code
 * <https://github.com/openai/openai-node>
 * <https://github.com/mov-cli/mov-cli>
 * <https://github.com/SudhanPlayz/Discord-MusicBot>
@@ -71,4 +73,10 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 * <https://github.com/JochCool/minesweeper-bot>
 * <https://github.com/yt-dlp/yt-dlp>
 * <https://github.com/Infiniticity/akinator.py>
+
+### Sites
+* <https://openai.com>
+* <https://gogoanime.cl>
+* <https://akinator.com>
+* <https://lexica.art>
 </div>
