@@ -76,7 +76,7 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 
 ### Sites
 * <https://openai.com>
-* <https://gogoanime.cl>
+* <https://gogoanime.hu>
 * <https://akinator.com>
-* <https://lexica.art>
+<!-- * <https://lexica.art> -->
 </div>
