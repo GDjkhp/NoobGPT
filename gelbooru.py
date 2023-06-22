@@ -15,7 +15,7 @@ async def R34(ctx: commands.Context, arg: str):
         results.extend(cached)
         await message.edit(content=f"Searching posts with tags `{tags}`\nPlease wait…\n{len(results)} found")
         page+=1
-    if len(results) == 0: return await message.edit("**No results found**")
+    if len(results) == 0: return await message.edit(content="**No results found**")
     await message.edit(content=None, embed = await BuildEmbed(tags, results, 0, False), view = ImageView(tags, results, 0, False))
 
 async def GEL(ctx: commands.Context, arg: str):
@@ -30,7 +30,7 @@ async def GEL(ctx: commands.Context, arg: str):
         results.extend(cached)
         await message.edit(content=f"Searching posts with tags `{tags}`\nPlease wait…\n{len(results)} found")
         page+=1
-    if len(results) == 0: return await message.edit("**No results found**")
+    if len(results) == 0: return await message.edit(content="**No results found**")
     await message.edit(content=None, embed = await BuildEmbed(tags, results, 0, False), view = ImageView(tags, results, 0, False))
 
 async def SAFE(ctx: commands.Context, arg: str):
@@ -44,7 +44,7 @@ async def SAFE(ctx: commands.Context, arg: str):
         results.extend(cached)
         await message.edit(content=f"Searching posts with tags `{tags}`\nPlease wait…\n{len(results)} found")
         page+=1
-    if len(results) == 0: return await message.edit("**No results found**")
+    if len(results) == 0: return await message.edit(content="**No results found**")
     await message.edit(content=None, embed = await BuildEmbed(tags, results, 0, True), view = ImageView(tags, results, 0, True))
 
 async def BuildEmbed(tags: list, results, index: int, safe: bool) -> discord.Embed():

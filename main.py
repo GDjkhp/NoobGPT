@@ -44,8 +44,8 @@ async def halp(ctx: commands.Context):
                    value='Downloads and coverts a YouTube video below 25MB.', inline=False)
     emby.add_field(name='`-tic`', 
                    value='Play tic-tac-toe with someone. (Deprecated)', inline=False)
-    emby.add_field(name='`-lex`', 
-                   value='Search AI Generated art (Stable Diffusion) made by the prompts of the community using Lexica', inline=False)
+    # emby.add_field(name='`-lex [prompt]`', 
+    #                value='Search AI Generated art (Stable Diffusion) made by the prompts of the community using Lexica', inline=False)
     emby.set_thumbnail(url=bot.user.avatar)
     emby.set_footer(text='Hi Mom! Look I\'m famous!\nBot by GDjkhp', icon_url='https://i.imgur.com/ZbnJAHI.gif')
     await ctx.reply(embed=emby)
