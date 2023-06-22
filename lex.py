@@ -7,7 +7,6 @@ async def LEX(ctx: commands.Context, arg):
     message = await ctx.reply(f"Searching images with query `{arg}`\nPlease wait…")
     results = requests.get('https://lexica.art/api/v1/search?q='+p.quote_plus(arg)).json()['images']
     if not ctx.channel.nsfw: results = [image for image in results if not image["nsfw"]]
-    print(results)
     if len(results) == 0: return await message.edit(content="**No results found**") # rare
     await message.edit(content=None, embed = await BuildEmbed(arg, results, 0), view = ImageView(arg, results, 0))
 

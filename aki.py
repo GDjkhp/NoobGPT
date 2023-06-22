@@ -2,6 +2,7 @@ import discord
 import akinator.exceptions
 from discord.ext import commands
 from akinator.async_aki import Akinator
+import aiohttp
 
 def w(ctx: commands.Context, aki: Akinator) -> discord.Embed():
     # {'id': '444271', 
@@ -101,7 +102,6 @@ class ButtonAction0(discord.ui.Button):
             await interaction.response.edit_message(embed=embed_loss, view=None)
 
 # @commands.max_concurrency(1, per=BucketType.default, wait=False)
-import aiohttp
 async def Aki(ctx: commands.Context, cat: str='people', lang: str='en'):
     msg = await ctx.reply('Starting game…')
     categories = ['people', 'objects', 'animals']

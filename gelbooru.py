@@ -2,6 +2,7 @@ from pygelbooru import Gelbooru
 from discord.ext import commands
 import re
 import discord
+import random
 
 async def R34(ctx: commands.Context, arg: str):
     if not ctx.channel.nsfw: return await ctx.reply("**No.**")
@@ -67,10 +68,11 @@ class ImageView(discord.ui.View):
         if index + 1 < len(results): 
             self.add_item(ButtonAction(tags, safe, results, index + 1, "▶️", 0))
             self.add_item(ButtonAction(tags, safe, results, len(results)-1, "⏩", 0))
+        self.add_item(ButtonAction(tags, safe, results, random.randrange(0, len(results)), "🔀", 1))
 
 class ButtonAction(discord.ui.Button):
     def __init__(self, tags, safe, results, index, l, row):
-        super().__init__(label=l, style=discord.ButtonStyle.success, row=row)
+        super().__init__(emoji=l, style=discord.ButtonStyle.success, row=row)
         self.results, self.index, self.tags, self.safe = results, index, tags, safe
     
     async def callback(self, interaction: discord.Interaction):
