@@ -35,7 +35,7 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 * `-aki (optional: [category = people/animals/objects] [language])` Play Akinator.
 * `-ytdlp (optional: [format = mp3/m4a]) [link]` Downloads and coverts a YouTube video below 25MB. ([Supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md))
 * `-tic` Play tic-tac-toe with someone. (Deprecated)
-[//]: # (* `-lex [query]` Search AI Generated art (Stable Diffusion) made by the prompts of the community using [Lexica](https://lexica.art))
+<!-- * `-lex [query]` Search AI Generated art (Stable Diffusion) made by the prompts of the community using [Lexica](https://lexica.art) -->
 
 ## Node.js Computer #3
 ### Prefix: !!
