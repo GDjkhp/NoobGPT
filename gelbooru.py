@@ -80,14 +80,12 @@ class ButtonAction(discord.ui.Button):
         self.results, self.index, self.tags, self.safe, self.lock, self.ctx = results, index, tags, safe, lock, ctx
     
     async def callback(self, interaction: discord.Interaction):
-        if self.lock[1] and interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"<@{self.ctx.message.author.id}> locked this message.", ephemeral=True)
         if self.lock[0] != self.lock[1]:
             if interaction.user != self.ctx.author:
                 return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can lock/unlock this message.", 
                                                                ephemeral=True)
             else: self.lock = [self.lock[1], self.lock[1]]
+        if self.lock[1] and interaction.user != self.ctx.author: 
+            return await interaction.response.send_message(f"<@{self.ctx.message.author.id}> locked this message.", ephemeral=True)
         await interaction.response.edit_message(embed = await BuildEmbed(self.tags, self.results, self.index, self.safe, self.lock, self.ctx), 
                                                 view = ImageView(self.tags, self.results, self.index, self.safe, self.lock, self.ctx))
-        
-        
