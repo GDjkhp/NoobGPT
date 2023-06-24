@@ -80,14 +80,18 @@ class ImageView(discord.ui.View):
         self.add_item(ButtonAction(tags, safe, results, random.randrange(0, len(results)), "🔀", 1, lock, ctx))
         self.add_item(ButtonHeart())
         self.add_item(ButtonAction(tags, safe, results, index, "🔒" if lock[1] else "🔓", 1, [lock[1], not lock[1]], ctx))
-        self.add_item(ButtonEnd())
+        self.add_item(ButtonEnd(ctx, lock[1]))
 
 class ButtonEnd(discord.ui.Button):
-    def __init__(self):
+    def __init__(self, ctx: commands.Context, lock: bool):
         super().__init__(style=discord.ButtonStyle.success, emoji="🛑", row=1)
+        self.ctx, self.lock = ctx, lock
     
     async def callback(self, interaction: Interaction):
-        await interaction.response.edit_message(content="🤨", view=None, embed=None)
+        if self.lock and interaction.user != self.ctx.author:
+            await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can delete this message.", 
+                                                    ephemeral=True)
+        else: await interaction.response.edit_message(content="🤨", view=None, embed=None)
 
 class ButtonHeart(discord.ui.Button):
     def __init__(self):
