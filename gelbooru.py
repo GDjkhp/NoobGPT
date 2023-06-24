@@ -1,3 +1,8 @@
+from typing import Optional, Union
+from discord.emoji import Emoji
+from discord.enums import ButtonStyle
+from discord.interactions import Interaction
+from discord.partial_emoji import PartialEmoji
 from pygelbooru import Gelbooru
 from discord.ext import commands
 import re
@@ -60,6 +65,7 @@ async def BuildEmbed(tags: list, results, index: int, safe: bool, lock: list, ct
     embed.add_field(name="Source", value=results[index].source, inline=False)
     if results[index].file_url.endswith(".mp4"): embed.add_field(name="Video link:", value=results[index].file_url)
     else: embed.set_image(url = results[index].file_url)
+    embed.set_footer(text=f"{index+1}/{len(results)}")
     return embed
 
 class ImageView(discord.ui.View):
@@ -72,7 +78,23 @@ class ImageView(discord.ui.View):
             self.add_item(ButtonAction(tags, safe, results, index + 1, "▶️", 0, lock, ctx))
             self.add_item(ButtonAction(tags, safe, results, len(results)-1, "⏩", 0, lock, ctx))
         self.add_item(ButtonAction(tags, safe, results, random.randrange(0, len(results)), "🔀", 1, lock, ctx))
-        self.add_item(ButtonAction(tags, safe, results, index, "🔒" if not lock[1] else "🔓", 1, [lock[1], not lock[1]], ctx))
+        self.add_item(ButtonHeart())
+        self.add_item(ButtonAction(tags, safe, results, index, "🔒" if lock[1] else "🔓", 1, [lock[1], not lock[1]], ctx))
+        self.add_item(ButtonEnd())
+
+class ButtonEnd(discord.ui.Button):
+    def __init__(self):
+        super().__init__(style=discord.ButtonStyle.success, emoji="🛑", row=1)
+    
+    async def callback(self, interaction: Interaction):
+        await interaction.response.edit_message(content="🤨", view=None, embed=None)
+
+class ButtonHeart(discord.ui.Button):
+    def __init__(self):
+        super().__init__(style=discord.ButtonStyle.success, emoji="❤️", row=1)
+    
+    async def callback(self, interaction: Interaction):
+        await interaction.response.send_message("Coming soon. ❤️", ephemeral=True)
 
 class ButtonAction(discord.ui.Button):
     def __init__(self, tags: list, safe: bool, results: list, index: list, l: str, row: int, lock: list, ctx: commands.Context):
