@@ -7,3 +7,4 @@ flask
 bardapi
 pygelbooru
 yt-dlp
+akinator
