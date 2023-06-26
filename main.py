@@ -9,7 +9,7 @@ intents.message_content = True
 bot = commands.Bot(command_prefix = "-", 
                    intents = intents, 
                    help_command = None, 
-                   allowed_mentions = discord.AllowedMentions().none())
+                   allowed_mentions = discord.AllowedMentions.none())
 
 # open server
 from request_listener import keep_alive
@@ -91,13 +91,13 @@ async def bard(ctx: commands.Context, *, arg):
 # :|
 from gelbooru import R34, GEL, SAFE
 @bot.command()
-async def r34(ctx: commands.Context, *, arg):
+async def r34(ctx: commands.Context, *, arg=""):
     await R34(ctx, arg)
 @bot.command()
-async def gel(ctx: commands.Context, *, arg):
+async def gel(ctx: commands.Context, *, arg=""):
     await GEL(ctx, arg)
 @bot.command()
-async def safe(ctx: commands.Context, *, arg):
+async def safe(ctx: commands.Context, *, arg=""):
     await SAFE(ctx, arg)
 
 # aki
