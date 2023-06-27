@@ -81,7 +81,8 @@ from bard import Bard
 os.environ['_BARD_API_KEY'] = os.getenv("BARD")
 @bot.command()
 async def bard(ctx: commands.Context, *, arg):
-    response = Bard(timeout=60).get_answer(arg)
+    try: response = Bard(timeout=60).get_answer(arg)
+    except: return await ctx.reply("**Error! Wake up <@729554186777133088> :(**")
     await ctx.reply(response['content'][:2000])
     if response['images']:
         img = list(response['images'])

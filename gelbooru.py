@@ -26,13 +26,14 @@ async def view_collection(ctx: commands.Context, api: str):
     message = await ctx.reply(f"Retrieving collection…")
     results = []
     mycol = myclient["gel"][api]
-    for x in mycol.find_one({"user":ctx.message.author.id})["favorites"]:
+    if not mycol.find_one({"user": ctx.message.author.id}): 
+        return await message.edit(content="**No results found**")
+    for x in mycol.find_one({"user": ctx.message.author.id})["favorites"]:
         if api == "safe": cached = await Gelbooru(api='https://safebooru.org/').get_post(x)
         if api == "gel": cached = await Gelbooru().get_post(x)
         if api == "r34": cached = await Gelbooru(api='https://api.rule34.xxx/').get_post(x)
         results.append(cached)
         await message.edit(content=f"Retrieving collection…\n{len(results)} found")
-    if len(results) == 0: return await message.edit(content="**No results found**")
     await message.edit(content=None, embed = await BuildEmbed(ctx.message.author, results, 0, True if api == "safe" else False, [False, False], ctx), 
                        view = ImageView(ctx.message.author, results, 0, True if api == "safe" else False, [False, False], ctx, api))
 
@@ -49,7 +50,7 @@ async def search_posts(ctx: commands.Context, arg: str, api: str):
         results.extend(cached)
         await message.edit(content=f"Searching posts with tags `{tags}`\nPlease wait…\n{len(results)} found")
         page+=1
-    if len(results) == 0: return await message.edit(content="**No results found**")
+    if not results: return await message.edit(content="**No results found**")
     await message.edit(content=None, embed = await BuildEmbed(tags, results, 0, True if api == "safe" else False, [False, False], ctx), 
                        view = ImageView(tags, results, 0, True if api == "safe" else False, [False, False], ctx, api))
 
