@@ -24,16 +24,19 @@ async def SAFE(ctx: commands.Context, arg: str):
 
 async def view_collection(ctx: commands.Context, api: str):
     message = await ctx.reply(f"Retrieving collection…")
-    results = []
+    results, errors = [], []
     mycol = myclient["gel"][api]
     if not mycol.find_one({"user": ctx.message.author.id}): 
         return await message.edit(content="**No results found**")
     for x in mycol.find_one({"user": ctx.message.author.id})["favorites"]:
-        if api == "safe": cached = await Gelbooru(api='https://safebooru.org/').get_post(x)
-        if api == "gel": cached = await Gelbooru().get_post(x)
-        if api == "r34": cached = await Gelbooru(api='https://api.rule34.xxx/').get_post(x)
-        results.append(cached)
-        await message.edit(content=f"Retrieving collection…\n{len(results)} found")
+        try:
+            if api == "safe": cached = await Gelbooru(api='https://safebooru.org/').get_post(x)
+            if api == "gel": cached = await Gelbooru().get_post(x)
+            if api == "r34": cached = await Gelbooru(api='https://api.rule34.xxx/').get_post(x)
+            results.append(cached)
+            await message.edit(content=f"Retrieving collection…\nErrors: {errors}\n{len(results)} found")
+        except: errors.append(x)
+    if errors: await ctx.reply(f"Error retrieving `{errors}`")
     await message.edit(content=None, embed = await BuildEmbed(ctx.message.author, results, 0, True if api == "safe" else False, [False, False], ctx), 
                        view = ImageView(ctx.message.author, results, 0, True if api == "safe" else False, [False, False], ctx, api))
 
