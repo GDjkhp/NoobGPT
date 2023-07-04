@@ -45,7 +45,7 @@ async def search_posts(ctx: commands.Context, arg: str, api: str):
     message = await ctx.reply(f"Searching posts with tags `{tags}`\nPlease wait…")
     results = []
     page = 0
-    while len(results) < 10000: # hard limit
+    while True:
         if api == "safe": cached = await Gelbooru(api='https://safebooru.org/').search_posts(tags=tags, page=page)
         if api == "gel": cached = await Gelbooru().search_posts(tags=tags, page=page)
         if api == "r34": cached = await Gelbooru(api='https://api.rule34.xxx/').search_posts(tags=tags, page=page)
