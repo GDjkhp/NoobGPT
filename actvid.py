@@ -111,12 +111,12 @@ class MyView(discord.ui.View):
             column += 1
         row = 4
         if index - pagelimit > -1:
-            self.add_item(ButtonNextSearch(arg, result, 0, row, "<<"))
-            self.add_item(ButtonNextSearch(arg, result, index - pagelimit, row, "<"))
+            self.add_item(ButtonNextSearch(arg, result, 0, row, "⏪"))
+            self.add_item(ButtonNextSearch(arg, result, index - pagelimit, row, "◀️"))
         if not last_index == len(result):
-            self.add_item(ButtonNextSearch(arg, result, last_index, row, ">"))
+            self.add_item(ButtonNextSearch(arg, result, last_index, row, "▶️"))
             max_page = get_max_page(len(result))
-            self.add_item(ButtonNextSearch(arg, result, max_page, row, ">>"))
+            self.add_item(ButtonNextSearch(arg, result, max_page, row, "⏩"))
 
 class ButtonSelect(discord.ui.Button):
     def __init__(self, index: int, result: list, row: int):
@@ -145,7 +145,7 @@ class ButtonSelect(discord.ui.Button):
             
 class ButtonNextSearch(discord.ui.Button):
     def __init__(self, arg: str, result: list, index: int, row: int, l: str):
-        super().__init__(label=l, style=discord.ButtonStyle.success, row=row)
+        super().__init__(emoji=l, style=discord.ButtonStyle.success, row=row)
         self.result, self.index, self.arg = result, index, arg
 
     async def callback(self, interaction: discord.Interaction):
@@ -164,14 +164,13 @@ class MyView2(discord.ui.View):
             if (i == index+pagelimit): last_index = i
             i += 1
             column += 1
-        row = 4
         if index - pagelimit > -1:
-            self.add_item(ButtonNextSeason(result, season_ids, 0, row, "<<"))
-            self.add_item(ButtonNextSeason(result, season_ids, index - pagelimit, row, "<"))
+            self.add_item(ButtonNextSeason(result, season_ids, 0, 4, "⏪"))
+            self.add_item(ButtonNextSeason(result, season_ids, index - pagelimit, 4, "◀️"))
         if not last_index == len(season_ids):
-            self.add_item(ButtonNextSeason(result, season_ids, last_index, row, ">"))
+            self.add_item(ButtonNextSeason(result, season_ids, last_index, 4, "▶️"))
             max_page = get_max_page(len(season_ids))
-            self.add_item(ButtonNextSeason(result, season_ids, max_page, row, ">>"))
+            self.add_item(ButtonNextSeason(result, season_ids, max_page, 4, "⏩"))
 
 class ButtonSelect2(discord.ui.Button):
     def __init__(self, index: int, season_id: str, result: list, row: int):
@@ -187,7 +186,7 @@ class ButtonSelect2(discord.ui.Button):
 
 class ButtonNextSeason(discord.ui.Button):
     def __init__(self, result: list, season_ids: list, index: int, row: int, l: str):
-        super().__init__(label=l, style=discord.ButtonStyle.success, row=row)
+        super().__init__(emoji=l, style=discord.ButtonStyle.success, row=row)
         self.result, self.season_ids, self.index = result, season_ids, index
     
     async def callback(self, interaction: discord.Interaction):
@@ -206,18 +205,17 @@ class MyView3(discord.ui.View):
             if (i == index+pagelimit): last_index = i
             i += 1
             column += 1
-        row = 4
         if index - pagelimit > -1:
-            self.add_item(ButtonNextEp(season_id, episodes, result, 0, season, row, "<<"))
-            self.add_item(ButtonNextEp(season_id, episodes, result, index - pagelimit, season, row, "<"))
+            self.add_item(ButtonNextEp(season_id, episodes, result, 0, season, 4, "⏪"))
+            self.add_item(ButtonNextEp(season_id, episodes, result, index - pagelimit, season, 4, "◀️"))
         if not last_index == len(episodes):
-            self.add_item(ButtonNextEp(season_id, episodes, result, last_index, season, row, ">"))
+            self.add_item(ButtonNextEp(season_id, episodes, result, last_index, season, 4, "▶️"))
             max_page = get_max_page(len(episodes))
-            self.add_item(ButtonNextEp(season_id, episodes, result, max_page, season, row, ">>"))
+            self.add_item(ButtonNextEp(season_id, episodes, result, max_page, season, 4, "⏩"))
 
 class ButtonNextEp(discord.ui.Button):
     def __init__(self, season_id: str, episodes: list, result: list, index: int, season: int, row: int, l: str):
-        super().__init__(label=l, style=discord.ButtonStyle.success, row=row)
+        super().__init__(emoji=l, style=discord.ButtonStyle.success, row=row)
         self.season_id, self.episodes, self.result, self.index, self.season = season_id, episodes, result, index, season
     
     async def callback(self, interaction: discord.Interaction):
