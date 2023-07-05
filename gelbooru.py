@@ -72,20 +72,28 @@ async def BuildEmbed(tags: list, results, index: int, safe: bool, lock: list, ct
 class ImageView(discord.ui.View):
     def __init__(self, tags: list, results: list, index: int, safe: bool, lock: list, ctx: commands.Context, db: str):
         super().__init__(timeout=None)
+        column, row, pagelimit = 0, -1, 8
+        i = (index // pagelimit) * pagelimit
+        while i < len(results):
+            if column % 4 == 0: row += 1
+            if (i < ((index // pagelimit) * pagelimit)+pagelimit): 
+                self.add_item(ButtonAction(tags, safe, results, i, None, row, lock, ctx, db, str(i+1)))
+            i += 1
+            column += 1
         if not index == 0: 
-            self.add_item(ButtonAction(tags, safe, results, 0, "⏪", 0, lock, ctx, db))
-            self.add_item(ButtonAction(tags, safe, results, index - 1, "◀️", 0, lock, ctx, db))
+            self.add_item(ButtonAction(tags, safe, results, 0, "⏪", 2, lock, ctx, db, ""))
+            self.add_item(ButtonAction(tags, safe, results, index - 1, "◀️", 2, lock, ctx, db, ""))
         if index + 1 < len(results): 
-            self.add_item(ButtonAction(tags, safe, results, index + 1, "▶️", 0, lock, ctx, db))
-            self.add_item(ButtonAction(tags, safe, results, len(results)-1, "⏩", 0, lock, ctx, db))
-        self.add_item(ButtonAction(tags, safe, results, random.randrange(0, len(results)), "🔀", 1, lock, ctx, db))
-        self.add_item(ButtonHeart(ctx, db, results[index].id))
-        self.add_item(ButtonAction(tags, safe, results, index, "🔒" if lock[1] else "🔓", 1, [lock[1], not lock[1]], ctx, db))
-        self.add_item(ButtonEnd(ctx, lock[1]))
+            self.add_item(ButtonAction(tags, safe, results, index + 1, "▶️", 2, lock, ctx, db, ""))
+            self.add_item(ButtonAction(tags, safe, results, len(results)-1, "⏩", 2, lock, ctx, db, ""))
+        self.add_item(ButtonAction(tags, safe, results, random.randrange(0, len(results)), "🔀", 3, lock, ctx, db, ""))
+        self.add_item(ButtonHeart(ctx, db, results[index].id, 3))
+        self.add_item(ButtonAction(tags, safe, results, index, "🔒" if lock[1] else "🔓", 3, [lock[1], not lock[1]], ctx, db, ""))
+        self.add_item(ButtonEnd(ctx, lock[1], 3))
 
 class ButtonEnd(discord.ui.Button):
-    def __init__(self, ctx: commands.Context, lock: bool):
-        super().__init__(style=discord.ButtonStyle.success, emoji="🛑", row=1)
+    def __init__(self, ctx: commands.Context, lock: bool, row: int):
+        super().__init__(style=discord.ButtonStyle.success, emoji="🛑", row=row)
         self.ctx, self.lock = ctx, lock
     
     async def callback(self, interaction: discord.Interaction):
@@ -95,25 +103,26 @@ class ButtonEnd(discord.ui.Button):
         else: await interaction.response.edit_message(content="🤨", view=None, embed=None)
 
 class ButtonHeart(discord.ui.Button):
-    def __init__(self, ctx: commands.Context, db: str, id: int):
-        super().__init__(style=discord.ButtonStyle.success, emoji="❤️", row=1)
+    def __init__(self, ctx: commands.Context, db: str, id: int, row: int):
+        self.mycol = myclient["gel"][db]
+        emoji = "❤️" if list(self.mycol.find({"user": ctx.message.author.id, "favorites": id})) else "💔"
+        super().__init__(style=discord.ButtonStyle.success, emoji=emoji, row=row)
         self.db, self.ctx, self.id = db, ctx, id
     
     async def callback(self, interaction: discord.Interaction):
-        mycol = myclient["gel"][self.db]
-        if not list(mycol.find({"user": interaction.user.id})): 
-            mycol.insert_one({"user": interaction.user.id})
+        if not list(self.mycol.find({"user": interaction.user.id})): 
+            self.mycol.insert_one({"user": interaction.user.id})
 
-        if not list(mycol.find({"user": interaction.user.id, "favorites": self.id})):
-            mycol.update_one({"user": interaction.user.id}, {"$push": {"favorites" : self.id}})
-            await interaction.response.send_message(f"Added to favorites. Use `-{self.db}` to view your collections. ❤️", ephemeral=True)
+        if not list(self.mycol.find({"user": interaction.user.id, "favorites": self.id})):
+            self.mycol.update_one({"user": interaction.user.id}, {"$push": {"favorites" : self.id}})
+            await interaction.response.send_message(f"❤️ Added to favorites ❤️\nUse `-{self.db}` to view your collection.", ephemeral=True)
         else: 
-            mycol.update_one({"user": interaction.user.id}, {"$pull": {"favorites" : self.id}})
-            await interaction.response.send_message(f"Removed to favorites. Use `-{self.db}` to view your collections. ❤️", ephemeral=True)
+            self.mycol.update_one({"user": interaction.user.id}, {"$pull": {"favorites" : self.id}})
+            await interaction.response.send_message(f"💔 Removed to favorites 💔\nUse `-{self.db}` to view your collection.", ephemeral=True)
 
 class ButtonAction(discord.ui.Button):
-    def __init__(self, tags: list, safe: bool, results: list, index: list, l: str, row: int, lock: list, ctx: commands.Context, db: str):
-        super().__init__(emoji=l, style=discord.ButtonStyle.success, row=row)
+    def __init__(self, tags: list, safe: bool, results: list, index: list, l: str, row: int, lock: list, ctx: commands.Context, db: str, la: str):
+        super().__init__(emoji=l, style=discord.ButtonStyle.success, row=row, label=la)
         self.results, self.index, self.tags, self.safe, self.lock, self.ctx, self.db = results, index, tags, safe, lock, ctx, db
     
     async def callback(self, interaction: discord.Interaction):

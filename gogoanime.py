@@ -84,14 +84,13 @@ class MyView4(discord.ui.View):
             if (i == index+pagelimit): last_index = i
             i += 1
             column += 1
-        row = 4
         if index - pagelimit > -1:
-            self.add_item(nextPage(arg, result, 0, row, "<<"))
-            self.add_item(nextPage(arg, result, index - pagelimit, row, "<"))
+            self.add_item(nextPage(arg, result, 0, 3, "⏪"))
+            self.add_item(nextPage(arg, result, index - pagelimit, 3, "◀️"))
         if not last_index == len(result):
-            self.add_item(nextPage(arg, result, last_index, row, ">"))
+            self.add_item(nextPage(arg, result, last_index, 3, "▶️"))
             max_page = get_max_page(len(result))
-            self.add_item(nextPage(arg, result, max_page, row, ">>"))
+            self.add_item(nextPage(arg, result, max_page, 3, "⏩"))
 
 class ButtonSelect4(discord.ui.Button):
     def __init__(self, index: int, result: list, row: int):
@@ -115,7 +114,7 @@ class ButtonSelect4(discord.ui.Button):
 
 class nextPage(discord.ui.Button):
     def __init__(self, arg: str, result: list, index: int, row: int, l: str):
-        super().__init__(label=l, style=discord.ButtonStyle.success, row=row)
+        super().__init__(emoji=l, style=discord.ButtonStyle.success, row=row)
         self.result, self.index, self.arg = result, index, arg
     
     async def callback(self, interaction: discord.Interaction):
@@ -134,14 +133,13 @@ class MyView5(discord.ui.View):
             if (i == index+pagelimit): last_index = i
             i += 1
             column += 1
-        row = 4
         if index - pagelimit > -1:
-            self.add_item(nextPageEP(details, 0, row, "<<"))
-            self.add_item(nextPageEP(details, index - pagelimit, row, "<"))
+            self.add_item(nextPageEP(details, 0, 3, "⏪"))
+            self.add_item(nextPageEP(details, index - pagelimit, 3, "◀️"))
         if not last_index == int(details[ep]):
-            self.add_item(nextPageEP(details, last_index, row, ">"))
+            self.add_item(nextPageEP(details, last_index, 3, "▶️"))
             max_page = get_max_page(int(details[ep]))
-            self.add_item(nextPageEP(details, max_page, row, ">>"))
+            self.add_item(nextPageEP(details, max_page, 3, "⏩"))
 
 class ButtonSelect5(discord.ui.Button):
     def __init__(self, index: int, sUrl: str, row: int):
@@ -161,7 +159,7 @@ class ButtonSelect5(discord.ui.Button):
 
 class nextPageEP(discord.ui.Button):
     def __init__(self, details: list, index: int, row: int, l: str):
-        super().__init__(label=l, style=discord.ButtonStyle.success, row=row)
+        super().__init__(emoji=l, style=discord.ButtonStyle.success, row=row)
         self.details, self.index = details, index
     
     async def callback(self, interaction: discord.Interaction):

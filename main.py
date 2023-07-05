@@ -75,7 +75,7 @@ async def tic(ctx: commands.Context):
 from ytdlp_ import YTDLP
 @bot.command()
 async def ytdlp(ctx: commands.Context, arg1, arg2=None):
-    await YTDLP(ctx, arg1, arg2)
+    bot.loop.create_task(YTDLP(ctx, arg1, arg2))
 
 # bard
 from bard import Bard
@@ -94,16 +94,13 @@ async def bard(ctx: commands.Context, *, arg):
 from gelbooru import R34, GEL, SAFE
 @bot.command()
 async def r34(ctx: commands.Context, *, arg=""):
-    # bot.loop.create_task(R34(ctx, arg))
-    await R34(ctx, arg)
+    bot.loop.create_task(R34(ctx, arg))
 @bot.command()
 async def gel(ctx: commands.Context, *, arg=""):
-    # bot.loop.create_task(GEL(ctx, arg))
-    await GEL(ctx, arg)
+    bot.loop.create_task(GEL(ctx, arg))
 @bot.command()
 async def safe(ctx: commands.Context, *, arg=""):
-    # bot.loop.create_task(SAFE(ctx, arg))
-    await SAFE(ctx, arg)
+    bot.loop.create_task(SAFE(ctx, arg))
 
 # aki
 from aki import Aki
