@@ -83,7 +83,7 @@ os.environ['_BARD_API_KEY'] = os.getenv("BARD")
 @bot.command()
 async def bard(ctx: commands.Context, *, arg):
     try: response = Bard(timeout=60).get_answer(arg)
-    except: return await ctx.reply("**Error! Wake up <@729554186777133088> :(**")
+    except: return await ctx.reply("**Error! :(**")
     await ctx.reply(response['content'][:2000])
     if response['images']:
         img = list(response['images'])
@@ -114,5 +114,10 @@ from lex import LEX
 @bot.command()
 async def lex(ctx: commands.Context, *, arg):
     await LEX(ctx, arg)
+
+from quiz import QUIZ
+@bot.command()
+async def quiz(ctx: commands.Context, mode: str=None, cat: str=None):
+    await QUIZ(ctx, mode, cat)
 
 bot.run(os.getenv("TOKEN"))

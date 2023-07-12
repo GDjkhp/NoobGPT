@@ -140,7 +140,7 @@ class ButtonSelect(discord.ui.Button):
                 url = cdn_url(iframe_link, iframe_id)
                 embed = buildMovie(url, self.result)
                 await interaction.message.edit(embed=embed, view=None)
-            except: await interaction.message.edit(content="**UnicodeDecodeError: The Current Key is not correct. Wake up <@729554186777133088> :(**",
+            except: await interaction.message.edit(content="**UnicodeDecodeError: The Current Key is not correct.**",
                                                    view=None)
             
 class ButtonNextSearch(discord.ui.Button):
@@ -235,7 +235,7 @@ class ButtonSelect3(discord.ui.Button):
         try:
             url = cdn_url(iframe_link, iframe_id)
             await interaction.followup.send(f"{self.title} [S{self.season}E{self.index}]: {url}")
-        except: await interaction.followup.send("**UnicodeDecodeError: The Current Key is not correct. Wake up <@729554186777133088> :(**")
+        except: await interaction.followup.send("**UnicodeDecodeError: The Current Key is not correct.**")
 
 # actvid utils
 def server_id(mov_id: str) -> str:

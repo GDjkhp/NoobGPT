@@ -8,11 +8,11 @@ client, client0 = HttpClient(), HttpClient()
 title, url, aid, mv_tv, poster = 0, 1, 2, 3, 4
 desc, ep, animetype, released, genre = 2, 3, 5, 6, 7
 pagelimit = 12
-gogoanime = "https://gogoanime.hu"
+gogoanime = "https://gogoanimehd.to"
 
 async def Gogoanime(msg: discord.Message, arg: str):
     try: result = resultsAnime(searchAnime(arg))
-    except: return await msg.edit(content="Error! Domain changed most likely. Wake up <@729554186777133088> :(")
+    except: return await msg.edit(content="Error! Domain changed most likely.")
     embed = buildSearch(arg, result, 0)
     await msg.edit(content=None, embed = embed, view = MyView4(arg, result, 0))
 
@@ -151,11 +151,12 @@ class ButtonSelect5(discord.ui.Button):
         url = self.sUrl.split("/")[-1]
         request = client.get(f"{gogoanime}/{url}-episode-{self.index}")
         soup = BS(request, "lxml")
-        # url = doodstream(
-        #     soup.find("li", {"class": "doodstream"}).find("a")["data-video"]
-        # )
         video = soup.find("li", {"class": "doodstream"}).find("a")["data-video"]
         await interaction.response.send_message(f"{url}-episode-{self.index}: {video}")
+        # url0 = doodstream(
+        #     soup.find("li", {"class": "doodstream"}).find("a")["data-video"]
+        # )
+        # await interaction.response.send_message(f"{url}-episode-{self.index}: {url0}")
 
 class nextPageEP(discord.ui.Button):
     def __init__(self, details: list, index: int, row: int, l: str):
