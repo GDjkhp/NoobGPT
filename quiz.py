@@ -77,8 +77,6 @@ def BuildQuestion(results: list, index: int, ctx: commands.Context, multi: dict)
     else: 
         text = keys(multi, ctx)
         embed.set_author(name=text)
-    for c in range(len(results[index]['choices'])):
-        embed.add_field(name=i2c(c), value=results[index]['choices'][c], inline=False)
     return embed
 
 class QuizView(discord.ui.View):
@@ -89,7 +87,7 @@ class QuizView(discord.ui.View):
 
 class ButtonChoice(discord.ui.Button):
     def __init__(self, results: list, index: int, ctx: commands.Context, multi: bool, c: int, players: dict):
-        super().__init__(emoji=i2c(c))
+        super().__init__(emoji=i2c(c), label=results[index]['choices'][c])
         self.results, self.index, self.ctx, self.multi, self.c, self.players = results, index, ctx, multi, c, players
     
     async def callback(self, interaction: discord.Interaction):
