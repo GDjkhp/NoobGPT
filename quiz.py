@@ -9,11 +9,13 @@ async def QUIZ(ctx: commands.Context, mode: str, cat: str):
     req, multi = "https://opentdb.com/api.php?amount=50&encode=url3986", False
     if mode == "all": multi = True
     if cat:
+        a = False
         for item in categories:
             if str(item["id"]) == cat:
                 req = f"https://opentdb.com/api.php?amount=50&category={cat}&encode=url3986"
+                a = True
                 break
-        return await ctx.reply(embed=BuildCategory(categories))
+        if not a: return await ctx.reply(embed=BuildCategory(categories))
     results = requests.get(req).json()['results']
     results = decodeResults(results)
     # for q in results:
