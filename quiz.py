@@ -80,12 +80,12 @@ class ButtonChoice(discord.ui.Button):
             return await interaction.response.send_message(f"{self.ctx.author} is playing this game.", ephemeral=True)
         check = self.results[self.index]['correct_answer'] == self.results[self.index]['choices'][self.c]
         if self.index+1 < 50: 
-            await interaction.response.edit_message(content=f"Correct!\nScore: {self.score}"
+            await interaction.response.edit_message(content=f"Correct!\nScore: {self.score+1}"
                                                     if check
                                                     else f"Incorrect!\n{self.results[self.index]['question']}\n{self.results[self.index]['correct_answer']}\nScore: {self.score}",
                                                     embed=BuildQuestion(self.results, self.index+1, self.ctx, [self.ctx.author] if self.multi else None), 
                                                     view=QuizView(self.results, self.index+1, self.ctx, self.multi, self.score+1 if check else self.score))
-        else: await interaction.response.edit_message(content=f"Correct!\nScore: {self.score}\nTest ended."
+        else: await interaction.response.edit_message(content=f"Correct!\nScore: {self.score+1}\nTest ended."
                                                       if check
                                                       else f"Incorrect!\n{self.results[self.index]['question']}\n{self.results[self.index]['correct_answer']}\nScore: {self.score}\nTest ended.",
                                                       embed=None, view=None)
