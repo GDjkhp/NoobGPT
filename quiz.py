@@ -113,7 +113,7 @@ class ButtonChoice(discord.ui.Button):
             check = self.results[self.index]['correct_answer'] == self.results[self.index]['choices'][self.c]
             text = f"Correct!\nScore: {self.players[self.ctx.author.id]['score']}" if check else f"Incorrect!\n{self.results[self.index]['question']}\n{self.results[self.index]['correct_answer']}\nScore: {self.players[self.ctx.author.id]['score']}"
             if self.multi:
-                text = self.results[self.index]['correct_answer']
+                text = f"{self.results[self.index]['question']}\n{self.results[self.index]['correct_answer']}"
                 text += keysScore(self.players)
             if self.index+1 < 50: 
                 await interaction.response.edit_message(content=text,
