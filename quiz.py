@@ -13,7 +13,7 @@ async def QUIZ(ctx: commands.Context, mode: str, cat: str):
             if str(item["id"]) == cat:
                 req = f"https://opentdb.com/api.php?amount=50&category={cat}&encode=url3986"
                 break
-        if not cat: return await ctx.reply(embed=BuildCategory(categories))
+        return await ctx.reply(embed=BuildCategory(categories))
     results = requests.get(req).json()['results']
     results = decodeResults(results)
     # for q in results:
