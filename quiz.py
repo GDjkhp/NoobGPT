@@ -180,6 +180,10 @@ def parseText(multi: bool, results: list, index: int, players: dict, c: int, ctx
         text = f"{results[index]['question']}\n{results[index]['correct_answer']}"
         text += keysScore(players)
     else:
-        check = results[index]['correct_answer'] == results[index]['choices'][c]
-        text = f"Correct!\nScore: {players[ctx.author.id]['score']}" if check else f"Incorrect!\n{results[index]['question']}\n{results[index]['correct_answer']}\nScore: {players[ctx.author.id]['score']}"
+        z = [420, 69]
+        if not c in z: 
+            check = results[index]['correct_answer'] == results[index]['choices'][c]
+            r = f"\n{results[index]['question']}\n{results[index]['correct_answer']}\nScore: {players[ctx.author.id]['score']}"
+            text = "Correct!"+r if check else "Incorrect!"+r
+        else: text = f"Score: {players[ctx.author.id]['score']}"
     return text
