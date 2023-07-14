@@ -10,10 +10,10 @@ async def QUIZ(ctx: commands.Context, mode: str, cat: str, diff: str, ty: str, c
         if count and int(count) > 51: return await ctx.reply("Items must be 50 or less.") 
         if not count: count = "50"
     except: return await ctx.reply("Must be integer :(")
-    req, multi = f"https://opentdb.com/api.php?amount={int(count)}&encode=url3986", False
+    req = f"https://opentdb.com/api.php?amount={int(count)}&encode=url3986"
+    multi, anon = False, False
     modes = ["all", "anon"]
     if mode in modes: multi = True
-    anon = False
     if mode == "anon": anon = True
     if cat:
         a = False
