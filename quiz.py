@@ -8,7 +8,7 @@ async def QUIZ(ctx: commands.Context, mode: str, cat: str, diff: str, ty: str, c
     categories = requests.get('https://opentdb.com/api_category.php').json()['trivia_categories']
     try: 
         if count and int(count) > 51: return await ctx.reply("Items must be 50 or less.") 
-        else: count = "50"
+        if not count: count = "50"
     except: return await ctx.reply("Must be integer :(")
     req, multi = f"https://opentdb.com/api.php?amount={int(count)}&encode=url3986", False
     if mode == "all": multi = True
