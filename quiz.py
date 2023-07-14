@@ -104,7 +104,7 @@ def BuildQuestion(results: list, index: int, ctx: commands.Context, multi: dict)
                           description=f"{results[index]['category']} ({results[index]['difficulty']})")
     embed.set_footer(text=f"{index+1}/{len(results)}")
     if not multi: 
-        if ctx.message.author.avatar.url: embed.set_author(name=ctx.author, icon_url=ctx.message.author.avatar.url) 
+        if ctx.message.author.avatar: embed.set_author(name=ctx.author, icon_url=ctx.message.author.avatar.url) 
         else: embed.set_author(name=ctx.author)
     else: 
         text = keys(multi, ctx)

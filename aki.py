@@ -21,7 +21,7 @@ def w(ctx: commands.Context, aki: Akinator) -> discord.Embed():
     # 'absolute_picture_path': 'https://photos.clarinea.fr/BL_25_en/600/partenaire/t/19813121__1094299039.jpeg'}
     embed_win = discord.Embed(title=aki.first_guess['name'], description=aki.first_guess['description'],
                               colour=0x00FF00)
-    if ctx.message.author.avatar.url: embed_win.set_author(name=ctx.author, icon_url=ctx.message.author.avatar.url)
+    if ctx.message.author.avatar: embed_win.set_author(name=ctx.author, icon_url=ctx.message.author.avatar.url)
     else: embed_win.set_author(name=ctx.author)
     embed_win.set_image(url=aki.first_guess['absolute_picture_path'])
     embed_win.add_field(name="Ranking", value="#"+aki.first_guess['ranking'], inline=True)
@@ -30,7 +30,7 @@ def w(ctx: commands.Context, aki: Akinator) -> discord.Embed():
     return embed_win
 def qEmbed(aki: Akinator, ctx: commands.Context, q: str) -> discord.Embed():
     e = discord.Embed(title=f"{aki.step+1}. {q}", description=f"{aki.progression}%", color=0x00FF00)
-    if ctx.message.author.avatar.url: e.set_author(name=ctx.author, icon_url=ctx.message.author.avatar.url)
+    if ctx.message.author.avatar: e.set_author(name=ctx.author, icon_url=ctx.message.author.avatar.url)
     else: e.set_author(name=ctx.author)
     return e
 
@@ -94,13 +94,15 @@ class ButtonAction0(discord.ui.Button):
             embed_win.add_field(name="Ranking", value="#"+self.aki.first_guess['ranking'], inline=True)
             embed_win.add_field(name="Questions", value=self.aki.step+1, inline=True)
             embed_win.add_field(name="Progress", value=f"{self.aki.progression}%", inline=True)
-            embed_win.set_author(name=self.ctx.author, icon_url=self.ctx.message.author.avatar.url)
+            if self.ctx.message.author.avatar: embed_win.set_author(name=self.ctx.author, icon_url=self.ctx.message.author.avatar.url)
+            else: embed_win.set_author(name=self.ctx.author)
             await interaction.response.edit_message(embed=embed_win, view=None)
         else: 
             embed_loss = discord.Embed(title="Game over!", description="Here's some of my guesses:", color=0xFF0000)
             for times in self.aki.guesses:
                 embed_loss.add_field(name=times['name'], value=times['description'])
-            embed_loss.set_author(name=self.ctx.author, icon_url=self.ctx.message.author.avatar.url)
+            if self.ctx.message.author.avatar: embed_loss.set_author(name=self.ctx.author, icon_url=self.ctx.message.author.avatar.url)
+            else: embed_loss.set_author(name=self.ctx.author)
             await interaction.response.edit_message(embed=embed_loss, view=None)
 
 # @commands.max_concurrency(1, per=BucketType.default, wait=False)
