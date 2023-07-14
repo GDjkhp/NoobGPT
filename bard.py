@@ -21,7 +21,7 @@ class Bard:
 
     def __init__(
         self,
-        token: str = None,
+        cookie_dict: dict = None,
         timeout: int = 20,
         proxies: dict = None,
         session: requests.Session = None,
@@ -37,7 +37,7 @@ class Bard:
             session (requests.Session): Requests session object.
             language (str): Language code for translation (e.g., "en", "ko", "ja").
         """
-        self.token = token or os.getenv("_BARD_API_KEY")
+        # self.token = token or os.getenv("_BARD_API_KEY")
         self.proxies = proxies
         self.timeout = timeout
         self._reqid = int("".join(random.choices(string.digits, k=4)))
@@ -48,7 +48,9 @@ class Bard:
         if session is None:
             self.session = requests.Session()
             self.session.headers = SESSION_HEADERS
-            self.session.cookies.set("__Secure-1PSID", self.token)
+
+            for k, v in cookie_dict.items():
+                self.session.cookies.set(k, v)
         else:
             self.session = session
         self.SNlM0e = self._get_snim0e()
@@ -150,10 +152,10 @@ class Bard:
         Raises:
             Exception: If the __Secure-1PSID value is invalid or SNlM0e value is not found in the response.
         """
-        if not self.token or self.token[-1] != ".":
-            raise Exception(
-                "__Secure-1PSID value must end with a single dot. Enter correct __Secure-1PSID value."
-            )
+        # if not self.token or self.token[-1] != ".":
+        #     raise Exception(
+        #         "__Secure-1PSID value must end with a single dot. Enter correct __Secure-1PSID value."
+        #     )
         resp = self.session.get(
             "https://bard.google.com/", timeout=self.timeout, proxies=self.proxies
         )

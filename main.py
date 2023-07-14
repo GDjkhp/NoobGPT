@@ -79,16 +79,24 @@ async def ytdlp(ctx: commands.Context, arg1, arg2=None):
 
 # bard
 from bard import Bard
-os.environ['_BARD_API_KEY'] = os.getenv("BARD")
+import time
+cookie_dict = {
+    "__Secure-1PSID": os.getenv("BARD"),
+    "__Secure-1PSIDTS": os.getenv("BARD0"),
+    # Any cookie values you want to pass session object.
+}
 @bot.command()
 async def bard(ctx: commands.Context, *, arg):
-    try: response = Bard(timeout=60).get_answer(arg)
-    except: return await ctx.reply("**Error! :(**")
+    msg = await ctx.reply("Generating response…")
+    old = round(time.time() * 1000)
+    try: response = Bard(cookie_dict=cookie_dict, timeout=60).get_answer(arg)
+    except Exception as e: return await msg.edit(content=f"**Error! :(**\n{e}")
     await ctx.reply(response['content'][:2000])
     if response['images']:
         img = list(response['images'])
         for i in range(len(img)):
             await ctx.reply(img[i])
+    await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
 
 # :|
 from gelbooru import R34, GEL, SAFE
@@ -117,7 +125,7 @@ async def lex(ctx: commands.Context, *, arg):
 
 from quiz import QUIZ
 @bot.command()
-async def quiz(ctx: commands.Context, mode: str=None, cat: str=None):
-    await QUIZ(ctx, mode, cat)
+async def quiz(ctx: commands.Context, mode: str=None, cat: str=None, diff: str=None, ty: str=None, count: str=None):
+    await QUIZ(ctx, mode, cat, diff, ty, count)
 
 bot.run(os.getenv("TOKEN"))
