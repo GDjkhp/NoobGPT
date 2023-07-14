@@ -103,7 +103,9 @@ def BuildQuestion(results: list, index: int, ctx: commands.Context, multi: dict)
     embed = discord.Embed(title=f"{index+1}. {results[index]['question']}", 
                           description=f"{results[index]['category']} ({results[index]['difficulty']})")
     embed.set_footer(text=f"{index+1}/{len(results)}")
-    if not multi: embed.set_author(name=ctx.author, icon_url=ctx.message.author.avatar.url) 
+    if not multi: 
+        if ctx.message.author.avatar.url: embed.set_author(name=ctx.author, icon_url=ctx.message.author.avatar.url) 
+        else: embed.set_author(name=ctx.author)
     else: 
         text = keys(multi, ctx)
         embed.set_author(name=text)

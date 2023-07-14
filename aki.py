@@ -21,7 +21,8 @@ def w(ctx: commands.Context, aki: Akinator) -> discord.Embed():
     # 'absolute_picture_path': 'https://photos.clarinea.fr/BL_25_en/600/partenaire/t/19813121__1094299039.jpeg'}
     embed_win = discord.Embed(title=aki.first_guess['name'], description=aki.first_guess['description'],
                               colour=0x00FF00)
-    embed_win.set_author(name=ctx.author, icon_url=ctx.message.author.avatar.url)
+    if ctx.message.author.avatar.url: embed_win.set_author(name=ctx.author, icon_url=ctx.message.author.avatar.url)
+    else: embed_win.set_author(name=ctx.author)
     embed_win.set_image(url=aki.first_guess['absolute_picture_path'])
     embed_win.add_field(name="Ranking", value="#"+aki.first_guess['ranking'], inline=True)
     embed_win.add_field(name="Questions", value=aki.step+1, inline=True)
@@ -29,7 +30,8 @@ def w(ctx: commands.Context, aki: Akinator) -> discord.Embed():
     return embed_win
 def qEmbed(aki: Akinator, ctx: commands.Context, q: str) -> discord.Embed():
     e = discord.Embed(title=f"{aki.step+1}. {q}", description=f"{aki.progression}%", color=0x00FF00)
-    e.set_author(name=ctx.author, icon_url=ctx.message.author.avatar.url)
+    if ctx.message.author.avatar.url: e.set_author(name=ctx.author, icon_url=ctx.message.author.avatar.url)
+    else: e.set_author(name=ctx.author)
     return e
 
 class QView(discord.ui.View):
