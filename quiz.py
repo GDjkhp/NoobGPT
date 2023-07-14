@@ -11,7 +11,10 @@ async def QUIZ(ctx: commands.Context, mode: str, cat: str, diff: str, ty: str, c
         if not count: count = "50"
     except: return await ctx.reply("Must be integer :(")
     req, multi = f"https://opentdb.com/api.php?amount={int(count)}&encode=url3986", False
-    if mode == "all": multi = True
+    modes = ["all", "anon"]
+    if mode in modes: multi = True
+    anon = False
+    if mode == "anon": anon = True
     if cat:
         a = False
         if any([str(item["id"]) == cat for item in categories]):
@@ -41,13 +44,8 @@ async def QUIZ(ctx: commands.Context, mode: str, cat: str, diff: str, ty: str, c
             return await ctx.reply(f"Type not found!\n`{t}`")
     results = requests.get(req).json()['results']
     results = decodeResults(results)
-    # for q in results:
-    #     print(f"Category: {q['category']}, Type: {q['type']}, Difficulty: {q['difficulty']}")
-    #     print(q['question'])
-    #     print(q['choices'])
-    #     print(f"Correct: {q['correct_answer']}, Incorrect: {q['incorrect_answers']}")
-    await ctx.reply(embed=BuildQuestion(results, 0, ctx, {ctx.author.id: {'score': 0, 'choice': -1, "name": ctx.author}} if multi else None), 
-                    view=QuizView(results, 0, ctx, multi, {ctx.author.id: {'score': 0, 'choice': -1, "name": ctx.author}}))
+    await ctx.reply(embed=BuildQuestion(results, 0, ctx, {ctx.author.id: {'score': 0, 'choice': -1, "name": ctx.author}} if multi else None, anon), 
+                    view=QuizView(results, 0, ctx, multi, {ctx.author.id: {'score': 0, 'choice': -1, "name": ctx.author}}, anon))
     
 def decodeResults(results: list) -> list:
     fResults = []
@@ -80,10 +78,15 @@ def i2c(c) -> str:
     elif c == 69: return "💀"
     else: return "❌"
 
-def keys(d: dict, ctx: commands.Context) -> str:
+def i2ca(c) -> str:
+    a = [0, 1, 2, 3]
+    if c in a: return "❓"
+    else: return "❌"
+
+def keys(d: dict, anon: bool) -> str:
     text = ""
     for key, value in d.items():
-        text += f"\n{value['name']}: {i2c(value['choice'])}"
+        text += f"\n{value['name']}: {i2c(value['choice'])}" if not anon else f"\n{value['name']}: {i2ca(value['choice'])}"
     return text
 
 def keysScore(d: dict) -> str:
@@ -99,7 +102,7 @@ def BuildCategory(categories: list) -> discord.Embed:
     embed.add_field(name="Random", value="any", inline=True)
     return embed
 
-def BuildQuestion(results: list, index: int, ctx: commands.Context, multi: dict):
+def BuildQuestion(results: list, index: int, ctx: commands.Context, multi: dict, anon: bool):
     embed = discord.Embed(title=f"{index+1}. {results[index]['question']}", 
                           description=f"{results[index]['category']} ({results[index]['difficulty']})")
     embed.set_footer(text=f"{index+1}/{len(results)}")
@@ -107,22 +110,22 @@ def BuildQuestion(results: list, index: int, ctx: commands.Context, multi: dict)
         if ctx.message.author.avatar: embed.set_author(name=ctx.author, icon_url=ctx.message.author.avatar.url) 
         else: embed.set_author(name=ctx.author)
     else: 
-        text = keys(multi, ctx)
+        text = keys(multi, anon)
         embed.set_author(name=text)
     return embed
 
 class QuizView(discord.ui.View):
-    def __init__(self, results: list, index: int, ctx: commands.Context, multi: bool, players: dict):
+    def __init__(self, results: list, index: int, ctx: commands.Context, multi: bool, players: dict, anon: bool):
         super().__init__(timeout=None)
         for c in range(len(results[index]['choices'])):
-            self.add_item(ButtonChoice(results, index, ctx, multi, c, players, 0, "CHOICE"))
-        self.add_item(ButtonChoice(results, index, ctx, multi, 69, players, 1, "PURGE"))
-        self.add_item(ButtonChoice(results, index, ctx, multi, 420, players, 1, "END"))
+            self.add_item(ButtonChoice(results, index, ctx, multi, c, players, 0, "CHOICE", anon))
+        self.add_item(ButtonChoice(results, index, ctx, multi, 69, players, 1, "PURGE", anon))
+        self.add_item(ButtonChoice(results, index, ctx, multi, 420, players, 1, "END", anon))
 
 class ButtonChoice(discord.ui.Button):
-    def __init__(self, results: list, index: int, ctx: commands.Context, multi: bool, c: int, players: dict, row: int, id: str):
+    def __init__(self, results: list, index: int, ctx: commands.Context, multi: bool, c: int, players: dict, row: int, id: str, anon: bool):
         super().__init__(emoji=i2c(c), label=results[index]['choices'][c] if id == "CHOICE" else id, row=row)
-        self.results, self.index, self.ctx, self.multi, self.c, self.players, self.id = results, index, ctx, multi, c, players, id
+        self.results, self.index, self.ctx, self.multi, self.c, self.players, self.id, self.anon = results, index, ctx, multi, c, players, id, anon
     
     async def callback(self, interaction: discord.Interaction):
         if self.id == "END":
@@ -141,8 +144,8 @@ class ButtonChoice(discord.ui.Button):
                 del self.players[k]
             text = keysScore(self.players)
             return await interaction.response.edit_message(content=text,
-                                                           embed=BuildQuestion(self.results, self.index, self.ctx, self.players if self.multi else None), 
-                                                           view=QuizView(self.results, self.index, self.ctx, self.multi, self.players))
+                                                           embed=BuildQuestion(self.results, self.index, self.ctx, self.players if self.multi else None, self.anon), 
+                                                           view=QuizView(self.results, self.index, self.ctx, self.multi, self.players, self.anon))
         
         # solo lock
         if not self.multi and interaction.user != self.ctx.author: 
@@ -159,8 +162,8 @@ class ButtonChoice(discord.ui.Button):
         if playing:
             text = keysScore(self.players)
             await interaction.response.edit_message(content=text,
-                                                    embed=BuildQuestion(self.results, self.index, self.ctx, self.players if self.multi else None), 
-                                                    view=QuizView(self.results, self.index, self.ctx, self.multi, self.players))
+                                                    embed=BuildQuestion(self.results, self.index, self.ctx, self.players if self.multi else None, self.anon), 
+                                                    view=QuizView(self.results, self.index, self.ctx, self.multi, self.players, self.anon))
         else:
             # multiplayer check
             for key, value in self.players.items():
@@ -171,8 +174,8 @@ class ButtonChoice(discord.ui.Button):
             text = parseText(self.multi, self.results, self.index, self.players, self.c, self.ctx)
             if self.index+1 < len(self.results): 
                 await interaction.response.edit_message(content=text,
-                                                        embed=BuildQuestion(self.results, self.index+1, self.ctx, self.players if self.multi else None), 
-                                                        view=QuizView(self.results, self.index+1, self.ctx, self.multi, self.players))
+                                                        embed=BuildQuestion(self.results, self.index+1, self.ctx, self.players if self.multi else None, self.anon), 
+                                                        view=QuizView(self.results, self.index+1, self.ctx, self.multi, self.players, self.anon))
             else: await interaction.response.edit_message(content=text+"\nTest ended.", embed=None, view=None)
 
 def parseText(multi: bool, results: list, index: int, players: dict, c: int, ctx: commands.Context) -> str:
