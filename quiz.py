@@ -167,7 +167,7 @@ class ButtonChoice(discord.ui.Button):
                 value['choice'] = -1
             # step
             text = parseText(self.multi, self.results, self.index, self.players, self.c, self.ctx)
-            if self.index+1 < 50: 
+            if self.index+1 < len(self.results): 
                 await interaction.response.edit_message(content=text,
                                                         embed=BuildQuestion(self.results, self.index+1, self.ctx, self.players if self.multi else None), 
                                                         view=QuizView(self.results, self.index+1, self.ctx, self.multi, self.players))
