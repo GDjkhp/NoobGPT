@@ -6,9 +6,10 @@ from discord.ext import commands
 
 async def QUIZ(ctx: commands.Context, mode: str, cat: str, diff: str, ty: str, count: str):
     msg = await ctx.reply("Crunching data…")
+    params = "`-quiz [mode: <all/anon/me>, category: <any/9-32>, difficulty: <any/easy/medium/hard>, type: <multiple/boolean>, count: <1-50>]`"
     categories = requests.get("https://opentdb.com/api_category.php").json()["trivia_categories"]
     try: 
-        if count and int(count) > 51: return await msg.edit(content="Items must be 50 or less.") 
+        if count and (int(count) > 51 or int(count) < 1): return await msg.edit(content="Items must be 1-50.") 
         if not count: count = "50"
     except: return await msg.edit(content="Must be integer :(")
     req = f"https://opentdb.com/api.php?amount={int(count)}&encode=url3986"
@@ -23,7 +24,7 @@ async def QUIZ(ctx: commands.Context, mode: str, cat: str, diff: str, ty: str, c
         if mode == "me": a = True
         if not a: 
             modes.append("me")
-            return await msg.edit(content=f"Mode not found.\n{modes}")
+            return await msg.edit(content=f"Mode not found.\n"+params)
     if cat:
         a = False
         if any([str(item["id"]) == cat for item in categories]):
