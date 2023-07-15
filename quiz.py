@@ -53,6 +53,7 @@ async def QUIZ(ctx: commands.Context, mode: str, cat: str, diff: str, ty: str, c
             t.append("any")
             return await msg.edit(content=f"Type not found!\n`{t}`")
     results = requests.get(req).json()["results"]
+    if not results: return await msg.edit(content="Error crunching questions, try again.")
     results = decodeResults(results)
     players = {ctx.author.id: {"score": 0, "choice": -1, "name": ctx.author, "emoji": "❓"}}
     settings = {"multiplayer": multi, "anon": anon, "difficulty": diff, "type": ty, "count": int(count)}
