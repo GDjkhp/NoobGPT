@@ -8,21 +8,29 @@ async def QUIZ(ctx: commands.Context, mode: str, cat: str, diff: str, ty: str, c
     msg = await ctx.reply("Crunching data…")
     categories = requests.get("https://opentdb.com/api_category.php").json()["trivia_categories"]
     try: 
-        if count and int(count) > 51: return await ctx.reply("Items must be 50 or less.") 
+        if count and int(count) > 51: return await msg.edit(content="Items must be 50 or less.") 
         if not count: count = "50"
-    except: return await ctx.reply("Must be integer :(")
+    except: return await msg.edit(content="Must be integer :(")
     req = f"https://opentdb.com/api.php?amount={int(count)}&encode=url3986"
     multi, anon = False, False
-    modes = ["all", "anon"]
-    if mode in modes: multi = True
-    if mode == "anon": anon = True
+    if mode:
+        modes = ["all", "anon"]
+        a = False
+        if mode in modes: 
+            multi = True
+            a = True
+        if mode == "anon": anon = True
+        if mode == "me": a = True
+        if not a: 
+            modes.append("me")
+            return await msg.edit(content=f"Mode not found.\n{modes}")
     if cat:
         a = False
         if any([str(item["id"]) == cat for item in categories]):
             req += f"&category={cat}"
             a = True
         if cat == "any": a = True 
-        if not a: return await ctx.reply(embed=BuildCategory(categories))
+        if not a: return await msg.edit(content=None, embed=BuildCategory(categories))
     if diff:
         d = ["easy", "medium", "hard"]
         a = False
@@ -32,7 +40,7 @@ async def QUIZ(ctx: commands.Context, mode: str, cat: str, diff: str, ty: str, c
         if diff == "any": a = True
         if not a:
             d.append("any")
-            return await ctx.reply(f"Difficulty not found!\n`{d}`")
+            return await msg.edit(content=f"Difficulty not found!\n`{d}`")
     if ty:
         t = ["multiple", "boolean"]
         a = False
@@ -42,7 +50,7 @@ async def QUIZ(ctx: commands.Context, mode: str, cat: str, diff: str, ty: str, c
         if ty == "any": a = True
         if not a:
             t.append("any")
-            return await ctx.reply(f"Type not found!\n`{t}`")
+            return await msg.edit(content=f"Type not found!\n`{t}`")
     results = requests.get(req).json()["results"]
     results = decodeResults(results)
     players = {ctx.author.id: {"score": 0, "choice": -1, "name": ctx.author, "emoji": "❓"}}
