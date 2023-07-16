@@ -125,8 +125,8 @@ async def lex(ctx: commands.Context, *, arg):
 
 from quiz import QUIZ
 @bot.command()
-async def quiz(ctx: commands.Context, mode: str=None, cat: str=None, diff: str=None, ty: str=None, count: str=None):
-    await QUIZ(ctx, mode, cat, diff, ty, count)
+async def quiz(ctx: commands.Context, mode: str=None, v: str=None, count: str=None, cat: str=None, diff: str=None, ty: str=None, ):
+    await QUIZ(ctx, mode, v, count, cat, diff, ty)
 
 # banner
 @bot.command()
@@ -135,7 +135,6 @@ async def ban(ctx: commands.Context, *, arg):
         user = await bot.fetch_user(int(arg))
         if user.banner: await ctx.reply(user.banner.url)
         else: await ctx.reply("There is no such thing.")
-    except:
-        await ctx.reply("Must be a valid user ID.")
+    except: await ctx.reply("Must be a valid user ID.")
 
 bot.run(os.getenv("TOKEN"))

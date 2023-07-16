@@ -4,16 +4,24 @@ import random
 import discord
 from discord.ext import commands
 
-async def QUIZ(ctx: commands.Context, mode: str, cat: str, diff: str, ty: str, count: str):
+async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, diff: str, ty: str):
     msg = await ctx.reply("Crunching data…")
-    params = "`-quiz [mode: <all/anon/me>, category: <any/9-32>, difficulty: <any/easy/medium/hard>, type: <any/multiple/boolean>, count: <1-50>]`"
-    categories = requests.get("https://opentdb.com/api_category.php").json()["trivia_categories"]
+    params = "`-quiz [mode: <all/anon/me>, version: <v1/v2>, count: <1-50>, category: <any/9-32>, difficulty: <any/easy/medium/hard>, type: <any/multiple/boolean>`"
+    multi, anon, ck, req = False, False, None, None
     try: 
         if count and (int(count) > 51 or int(count) < 1): return await msg.edit(content="Items must be 1-50.") 
         if not count: count = "50"
     except: return await msg.edit(content="Must be integer :(")
-    req = f"https://opentdb.com/api.php?amount={int(count)}&encode=url3986"
-    multi, anon = False, False
+    if v:
+        if v == "v2": 
+            req = f"https://the-trivia-api.com/v2/questions/?limit={int(count)}"
+            ck = "correctAnswer"
+    elif None or "v1" : 
+        req = f"https://opentdb.com/api.php?amount={int(count)}&encode=url3986"
+        ck, v = "correct_answer", "v1"
+    else: 
+        ver = ["v1", "v2"]
+        return await msg.edit(content=f"Version not found\n{ver}")
     if mode:
         modes = ["all", "anon"]
         a = False
@@ -25,10 +33,12 @@ async def QUIZ(ctx: commands.Context, mode: str, cat: str, diff: str, ty: str, c
         if not a: 
             modes.append("me")
             return await msg.edit(content=f"Mode not found.\n"+params)
+    v2cat = "science,film_and_tv,music,history,geography,art_and_literature,sport_and_leisure,general_knowledge,science,food_and_drink".split(",")
+    categories = v2cat if v == "v2" else requests.get("https://opentdb.com/api_category.php").json()["trivia_categories"]
     if cat:
         a = False
         if any([str(item["id"]) == cat for item in categories]):
-            req += f"&category={cat}"
+            req += f"&categories={cat}" if v == "v2" else f"&category={cat}"
             a = True
         if cat == "any": a = True 
         if not a: return await msg.edit(content=None, embed=BuildCategory(categories))
@@ -36,13 +46,13 @@ async def QUIZ(ctx: commands.Context, mode: str, cat: str, diff: str, ty: str, c
         d = ["easy", "medium", "hard"]
         a = False
         if diff in d:
-            req += f"&difficulty={diff}"
+            req += f"&difficulties={diff}" if v == "v2" else f"&difficulty={diff}"
             a = True
         if diff == "any": a = True
         if not a:
             d.append("any")
             return await msg.edit(content=f"Difficulty not found!\n`{d}`")
-    if ty:
+    if ty and v == "v1":
         t = ["multiple", "boolean"]
         a = False
         if ty in t:
@@ -52,23 +62,23 @@ async def QUIZ(ctx: commands.Context, mode: str, cat: str, diff: str, ty: str, c
         if not a:
             t.append("any")
             return await msg.edit(content=f"Type not found!\n`{t}`")
-    results = requests.get(req).json()["results"]
+    settings = {"multiplayer": multi, "anon": anon, "difficulty": diff, "type": ty, "count": int(count), "correct_key": ck}
+    results = requests.get(req).json()["results"] if v == "v1" else requests.get(req).json()
     if not results: return await msg.edit(content="Error crunching questions, try again.")
-    results = decodeResults(results)
+    results = decodeResults(results, settings["correct_key"])
     players = {}
     players[ctx.author.id] = add_player(ctx.author)
     players[ctx.author.id]["host"] = True
-    settings = {"multiplayer": multi, "anon": anon, "difficulty": diff, "type": ty, "count": int(count)}
     await msg.edit(content=settings, embed=BuildQuestion(results, 0, ctx, players, settings), 
                    view=QuizView(results, 0, ctx, players, settings))
     
 def add_player(p) -> dict:
     return {"score": 0, "choice": -1, "name": p, "emoji": "❓", "host": False, "confirm": -1}
     
-def decodeResults(results: list) -> list:
+def decodeResults(results: list, ck: str) -> list:
     fResults = []
     for r in results:
-        ch = p.unquote(r["correct_answer"])
+        ch = p.unquote(r[ck])
         ty = p.unquote(r["type"])
         decoded_dict = {}
         for key, value in r.items():
@@ -76,12 +86,14 @@ def decodeResults(results: list) -> list:
                 if ty == "boolean":
                     d = value
                     c = ["True", "False"]
-                else:
+                elif key != "tags" and key != "regions":
                     d = [p.unquote(answer) for answer in value]
                     c = d.copy()
                     c.append(ch)
                     random.shuffle(c)
+                else: d = value 
                 decoded_dict["choices"] = c
+            elif isinstance(value, bool) or isinstance(value, dict): d = value 
             else: d = p.unquote(value)
             decoded_dict[key] = d
         fResults.append(decoded_dict)
@@ -113,15 +125,15 @@ def keysScore(d: dict) -> str:
     for key, value in d.items(): text += f"\n<@{key}>: {value['score']} {value['emoji']}"
     return text
 
-def parseText(multi: bool, results: list, index: int, players: dict, c: int, ctx: commands.Context) -> str:
-    if multi:
-        text = f"{results[index]['question']}\n{results[index]['correct_answer']}"
+def parseText(settings: dict, results: list, index: int, players: dict, c: int, ctx: commands.Context) -> str:
+    if settings["multiplayer"]:
+        text = f"{results[index]['question']}\n{results[index][settings['correct_key']]}"
         text += keysScore(players)
     else:
         z = [420, 69, -1, 1337]
         if not c in z: 
-            check = results[index]["correct_answer"] == results[index]["choices"][c]
-            r = f"\n{results[index]['question']}\n{results[index]['correct_answer']}\nScore: {players[ctx.author.id]['score']} "
+            check = results[index][settings["correct_key"]] == results[index]["choices"][c]
+            r = f"\n{results[index]['question']}\n{results[index][settings['correct_key']]}\nScore: {players[ctx.author.id]['score']} "
             text = r+"✅" if check else r+"❌"
         else: text = f"Score: {players[ctx.author.id]['score']}"
     return text
@@ -133,10 +145,11 @@ def button_confirm(d, k) -> bool:
     d[k]["confirm"]=-1
     return False
 
-def BuildCategory(categories: list) -> discord.Embed:
+def BuildCategory(categories) -> discord.Embed:
     embed = discord.Embed(title=f"Available categories", color=0x00ff00)
     for c in categories:
-        embed.add_field(name=c["name"], value=c["id"], inline=True)
+        if isinstance(categories, dict): embed.add_field(name=c["name"], value=c["id"], inline=True)
+        else: embed.add_field(name=c, value="", inline=True)
     embed.add_field(name="Random", value="any", inline=True)
     return embed
 
@@ -181,7 +194,6 @@ class ButtonChoice(discord.ui.Button):
         if not a:
             k = next(iter(self.players))
             self.players[k]["host"] = True
-        # TODO: add dialog confirmation
         if self.id == "LEAVE":
             a = False
             keys_to_remove = []
@@ -193,7 +205,7 @@ class ButtonChoice(discord.ui.Button):
             if button_confirm(self.players, interaction.user.id): 
                 return await interaction.response.send_message(content=f"Hey <@{interaction.user.id}>, press the button again to confirm.", 
                                                                ephemeral=True)
-            text = parseText(self.settings["multiplayer"], self.results, self.index, self.players, self.c, self.ctx)
+            text = parseText(self.settings, self.results, self.index, self.players, self.c, self.ctx)
             for k in keys_to_remove: del self.players[k]
             if not self.players:
                 return await interaction.response.edit_message(content=text+"\nTest ended.", embed=None, view=None)
@@ -208,7 +220,7 @@ class ButtonChoice(discord.ui.Button):
             if button_confirm(self.players, interaction.user.id): 
                 return await interaction.response.send_message(content=f"Hey <@{interaction.user.id}>, press the button again to confirm.", 
                                                                ephemeral=True)
-            text = parseText(self.settings["multiplayer"], self.results, self.index, self.players, self.c, self.ctx)
+            text = parseText(self.settings, self.results, self.index, self.players, self.c, self.ctx)
             return await interaction.response.edit_message(content=text+"\nTest ended.", embed=None, view=None)
         if self.id == "PURGE":
             if interaction.user.id != host_id: 
@@ -250,14 +262,14 @@ class ButtonChoice(discord.ui.Button):
         else:
             # multiplayer check
             for key, value in self.players.items():
-                check = self.results[self.index]["correct_answer"] == self.results[self.index]["choices"][value["choice"]]
+                check = self.results[self.index][self.settings["correct_key"]] == self.results[self.index]["choices"][value["choice"]]
                 if check: 
                     value["score"]+=1
                     value["emoji"] = "✅"
                 else: value["emoji"] = "❌"
                 value["choice"], value["confirm"] = -1, -1
             # step
-            text = parseText(self.settings["multiplayer"], self.results, self.index, self.players, self.c, self.ctx)
+            text = parseText(self.settings, self.results, self.index, self.players, self.c, self.ctx)
             if self.index+1 < len(self.results): 
                 await interaction.response.edit_message(content=text,
                                                         embed=BuildQuestion(self.results, self.index+1, self.ctx, self.players, self.settings), 
