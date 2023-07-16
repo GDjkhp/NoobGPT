@@ -55,10 +55,15 @@ async def QUIZ(ctx: commands.Context, mode: str, cat: str, diff: str, ty: str, c
     results = requests.get(req).json()["results"]
     if not results: return await msg.edit(content="Error crunching questions, try again.")
     results = decodeResults(results)
-    players = {ctx.author.id: {"score": 0, "choice": -1, "name": ctx.author, "emoji": "❓"}}
+    players = {}
+    players[ctx.author.id] = add_player(ctx.author)
+    players[ctx.author.id]["host"] = True
     settings = {"multiplayer": multi, "anon": anon, "difficulty": diff, "type": ty, "count": int(count)}
     await msg.edit(content=settings, embed=BuildQuestion(results, 0, ctx, players, settings), 
                    view=QuizView(results, 0, ctx, players, settings))
+    
+def add_player(p) -> dict:
+    return {"score": 0, "choice": -1, "name": p, "emoji": "❓", "host": False, "confirm": -1}
     
 def decodeResults(results: list) -> list:
     fResults = []
@@ -77,8 +82,7 @@ def decodeResults(results: list) -> list:
                     c.append(ch)
                     random.shuffle(c)
                 decoded_dict["choices"] = c
-            else:
-                d = p.unquote(value)
+            else: d = p.unquote(value)
             decoded_dict[key] = d
         fResults.append(decoded_dict)
     return fResults
@@ -90,6 +94,7 @@ def i2c(c) -> str:
     elif c == 3: return "🇩"
     elif c == 69: return "💀"
     elif c == -1: return "❓"
+    elif c == 1337: return "🚪"
     else: return "❌"
 
 def i2ca(c) -> str:
@@ -99,14 +104,13 @@ def i2ca(c) -> str:
 
 def keys(d: dict, anon: bool) -> str:
     text = ""
-    for key, value in d.items():
+    for key, value in d.items(): 
         text += f"\n{value['name']}: {i2c(value['choice'])}" if not anon else f"\n{value['name']}: {i2ca(value['choice'])}"
     return text
 
 def keysScore(d: dict) -> str:
     text = ""
-    for key, value in d.items():
-        text += f"\n<@{key}>: {value['score']} {value['emoji']}"
+    for key, value in d.items(): text += f"\n<@{key}>: {value['score']} {value['emoji']}"
     return text
 
 def parseText(multi: bool, results: list, index: int, players: dict, c: int, ctx: commands.Context) -> str:
@@ -114,13 +118,20 @@ def parseText(multi: bool, results: list, index: int, players: dict, c: int, ctx
         text = f"{results[index]['question']}\n{results[index]['correct_answer']}"
         text += keysScore(players)
     else:
-        z = [420, 69]
+        z = [420, 69, -1, 1337]
         if not c in z: 
             check = results[index]["correct_answer"] == results[index]["choices"][c]
-            r = f"\n{results[index]['question']}\n{results[index]['correct_answer']}\nScore: {players[ctx.author.id]['score']}"
-            text = "Correct!"+r if check else "Incorrect!"+r
+            r = f"\n{results[index]['question']}\n{results[index]['correct_answer']}\nScore: {players[ctx.author.id]['score']} "
+            text = r+"✅" if check else r+"❌"
         else: text = f"Score: {players[ctx.author.id]['score']}"
     return text
+
+def button_confirm(d, k) -> bool:
+    d[k]["confirm"]+=1
+    if d[k]["confirm"] < 1: 
+        return True
+    d[k]["confirm"]=-1
+    return False
 
 def BuildCategory(categories: list) -> discord.Embed:
     embed = discord.Embed(title=f"Available categories", color=0x00ff00)
@@ -149,6 +160,7 @@ class QuizView(discord.ui.View):
         self.add_item(ButtonChoice(results, index, ctx, -1, players, 1, "CLEAR", settings))
         self.add_item(ButtonChoice(results, index, ctx, random.randint(0, len(results[index]["choices"])-1), players, 1, "RANDOM", settings))
         self.add_item(ButtonChoice(results, index, ctx, 69, players, 2, "PURGE", settings))
+        self.add_item(ButtonChoice(results, index, ctx, 1337, players, 2, "LEAVE", settings))
         self.add_item(ButtonChoice(results, index, ctx, 420, players, 2, "END", settings))
 
 class ButtonChoice(discord.ui.Button):
@@ -159,32 +171,72 @@ class ButtonChoice(discord.ui.Button):
         self.results, self.index, self.ctx, self.c, self.players, self.id, self.settings = results, index, ctx, c, players, id, settings
     
     async def callback(self, interaction: discord.Interaction):
+        # get host
+        host_id = None
+        a = False
+        for k, v in self.players.items():
+            if v["host"]: 
+                host_id = k
+                a = True
+        if not a:
+            k = next(iter(self.players))
+            self.players[k]["host"] = True
+        # TODO: add dialog confirmation
+        if self.id == "LEAVE":
+            a = False
+            keys_to_remove = []
+            for k, v in self.players.items():
+                if k == interaction.user.id:
+                    keys_to_remove.append(k)
+                    a = True
+            if not a: return await interaction.response.send_message(content="Just stop.", ephemeral=True)
+            if button_confirm(self.players, interaction.user.id): 
+                return await interaction.response.send_message(content=f"Hey <@{interaction.user.id}>, press the button again to confirm.", 
+                                                               ephemeral=True)
+            text = parseText(self.settings["multiplayer"], self.results, self.index, self.players, self.c, self.ctx)
+            for k in keys_to_remove: del self.players[k]
+            if not self.players:
+                return await interaction.response.edit_message(content=text+"\nTest ended.", embed=None, view=None)
+            text = keysScore(self.players)
+            purge = f"<@{interaction.user.id}> left."
+            return await interaction.response.edit_message(content=purge+text,
+                                                           embed=BuildQuestion(self.results, self.index, self.ctx, self.players, self.settings), 
+                                                           view=QuizView(self.results, self.index, self.ctx, self.players, self.settings))
         if self.id == "END":
-            if interaction.user != self.ctx.author: 
-                return await interaction.response.send_message(f"Only {self.ctx.message.author.mention} can press this button.", ephemeral=True)
+            if interaction.user.id != host_id: 
+                return await interaction.response.send_message(f"Only <@{host_id}> can press this button.", ephemeral=True)
+            if button_confirm(self.players, interaction.user.id): 
+                return await interaction.response.send_message(content=f"Hey <@{interaction.user.id}>, press the button again to confirm.", 
+                                                               ephemeral=True)
             text = parseText(self.settings["multiplayer"], self.results, self.index, self.players, self.c, self.ctx)
             return await interaction.response.edit_message(content=text+"\nTest ended.", embed=None, view=None)
         if self.id == "PURGE":
-            if interaction.user != self.ctx.author: 
-                return await interaction.response.send_message(f"Only {self.ctx.message.author.mention} can press this button.", ephemeral=True)
+            if interaction.user.id != host_id: 
+                return await interaction.response.send_message(f"Only <@{host_id}> can press this button.", ephemeral=True)
+            if button_confirm(self.players, interaction.user.id): 
+                return await interaction.response.send_message(content=f"Hey <@{interaction.user.id}>, press the button again to confirm.", 
+                                                               ephemeral=True)
             keys_to_remove = []
             for k, v in self.players.items():
-                if v["choice"] == -1 and v["name"] != self.ctx.author:
+                if v["choice"] == -1 and not v["host"]:
                     keys_to_remove.append(k)
-            for k in keys_to_remove:
-                del self.players[k]
+            for k in keys_to_remove: del self.players[k]
             text = keysScore(self.players)
-            return await interaction.response.edit_message(content=text,
+            purge = f"{self.id}: "
+            for i in keys_to_remove: purge += f"<@{i}>"
+            if not keys_to_remove: purge="There is no such thing."
+            return await interaction.response.edit_message(content=purge+text,
                                                            embed=BuildQuestion(self.results, self.index, self.ctx, self.players, self.settings), 
                                                            view=QuizView(self.results, self.index, self.ctx, self.players, self.settings))
         
         # solo lock
         if not self.settings["multiplayer"] and interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"{self.ctx.message.author.mention} is playing this game and set to singleplayer.", ephemeral=True)
+            return await interaction.response.send_message(f"{self.ctx.message.author.mention} is playing this game and set to singleplayer.", 
+                                                           ephemeral=True)
         
         # register player choice
-        if not interaction.user.id in self.players: self.players[interaction.user.id] = {"score": 0, "choice": self.c, "name": interaction.user, "emoji": "❓"}
-        else: self.players[interaction.user.id]["choice"] = self.c
+        if not interaction.user.id in self.players: self.players[interaction.user.id] = add_player(interaction.user)
+        self.players[interaction.user.id]["choice"] = self.c
         
         # listen for player input
         playing = False
@@ -203,7 +255,7 @@ class ButtonChoice(discord.ui.Button):
                     value["score"]+=1
                     value["emoji"] = "✅"
                 else: value["emoji"] = "❌"
-                value["choice"] = -1
+                value["choice"], value["confirm"] = -1, -1
             # step
             text = parseText(self.settings["multiplayer"], self.results, self.index, self.players, self.c, self.ctx)
             if self.index+1 < len(self.results): 
