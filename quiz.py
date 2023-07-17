@@ -154,7 +154,7 @@ def button_confirm(d, k) -> bool:
 def BuildCategory(categories) -> discord.Embed:
     embed = discord.Embed(title=f"Available categories", color=0x00ff00)
     for c in categories:
-        if isinstance(categories, dict): embed.add_field(name=c["name"], value=c["id"], inline=True)
+        if isinstance(c, dict): embed.add_field(name=c["name"], value=c["id"], inline=True)
         else: embed.add_field(name=c, value="", inline=True)
     embed.add_field(name="Random", value="any", inline=True)
     return embed
