@@ -39,7 +39,7 @@ async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, d
         if v == "v1" and any([str(item["id"]) == cat for item in categories]):
             req += f"&category={cat}"
             a = True
-        if v == "v2":
+        if v == "v2" and any([item == cat for item in categories]):
             req += f"&categories={cat}"
             a = True
         if cat == "any": a = True 
