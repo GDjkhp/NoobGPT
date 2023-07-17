@@ -6,21 +6,20 @@ from discord.ext import commands
 
 async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, diff: str, ty: str):
     msg = await ctx.reply("Crunching data…")
-    params = "`-quiz [mode: <all/anon/me>, version: <v1/v2>, count: <1-50>, category: <any/9-32>, difficulty: <any/easy/medium/hard>, type: <any/multiple/boolean>`"
-    multi, anon, ck, req = False, False, None, None
+    params = "`-quiz [mode: <all/anon/me>, version: <any/v1/v2>, count: <1-50>, category: <any/9-32>, difficulty: <any/easy/medium/hard>, type: <any/multiple/boolean>`"
     try: 
         if count and (int(count) > 51 or int(count) < 1): return await msg.edit(content="Items must be 1-50.") 
         if not count: count = "50"
     except: return await msg.edit(content="Must be integer :(")
-    if v:
-        if v == "v2": 
-            req = f"https://the-trivia-api.com/v2/questions/?limit={int(count)}"
-            ck = "correctAnswer"
-    elif None or "v1" : 
+    multi, anon, ck, req = False, False, None, None
+    if v == None or v == "v1" or v == "any": 
         req = f"https://opentdb.com/api.php?amount={int(count)}&encode=url3986"
         ck, v = "correct_answer", "v1"
+    elif v == "v2": 
+        req = f"https://the-trivia-api.com/v2/questions/?limit={int(count)}"
+        ck = "correctAnswer"
     else: 
-        ver = ["v1", "v2"]
+        ver = ["v1", "v2", "any"]
         return await msg.edit(content=f"Version not found\n{ver}")
     if mode:
         modes = ["all", "anon"]
@@ -74,6 +73,10 @@ async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, d
     
 def add_player(p) -> dict:
     return {"score": 0, "choice": -1, "name": p, "emoji": "❓", "host": False, "confirm": -1}
+
+def question_fix(q):
+    if isinstance(q, dict): return q["text"]
+    return q
     
 def decodeResults(results: list, ck: str) -> list:
     fResults = []
@@ -127,13 +130,13 @@ def keysScore(d: dict) -> str:
 
 def parseText(settings: dict, results: list, index: int, players: dict, c: int, ctx: commands.Context) -> str:
     if settings["multiplayer"]:
-        text = f"{results[index]['question']}\n{results[index][settings['correct_key']]}"
+        text = f"{question_fix(results[index]['question'])}\n{results[index][settings['correct_key']]}"
         text += keysScore(players)
     else:
         z = [420, 69, -1, 1337]
         if not c in z: 
             check = results[index][settings["correct_key"]] == results[index]["choices"][c]
-            r = f"\n{results[index]['question']}\n{results[index][settings['correct_key']]}\nScore: {players[ctx.author.id]['score']} "
+            r = f"\n{question_fix(results[index]['question'])}\n{results[index][settings['correct_key']]}\nScore: {players[ctx.author.id]['score']} "
             text = r+"✅" if check else r+"❌"
         else: text = f"Score: {players[ctx.author.id]['score']}"
     return text
@@ -154,7 +157,7 @@ def BuildCategory(categories) -> discord.Embed:
     return embed
 
 def BuildQuestion(results: list, index: int, ctx: commands.Context, players: dict, settings: dict):
-    embed = discord.Embed(title=f"{index+1}. {results[index]['question']}", 
+    embed = discord.Embed(title=f"{index+1}. {question_fix(results[index]['question'])}", 
                           description=f"{results[index]['category']} ({results[index]['difficulty']})")
     embed.set_footer(text=f"{index+1}/{len(results)}")
     if not settings["multiplayer"]: 
@@ -170,8 +173,8 @@ class QuizView(discord.ui.View):
         super().__init__(timeout=None)
         for c in range(len(results[index]["choices"])):
             self.add_item(ButtonChoice(results, index, ctx, c, players, 0, "CHOICE", settings))
-        self.add_item(ButtonChoice(results, index, ctx, -1, players, 1, "CLEAR", settings))
         self.add_item(ButtonChoice(results, index, ctx, random.randint(0, len(results[index]["choices"])-1), players, 1, "RANDOM", settings))
+        self.add_item(ButtonChoice(results, index, ctx, -1, players, 1, "CLEAR", settings))
         self.add_item(ButtonChoice(results, index, ctx, 69, players, 2, "PURGE", settings))
         self.add_item(ButtonChoice(results, index, ctx, 1337, players, 2, "LEAVE", settings))
         self.add_item(ButtonChoice(results, index, ctx, 420, players, 2, "END", settings))
@@ -180,7 +183,7 @@ class ButtonChoice(discord.ui.Button):
     def __init__(self, results: list, index: int, ctx: commands.Context, c: int, players: dict, row: int, id: str, settings: dict):
         emoji, l = "🔀" if id == "RANDOM" else i2c(c), id
         if id == "CHOICE": l = results[index]["choices"][c]
-        super().__init__(emoji=emoji, label=l, row=row)
+        super().__init__(emoji=emoji, label=l[:80], row=row)
         self.results, self.index, self.ctx, self.c, self.players, self.id, self.settings = results, index, ctx, c, players, id, settings
     
     async def callback(self, interaction: discord.Interaction):
