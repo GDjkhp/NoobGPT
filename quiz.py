@@ -36,8 +36,11 @@ async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, d
     categories = v2cat if v == "v2" else requests.get("https://opentdb.com/api_category.php").json()["trivia_categories"]
     if cat:
         a = False
-        if any([str(item["id"]) == cat for item in categories]):
-            req += f"&categories={cat}" if v == "v2" else f"&category={cat}"
+        if v == "v1" and any([str(item["id"]) == cat for item in categories]):
+            req += f"&category={cat}"
+            a = True
+        if v == "v2":
+            req += f"&categories={cat}"
             a = True
         if cat == "any": a = True 
         if not a: return await msg.edit(content=None, embed=BuildCategory(categories))
