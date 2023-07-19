@@ -84,7 +84,7 @@ class ButtonChoice(discord.ui.Button):
 def c_state(r: int):
     if r == 1: return 0x00ff00
     elif r == 0: return 0xff0000
-    return discord.Embed.Empty
+    return 0xffffff
 
 def QuizEmbed(words: list, index: int, settings: dict) -> discord.Embed:
     c = c_state(settings["result"])
