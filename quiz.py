@@ -71,7 +71,7 @@ async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, d
     players = {}
     players[ctx.author.id] = add_player(ctx.author)
     players[ctx.author.id]["host"] = True
-    await msg.edit(content=settings, embed=BuildQuestion(results, 0, ctx, players, settings), 
+    await msg.edit(content=f"`{settings}`", embed=BuildQuestion(results, 0, ctx, players, settings), 
                    view=QuizView(results, 0, ctx, players, settings))
     
 def add_player(p) -> dict:
