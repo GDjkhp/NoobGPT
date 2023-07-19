@@ -89,7 +89,6 @@ def c_state(r: int):
 def QuizEmbed(words: list, index: int, settings: dict) -> discord.Embed:
     c = c_state(settings["result"])
     e = discord.Embed(title=words[index]["pos"], description=words[index]["definition"], color=c)
-    print(e.color)
     # e.set_footer(text=f"{index+1}/{len(words)}")
     e.set_image(url=f"https://gdjkhp.github.io/img/hangman_frames/{settings['step']}.png")
     return e
