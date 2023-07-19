@@ -137,4 +137,10 @@ async def ban(ctx: commands.Context, *, arg):
         else: await ctx.reply("There is no such thing.")
     except: await ctx.reply("Must be a valid user ID.")
 
+# hangman
+from hangman import HANG
+@bot.command()
+async def hang(ctx: commands.Context, type: str):
+    await HANG(ctx, type, None, None, None, None)
+
 bot.run(os.getenv("TOKEN"))

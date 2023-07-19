@@ -72,7 +72,7 @@ class ButtonChoice(discord.ui.Button):
         self.id, self.ctx, self.words, self.index, self.box, self.dead, self.settings = id, ctx, words, index, box, dead, settings
     
     async def callback(self, interaction: discord.Interaction):
-        if interaction.user != self.ctx.author:
+        if self.settings["type"] != "all" and interaction.user != self.ctx.author:
             return await interaction.response.send_message(content=f"{self.ctx.author.mention} is playing this game. Multiplayer TBD",
                                                            ephemeral=True)
         if self.id == "CLOSE": 
