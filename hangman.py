@@ -28,7 +28,7 @@ def add_player(p) -> dict:
 def c2e(box: str) -> str:
     e = ""
     for c in box:
-        if c.lower() in "qwertyuiopasdfghjklzxcvbnm": e += f":regional_indicator_{c}:"
+        if c.lower() in "qwertyuiopasdfghjklzxcvbnm": e += f":regional_indicator_{c.lower()}:"
         elif c == "_": e += "🟥"
         elif c == " ": e += "🟦"
         else: e += c
@@ -43,7 +43,7 @@ class QuizView(discord.ui.View):
 class MyModal(discord.ui.Modal):
     def __init__(self, ctx: commands.Context, words: list, index: int, box: list, dead: list, settings: dict):
         super().__init__(title="Enter credit card details")
-        self.add_item(discord.ui.InputText(label="Expiry Date"))
+        self.add_item(discord.ui.TextInput(label="Expiry Date"))
         self.ctx, self.words, self.index, self.box, self.dead, self.settings = ctx, words, index, box, dead, settings
 
     async def callback(self, interaction: discord.Interaction):
