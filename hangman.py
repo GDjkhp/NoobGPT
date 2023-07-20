@@ -146,7 +146,7 @@ class ButtonChoice(discord.ui.Button):
 def QuizEmbed(words: list, index: int, settings: dict, players: dict, ctx: commands.Context) -> discord.Embed:
     c = c_state(settings["result"])
     e = discord.Embed(title=words[index]["pos"], description=words[index]["definition"], color=c)
-    # e.set_footer(text=f"{index+1}/{len(words)}")
+    e.set_footer(text=f"{index+1}/{len(words)}")
     e.set_image(url=f"https://gdjkhp.github.io/img/hangman_frames/{settings['step']}.png")
     e.set_author(name=keysScore(players))
     return e
