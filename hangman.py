@@ -47,7 +47,7 @@ class MyModal(discord.ui.Modal):
         self.add_item(self.i)
         self.ctx, self.words, self.index, self.box, self.dead, self.settings = ctx, words, index, box, dead, settings
 
-    async def callback(self, interaction: discord.Interaction):
+    async def on_submit(self, interaction: discord.Interaction):
         i, word = self.i.value, self.words[self.index]["word"]
         if not check(word, i, self.dead): self.settings["step"] += 1
         elif i.lower() in word.lower():
