@@ -81,10 +81,9 @@ class MyModal(discord.ui.Modal):
         if not i in self.dead and len(i) < 2: self.dead.append(i)
         self.box = convert_box(word, self.dead)
         text = c2e(self.box) if self.settings["step"] != 8 else c2e(word)
+        view = QuizView(self.ctx, self.words, self.index, self.box, self.dead, self.settings, self.players)
         if self.settings["step"] != 8: 
-            if self.box != word:
-                view = QuizView(self.ctx, self.words, self.index, self.box, self.dead, self.settings, self.players)
-            else: 
+            if self.box == word:
                 text, self.settings["result"] = f"GG!\n{text}", 1
             e = QuizEmbed(self.words, self.index, self.settings, self.players, self.ctx)
             await interaction.response.edit_message(embed=e, content=text, view=view)
@@ -139,6 +138,7 @@ class ButtonChoice(discord.ui.Button):
             if self.settings["mode"] != "hardcore": self.settings["step"] = 0
             word = self.words[self.index+1]["word"].replace("_", " ").lower()
             self.box = convert_box(word, self.dead)
+            self.settings["result"] = -1
             await interaction.response.edit_message(content=c2e(self.box), 
                                                     embed=QuizEmbed(self.words, self.index+1, self.settings, self.players, self.ctx), 
                                                     view=QuizView(self.ctx, self.words, self.index+1, self.box, self.dead, self.settings, self.players))
