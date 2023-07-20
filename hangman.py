@@ -18,7 +18,7 @@ def check(word: str, c: str, dead: list):
 def convert_box(word: str, dead: list) -> str:
     box = ""
     for c in word:
-        if c.lower() in dead: box += c
+        if c.lower() in dead: box += c.lower()
         else: box += "_"
     return box
 
@@ -48,23 +48,24 @@ class MyModal(discord.ui.Modal):
         self.ctx, self.words, self.index, self.box, self.dead, self.settings = ctx, words, index, box, dead, settings
 
     async def on_submit(self, interaction: discord.Interaction):
-        i, word = self.i.value, self.words[self.index]["word"]
-        if not check(word.replace("_", " "), i, self.dead): self.settings["step"] += 1
+        i, word = self.i.value, self.words[self.index]["word"].replace("_", " ")
+        if not check(word, i, self.dead): self.settings["step"] += 1
         elif i.lower() in word.lower():
             for c in i: 
                 if not c in self.dead: self.dead.append(c)
         if not i.lower() in self.dead and len(i) < 2: self.dead.append(i.lower())
-        self.box = convert_box(word.replace("_", " "), self.dead)
-        text = c2e(self.box) if self.settings["step"] != 8 else c2e(word.replace("_", " "))
+        self.box = convert_box(word, self.dead)
+        text = c2e(self.box) if self.settings["step"] != 8 else c2e(word)
         if self.settings["step"] != 8: 
-            e = QuizEmbed(self.words, self.index, self.settings)
-            if self.box != word.replace("_", " "):
+            if self.box != word:
                 view = QuizView(self.ctx, self.words, self.index, self.box, self.dead, self.settings)
             else: 
                 text, view, self.settings["result"] = f"GG!\n{text}", None, 1
+            e = QuizEmbed(self.words, self.index, self.settings)
             await interaction.response.edit_message(embed=e, content=text, view=view)
         else:
             self.settings["result"] = 0
+            e = QuizEmbed(self.words, self.index, self.settings)
             await interaction.response.edit_message(embed=e, view=None, content=f"GAME OVER!\n{text}")
 
 class ButtonChoice(discord.ui.Button):
