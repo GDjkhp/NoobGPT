@@ -43,11 +43,12 @@ class QuizView(discord.ui.View):
 class MyModal(discord.ui.Modal):
     def __init__(self, ctx: commands.Context, words: list, index: int, box: list, dead: list, settings: dict):
         super().__init__(title="Enter credit card details")
-        self.add_item(discord.ui.TextInput(label="Expiry Date"))
+        self.i = discord.ui.TextInput(label="Expiry Date")
+        self.add_item(self.i)
         self.ctx, self.words, self.index, self.box, self.dead, self.settings = ctx, words, index, box, dead, settings
 
     async def callback(self, interaction: discord.Interaction):
-        i, word = self.children[0].value, self.words[self.index]["word"]
+        i, word = self.i.value, self.words[self.index]["word"]
         if not check(word, i, self.dead): self.settings["step"] += 1
         elif i.lower() in word.lower():
             for c in i: 
