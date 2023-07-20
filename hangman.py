@@ -49,7 +49,7 @@ class MyModal(discord.ui.Modal):
 
     async def on_submit(self, interaction: discord.Interaction):
         i, word = self.i.value, self.words[self.index]["word"]
-        if not check(word, i, self.dead): self.settings["step"] += 1
+        if not check(word.replace("_", " "), i, self.dead): self.settings["step"] += 1
         elif i.lower() in word.lower():
             for c in i: 
                 if not c in self.dead: self.dead.append(c)
