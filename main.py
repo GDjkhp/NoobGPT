@@ -140,7 +140,7 @@ async def ban(ctx: commands.Context, *, arg):
 # hangman
 from hangman import HANG
 @bot.command()
-async def hang(ctx: commands.Context, type: str=None):
-    await HANG(ctx, type, None, None, None, None)
+async def hang(ctx: commands.Context, mode: str=None, type: str=None, count: str=None):
+    await HANG(ctx, mode, type, count, None, None)
 
 bot.run(os.getenv("TOKEN"))

@@ -148,7 +148,6 @@ def button_confirm(d, k) -> bool:
     d[k]["confirm"]+=1
     if d[k]["confirm"] < 1: 
         return True
-    d[k]["confirm"]=-1
     return False
 
 def BuildCategory(categories) -> discord.Embed:
