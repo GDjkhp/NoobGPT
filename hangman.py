@@ -1,4 +1,5 @@
 import random
+from random import sample
 import discord
 from discord.ext import commands
 import json
@@ -139,6 +140,7 @@ class ButtonChoice(discord.ui.Button):
             word = self.words[self.index+1]["word"].replace("_", " ").lower()
             self.box = convert_box(word, self.dead)
             self.settings["result"] = -1
+            self.dead = [" ", "-"]
             await interaction.response.edit_message(content=c2e(self.box), 
                                                     embed=QuizEmbed(self.words, self.index+1, self.settings, self.players, self.ctx), 
                                                     view=QuizView(self.ctx, self.words, self.index+1, self.box, self.dead, self.settings, self.players))
