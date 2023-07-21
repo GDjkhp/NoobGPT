@@ -8,9 +8,6 @@ def read_json_file(file_path):
         data = json.load(json_file)
     return data
 
-def get_random_synset(synsets_data):
-    return synsets_data[random.randint(0, len(synsets_data)-1)]
-
 def check(word: str, c: str, dead: list):
     return c in word or c in dead
 
@@ -168,7 +165,7 @@ async def HANG(ctx: commands.Context, mode: str, gtype: str, count: str, cat: st
         except: return await msg.edit(content="Not a valid integer.\n"+params)
     else: count = 1
     random.shuffle(synsets_data)
-    words, index = synsets_data if mode == "hardcore" else [get_random_synset(synsets_data) for i in range(int(count))], 0
+    words, index = synsets_data if mode == "hardcore" else synsets_data[:int(count)], 0
     dead = [" ", "-"]
     box = convert_box(words[index]["word"].replace("_", " ").replace("_", " ").lower(), dead)
     settings = {"step": 0, "type": gtype, "mode": mode, "result": -1}
@@ -177,13 +174,3 @@ async def HANG(ctx: commands.Context, mode: str, gtype: str, count: str, cat: st
     players[ctx.author.id]["host"] = True
     await msg.edit(content=c2e(box), embed=QuizEmbed(words, index, settings, players, ctx), 
                    view=QuizView(ctx, words, index, box, dead, settings, players))
-    
-# while True:
-#     if box == word:
-#         index+=1
-#         dead = [" ", "-"]
-#         box = ""
-#         word: str = words[index]["word"].replace("_", " ")
-#         for c in word:
-#             if c.lower() in dead: box += c
-#             else: box += "_"
