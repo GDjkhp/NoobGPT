@@ -128,8 +128,8 @@ class ButtonChoice(discord.ui.Button):
             for k in keys_to_remove: del self.players[k]
             if self.players:
                 await interaction.response.edit_message(content=c2e(self.box), 
-                                                        embed=QuizEmbed(self.words, self.index+1, self.settings, self.players, self.ctx), 
-                                                        view=QuizView(self.ctx, self.words, self.index+1, self.box, self.dead, self.settings, self.players))
+                                                        embed=QuizEmbed(self.words, self.index, self.settings, self.players, self.ctx), 
+                                                        view=QuizView(self.ctx, self.words, self.index, self.box, self.dead, self.settings, self.players))
             else: await interaction.response.edit_message(content=f"You left.\n{c2e(self.words[self.index]['word'].replace('_', ' ').lower())}", 
                                                           embed=None, view=None)
         if self.id == "INPUT": 
