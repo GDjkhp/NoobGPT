@@ -1,5 +1,4 @@
 import random
-from random import sample
 import discord
 from discord.ext import commands
 import json
@@ -8,9 +7,8 @@ def read_json_file(file_path):
     with open(file_path, 'r') as json_file:
         data = json.load(json_file)
     return data
-synsets_data = read_json_file('synsets.json')
 
-def get_random_synset():
+def get_random_synset(synsets_data):
     return synsets_data[random.randint(0, len(synsets_data)-1)]
 
 def check(word: str, c: str, dead: list):
@@ -59,10 +57,10 @@ def button_confirm(d, k) -> bool:
 class QuizView(discord.ui.View):
     def __init__(self, ctx: commands.Context, words: list, index: int, box: str, dead: list, settings: dict, players: dict):
         super().__init__(timeout=None)
-        self.add_item(ButtonChoice("INPUT", ctx, words, index, box, dead, settings, players))
-        self.add_item(ButtonChoice("LEAVE", ctx, words, index, box, dead, settings, players))
-        if words[index]["word"] == box and index+1 < len(words):
+        if words[index]["word"].replace("_", " ").lower() == box and index+1 < len(words):
             self.add_item(ButtonChoice("NEXT", ctx, words, index, box, dead, settings, players))
+        else: self.add_item(ButtonChoice("INPUT", ctx, words, index, box, dead, settings, players))
+        self.add_item(ButtonChoice("LEAVE", ctx, words, index, box, dead, settings, players))
 
 class MyModal(discord.ui.Modal):
     def __init__(self, ctx: commands.Context, words: list, index: int, box: list, dead: list, settings: dict, players: dict):
@@ -131,16 +129,16 @@ class ButtonChoice(discord.ui.Button):
                 await interaction.response.edit_message(content=c2e(self.box), 
                                                         embed=QuizEmbed(self.words, self.index+1, self.settings, self.players, self.ctx), 
                                                         view=QuizView(self.ctx, self.words, self.index+1, self.box, self.dead, self.settings, self.players))
-            else: await interaction.response.edit_message(content=f"You left.\n{c2e(self.words[self.index]['word'].replace('_', ' '))}", 
+            else: await interaction.response.edit_message(content=f"You left.\n{c2e(self.words[self.index]['word'].replace('_', ' ').lower())}", 
                                                           embed=None, view=None)
         if self.id == "INPUT": 
             await interaction.response.send_modal(MyModal(self.ctx, self.words, self.index, self.box, self.dead, self.settings, self.players))
         if self.id == "NEXT":
             if self.settings["mode"] != "hardcore": self.settings["step"] = 0
             word = self.words[self.index+1]["word"].replace("_", " ").lower()
+            self.dead = [" ", "-"]
             self.box = convert_box(word, self.dead)
             self.settings["result"] = -1
-            self.dead = [" ", "-"]
             await interaction.response.edit_message(content=c2e(self.box), 
                                                     embed=QuizEmbed(self.words, self.index+1, self.settings, self.players, self.ctx), 
                                                     view=QuizView(self.ctx, self.words, self.index+1, self.box, self.dead, self.settings, self.players))
@@ -153,7 +151,7 @@ def QuizEmbed(words: list, index: int, settings: dict, players: dict, ctx: comma
     e.set_author(name=keysScore(players))
     return e
     
-async def HANG(ctx: commands.Context, mode: str, type: str, count: str, cat: str, diff: str):
+async def HANG(ctx: commands.Context, mode: str, gtype: str, count: str, cat: str, diff: str):
     msg = await ctx.reply("Writing dictionary…")
     params = "`-quiz [mode: <all/hardcore/me>, type: <any/word/quiz>, count: <1-50>, category: <any/9-32>, difficulty: <any/easy/medium/hard>`"
     if count:
@@ -167,10 +165,12 @@ async def HANG(ctx: commands.Context, mode: str, type: str, count: str, cat: str
         if mode in modes: pass
         else: return await msg.edit(content=f"Mode not found.\n"+params)
     else: mode = "me"
-    words, index = synsets_data if mode == "hardcore" else [get_random_synset() for i in range(int(count))], 0
+    synsets_data = read_json_file('synsets.json')
+    random.shuffle(synsets_data)
+    words, index = synsets_data if mode == "hardcore" else [get_random_synset(synsets_data) for i in range(int(count))], 0
     dead = [" ", "-"]
-    box = convert_box(words[index]["word"].replace("_", " "), dead)
-    settings = {"step": 0, "type": type, "mode": mode, "result": -1}
+    box = convert_box(words[index]["word"].replace("_", " ").replace("_", " ").lower(), dead)
+    settings = {"step": 0, "type": gtype, "mode": mode, "result": -1}
     players = {}
     players[ctx.author.id] = add_player(ctx.author)
     players[ctx.author.id]["host"] = True
