@@ -57,10 +57,10 @@ def button_confirm(d, k) -> bool:
 class QuizView(discord.ui.View):
     def __init__(self, ctx: commands.Context, words: list, index: int, box: str, dead: list, settings: dict, players: dict):
         super().__init__(timeout=None)
-        if words[index]["word"].replace("_", " ").lower() == box :
-            self.add_item(ButtonChoice("NEXT", ctx, words, index, box, dead, settings, players))
-        elif index+1 < len(words): 
+        if words[index]["word"].replace("_", " ").lower() != box: 
             self.add_item(ButtonChoice("INPUT", ctx, words, index, box, dead, settings, players))
+        elif index+1 < len(words):
+            self.add_item(ButtonChoice("NEXT", ctx, words, index, box, dead, settings, players))
         self.add_item(ButtonChoice("LEAVE", ctx, words, index, box, dead, settings, players))
 
 class MyModal(discord.ui.Modal):
