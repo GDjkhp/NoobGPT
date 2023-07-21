@@ -153,7 +153,7 @@ def QuizEmbed(words: list, index: int, settings: dict, players: dict, ctx: comma
     
 async def HANG(ctx: commands.Context, mode: str, gtype: str, count: str, cat: str, diff: str):
     msg = await ctx.reply("Writing dictionary…")
-    params = "`-quiz [mode: <all/hardcore/me>, type: <any/word/quiz>, count: <1-50>, category: <any/9-32>, difficulty: <any/easy/medium/hard>`"
+    params = "`-hang [mode: <all/hardcore/me>, type: <any/word/quiz>, count: <1-50>, category: <any/9-32>, difficulty: <any/easy/medium/hard>`"
     if mode:
         modes = ["all", "me", "hardcore"]
         if mode in modes: pass
