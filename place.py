@@ -7,8 +7,8 @@ import re
 import io
 
 myclient = pymongo.MongoClient(os.getenv('MONGO'))
-width, height = 1000, 1000
-mycol = myclient["place"]["coords"]
+width, height = 500, 500
+mycol = myclient["place"]["pixels"]
 
 def draw_image(x: int, y: int, zoom: int) -> io.BytesIO:
     canvas = Image.new("RGB", (width, height), color="black")
@@ -46,7 +46,7 @@ async def PLACE(ctx: commands.Context, x: str, y: str, z: str):
     if z:
         z = str(extract_integer(z))
         if not z: return await ctx.reply("Invalid zoom format.\nTry `2x` or `2`.")
-    else: z = "32"
+    else: z = "16"
     file = discord.File(draw_image(int(x), int(y), int(z)), filename=f"{x}x{y}.png")
     await msg.edit(content="r/place")
     await ctx.reply(view=ViewPlace(int(x), int(y), int(z), ctx), file=file,
