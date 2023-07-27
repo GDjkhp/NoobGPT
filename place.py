@@ -7,7 +7,7 @@ import re
 import io
 
 myclient = pymongo.MongoClient(os.getenv('MONGO'))
-width, height = 100, 100
+width, height = 1000, 1000
 mycol = myclient["place"]["coords"]
 
 def draw_image(x: int, y: int, zoom: int) -> io.BytesIO:
@@ -18,16 +18,17 @@ def draw_image(x: int, y: int, zoom: int) -> io.BytesIO:
         draw.point((pixel['x'], pixel['y']), fill=rgb_string_to_tuple(pixel['color']))
     
     zoomed_canvas = zoom_canvas(canvas, zoom, (x, y))
-    resized_canvas = resize_image(zoomed_canvas, 10)
+    resized_canvas = resize_image(zoomed_canvas)
 
     image_buffer = io.BytesIO()
     resized_canvas.save(image_buffer, format="PNG")
     image_buffer.seek(0)
     return image_buffer
 
-def PlaceEmbed(x: int, y: int, z: int, ctx: commands.Context, c: int, status: str) -> discord.Embed:
+def PlaceEmbed(x: int, y: int, z: int, ctx: commands.Context, status: str) -> discord.Embed:
     d = mycol.find_one({"x": x, "y": y})
-    e = discord.Embed(title=f"({x}, {y}) [{z}x]", description=f"{d['author']}: {d['color']}", color=c)
+    e = discord.Embed(title=f"({x}, {y}) [{z}x]", description=f"{d['author']}: {d['color']}", 
+                      color=rgb_tuple_to_hex(rgb_string_to_tuple(d['color'])))
     if ctx.message.author.avatar: e.set_author(name=ctx.author, icon_url=ctx.message.author.avatar.url) 
     else: e.set_author(name=ctx.author)
     e.set_footer(text=status)
@@ -38,18 +39,18 @@ async def PLACE(ctx: commands.Context, x: str, y: str, z: str):
     msg = await ctx.reply("Drawing canvas…")
     if x and y:
         try:
-            if int(x) > -1 and int(x) < width-1 and int(y) > -1 and int(y) < height-1: pass
+            if int(x) > -1 and int(x) < width and int(y) > -1 and int(y) < height: pass
             else: return await ctx.reply(f"Must be {width}x{height}")
         except: return await ctx.reply(f"Must be integer and {width}x{height}")
     else: return await ctx.reply("Missing parameters\n"+params)
     if z:
         z = str(extract_integer(z))
         if not z: return await ctx.reply("Invalid zoom format.\nTry `2x` or `2`.")
-    else: z = "4"
+    else: z = "32"
     file = discord.File(draw_image(int(x), int(y), int(z)), filename=f"{x}x{y}.png")
     await msg.edit(content="r/place")
     await ctx.reply(view=ViewPlace(int(x), int(y), int(z), ctx), file=file,
-                    embed=PlaceEmbed(int(x), int(y), int(z), ctx, None, "Idle"))
+                    embed=PlaceEmbed(int(x), int(y), int(z), ctx, "Idle"))
 
 def zoom_canvas(canvas, zoom_multiplier, center_pixel):
     # Calculate the region to crop based on the scale factor and center pixel
@@ -68,14 +69,8 @@ def zoom_canvas(canvas, zoom_multiplier, center_pixel):
     zoomed_image = cropped_image.resize((width, height), Image.BOX)
     return zoomed_image
 
-def resize_image(canvas, scale_factor):
-    # Calculate the new dimensions based on the scale factor
-    new_width = int(width * scale_factor)
-    new_height = int(height * scale_factor)
-    
-    # Resize the image
-    resized_image = canvas.resize((new_width, new_height), Image.BOX)
-    
+def resize_image(canvas):
+    resized_image = canvas.resize((1000, 1000), Image.BOX)
     return resized_image
 
 def rgb_string_to_tuple(rgb_string):
@@ -138,12 +133,13 @@ class ViewPlace(discord.ui.View):
             self.add_item(ButtonChoice(x, y, z, ctx, 1, "⏩", "RIGHTRIGHT"))
 
         self.add_item(ButtonChoice(x, y, z, ctx, 2, "🪧", "PLACE"))
+        self.add_item(ButtonChoice(x, y, z, ctx, 2, "🧭", "LOCATE"))
         self.add_item(ButtonChoice(x, y, z, ctx, 2, "🔍", "ZOOM"))
 
 class ButtonChoice(discord.ui.Button):
     def __init__(self, x: int, y: int, z: int, ctx: commands.Context, r: int, e: str, l: str):
         self.x, self.y, self.z, self.ctx, self.l = x, y, z, ctx, l
-        labels = ["PLACE", "ZOOM"]
+        labels = ["PLACE", "ZOOM", "LOCATE"]
         if not l in labels: l = None
         super().__init__(label=l, emoji=e, row=r)
 
@@ -154,6 +150,7 @@ class ButtonChoice(discord.ui.Button):
         
         if self.l == "PLACE": return await interaction.response.send_modal(ModalPlace(self.x, self.y, self.z, self.ctx))
         if self.l == "ZOOM": return await interaction.response.send_modal(ModalZoom(self.x, self.y, self.z, self.ctx))
+        if self.l == "LOCATE": return await interaction.response.send_modal(ModalLocate(self.x, self.y, self.z, self.ctx))
         
         if self.l == "LEFTLEFT": self.x += -10
         if self.l == "LEFT": self.x += -1
@@ -166,12 +163,12 @@ class ButtonChoice(discord.ui.Button):
 
         await interaction.response.defer()
         await interaction.message.remove_attachments(interaction.message.attachments[0])
-        await interaction.message.edit(embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, None, f"Processing {self.l}, syncing…"),
+        await interaction.message.edit(embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, f"Processing {self.l}, syncing…"),
                                        view=None)
         f = discord.File(draw_image(self.x, self.y, self.z), filename=f"{self.x}x{self.y}.png")
-        await interaction.message.edit(embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, None, f"Synced"), view=None)
+        await interaction.message.edit(embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, f"Synced"), view=None)
         await interaction.followup.send(view=ViewPlace(self.x, self.y, self.z, self.ctx), file=f,
-                                        embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, None, "Idle"))
+                                        embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, "Idle"))
     
 class ModalPlace(discord.ui.Modal):
     def __init__(self, x: int, y: int, z: int, ctx: commands.Context):
@@ -187,12 +184,12 @@ class ModalPlace(discord.ui.Modal):
 
         await interaction.response.defer()
         await interaction.message.remove_attachments(interaction.message.attachments[0])
-        await interaction.message.edit(embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, None, 
+        await interaction.message.edit(embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, 
                                                         f"Placing {col} in ({self.x}, {self.y}), syncing…"), view=None)
         f = discord.File(draw_image(self.x, self.y, self.z), filename=f"{self.x}x{self.y}.png")
-        await interaction.message.edit(embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, None, f"Synced"), view=None)
+        await interaction.message.edit(embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, f"Synced"), view=None)
         await interaction.followup.send(view=ViewPlace(self.x, self.y, self.z, self.ctx), file=f,
-                                        embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, rgb_tuple_to_hex(col), "Idle"))
+                                        embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, "Idle"))
 
 class ModalZoom(discord.ui.Modal):
     def __init__(self, x: int, y: int, z: int, ctx: commands.Context):
@@ -207,8 +204,36 @@ class ModalZoom(discord.ui.Modal):
 
         await interaction.response.defer()
         await interaction.message.remove_attachments(interaction.message.attachments[0])
-        await interaction.message.edit(embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, None, f"Zooming {self.z}x, syncing…"), view=None)
+        await interaction.message.edit(embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, f"Zooming {self.z}x, syncing…"), view=None)
         f = discord.File(draw_image(self.x, self.y, self.z), filename=f"{self.x}x{self.y}.png")
-        await interaction.message.edit(embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, None, f"Synced"), view=None)
+        await interaction.message.edit(embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, f"Synced"), view=None)
         await interaction.followup.send(view=ViewPlace(self.x, self.y, self.z, self.ctx), file=f,
-                                        embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, None, "Idle"))
+                                        embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, "Idle"))
+        
+class ModalLocate(discord.ui.Modal):
+    def __init__(self, x: int, y: int, z: int, ctx: commands.Context):
+        super().__init__(title="Locate")
+        self.iX = discord.ui.TextInput(label="x")
+        self.iY = discord.ui.TextInput(label="y")
+        self.add_item(self.iX)
+        self.add_item(self.iY)
+        self.x, self.y, self.z, self.ctx, = x, y, z, ctx
+
+    async def on_submit(self, interaction: discord.Interaction):
+        self.x, self.y = locate_integer(self.iX.value, self.iY.value)
+        if self.x == -1 or self.y == -1: return await interaction.response.send_message("Invalid coordinates.", ephemeral=True)
+
+        await interaction.response.defer()
+        await interaction.message.remove_attachments(interaction.message.attachments[0])
+        await interaction.message.edit(embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, 
+                                                        f"Locating ({self.x}, {self.y}), syncing…"), view=None)
+        f = discord.File(draw_image(self.x, self.y, self.z), filename=f"{self.x}x{self.y}.png")
+        await interaction.message.edit(embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, f"Synced"), view=None)
+        await interaction.followup.send(view=ViewPlace(self.x, self.y, self.z, self.ctx), file=f,
+                                        embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, "Idle"))
+
+def locate_integer(x, y):
+    try:
+        if int(x) > -1 and int(x) < width and int(y) > -1 and int(y) < height: return int(x), int(y)
+        else: return -1, -1
+    except: return -1, -1
