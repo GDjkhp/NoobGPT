@@ -140,8 +140,8 @@ async def ban(ctx: commands.Context, *, arg):
 # hangman
 from hangman import HANG
 @bot.command()
-async def hang(ctx: commands.Context, mode: str=None, type: str=None, count: str=None):
-    await HANG(ctx, mode, type, count, None, None)
+async def hang(ctx: commands.Context, mode: str=None, count: str=None, type: str=None):
+    await HANG(ctx, mode, count, type, None, None)
 
 from place import PLACE
 @bot.command()

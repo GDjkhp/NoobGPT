@@ -173,7 +173,7 @@ class ButtonChoice(discord.ui.Button):
 class ModalPlace(discord.ui.Modal):
     def __init__(self, x: int, y: int, z: int, ctx: commands.Context):
         super().__init__(title="Place")
-        self.i = discord.ui.TextInput(label="Color (#00ff00)")
+        self.i = discord.ui.TextInput(label=f"Color ({mycol.find_one({'x': x, 'y': y})['color']})")
         self.add_item(self.i)
         self.x, self.y, self.z, self.ctx, = x, y, z, ctx
 
@@ -185,7 +185,7 @@ class ModalPlace(discord.ui.Modal):
         await interaction.response.defer()
         await interaction.message.remove_attachments(interaction.message.attachments[0])
         await interaction.message.edit(embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, 
-                                                        f"Placing {col} in ({self.x}, {self.y}), syncing…"), view=None)
+                                                        f"Placing {col}, syncing…"), view=None)
         f = discord.File(draw_image(self.x, self.y, self.z), filename=f"{self.x}x{self.y}.png")
         await interaction.message.edit(embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, f"Synced"), view=None)
         await interaction.followup.send(view=ViewPlace(self.x, self.y, self.z, self.ctx), file=f,
@@ -194,7 +194,7 @@ class ModalPlace(discord.ui.Modal):
 class ModalZoom(discord.ui.Modal):
     def __init__(self, x: int, y: int, z: int, ctx: commands.Context):
         super().__init__(title="Zoom")
-        self.i = discord.ui.TextInput(label="Value (2x)")
+        self.i = discord.ui.TextInput(label=f"Value ({z}x)")
         self.add_item(self.i)
         self.x, self.y, self.z, self.ctx, = x, y, z, ctx
 
