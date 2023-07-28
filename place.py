@@ -35,18 +35,18 @@ def PlaceEmbed(x: int, y: int, z: float, ctx: commands.Context, status: str) -> 
     return e
 
 async def PLACE(ctx: commands.Context, x: str, y: str, z: str):
-    params = f"```-place x: <0-{width-1}> y: <0-{height-1}>```"
+    params = f"```-place [x: <0-{width-1}>, y: <0-{height-1}>, zoom:<16x>]```"
     msg = await ctx.reply("Drawing canvas…")
     if x and y:
         try:
             if int(x) > -1 and int(x) < width and int(y) > -1 and int(y) < height: pass
             else: return await ctx.reply(f"Must be {width}x{height}")
         except: return await ctx.reply(f"Must be integer and {width}x{height}")
-    else: return await ctx.reply("Missing parameters\n"+params)
+    else: x, y = 0, 0
     if z:
         z = extract_number(z)
         if not z: return await ctx.reply("Invalid zoom format.\nTry `2x` or `2`.")
-    else: z = "16"
+    else: z = 16
     file = discord.File(draw_image(int(x), int(y), z), filename=f"{x}x{y}.png")
     await msg.edit(content="r/place")
     await ctx.reply(view=ViewPlace(int(x), int(y), z, ctx), file=file,
