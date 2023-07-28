@@ -114,7 +114,7 @@ async def Aki(ctx: commands.Context, cat: str='people', lang: str='en'):
     languages = ['en', 'ar', 'cn', 'de', 'es', 'fr', 'it', 'jp', 'kr', 'nl', 'pl', 'pt', 'ru', 'tr', 'id']
     # Check if the language parameter was provided
     if not lang in languages:
-        return await msg.edit(content=f"Invalid language parameter.\nSupported languages:\n```{languages}```")
+        return await msg.edit(content=f"Invalid language parameter.\nSupported languages:```{languages}```")
     if cat in categories:
         aki = Akinator()
         session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False))
@@ -122,7 +122,7 @@ async def Aki(ctx: commands.Context, cat: str='people', lang: str='en'):
             q = await aki.start_game(language=f'{lang}_{cat}', child_mode=sfw, client_session=session)
         else: 
             q = await aki.start_game(language=f'{lang}', child_mode=sfw, client_session=session)
-    else: return await msg.edit(content=f'Category `{cat}` not found.\nAvailable categories:\n```{categories}```')
+    else: return await msg.edit(content=f'Category `{cat}` not found.\nAvailable categories:```{categories}```')
     await msg.edit(content=None, embed=qEmbed(aki, ctx, q), view=QView(aki, ctx))
 
 # @bot.event
