@@ -151,17 +151,17 @@ def QuizEmbed(words: list, index: int, settings: dict, players: dict, ctx: comma
     
 async def HANG(ctx: commands.Context, mode: str, count: str, gtype: str, cat: str, diff: str):
     msg = await ctx.reply("Writing dictionary…")
-    params = "`-hang [mode: <all/hardcore/me>, count: <1-50>, type: <any/word/quiz>, category: <any/9-32>, difficulty: <any/easy/medium/hard>`"
+    params = "```-hang [mode: <all/hardcore/me>, count: <1-50>, type: <any/word/quiz>, category: <any/9-32>, difficulty: <any/easy/medium/hard>```"
     if mode:
         modes = ["all", "me", "hardcore"]
         if mode in modes: pass
-        else: return await msg.edit(content=f"Mode not found.\n"+params)
+        else: return await msg.edit(content="Mode not found."+params)
     else: mode = "me"
     synsets_data = read_json_file('synsets.json')
     if count:
         try:
             if int(count) > 0 and int(count) <= len(synsets_data): pass
-            else: return await msg.edit(content=f"Must be greater than 0 and less than or equal to {len(synsets_data)}.\n"+params)
+            else: return await msg.edit(content=f"Must be greater than 0 and less than or equal to {len(synsets_data)}."+params)
         except: return await msg.edit(content="Not a valid integer.\n"+params)
     else: count = 1
     random.shuffle(synsets_data)

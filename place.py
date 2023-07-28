@@ -10,7 +10,7 @@ myclient = pymongo.MongoClient(os.getenv('MONGO'))
 width, height = 500, 500
 mycol = myclient["place"]["pixels"]
 
-def draw_image(x: int, y: int, zoom: int) -> io.BytesIO:
+def draw_image(x: int, y: int, zoom: float) -> io.BytesIO:
     canvas = Image.new("RGB", (width, height), color="black")
     draw = ImageDraw.Draw(canvas)
     all_pixels = mycol.find()
@@ -25,7 +25,7 @@ def draw_image(x: int, y: int, zoom: int) -> io.BytesIO:
     image_buffer.seek(0)
     return image_buffer
 
-def PlaceEmbed(x: int, y: int, z: int, ctx: commands.Context, status: str) -> discord.Embed:
+def PlaceEmbed(x: int, y: int, z: float, ctx: commands.Context, status: str) -> discord.Embed:
     d = mycol.find_one({"x": x, "y": y})
     e = discord.Embed(title=f"({x}, {y}) [{z}x]", description=f"{d['author']}: {d['color']}", 
                       color=rgb_tuple_to_hex(rgb_string_to_tuple(d['color'])))
@@ -35,7 +35,7 @@ def PlaceEmbed(x: int, y: int, z: int, ctx: commands.Context, status: str) -> di
     return e
 
 async def PLACE(ctx: commands.Context, x: str, y: str, z: str):
-    params = f"`-place x=0-{width-1} y=0-{height-1}`"
+    params = f"```-place x: <0-{width-1}> y: <0-{height-1}>```"
     msg = await ctx.reply("Drawing canvas…")
     if x and y:
         try:
@@ -44,13 +44,13 @@ async def PLACE(ctx: commands.Context, x: str, y: str, z: str):
         except: return await ctx.reply(f"Must be integer and {width}x{height}")
     else: return await ctx.reply("Missing parameters\n"+params)
     if z:
-        z = str(extract_integer(z))
+        z = extract_number(z)
         if not z: return await ctx.reply("Invalid zoom format.\nTry `2x` or `2`.")
     else: z = "16"
-    file = discord.File(draw_image(int(x), int(y), int(z)), filename=f"{x}x{y}.png")
+    file = discord.File(draw_image(int(x), int(y), z), filename=f"{x}x{y}.png")
     await msg.edit(content="r/place")
-    await ctx.reply(view=ViewPlace(int(x), int(y), int(z), ctx), file=file,
-                    embed=PlaceEmbed(int(x), int(y), int(z), ctx, "Idle"))
+    await ctx.reply(view=ViewPlace(int(x), int(y), z, ctx), file=file,
+                    embed=PlaceEmbed(int(x), int(y), z, ctx, "Idle"))
 
 def zoom_canvas(canvas, zoom_multiplier, center_pixel):
     # Calculate the region to crop based on the scale factor and center pixel
@@ -105,15 +105,17 @@ def rgb_tuple_to_hex(rgb_tuple):
 
     return hex_color_code
 
-def extract_integer(input_str):
-    pattern = r'^(\d+)|2x$'
+def extract_number(input_str):
+    pattern = r'^(-?\d+(\.\d+)?)(x.*)?$'
     match = re.match(pattern, input_str)
     if match:
-        return int(match.group(1)) if match.group(1) else 2
+        if match.group(1):
+            number = float(match.group(1)) if '.' in match.group(1) else int(match.group(1))
+            return 1 if number <= 0 else number
     return None
     
 class ViewPlace(discord.ui.View):
-    def __init__(self, x: int, y: int, z: int, ctx: commands.Context):
+    def __init__(self, x: int, y: int, z: float, ctx: commands.Context):
         super().__init__(timeout=None)
         if x-1 > -1: 
             self.add_item(ButtonChoice(x, y, z, ctx, 0, "◀️", "LEFT"))
@@ -137,7 +139,7 @@ class ViewPlace(discord.ui.View):
         self.add_item(ButtonChoice(x, y, z, ctx, 2, "🔍", "ZOOM"))
 
 class ButtonChoice(discord.ui.Button):
-    def __init__(self, x: int, y: int, z: int, ctx: commands.Context, r: int, e: str, l: str):
+    def __init__(self, x: int, y: int, z: float, ctx: commands.Context, r: int, e: str, l: str):
         self.x, self.y, self.z, self.ctx, self.l = x, y, z, ctx, l
         labels = ["PLACE", "ZOOM", "LOCATE"]
         if not l in labels: l = None
@@ -171,7 +173,7 @@ class ButtonChoice(discord.ui.Button):
                                         embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, "Idle"))
     
 class ModalPlace(discord.ui.Modal):
-    def __init__(self, x: int, y: int, z: int, ctx: commands.Context):
+    def __init__(self, x: int, y: int, z: float, ctx: commands.Context):
         super().__init__(title="Place")
         self.i = discord.ui.TextInput(label=f"Color ({mycol.find_one({'x': x, 'y': y})['color']})")
         self.add_item(self.i)
@@ -192,14 +194,14 @@ class ModalPlace(discord.ui.Modal):
                                         embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, "Idle"))
 
 class ModalZoom(discord.ui.Modal):
-    def __init__(self, x: int, y: int, z: int, ctx: commands.Context):
+    def __init__(self, x: int, y: int, z: float, ctx: commands.Context):
         super().__init__(title="Zoom")
         self.i = discord.ui.TextInput(label=f"Value ({z}x)")
         self.add_item(self.i)
         self.x, self.y, self.z, self.ctx, = x, y, z, ctx
 
     async def on_submit(self, interaction: discord.Interaction):
-        self.z = extract_integer(self.i.value)
+        self.z = extract_number(self.i.value)
         if not self.z: return await interaction.response.send_message("Invalid zoom format.\nTry `2x` or `2`.", ephemeral=True)
 
         await interaction.response.defer()
@@ -211,7 +213,7 @@ class ModalZoom(discord.ui.Modal):
                                         embed=PlaceEmbed(self.x, self.y, self.z, self.ctx, "Idle"))
         
 class ModalLocate(discord.ui.Modal):
-    def __init__(self, x: int, y: int, z: int, ctx: commands.Context):
+    def __init__(self, x: int, y: int, z: float, ctx: commands.Context):
         super().__init__(title="Locate")
         self.iX = discord.ui.TextInput(label="x")
         self.iY = discord.ui.TextInput(label="y")

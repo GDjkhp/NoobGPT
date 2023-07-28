@@ -6,11 +6,11 @@ from discord.ext import commands
 
 async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, diff: str, ty: str):
     msg = await ctx.reply("Crunching data…")
-    params = "`-quiz [mode: <all/anon/me>, version: <any/v1/v2>, count: <1-50>, category: <any/9-32>, difficulty: <any/easy/medium/hard>, type: <any/multiple/boolean>`"
+    params = "```-quiz [mode: <all/anon/me>, version: <any/v1/v2>, count: <1-50>, category: <any/9-32>, difficulty: <any/easy/medium/hard>, type: <any/multiple/boolean>```"
     try: 
         if count and (int(count) > 51 or int(count) < 1): return await msg.edit(content="Items must be 1-50.") 
         if not count: count = "50"
-    except: return await msg.edit(content="Must be integer :(")
+    except: return await msg.edit(content="Must be integer :("+params)
     multi, anon, ck, req = False, False, None, None
     if v == None or v == "v1" or v == "any": 
         req = f"https://opentdb.com/api.php?amount={int(count)}&encode=url3986"
@@ -18,9 +18,7 @@ async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, d
     elif v == "v2": 
         req = f"https://the-trivia-api.com/v2/questions/?limit={int(count)}"
         ck = "correctAnswer"
-    else: 
-        ver = ["v1", "v2", "any"]
-        return await msg.edit(content=f"Version not found\n{ver}")
+    else: return await msg.edit(content="Version not found."+params)
     if mode:
         modes = ["all", "anon"]
         a = False
@@ -29,9 +27,7 @@ async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, d
             a = True
         if mode == "anon": anon = True
         if mode == "me": a = True
-        if not a: 
-            modes.append("me")
-            return await msg.edit(content=f"Mode not found.\n"+params)
+        if not a: return await msg.edit(content="Mode not found."+params)
     v2cat = "science,film_and_tv,music,history,geography,art_and_literature,sport_and_leisure,general_knowledge,science,food_and_drink".split(",")
     categories = v2cat if v == "v2" else requests.get("https://opentdb.com/api_category.php").json()["trivia_categories"]
     if cat:
@@ -51,9 +47,7 @@ async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, d
             req += f"&difficulties={diff}" if v == "v2" else f"&difficulty={diff}"
             a = True
         if diff == "any": a = True
-        if not a:
-            d.append("any")
-            return await msg.edit(content=f"Difficulty not found!\n`{d}`")
+        if not a: return await msg.edit(content="Difficulty not found!"+params)
     if ty and v == "v1":
         t = ["multiple", "boolean"]
         a = False
@@ -61,9 +55,7 @@ async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, d
             req += f"&type={ty}"
             a = True
         if ty == "any": a = True
-        if not a:
-            t.append("any")
-            return await msg.edit(content=f"Type not found!\n`{t}`")
+        if not a: return await msg.edit(content="Type not found!"+params)
     settings = {"multiplayer": multi, "anon": anon, "difficulty": diff, "type": ty, "count": int(count), "correct_key": ck}
     results = requests.get(req).json()["results"] if v == "v1" else requests.get(req).json()
     if not results: return await msg.edit(content="Error crunching questions, try again.")
