@@ -29,12 +29,15 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 ## Python Computer #2
 ### Prefix: -
 
-* `-bard [prompt]` Google Bard chat completion.
+* `-bard [prompt]` Google Bard chat completion. (Deprecated)
 * `-anime [query]` Search and stream Anime using Gogoanime.
 * `-search [query]` Search and stream TV shows and movies using Actvid.
-* `-aki (optional: [category = people/animals/objects] [language])` Play Akinator.
+* `-aki (optional: [category = people/animals/objects] [language])` Play a guessing game of Akinator.
 * `-ytdlp (optional: [format = mp3/m4a]) [link]` Downloads and coverts a YouTube video below 25MB. ([Supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md))
 * `-tic` Play tic-tac-toe with someone. (Deprecated)
+* `-hang (optional: [mode = all/hardcore/me] [count = 1-50] [type = any/word/quiz] [category = any/9-32] [difficulty = any/easy/medium/hard])` Play the word puzzle game of hangman.
+* `-place (optional: [x = 0-499] [y = 0-499] [zoom = 16x])` Play the Reddit social experiment event about placing pixels on a canvas.
+* `-quiz (optional: [mode = all/anon/me] [version = any/v1/v2] [count = 1-50] [category = any/9-32] [difficulty = any/easy/medium/hard] [type = any/multiple/boolean])` Play a game of quiz.
 <!-- * `-lex [query]` Search AI Generated art (Stable Diffusion) made by the prompts of the community using [Lexica](https://lexica.art) -->
 
 ## Node.js Computer #3
@@ -73,10 +76,19 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 * <https://github.com/JochCool/minesweeper-bot>
 * <https://github.com/yt-dlp/yt-dlp>
 * <https://github.com/Infiniticity/akinator.py>
+* <https://github.com/mongodb/mongo-python-driver>
+* <https://github.com/python-pillow/Pillow>
 
 ### Sites
 * <https://openai.com>
-* <https://gogoanime.hu>
+* <https://gogoanimehd.to>
 * <https://akinator.com>
+* <https://opentdb.com>
+* <https://the-trivia-api.com>
+* <https://www.nltk.org>
+* <https://wordnet.princeton.edu>
+* <https://reddit.com/r/place>
+* <https://mongodb.com>
+* <https://bard.google.com>
 <!-- * <https://lexica.art> -->
 </div>
