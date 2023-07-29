@@ -33,11 +33,12 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 * `-anime [query]` Search and stream Anime using Gogoanime.
 * `-search [query]` Search and stream TV shows and movies using Actvid.
 * `-aki (optional: [category = people/animals/objects] [language])` Play a guessing game of Akinator.
-* `-ytdlp (optional: [format = mp3/m4a]) [link]` Downloads and coverts a YouTube video below 25MB. ([Supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md))
+* `-ytdlp (optional: [format = mp3/m4a]) [link]` Downloads and converts a YouTube video below 25MB. ([Supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md))
 * `-tic` Play tic-tac-toe with someone. (Deprecated)
 * `-hang (optional: [mode = all/hardcore/me] [count = 1-50] [type = any/word/quiz] [category = any/9-32] [difficulty = any/easy/medium/hard])` Play the word puzzle game of hangman.
 * `-place (optional: [x = 0-499] [y = 0-499] [zoom = 16x])` Play the Reddit social experiment event about placing pixels on a canvas.
 * `-quiz (optional: [mode = all/anon/me] [version = any/v1/v2] [count = 1-50] [category = any/9-32] [difficulty = any/easy/medium/hard] [type = any/multiple/boolean])` Play a game of quiz.
+* `-ban [userid]` Return a user's Discord Nitro banner.
 <!-- * `-lex [query]` Search AI Generated art (Stable Diffusion) made by the prompts of the community using [Lexica](https://lexica.art) -->
 
 ## Node.js Computer #3
