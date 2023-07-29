@@ -37,7 +37,7 @@ async def halp(ctx: commands.Context):
     emby.add_field(name='`-ms`', 
                    value='Play minesweeper (Deprecated)', inline=False)
     emby.add_field(name='`-bard [prompt]`', 
-                   value='Google Bard chat completion.', inline=False)
+                   value='Google Bard chat completion. (Deprecated)', inline=False)
     emby.add_field(name='`-anime [query]`', 
                    value='Search and stream Anime using Gogoanime.', inline=False)
     emby.add_field(name='`-search [query]`', 
@@ -45,13 +45,19 @@ async def halp(ctx: commands.Context):
     emby.add_field(name='`-aki (optional: [category = people/animals/objects] [language])`', 
                    value='Play Akinator.', inline=False)
     emby.add_field(name='`-ytdlp (optional: [format = mp3/m4a]) [link]`', 
-                   value='Downloads and coverts a YouTube video below 25MB.', inline=False)
+                   value='Downloads and converts a YouTube video below 25MB.', inline=False)
     emby.add_field(name='`-tic`', 
                    value='Play tic-tac-toe with someone. (Deprecated)', inline=False)
+    emby.add_field(name='`-hang (optional: [mode = all/hardcore/me] [count = 1-50] [type = any/word/quiz] [category = any/9-32] [difficulty = any/easy/medium/hard])`', 
+                   value='Play the word puzzle game of hangman.', inline=False)
+    emby.add_field(name='`-place (optional: [x = 0-499] [y = 0-499] [zoom = 16x])`', 
+                   value='Play the Reddit social experiment event about placing pixels on a canvas.', inline=False)
+    emby.add_field(name='`-quiz (optional: [mode = all/anon/me] [version = any/v1/v2] [count = 1-50] [category = any/9-32] [difficulty = any/easy/medium/hard] [type = any/multiple/boolean])`', 
+                   value='Play a game of quiz.', inline=False)
     # emby.add_field(name='`-lex [prompt]`', 
     #                value='Search AI Generated art (Stable Diffusion) made by the prompts of the community using Lexica', inline=False)
-    emby.set_thumbnail(url=bot.user.avatar)
-    emby.set_footer(text='Hi Mom! Look I\'m famous!\nBot by GDjkhp', icon_url='https://i.imgur.com/ZbnJAHI.gif')
+    emby.set_thumbnail(url='https://i.imgur.com/ZbnJAHI.gif')
+    emby.set_footer(text='Hi Mom! Look I\'m famous!\nBot by GDjkhp', icon_url=bot.user.avatar)
     await ctx.reply(embed=emby)
 
 from actvid import Actvid
