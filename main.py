@@ -54,6 +54,8 @@ async def halp(ctx: commands.Context):
                    value='Play the Reddit social experiment event about placing pixels on a canvas.', inline=False)
     emby.add_field(name='`-quiz (optional: [mode = all/anon/me] [version = any/v1/v2] [count = 1-50] [category = any/9-32] [difficulty = any/easy/medium/hard] [type = any/multiple/boolean])`', 
                    value='Play a game of quiz.', inline=False)
+    emby.add_field(name='`-ban [userid]`', 
+                   value='Return a user\'s Discord Nitro banner.', inline=False)
     # emby.add_field(name='`-lex [prompt]`', 
     #                value='Search AI Generated art (Stable Diffusion) made by the prompts of the community using Lexica', inline=False)
     emby.set_thumbnail(url='https://i.imgur.com/ZbnJAHI.gif')
