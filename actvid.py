@@ -11,6 +11,7 @@ import json
 client, client0 = HttpClient(), HttpClient()
 title, url, aid, mv_tv, poster = 0, 1, 2, 3, 4
 pagelimit = 12
+actvid = "https://actvid.rs"
 
 async def Actvid(msg: discord.Message, arg: str):
     result = results(searchQuery(arg))
@@ -19,7 +20,7 @@ async def Actvid(msg: discord.Message, arg: str):
 
 # embed builders
 def detail(result) -> list:
-    req = client.get(f"https://www.actvid.com{result[1]}")
+    req = client.get(f"{actvid}{result[1]}")
     soup = BS(req, "lxml")
     desc = soup.find("div", {"class": "description"}).get_text()
     items = soup.find("div", {"class": "elements"}).find_all("div", {"class": "row-line"})
@@ -77,7 +78,7 @@ def get_max_page(length):
 def parse(txt: str) -> str:
     return re.sub(r"\W+", "-", txt.lower())
 def searchQuery(q) -> str:
-    return client.get(f"https://www.actvid.com/search/{parse(q)}").text
+    return client.get(f"{actvid}/search/{parse(q)}").text
 def results(html: str) -> list:
     soup = BS(html, "lxml")
     img = [i["data-src"] for i in soup.select(".film-poster-img")]
@@ -125,7 +126,7 @@ class ButtonSelect(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if self.result[mv_tv] == "TV":
-            r = client.get(f"https://www.actvid.com/ajax/v2/tv/seasons/{self.result[aid]}")
+            r = client.get(f"{actvid}/ajax/v2/tv/seasons/{self.result[aid]}")
             season_ids = [i["data-id"] for i in BS(r, "lxml").select(".dropdown-item")]
             embed = buildSeasons(season_ids, self.result)
             await interaction.response.edit_message(embed = embed, view = MyView2(self.result, season_ids, 0))
@@ -178,7 +179,7 @@ class ButtonSelect2(discord.ui.Button):
         self.result, self.season_id, self.index = result, season_id, index
     
     async def callback(self, interaction: discord.Interaction):
-        z = f"https://www.actvid.com/ajax/v2/season/episodes/{self.season_id}"
+        z = f"{actvid}/ajax/v2/season/episodes/{self.season_id}"
         rf = client.get(z)
         episodes = [i["data-id"] for i in BS(rf, "lxml").select(".nav-item > a")]
         embed = buildEpisodes(episodes, self.index, self.result)
@@ -239,17 +240,17 @@ class ButtonSelect3(discord.ui.Button):
 
 # actvid utils
 def server_id(mov_id: str) -> str:
-    req = client.get(f"https://www.actvid.com/ajax/movie/episodes/{mov_id}")
+    req = client.get(f"{actvid}/ajax/movie/episodes/{mov_id}")
     soup = BS(req, "lxml")
     return [i["data-linkid"] for i in soup.select(".nav-item > a")][0]        
 def ep_server_id(ep_id: str) -> str:
     req = client.get(
-        f"https://www.actvid.com/ajax/v2/episode/servers/{ep_id}/#servers-list"
+        f"{actvid}/ajax/v2/episode/servers/{ep_id}/#servers-list"
     )
     soup = BS(req, "lxml")
     return [i["data-id"] for i in soup.select(".nav-item > a")][0]
 def get_link(thing_id: str) -> tuple:
-    req = client.get(f"https://www.actvid.com/ajax/get_link/{thing_id}").json()[
+    req = client.get(f"{actvid}/ajax/get_link/{thing_id}").json()[
         "link"
     ]
     print(req)
