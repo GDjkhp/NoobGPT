@@ -240,47 +240,50 @@ class ButtonSelect3(discord.ui.Button):
 
 # actvid utils
 def server_id(mov_id: str) -> str:
-    req = client.get(f"{actvid}/ajax/movie/episodes/{mov_id}")
+    req = client.get(f"{actvid}/ajax/episode/list/{mov_id}")
     soup = BS(req, "lxml")
     return [i["data-linkid"] for i in soup.select(".nav-item > a")][0]        
 def ep_server_id(ep_id: str) -> str:
-    req = client.get(
-        f"{actvid}/ajax/v2/episode/servers/{ep_id}/#servers-list"
-    )
+    req = client.get(f"{actvid}/ajax/episode/servers/{ep_id}")
     soup = BS(req, "lxml")
     return [i["data-id"] for i in soup.select(".nav-item > a")][0]
 def get_link(thing_id: str) -> tuple:
-    req = client.get(f"{actvid}/ajax/get_link/{thing_id}").json()[
-        "link"
-    ]
+    req = client.get(f"{actvid}/ajax/episode/sources/{thing_id}").json()["link"]
     print(req)
     return req, rabbit_id(req)
 def rabbit_id(url: str) -> tuple:
     parts = p.urlparse(url, allow_fragments=True, scheme="/").path.split("/")
-    return (
-        re.findall(r"(https:\/\/.*\/embed-4)", url)[0].replace(
-            "embed-4", "ajax/embed-4/"
-        ),
-        parts[-1],
-    )
+    return (re.findall(r"(https:\/\/.*\/embed-1)", url)[0].replace("embed-1", "embed-1/ajax/e-1/"), parts[-1])
+def repair_base64(s):
+    missing_padding = len(s) % 4
+    if missing_padding != 0:
+        s += '=' * (4 - missing_padding)
+    return s
 def cdn_url(final_link: str, rabb_id: str) -> str:
     client0.set_headers({"X-Requested-With": "XMLHttpRequest"})
     data = client0.get(f"{final_link}getSources?id={rabb_id}").json()
     n = json.loads(decrypt(data["sources"], gh_key()))
     return n[0]["file"]
 def decrypt(data, key):
-    k = get_key(base64.b64decode(data)[8:16], key)
-    dec_key = k[:32]
-    iv = k[32:]
-    p = AES.new(dec_key, AES.MODE_CBC, iv=iv).decrypt(base64.b64decode(data)[16:])
-    return unpad(p).decode()
+    data = repair_base64(data)
+    sources_array = list(data)
+    extracted_key = ""
+    for index in key:
+        for i in range(index[0], index[1]):
+            extracted_key += data[i]
+            sources_array[i] = ""
+    extracted_key = get_key(base64.b64decode(data)[8:16], bytes(extracted_key, "utf-8"))
+    data_source = "".join(sources_array)
+    key = extracted_key
+    decrypted = decrypt_aes(base64.b64decode(data_source), key)
+    return decrypted
 def md5(data):
     return hashlib.md5(data).digest()
 def gh_key():
-    u = client.get(
-        "https://raw.githubusercontent.com/enimax-anime/key/e4/key.txt"
-    ).text
-    return bytes(u, "utf-8")
+    response_key = client.get('https://github.com/enimax-anime/key/blob/e6/key.txt').json()
+    key = response_key["payload"]["blob"]["rawLines"][0]
+    key = json.loads(key)
+    return key
 def get_key(salt, key):
     x = md5(key + salt)
     currentkey = x
@@ -290,3 +293,10 @@ def get_key(salt, key):
     return currentkey
 def unpad(s):
     return s[: -ord(s[len(s) - 1 :])]
+def decrypt_aes(encrypted_data, key):
+    dec_key = key[:32]
+    iv = key[32:]
+    print(iv, dec_key)
+    cipher = AES.new(dec_key, AES.MODE_CBC, iv=iv)
+    decrypted_data = unpad(cipher.decrypt(encrypted_data[16:]), AES.block_size)
+    return decrypted_data.decode('utf-8')
