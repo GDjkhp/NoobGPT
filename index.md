@@ -39,16 +39,16 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 * `-place (optional: [x = 0-499] [y = 0-499] [zoom = 16x])` Play the Reddit social experiment event about placing pixels on a canvas.
 * `-quiz (optional: [mode = all/anon/me] [version = any/v1/v2] [count = 1-50] [category = any/9-32] [difficulty = any/easy/medium/hard] [type = any/multiple/boolean])` Play a game of quiz.
 * `-ban [userid]` Return a user's Discord Nitro banner.
-<!-- * `-lex [query]` Search AI Generated art (Stable Diffusion) made by the prompts of the community using [Lexica](https://lexica.art) -->
+<!-- * `-lex [query/image]` Search AI Generated art (Stable Diffusion) made by the prompts of the community using [Lexica](https://lexica.art) -->
 
 ## Node.js Computer #3
-### Prefix: !!
+### Slash commands
 
-* `!!p [query/link]` Play something. Supports YouTube and Spotify.
-* `!!np` Now playing.
-* `!!q` Show query.
-* `!!s` Skip track.
-* `!!help` Show music commands help. ([More info](https://discord-musicbot.gdjkhp.repl.co/))
+* `/play [query/link]` Play something. Supports YouTube and Spotify.
+* `/nowplaying` Now playing.
+* `/queue` Show query.
+* `/skip` Skip track.
+* `/help` Show music commands help.
 
 ## Python Computer #4
 ### Slash commands
