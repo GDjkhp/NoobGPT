@@ -145,6 +145,15 @@ async def ban(ctx: commands.Context, *, arg):
         else: await ctx.reply("There is no such thing.")
     except: await ctx.reply("Must be a valid user ID.")
 
+# avatar
+@bot.command()
+async def av(ctx: commands.Context, *, arg):
+    try:
+        user = await bot.fetch_user(int(arg))
+        if user.avatar: await ctx.reply(user.avatar.url)
+        else: await ctx.reply("There is no such thing.")
+    except: await ctx.reply("Must be a valid user ID.")
+
 # hangman
 from hangman import HANG
 @bot.command()
