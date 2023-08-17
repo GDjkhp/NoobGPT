@@ -80,6 +80,7 @@ Based on [a fork of Chess-Bot by Davi0k, re-written by scott-serven](https://git
 ### Sites
 * <https://openai.com>
 * <https://gogoanimehd.to>
+* <https://actvid.rs>
 * <https://akinator.com>
 * <https://opentdb.com>
 * <https://the-trivia-api.com>
