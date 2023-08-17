@@ -21,7 +21,7 @@ Originally intended as an XP Leveling System under the codename "LevelUpLoser", 
 * `-gpt [prompt]` OpenAI GPT-3 text completion.
 * `-imagine [prompt]` OpenAI Dall-E image generation.
 * `-quote` Reply to a message to make it a quote.
-* `-ms` Play minesweeper (Deprecated)
+* `-ms` Play minesweeper. (Deprecated)
 
 ## Python Computer #2: Beta Branch
 Collection of random and unique stuff I came up with, mostly games and useful tools. This is where I add new features regularly.
