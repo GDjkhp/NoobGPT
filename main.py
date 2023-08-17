@@ -35,7 +35,7 @@ async def halp(ctx: commands.Context):
     emby.add_field(name='`-quote`', 
                    value='Reply to a message to make it a quote.', inline=False)
     emby.add_field(name='`-ms`', 
-                   value='Play minesweeper (Deprecated)', inline=False)
+                   value='Play minesweeper. (Deprecated)', inline=False)
     emby.add_field(name='`-bard [prompt]`', 
                    value='Google Bard chat completion. (Deprecated)', inline=False)
     emby.add_field(name='`-anime [query]`', 
