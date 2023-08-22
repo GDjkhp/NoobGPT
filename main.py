@@ -108,6 +108,16 @@ async def bard(ctx: commands.Context, *, arg):
             await ctx.reply(img[i])
     await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
 
+# palm (alternative to bard)
+import google.generativeai as PALM
+PALM.configure(api_key=os.getenv("PALM"))
+@bot.command()
+async def palm(ctx: commands.Context, *, arg):
+    msg = await ctx.reply("Generating response…")
+    old = round(time.time() * 1000)
+    await ctx.reply(PALM.generate_text(prompt=arg).result[:2000])
+    await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
+
 # :|
 from gelbooru import R34, GEL, SAFE
 @bot.command()
