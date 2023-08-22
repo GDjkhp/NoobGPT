@@ -14,7 +14,7 @@ async def Gogoanime(msg: discord.Message, arg: str):
     try: result = resultsAnime(searchAnime(arg))
     except: return await msg.edit(content="Error! Domain changed most likely.")
     embed = buildSearch(arg, result, 0)
-    await msg.edit(content=None, embed = embed, view = MyView4(arg, result, 0))
+    await msg.edit(content=f"Search results: `{arg}`", view = MyView4(arg, result, 0))
 
 def buildAnime(details: list) -> discord.Embed():
     embed = discord.Embed(title=details[title], description=details[desc], color=0x00ff00)
@@ -26,6 +26,8 @@ def buildAnime(details: list) -> discord.Embed():
     embed.add_field(name="Genre", value=details[genre])
     embed.set_footer(text="Note: Use Adblockers :)")
     return embed
+
+# legacy code
 def buildSearch(arg: str, result: list, index: int) -> discord.Embed():
     embed = discord.Embed(title=f"Search results: `{arg}`", description=f"{len(result)} found", color=0x00ff00)
     # embed.set_thumbnail(url = bot.user.avatar)
@@ -76,14 +78,8 @@ def get_max_page(length):
 class MyView4(discord.ui.View):
     def __init__(self, arg: str, result: list, index: int):
         super().__init__(timeout=None)
-        i = index
-        column, row, last_index = 0, -1, len(result)
-        while i < len(result):
-            if column % 4 == 0: row += 1
-            if (i < index+pagelimit): self.add_item(ButtonSelect4(i + 1, result[i], row))
-            if (i == index+pagelimit): last_index = i
-            i += 1
-            column += 1
+        last_index = min(index + pagelimit, len(result))
+        self.add_item(SelectChoice(index, result))
         if index - pagelimit > -1:
             self.add_item(nextPage(arg, result, 0, 3, "⏪"))
             self.add_item(nextPage(arg, result, index - pagelimit, 3, "◀️"))
@@ -92,6 +88,32 @@ class MyView4(discord.ui.View):
             max_page = get_max_page(len(result))
             self.add_item(nextPage(arg, result, max_page, 3, "⏩"))
 
+class SelectChoice(discord.ui.Select):
+    def __init__(self, index: int, result: list):
+        super().__init__(placeholder=f"{min(index + pagelimit, len(result))}/{len(result)} found")
+        i, self.result = index, result
+        while i < len(result): 
+            if (i < index+pagelimit): self.add_option(label=f"[{i + 1}] {result[i][title]}", value=i, description=f"{result[i][url]}")
+            if (i == index+pagelimit): break
+            i += 1
+
+    async def callback(self, interaction: discord.Interaction):
+        req = client.get(f"{gogoanime}{self.result[int(self.values[0])][url]}")
+        soup = BS(req, "lxml")
+
+        episodes: int = soup.find("ul", {"id": "episode_page"}).find_all("a")[-1]["ep_end"]
+        types = soup.find_all("p", {"class": "type"})
+        desc: str = types[1].get_text().replace("Plot Summary:", "")
+        animetype: str = types[0].get_text().split(": ")[1]
+        genre: str = types[2].get_text().split(": ")[1]
+        released: str = types[3].get_text().split(": ")[1]
+        details = [self.result[int(self.values[0])][title], self.result[int(self.values[0])][url], desc, episodes, 
+                   self.result[int(self.values[0])][poster], animetype, released, genre]
+
+        embed = buildAnime(details)
+        await interaction.response.edit_message(content=None, embed = embed, view = MyView5(details, 0))
+
+# legacy code
 class ButtonSelect4(discord.ui.Button):
     def __init__(self, index: int, result: list, row: int):
         super().__init__(label=index, style=discord.ButtonStyle.primary, row=row)
@@ -118,8 +140,7 @@ class nextPage(discord.ui.Button):
         self.result, self.index, self.arg = result, index, arg
     
     async def callback(self, interaction: discord.Interaction):
-        embed = buildSearch(self.arg, self.result, self.index)
-        await interaction.response.edit_message(embed = embed, view = MyView4(self.arg, self.result, self.index))
+        await interaction.response.edit_message(view = MyView4(self.arg, self.result, self.index))
 
 # episode
 class MyView5(discord.ui.View):
