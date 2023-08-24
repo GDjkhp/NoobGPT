@@ -37,6 +37,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-quiz (optional: [mode = all/anon/me] [version = any/v1/v2] [count = 1-50] [category = any/9-32] [difficulty = any/easy/medium/hard] [type = any/multiple/boolean])` Play a game of quiz.
 * `-ban [userid]` Return a user's Discord profile banner.
 * `-av [userid]` Return a user's Discord profile avatar.
+* `-palm [prompt]` Google AI PaLM text generation.
 <!-- * `-lex [query/image]` Search AI Generated art (Stable Diffusion) made by the prompts of the community using [Lexica](https://lexica.art) -->
 
 ## Node.js Computer #3: Music Branch
