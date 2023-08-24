@@ -4,7 +4,7 @@
 
 A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you.
 
-[Add to Server](https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=277028662336&scope=applications.commands%20bot)
+[Add to Server](https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=277028654144&scope=bot%20applications.commands)
 
 ## Source Code:
 ### [Look how everything works behind the scenes.](https://replit.com/@GDjkhp)
@@ -14,14 +14,14 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 * <https://github.com/scott-serven/Chess-Bot>
 
 # Bot Commands
-## Node.js Computer #1: Alpha Branch
-Originally intended as an XP Leveling System under the codename "LevelUpLoser", it evolved into a product of A.I. hype due to popular demand of image and text generation capabilities.
+## Node.js Computer #1: Alpha Branch (Deprecated)
+Originally intended as an XP Leveling System under the codename "LevelUpLoser", it evolved into a product of AI hype due to popular demand of image and text generation capabilities.
 ### Prefix: -
 * `-ask [prompt]` OpenAI GPT-3.5-Turbo (ChatGPT) chat completion.
 * `-gpt [prompt]` OpenAI GPT-3 text completion.
 * `-imagine [prompt]` OpenAI Dall-E image generation.
 * `-quote` Reply to a message to make it a quote.
-* `-ms` Play minesweeper. (Deprecated)
+* `-ms` Play minesweeper.
 
 ## Python Computer #2: Beta Branch
 Collection of random and unique stuff I came up with, mostly games and useful tools. This is where I add new features regularly.
