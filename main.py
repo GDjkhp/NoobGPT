@@ -58,6 +58,8 @@ async def halp(ctx: commands.Context):
                    value='Return a user\'s Discord profile banner.', inline=False)
     emby.add_field(name='`-av [userid]`', 
                    value='Return a user\'s Discord profile avatar.', inline=False)
+    emby.add_field(name='`-palm [prompt]`', 
+                   value='Google AI PaLM text generation.', inline=False)
     # emby.add_field(name='`-lex [prompt]`', 
     #                value='Search AI Generated art (Stable Diffusion) made by the prompts of the community using Lexica', inline=False)
     emby.set_thumbnail(url='https://i.imgur.com/ZbnJAHI.gif')
@@ -115,7 +117,8 @@ PALM.configure(api_key=os.getenv("PALM"))
 async def palm(ctx: commands.Context, *, arg):
     msg = await ctx.reply("Generating response…")
     old = round(time.time() * 1000)
-    await ctx.reply(PALM.generate_text(prompt=arg).result[:2000])
+    try: await ctx.reply(PALM.generate_text(prompt=arg).result[:2000])
+    except Exception as e: return await msg.edit(content=f"**Error! :(**\n{e}")
     await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
 
 # :|
