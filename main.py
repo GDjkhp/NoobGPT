@@ -119,6 +119,7 @@ async def palm(ctx: commands.Context, *, arg):
     old = round(time.time() * 1000)
     try: 
         text = PALM.generate_text(prompt=arg).result
+        if not text: return await msg.edit(content=f"**Error! :(**\nEmpty response.")
         chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
         replyFirst = True
         for chunk in chunks:
