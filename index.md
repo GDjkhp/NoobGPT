@@ -4,7 +4,7 @@
 
 A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you.
 
-[Add to Server](https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=277028654144&scope=bot%20applications.commands)
+[Add to Server](https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=274881170432&scope=applications.commands%20bot)
 
 ## Source Code:
 ### [Look how everything works behind the scenes.](https://replit.com/@GDjkhp)
