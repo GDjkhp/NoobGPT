@@ -117,7 +117,15 @@ PALM.configure(api_key=os.getenv("PALM"))
 async def palm(ctx: commands.Context, *, arg):
     msg = await ctx.reply("Generating response…")
     old = round(time.time() * 1000)
-    try: await ctx.reply(PALM.generate_text(prompt=arg).result[:2000])
+    try: 
+        text = PALM.generate_text(prompt=arg).result
+        chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
+        replyFirst = True
+        for chunk in chunks:
+            if replyFirst: 
+                replyFirst = False
+                await ctx.reply(chunk)
+            else: await ctx.send(chunk)
     except Exception as e: return await msg.edit(content=f"**Error! :(**\n{e}")
     await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
 
