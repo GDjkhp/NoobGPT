@@ -68,15 +68,17 @@ async def halp(ctx: commands.Context):
 
 from actvid import Actvid
 @bot.command()
-async def search(ctx: commands.Context, *, arg):
+async def search(ctx: commands.Context, *, arg=None):
+    return await ctx.reply(f"Parser is currently broken. It's not much but consider [watching it here](https://actvid.rs/).")
     msg = await ctx.reply(f"Searching `{arg}`\nPlease wait…")
     await Actvid(msg, arg)
 
 from gogoanime import Gogoanime
 @bot.command()
-async def anime(ctx: commands.Context, *, arg):
-    msg = await ctx.reply(f"Searching `{arg}`\nPlease wait…")
-    await Gogoanime(msg, arg)
+async def anime(ctx: commands.Context, *, arg=None):
+    if arg: msg = await ctx.reply(f"Searching `{arg}`\nPlease wait…")
+    else: msg = await ctx.reply("Imagine something that doesn't exist. Must be sad. You are sad. You don't belong here.\nLet's all love lain.")
+    await Gogoanime(msg, arg if arg else "serial experiments lain")
 
 from tictactoe import TicTacToe
 @bot.command()
@@ -86,10 +88,11 @@ async def tic(ctx: commands.Context):
 
 from ytdlp_ import YTDLP
 @bot.command()
-async def ytdlp(ctx: commands.Context, arg1, arg2=None):
+async def ytdlp(ctx: commands.Context, arg1=None, arg2=None):
+    if not arg1: arg1, arg2 = "mp3", "dQw4w9WgXcQ"
     bot.loop.create_task(YTDLP(ctx, arg1, arg2))
 
-# bard
+# bard (legacy)
 from bard import Bard
 import time
 cookie_dict = {
@@ -98,7 +101,8 @@ cookie_dict = {
     # Any cookie values you want to pass session object.
 }
 @bot.command()
-async def bard(ctx: commands.Context, *, arg):
+async def bard(ctx: commands.Context, *, arg=None):
+    return await ctx.reply("This command requires cookies. Use `-palm` instead.")
     msg = await ctx.reply("Generating response…")
     old = round(time.time() * 1000)
     try: response = Bard(cookie_dict=cookie_dict, timeout=60).get_answer(arg)
@@ -114,7 +118,8 @@ async def bard(ctx: commands.Context, *, arg):
 import google.generativeai as PALM
 PALM.configure(api_key=os.getenv("PALM"))
 @bot.command()
-async def palm(ctx: commands.Context, *, arg):
+async def palm(ctx: commands.Context, *, arg=None):
+    if not arg: arg = "Explain who you are, your functions, capabilities, limitations, and purpose."
     msg = await ctx.reply("Generating response…")
     old = round(time.time() * 1000)
     try: 
@@ -133,13 +138,13 @@ async def palm(ctx: commands.Context, *, arg):
 # :|
 from gelbooru import R34, GEL, SAFE
 @bot.command()
-async def r34(ctx: commands.Context, *, arg=""):
+async def r34(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(R34(ctx, arg))
 @bot.command()
-async def gel(ctx: commands.Context, *, arg=""):
+async def gel(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(GEL(ctx, arg))
 @bot.command()
-async def safe(ctx: commands.Context, *, arg=""):
+async def safe(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(SAFE(ctx, arg))
 
 # aki
@@ -152,7 +157,8 @@ async def aki(ctx: commands.Context, arg1='people', arg2='en'):
 # lexica art
 from lex import LEX
 @bot.command()
-async def lex(ctx: commands.Context, *, arg):
+async def lex(ctx: commands.Context, *, arg=None):
+    if not arg: return await ctx.reply("Good job finding this command. Bet you've seen this on source or caught someone using it.")
     await LEX(ctx, arg)
 
 from quiz import QUIZ
@@ -162,18 +168,18 @@ async def quiz(ctx: commands.Context, mode: str=None, v: str=None, count: str=No
 
 # banner
 @bot.command()
-async def ban(ctx: commands.Context, *, arg):
+async def ban(ctx: commands.Context, *, arg=None):
     try:
-        user = await bot.fetch_user(int(arg))
+        user = await bot.fetch_user(int(arg) if arg else ctx.author.id)
         if user.banner: await ctx.reply(user.banner.url)
         else: await ctx.reply("There is no such thing.")
     except: await ctx.reply("Must be a valid user ID.")
 
 # avatar
 @bot.command()
-async def av(ctx: commands.Context, *, arg):
+async def av(ctx: commands.Context, *, arg=None):
     try:
-        user = await bot.fetch_user(int(arg))
+        user = await bot.fetch_user(int(arg) if arg else ctx.author.id)
         if user.avatar: await ctx.reply(user.avatar.url)
         else: await ctx.reply("There is no such thing.")
     except: await ctx.reply("Must be a valid user ID.")
