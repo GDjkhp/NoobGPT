@@ -3,17 +3,18 @@ from httpclient import HttpClient
 from bs4 import BeautifulSoup as BS
 import re
 from urllib import parse as p
+import requests
 
 client, client0 = HttpClient(), HttpClient()
 title, url, aid, mv_tv, poster = 0, 1, 2, 3, 4
 desc, ep, animetype, released, genre = 2, 3, 5, 6, 7
 pagelimit = 12
-gogoanime = "https://gogoanimehd.io"
+
+r = requests.get("https://gogoanime.cl")
+gogoanime = r.url[:-1]
 
 async def Gogoanime(msg: discord.Message, arg: str):
-    try: result = resultsAnime(searchAnime(arg))
-    except: return await msg.edit(content="Error! Domain changed most likely.")
-    embed = buildSearch(arg, result, 0)
+    result = resultsAnime(searchAnime(arg))
     await msg.edit(content=f"Search results: `{arg}`", view = MyView4(arg, result, 0))
 
 def buildAnime(details: list) -> discord.Embed():
