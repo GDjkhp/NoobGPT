@@ -14,7 +14,8 @@ r = requests.get("https://gogoanime.cl")
 gogoanime = r.url[:-1]
 
 async def Gogoanime(msg: discord.Message, arg: str):
-    result = resultsAnime(searchAnime(arg))
+    try: result = resultsAnime(searchAnime(arg))
+    except: return await msg.edit(content="Error! Domain changed most likely.")
     await msg.edit(content=f"Search results: `{arg}`", view = MyView4(arg, result, 0))
 
 def buildAnime(details: list) -> discord.Embed():
