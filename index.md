@@ -7,7 +7,7 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 
 [Add to Server](https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=274881170432&scope=applications.commands%20bot)
 
-## Source Code:
+## Source Code
 ### [Look how everything works behind the scenes.](https://replit.com/@GDjkhp)
 * <https://github.com/GDjkhp/level-up-loser>
 * <https://github.com/GDjkhp/level-up-loser-python-branch>
@@ -19,6 +19,9 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 Feature requests and contributions are welcome!
 
 # Bot Commands
+* `-halp` Show prefix commands help page.
+* `/help` Show music commands help page.
+
 ## Node.js Computer #1: Alpha Branch (Legacy)
 Originally intended as an XP Leveling System under the codename "LevelUpLoser". This is now a legacy server that hosts my OpenAI generative AI and other commands written in Javascript. I will migrate them to Python soon.
 ### Prefix: -
@@ -52,7 +55,6 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 * `/nowplaying` Now playing.
 * `/queue` Show query.
 * `/skip` Skip track.
-* `/help` Show music commands help.
 
 ## Credits
 ### Code
@@ -84,4 +86,10 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 * <https://bard.google.com>
 * <https://developers.generativeai.google/products/palm>
 <!-- * <https://lexica.art> -->
+
+### Legal
+<marquee>This bot is against Discord and Replit Terms of Service and some violates the licenses credited above. Proceed with caution!</marquee>
+
+Bot by GDjkhp\
+© The Karakters Kompany, 2023
 </div>
