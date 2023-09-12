@@ -14,9 +14,9 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 * <https://github.com/SudhanPlayz/Discord-MusicBot>
 
 ## Support
-Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) or reach out [GDjkhp](https://gdjkhp.github.io)
-
 Feature requests and contributions are welcome!
+<br>
+Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) or reach out [GDjkhp](https://gdjkhp.github.io)
 
 # Bot Commands
 * `-halp` Show prefix commands help page.
@@ -89,8 +89,7 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 
 ### Legal
 <marquee>This bot is against Discord and Replit Terms of Service and some violates the licenses credited above. Proceed with caution!</marquee>
-
 © The Karakters Kompany, 2023
-
+<br>
 Bot by GDjkhp
 </div>
