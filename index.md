@@ -1,5 +1,6 @@
 <script src="script.js"></script>
-<div style="position: relative;" markdown="1">    
+<div style="position: relative;" markdown="1">
+
 ![amogus](https://gdjkhp.github.io/NoobGPT/noob%20new.png "amogus")
 
 A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you.
@@ -11,11 +12,15 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 * <https://github.com/GDjkhp/level-up-loser>
 * <https://github.com/GDjkhp/level-up-loser-python-branch>
 * <https://github.com/SudhanPlayz/Discord-MusicBot>
-* <https://github.com/scott-serven/Chess-Bot>
+
+## Support
+Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) or reach out [GDjkhp](https://gdjkhp.github.io)
+
+Feature requests and contributions are welcome!
 
 # Bot Commands
-## Node.js Computer #1: Alpha Branch (Deprecated)
-Originally intended as an XP Leveling System under the codename "LevelUpLoser", it evolved into a product of AI hype due to popular demand of image and text generation capabilities.
+## Node.js Computer #1: Alpha Branch (Legacy)
+Originally intended as an XP Leveling System under the codename "LevelUpLoser". This is now a legacy server that hosts my OpenAI generative AI and other commands written in Javascript. I will migrate them to Python soon.
 ### Prefix: -
 * `-ask [prompt]` OpenAI GPT-3.5-Turbo (ChatGPT) chat completion.
 * `-gpt [prompt]` OpenAI GPT-3 text completion.
@@ -48,19 +53,6 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 * `/queue` Show query.
 * `/skip` Skip track.
 * `/help` Show music commands help.
-
-## Python Computer #4: Chess Branch (Legacy)
-Based on [a fork of Chess-Bot by Davi0k, re-written by scott-serven](https://github.com/scott-serven/Chess-Bot), used to play chess directly in text channels against other users.
-### Slash commands
-* `/new (optional: [rated = True/False] [opponent = user])` Create a new chess game invite.
-* `/cancel` Cancel the created invite.
-* `/accept` Accept the invite.
-* `/decline` Decline the invite.
-* `/cmove [move]` Move pieces. (UCI recommended)
-* `/surrender` Surrender and lose the current match.
-* `/show` Show current game.
-* `/stats (optional: [user])` Show the stats of the player.
-* `/leaderboard` Show top chess players.
 
 ## Credits
 ### Code
