@@ -90,6 +90,7 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 ### Legal
 <marquee>This bot is against Discord and Replit Terms of Service and some violates the licenses credited above. Proceed with caution!</marquee>
 
-Bot by GDjkhp\
 © The Karakters Kompany, 2023
+
+Bot by GDjkhp
 </div>
