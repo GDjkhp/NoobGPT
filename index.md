@@ -36,7 +36,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 ### Prefix: -
 * `-bard [prompt]` [Google Bard](https://bard.google.com) chat completion. (Deprecated)
 * `-anime [query]` Search and stream Anime using [Gogoanime](https://gogoanimehd.io).
-* `-search [query]` Search and stream TV shows and movies using [Actvid](https://actvid.rs). (Deprecated)
+* `-tv [query]` Search and stream TV shows and movies using [SFlix](https://sflix.se).
 * `-aki (optional: [category = people/animals/objects] [language])` Play a guessing game of [Akinator](https://akinator.com).
 * `-ytdlp (optional: [format = mp3/m4a]) [link]` Downloads and converts a YouTube video below 25MB. ([Supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md))
 * `-tic` Play tic-tac-toe with someone. (Deprecated)
@@ -85,6 +85,7 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 * <https://mongodb.com>
 * <https://bard.google.com>
 * <https://developers.generativeai.google/products/palm>
+* <https://sflix.se>
 <!-- * <https://lexica.art> -->
 
 ### Legal
