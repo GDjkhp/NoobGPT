@@ -66,12 +66,12 @@ async def halp(ctx: commands.Context):
     emby.set_footer(text='Hi Mom! Look I\'m famous!\nBot by GDjkhp', icon_url=bot.user.avatar)
     await ctx.reply(embed=emby)
 
-from actvid import Actvid
+from sflix import Sflix
 @bot.command()
-async def search(ctx: commands.Context, *, arg=None):
-    return await ctx.reply(f"Parser is currently broken. It's not much but consider [watching it here](https://actvid.rs/).")
+async def tv(ctx: commands.Context, *, arg=None):
+    # return await ctx.reply(f"Parser is currently broken. It's not much but consider [watching it here](https://actvid.rs/).")
     msg = await ctx.reply(f"Searching `{arg}`\nPlease wait…")
-    await Actvid(msg, arg)
+    await Sflix(msg, arg)
 
 from gogoanime import Gogoanime
 @bot.command()

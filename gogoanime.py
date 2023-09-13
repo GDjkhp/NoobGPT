@@ -16,7 +16,7 @@ gogoanime = r.url[:-1]
 async def Gogoanime(msg: discord.Message, arg: str):
     try: result = resultsAnime(searchAnime(arg))
     except: return await msg.edit(content="Error! Domain changed most likely.")
-    await msg.edit(content=f"Search results: `{arg}`", view = MyView4(arg, result, 0))
+    await msg.edit(content=None, embed=buildSearch(arg, result, 0), view = MyView4(arg, result, 0))
 
 def buildAnime(details: list) -> discord.Embed():
     embed = discord.Embed(title=details[title], description=details[desc], color=0x00ff00)
@@ -83,12 +83,12 @@ class MyView4(discord.ui.View):
         last_index = min(index + pagelimit, len(result))
         self.add_item(SelectChoice(index, result))
         if index - pagelimit > -1:
-            self.add_item(nextPage(arg, result, 0, 3, "⏪"))
-            self.add_item(nextPage(arg, result, index - pagelimit, 3, "◀️"))
+            self.add_item(nextPage(arg, result, 0, "⏪"))
+            self.add_item(nextPage(arg, result, index - pagelimit, "◀️"))
         if not last_index == len(result):
-            self.add_item(nextPage(arg, result, last_index, 3, "▶️"))
+            self.add_item(nextPage(arg, result, last_index, "▶️"))
             max_page = get_max_page(len(result))
-            self.add_item(nextPage(arg, result, max_page, 3, "⏩"))
+            self.add_item(nextPage(arg, result, max_page, "⏩"))
 
 class SelectChoice(discord.ui.Select):
     def __init__(self, index: int, result: list):
@@ -137,8 +137,8 @@ class ButtonSelect4(discord.ui.Button):
         await interaction.response.edit_message(embed = embed, view = MyView5(details, 0))
 
 class nextPage(discord.ui.Button):
-    def __init__(self, arg: str, result: list, index: int, row: int, l: str):
-        super().__init__(emoji=l, style=discord.ButtonStyle.success, row=row)
+    def __init__(self, arg: str, result: list, index: int, l: str):
+        super().__init__(emoji=l, style=discord.ButtonStyle.success)
         self.result, self.index, self.arg = result, index, arg
     
     async def callback(self, interaction: discord.Interaction):
@@ -175,7 +175,7 @@ class ButtonSelect5(discord.ui.Button):
         request = client.get(f"{gogoanime}/{url}-episode-{self.index}")
         soup = BS(request, "lxml")
         video = soup.find("li", {"class": "doodstream"}).find("a")["data-video"]
-        await interaction.response.send_message(f"{url}-episode-{self.index}: {video}")
+        await interaction.response.send_message(f"[{url}-episode-{self.index}]({video})")
         # url0 = doodstream(
         #     soup.find("li", {"class": "doodstream"}).find("a")["data-video"]
         # )
