@@ -40,11 +40,11 @@ async def halp(ctx: commands.Context):
     emby.add_field(name='`-bard [prompt]`', 
                    value='[Google Bard](https://bard.google.com) chat completion. (Deprecated)', inline=False)
     emby.add_field(name='`-anime [query]`', 
-                   value='Search and watch Anime using [Gogoanime](https://gogoanimehd.io)', inline=False)
+                   value='Search and watch Anime using [Gogoanime](https://gogoanimehd.io).', inline=False)
     emby.add_field(name='`-tv [query]`', 
                    value='Search and watch TV shows and movies using [SFlix](https://sflix.se).', inline=False)
     emby.add_field(name='`-aki (optional: [category = people/animals/objects] [language])`', 
-                   value='Play a guessing game of [Akinator](https://akinator.com)', inline=False)
+                   value='Play a guessing game of [Akinator](https://akinator.com).', inline=False)
     emby.add_field(name='`-ytdlp (optional: [format = mp3/m4a]) [link]`', 
                    value='Download or convert a YouTube video under 25MB discord limit. [Supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md)', inline=False)
     emby.add_field(name='`-tic`', 
