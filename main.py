@@ -66,7 +66,7 @@ async def halp(ctx: commands.Context):
     # emby.add_field(name='`-lex [prompt]`', 
     #                value='Search AI Generated art (Stable Diffusion) made by the prompts of the community using Lexica', inline=False)
     emby.set_thumbnail(url='https://i.imgur.com/ZbnJAHI.gif')
-    emby.set_footer(text='Hi Mom! Look I\'m famous!\nBot by GDjkhp\n© The Karakters Kompany, 2023', icon_url=bot.user.avatar)
+    emby.set_footer(text='Bot by GDjkhp\n© The Karakters Kompany, 2023', icon_url=bot.user.avatar)
     await ctx.reply(embed=emby)
 
 from sflix import Sflix
