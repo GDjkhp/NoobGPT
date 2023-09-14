@@ -21,6 +21,7 @@ async def on_ready():
     print(":)")
     await bot.change_presence(status=discord.Status.dnd)
 
+# TODO: store the strings on a json file that syncs with the website
 @bot.command()
 async def halp(ctx: commands.Context):
     emby = discord.Embed(title="NoobGPT", 
@@ -37,15 +38,15 @@ async def halp(ctx: commands.Context):
     emby.add_field(name='`-ms`', 
                    value='Play minesweeper. (Deprecated)', inline=False)
     emby.add_field(name='`-bard [prompt]`', 
-                   value='Google Bard chat completion. (Deprecated)', inline=False)
+                   value='[Google Bard](https://bard.google.com) chat completion. (Deprecated)', inline=False)
     emby.add_field(name='`-anime [query]`', 
-                   value='Search and stream Anime using Gogoanime.', inline=False)
-    emby.add_field(name='`-search [query]`', 
-                   value='Search and stream TV shows and movies using Actvid.', inline=False)
+                   value='Search and watch Anime using [Gogoanime](https://gogoanimehd.io)', inline=False)
+    emby.add_field(name='`-tv [query]`', 
+                   value='Search and watch TV shows and movies using [SFlix](https://sflix.se).', inline=False)
     emby.add_field(name='`-aki (optional: [category = people/animals/objects] [language])`', 
-                   value='Play Akinator.', inline=False)
+                   value='Play a guessing game of [Akinator](https://akinator.com)', inline=False)
     emby.add_field(name='`-ytdlp (optional: [format = mp3/m4a]) [link]`', 
-                   value='Downloads and converts a YouTube video below 25MB.', inline=False)
+                   value='Download or convert a YouTube video under 25MB discord limit. [Supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md)', inline=False)
     emby.add_field(name='`-tic`', 
                    value='Play tic-tac-toe with someone. (Deprecated)', inline=False)
     emby.add_field(name='`-hang (optional: [mode = all/hardcore/me] [count = 1-50] [type = any/word/quiz] [category = any/9-32] [difficulty = any/easy/medium/hard])`', 
@@ -60,10 +61,12 @@ async def halp(ctx: commands.Context):
                    value='Return a user\'s Discord profile avatar.', inline=False)
     emby.add_field(name='`-palm [prompt]`', 
                    value='Google AI PaLM text generation.', inline=False)
+    emby.add_field(name='`/help`', 
+                   value='Show music commands help page.', inline=False)
     # emby.add_field(name='`-lex [prompt]`', 
     #                value='Search AI Generated art (Stable Diffusion) made by the prompts of the community using Lexica', inline=False)
     emby.set_thumbnail(url='https://i.imgur.com/ZbnJAHI.gif')
-    emby.set_footer(text='Hi Mom! Look I\'m famous!\nBot by GDjkhp', icon_url=bot.user.avatar)
+    emby.set_footer(text='Hi Mom! Look I\'m famous!\nBot by GDjkhp\n© The Karakters Kompany, 2023', icon_url=bot.user.avatar)
     await ctx.reply(embed=emby)
 
 from sflix import Sflix
