@@ -35,10 +35,10 @@ Originally intended as an XP Leveling System under the codename "LevelUpLoser". 
 Collection of random and unique stuff I came up with, mostly games and useful tools. This is where I add new features regularly.
 ### Prefix: -
 * `-bard [prompt]` [Google Bard](https://bard.google.com) chat completion. (Deprecated)
-* `-anime [query]` Search and stream Anime using [Gogoanime](https://gogoanimehd.io).
-* `-tv [query]` Search and stream TV shows and movies using [SFlix](https://sflix.se).
+* `-anime [query]` Search and watch Anime using [Gogoanime](https://gogoanimehd.io).
+* `-tv [query]` Search and watch TV shows and movies using [SFlix](https://sflix.se).
 * `-aki (optional: [category = people/animals/objects] [language])` Play a guessing game of [Akinator](https://akinator.com).
-* `-ytdlp (optional: [format = mp3/m4a]) [link]` Downloads and converts a YouTube video below 25MB. ([Supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md))
+* `-ytdlp (optional: [format = mp3/m4a]) [link]` Download or convert a YouTube video under 25MB discord limit. [Supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md)
 * `-tic` Play tic-tac-toe with someone. (Deprecated)
 * `-hang (optional: [mode = all/hardcore/me] [count = 1-50] [type = any/word/quiz] [category = any/9-32] [difficulty = any/easy/medium/hard])` Play the word puzzle game of hangman.
 * `-place (optional: [x = 0-499] [y = 0-499] [zoom = 16x])` Play the Reddit social experiment event about placing pixels on a canvas.
