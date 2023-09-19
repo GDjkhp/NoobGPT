@@ -61,6 +61,8 @@ async def halp(ctx: commands.Context):
                    value='Return a user\'s Discord profile avatar.', inline=False)
     emby.add_field(name='`-palm [prompt]`', 
                    value='Google AI PaLM text generation.', inline=False)
+    emby.add_field(name='`-petals`', 
+                   value='Run large language models at home, BitTorrent‑style.', inline=False)
     emby.add_field(name='`/help`', 
                    value='Show music commands help page.', inline=False)
     # emby.add_field(name='`-lex [prompt]`', 
@@ -122,21 +124,22 @@ import google.generativeai as PALM
 PALM.configure(api_key=os.getenv("PALM"))
 @bot.command()
 async def palm(ctx: commands.Context, *, arg=None):
-    if not arg: arg = "Explain who you are, your functions, capabilities, limitations, and purpose."
-    msg = await ctx.reply("Generating response…")
-    old = round(time.time() * 1000)
-    try: 
-        text = PALM.generate_text(prompt=arg).result
-        if not text: return await msg.edit(content=f"**Error! :(**\nEmpty response.")
-        chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
-        replyFirst = True
-        for chunk in chunks:
-            if replyFirst: 
-                replyFirst = False
-                await ctx.reply(chunk)
-            else: await ctx.send(chunk)
-    except Exception as e: return await msg.edit(content=f"**Error! :(**\n{e}")
-    await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
+    async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
+        if not arg: arg = "Explain who you are, your functions, capabilities, limitations, and purpose."
+        msg = await ctx.reply("Generating response…")
+        old = round(time.time() * 1000)
+        try: 
+            text = PALM.generate_text(prompt=arg).result
+            if not text: return await msg.edit(content=f"**Error! :(**\nEmpty response.")
+            chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
+            replyFirst = True
+            for chunk in chunks:
+                if replyFirst: 
+                    replyFirst = False
+                    await ctx.reply(chunk)
+                else: await ctx.send(chunk)
+        except Exception as e: return await msg.edit(content=f"**Error! :(**\n{e}")
+        await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
 
 # :|
 from gelbooru import R34, GEL, SAFE
@@ -197,5 +200,43 @@ from place import PLACE
 @bot.command()
 async def place(ctx: commands.Context, x: str=None, y: str=None, z: str=None):
     bot.loop.create_task(PLACE(ctx, x, y, z))
+
+# petals
+from petals import PETALS
+@bot.command()
+async def petals(ctx: commands.Context):
+    async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
+        msg = await ctx.reply("Pinging…")
+        await msg.edit(content=PETALS())
+
+from petals import BELUGA2
+@bot.command()
+async def beluga2(ctx: commands.Context, *, arg=None):
+    await BELUGA2(ctx, arg)
+
+from petals import LLAMA2
+@bot.command()
+async def llama2(ctx: commands.Context, *, arg=None):
+    await LLAMA2(ctx, arg)
+
+from petals import GUANACO
+@bot.command()
+async def guanaco(ctx: commands.Context, *, arg=None):
+    await GUANACO(ctx, arg)
+
+from petals import LLAMA
+@bot.command()
+async def llama(ctx: commands.Context, *, arg=None):
+    await LLAMA(ctx, arg)
+
+from petals import BLOOMZ
+@bot.command()
+async def bloomz(ctx: commands.Context, *, arg=None):
+    await BLOOMZ(ctx, arg)
+
+from petals import CODELLAMA
+@bot.command()
+async def codellama(ctx: commands.Context, *, arg=None):
+    await CODELLAMA(ctx, arg)
 
 bot.run(os.getenv("TOKEN"))
