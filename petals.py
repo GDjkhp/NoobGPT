@@ -49,7 +49,7 @@ async def petalsWebsocket(ctx: commands.Context, arg: str, model: str):
                         await msg.edit(content="**Session opened, generating...**")
                     elif not data["stop"]:
                         text += data["outputs"]
-                        await msg.edit(content=f"**Session opened, generating...**\nLength: {len(text)}")
+                        if len(text)%100==0: await msg.edit(content=f"**Session opened, generating...**\nLength: {len(text)}")
                     else: 
                         chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
                         replyFirst = True
