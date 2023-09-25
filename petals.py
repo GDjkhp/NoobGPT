@@ -20,7 +20,7 @@ async def petalsWebsocket(ctx: commands.Context, arg: str, model: str):
         msg = await ctx.reply("Generating response…")
         if not arg: arg = "Explain who you are, your functions, capabilities, limitations, and purpose."
         text = ""
-        text_mod = 100
+        text_mod = text_inc = 50
         old = round(time.time() * 1000)
         uri = "wss://chat.petals.dev/api/v2/generate"
         max_length = 512
@@ -52,7 +52,7 @@ async def petalsWebsocket(ctx: commands.Context, arg: str, model: str):
                         text += data["outputs"]
                         if len(text)//text_mod!=0: 
                             await msg.edit(content=f"**Session opened, generating...**\nLength: {len(text)}")
-                            text_mod += 100
+                            text_mod += text_inc
                     else: 
                         chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
                         replyFirst = True
