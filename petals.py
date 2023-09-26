@@ -23,13 +23,12 @@ async def petalsWebsocket(ctx: commands.Context, arg: str, model: str):
         text_mod = text_inc = 50
         old = round(time.time() * 1000)
         uri = "wss://chat.petals.dev/api/v2/generate"
-        max_length = 512
 
         async with websockets.connect(uri) as ws:
             await ws.send(json.dumps({
                 "type": "open_inference_session",
                 "model": model,
-                "max_length": max_length
+                "max_length": 512
             }))
             
             await ws.send(json.dumps({
