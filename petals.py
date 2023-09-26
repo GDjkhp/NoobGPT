@@ -17,9 +17,9 @@ async def petalsWebsocket(ctx: commands.Context, arg: str, model: str):
         None
     """
     async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
-        msg = await ctx.reply("Generating response…")
+        msg = await ctx.reply("**Starting session…**")
         if not arg: arg = "Explain who you are, your functions, capabilities, limitations, and purpose."
-        text = ""
+        text = None
         text_mod = text_inc = 50
         old = round(time.time() * 1000)
         uri = "wss://chat.petals.dev/api/v2/generate"
@@ -47,27 +47,33 @@ async def petalsWebsocket(ctx: commands.Context, arg: str, model: str):
                 data = json.loads(message)
                 if data.get("ok"):
                     if data.get("outputs") is None:
-                        await msg.edit(content="**Session opened, generating...**")
+                        await msg.edit(content="**Session opened, generating…**")
                     elif not data["stop"]:
                         text += data["outputs"]
                         if len(text)//text_mod!=0: 
-                            await msg.edit(content=f"**Session opened, generating...**\nLength: {len(text)}")
+                            await msg.edit(content=f"**Generating response…**\nLength: {len(text)}")
                             text_mod += text_inc
                     else: 
-                        chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
-                        replyFirst = True
-                        for chunk in chunks:
-                            if replyFirst: 
-                                replyFirst = False
-                                await ctx.reply(chunk)
-                            else:
-                                await ctx.send(chunk)
-                        await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**\nLength: {len(text)}")
+                        if text: 
+                            await send(ctx, text)
+                            await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**\nLength: {len(text)}")
+                        else: await msg.edit(content=f"**Error! :(**\nEmpty response.\n{PETALS()}")
                         await ws.close()
                 else:
-                    print("Error:", data.get("traceback"))
-                    await msg.edit(content=f"**Error! :(**\n{PETALS()}")
+                    # print("Error:", data.get("traceback"))
+                    if text: await send(ctx, text)
+                    else: await msg.edit(content=f"**Error! :(**\n{PETALS()}")
                     await ws.close()
+
+async def send(ctx: commands.Context, text: str):
+    chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
+    replyFirst = True
+    for chunk in chunks:
+        if replyFirst: 
+            replyFirst = False
+            await ctx.reply(chunk)
+        else:
+            await ctx.send(chunk)
 
 async def BELUGA2(ctx: commands.Context, arg: str):
     await petalsWebsocket(ctx, arg, 'stabilityai/StableBeluga2')
