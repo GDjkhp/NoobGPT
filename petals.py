@@ -19,7 +19,7 @@ async def petalsWebsocket(ctx: commands.Context, arg: str, model: str):
     async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
         msg = await ctx.reply("**Starting session…**")
         if not arg: arg = "Explain who you are, your functions, capabilities, limitations, and purpose."
-        text = None
+        text: str = None
         text_mod = text_inc = 50
         old = round(time.time() * 1000)
         uri = "wss://chat.petals.dev/api/v2/generate"
