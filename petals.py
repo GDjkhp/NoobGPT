@@ -65,8 +65,8 @@ async def petalsWebsocket(ctx: commands.Context, arg: str, model: str):
                             await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms and got interrupted with an error.**\nLength: {len(text)}")
                         else: await msg.edit(content=f"**Error! :(**\n{PETALS()}")
                         await ws.close()
-        except Exception as e:
-            await msg.edit(content=f"**Error! :(**\n{e}\n{PETALS()}")
+        except:
+            await msg.edit(content=f"**Error! :(**\nConnection timed out.\n{PETALS()}")
 
 async def send(ctx: commands.Context, text: str):
     chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
