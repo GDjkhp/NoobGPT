@@ -61,7 +61,9 @@ async def petalsWebsocket(ctx: commands.Context, arg: str, model: str):
                         await ws.close()
                 else:
                     # print("Error:", data.get("traceback"))
-                    if text != "": await send(ctx, text)
+                    if text != "": 
+                        await send(ctx, text)
+                        await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms and got interrupted with an error.**\nLength: {len(text)}")
                     else: await msg.edit(content=f"**Error! :(**\n{PETALS()}")
                     await ws.close()
 
