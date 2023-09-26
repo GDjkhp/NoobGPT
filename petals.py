@@ -23,48 +23,50 @@ async def petalsWebsocket(ctx: commands.Context, arg: str, model: str):
         text_mod = text_inc = 50
         old = round(time.time() * 1000)
         uri = "wss://chat.petals.dev/api/v2/generate"
+        try:
+            async with websockets.connect(uri) as ws:
+                await ws.send(json.dumps({
+                    "type": "open_inference_session",
+                    "model": model,
+                    "max_length": 512
+                }))
+                
+                await ws.send(json.dumps({
+                    "type": "generate",
+                    "inputs": f"A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.###Assistant: Hi! How can I help you?###Human: {arg}###Assistant:",
+                    "max_new_tokens": 1,
+                    "do_sample": 1,
+                    "temperature": 0.6,
+                    "top_p": 0.9,
+                    "extra_stop_sequences": ["</s>"],
+                    "stop_sequence": "###"
+                }))
 
-        async with websockets.connect(uri) as ws:
-            await ws.send(json.dumps({
-                "type": "open_inference_session",
-                "model": model,
-                "max_length": 512
-            }))
-            
-            await ws.send(json.dumps({
-                "type": "generate",
-                "inputs": f"A chat between a curious human and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.###Assistant: Hi! How can I help you?###Human: {arg}###Assistant:",
-                "max_new_tokens": 1,
-                "do_sample": 1,
-                "temperature": 0.6,
-                "top_p": 0.9,
-                "extra_stop_sequences": ["</s>"],
-                "stop_sequence": "###"
-            }))
-
-            async for message in ws:
-                data = json.loads(message)
-                if data.get("ok"):
-                    if data.get("outputs") is None:
-                        await msg.edit(content="**Session opened, generating…**")
-                    elif not data["stop"]:
-                        text += data["outputs"]
-                        if len(text)//text_mod!=0: 
-                            await msg.edit(content=f"**Generating response…**\nLength: {len(text)}")
-                            text_mod += text_inc
-                    else: 
+                async for message in ws:
+                    data = json.loads(message)
+                    if data.get("ok"):
+                        if data.get("outputs") is None:
+                            await msg.edit(content="**Session opened, generating…**")
+                        elif not data["stop"]:
+                            text += data["outputs"]
+                            if len(text)//text_mod!=0: 
+                                await msg.edit(content=f"**Generating response…**\nLength: {len(text)}")
+                                text_mod += text_inc
+                        else: 
+                            if text != "": 
+                                await send(ctx, text)
+                                await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**\nLength: {len(text)}")
+                            else: await msg.edit(content=f"**Error! :(**\nEmpty response.\n{PETALS()}")
+                            await ws.close()
+                    else:
+                        # print("Error:", data.get("traceback"))
                         if text != "": 
                             await send(ctx, text)
-                            await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**\nLength: {len(text)}")
-                        else: await msg.edit(content=f"**Error! :(**\nEmpty response.\n{PETALS()}")
+                            await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms and got interrupted with an error.**\nLength: {len(text)}")
+                        else: await msg.edit(content=f"**Error! :(**\n{PETALS()}")
                         await ws.close()
-                else:
-                    # print("Error:", data.get("traceback"))
-                    if text != "": 
-                        await send(ctx, text)
-                        await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms and got interrupted with an error.**\nLength: {len(text)}")
-                    else: await msg.edit(content=f"**Error! :(**\n{PETALS()}")
-                    await ws.close()
+        except Exception as e:
+            await msg.edit(content=f"**Error! :(**\n{e}\n{PETALS()}")
 
 async def send(ctx: commands.Context, text: str):
     chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
