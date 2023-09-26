@@ -19,7 +19,7 @@ async def petalsWebsocket(ctx: commands.Context, arg: str, model: str):
     async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
         msg = await ctx.reply("**Starting session…**")
         if not arg: arg = "Explain who you are, your functions, capabilities, limitations, and purpose."
-        text: str = None
+        text = ""
         text_mod = text_inc = 50
         old = round(time.time() * 1000)
         uri = "wss://chat.petals.dev/api/v2/generate"
@@ -54,14 +54,14 @@ async def petalsWebsocket(ctx: commands.Context, arg: str, model: str):
                             await msg.edit(content=f"**Generating response…**\nLength: {len(text)}")
                             text_mod += text_inc
                     else: 
-                        if text: 
+                        if text != "": 
                             await send(ctx, text)
                             await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**\nLength: {len(text)}")
                         else: await msg.edit(content=f"**Error! :(**\nEmpty response.\n{PETALS()}")
                         await ws.close()
                 else:
                     # print("Error:", data.get("traceback"))
-                    if text: await send(ctx, text)
+                    if text != "": await send(ctx, text)
                     else: await msg.edit(content=f"**Error! :(**\n{PETALS()}")
                     await ws.close()
 
