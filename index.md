@@ -2,6 +2,12 @@
 <div style="position: relative;" markdown="1">
 
 ![amogus](https://gdjkhp.github.io/NoobGPT/noob%20new.png "amogus")
+<br>
+[March 28, 2023 - January 1, 2024](https://blog.replit.com/hosting-changes 
+"noobgpt and meeseeks-leaderboard-api had a good run
+i can no longer host my bot due to replit changes
+thank you everyone for using them
+-GDjkhp")
 
 A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you.
 
@@ -46,6 +52,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-ban [userid]` Return a user's Discord profile banner.
 * `-av [userid]` Return a user's Discord profile avatar.
 * `-palm [prompt]` Google AI PaLM text generation.
+* `-petals` Run large language models at home, BitTorrent‑style.
 <!-- * `-lex [query/image]` Search AI Generated art (Stable Diffusion) made by the prompts of the community using [Lexica](https://lexica.art) -->
 
 ## Node.js Computer #3: Music Branch
