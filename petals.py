@@ -3,6 +3,7 @@ import time
 import requests
 import websockets
 import json
+import re
 
 # TODO: support read replies
 async def petalsWebsocket(ctx: commands.Context, arg: str, model: str):
@@ -59,11 +60,17 @@ async def petalsWebsocket(ctx: commands.Context, arg: str, model: str):
                             else: await msg.edit(content=f"**Error! :(**\nEmpty response.\n{PETALS()}")
                             await ws.close()
                     else:
-                        # print("Error:", data.get("traceback"))
+                        print("Error:", data.get("traceback"))
+                        # Use regular expressions to extract the error message
+                        error_match = re.search(r'Error:(.*?)(?=(\n\s{2,}File|\Z))', data.get("traceback"), re.DOTALL)
+                        error_message = "Error message not found."
+                        if error_match:
+                            error_message = error_match.group(1).strip()
                         if text != "": 
                             await send(ctx, text)
-                            await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms and got interrupted with an error.**\nLength: {len(text)}")
-                        else: await msg.edit(content=f"**Error! :(**\n{PETALS()}")
+                            await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms and got interrupted with an error.**\n{error_message}\nLength: {len(text)}")
+                        else: 
+                            await msg.edit(content=f"**Error! :(**\n{error_message}\n{PETALS()}")
                         await ws.close()
         except:
             await msg.edit(content=f"**Error! :(**\nConnection timed out.\n{PETALS()}")
@@ -93,13 +100,10 @@ async def LLAMA(ctx: commands.Context, arg: str):
 async def BLOOMZ(ctx: commands.Context, arg: str):
     await petalsWebsocket(ctx, arg, 'bigscience/bloomz')
 
-async def CODELLAMA(ctx: commands.Context, arg: str):
-    await petalsWebsocket(ctx, arg, 'codellama/CodeLlama-34b-Instruct-hf')
-
 def PETALS() -> str:
     status = requests.get("https://health.petals.dev/api/v1/state").json()
     text = "# [Petals](https://petals.dev/)\nRun large language models at home, BitTorrent‑style.\n\n"
-    text += "Commands:\n`-beluga2, -llama2, -guanaco, -llama, -bloomz, -codellama`\n\nModels:```diff\n"
+    text += "Commands:\n`-beluga2, -llama2, -guanaco, -llama, -bloomz`\n\nModels:```diff\n"
     for i in status["model_reports"]: 
         text += f"{'+ ' if i['state'] == 'healthy' else '- '}{i['name']}: {i['state']}\n"
     text += "```"

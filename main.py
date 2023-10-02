@@ -234,9 +234,4 @@ from petals import BLOOMZ
 async def bloomz(ctx: commands.Context, *, arg=None):
     await BLOOMZ(ctx, arg)
 
-from petals import CODELLAMA
-@bot.command()
-async def codellama(ctx: commands.Context, *, arg=None):
-    await CODELLAMA(ctx, arg)
-
 bot.run(os.getenv("TOKEN"))
