@@ -29,7 +29,7 @@ async def petalsWebsocket(ctx: commands.Context, arg: str, model: str):
                 await ws.send(json.dumps({
                     "type": "open_inference_session",
                     "model": model,
-                    "max_length": 512
+                    "max_length": 2000
                 }))
                 
                 await ws.send(json.dumps({
