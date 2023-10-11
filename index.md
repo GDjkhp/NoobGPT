@@ -17,7 +17,7 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 ### [Look how everything works behind the scenes.](https://replit.com/@GDjkhp)
 * <https://github.com/GDjkhp/level-up-loser>
 * <https://github.com/GDjkhp/level-up-loser-python-branch>
-* <https://github.com/SudhanPlayz/Discord-MusicBot>
+* <https://github.com/GDjkhp/Discord-MusicBot>
 
 ## Support
 Feature requests and contributions are welcome!
