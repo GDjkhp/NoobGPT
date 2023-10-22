@@ -42,6 +42,7 @@ def get_ydl_opts(arg):
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': arg,
+                'preferredquality': '320',
             }]
         }
     
