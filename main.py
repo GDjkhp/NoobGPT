@@ -234,4 +234,9 @@ from petals import BLOOMZ
 async def bloomz(ctx: commands.Context, *, arg=None):
     await BLOOMZ(ctx, arg)
 
+from weather import Weather
+@bot.command()
+async def weather(ctx: commands.Context, *, arg=None):
+    await Weather(ctx, arg)
+
 bot.run(os.getenv("TOKEN"))
