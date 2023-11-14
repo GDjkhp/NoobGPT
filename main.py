@@ -239,4 +239,8 @@ from weather import Weather
 async def weather(ctx: commands.Context, *, arg=None):
     await Weather(ctx, arg)
 
+@bot.command()
+async def legal(ctx: commands.Context):
+    await ctx.reply(content="EVERY POST I HAVE EVER MADE ON THIS DISCORD IS SATIRE. I DO NOT CONDONE NOR SUPPORT ANY OF THE OPINIONS EXPRESSED ON THIS CHATROOM. Any post associated with this IP is satire and should be treated as such. At no point has anyone associated with this IP has condoned, encouraged, committed, or abated acts of violence or threats of violence against any persons, regardless of racial, ethnic, religious or cultural background. In case of an investigation by any federal entity or similar, I do not have any involvement with the people in it, I do not know how I am here, probably added by a third party, I do not support any actions by the member(s) of this group.")
+
 bot.run(os.getenv("TOKEN"))
