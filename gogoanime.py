@@ -10,8 +10,9 @@ title, url, aid, mv_tv, poster = 0, 1, 2, 3, 4
 desc, ep, animetype, released, genre = 2, 3, 5, 6, 7
 pagelimit = 12
 
-r = requests.get("https://gogoanimehd.io")
-gogoanime = r.url[:-1]
+domain = "https://anitaku.to"
+r = requests.get(domain)
+gogoanime = r.url[:-1] if r else domain
 
 async def Gogoanime(msg: discord.Message, arg: str):
     try: result = resultsAnime(searchAnime(arg))

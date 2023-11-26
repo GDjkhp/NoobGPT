@@ -297,20 +297,19 @@ def decryption(string):
     main_decryption = aes_decrypt(decryption_key, new_string)
     return json.loads(main_decryption)
 def key_extraction(string, table):
-    decrypted_key = []
-    offset = 0
-    encrypted_string = string
-
-    for start, end in table:
-        decrypted_key.append(encrypted_string[start - offset:end - offset])
-        encrypted_string = (
-            encrypted_string[:start - offset] + encrypted_string[end - offset:]
-        )
-        offset += end - start
-
-    return "".join(decrypted_key), encrypted_string
+    sources_array = list(string)
+    extracted_key = ""
+    current_index = 0
+    for index in table:
+        start = index[0] + current_index
+        end = start + index[1]
+        for i in range(start, end):
+            extracted_key += sources_array[i]
+            sources_array[i] = ' '
+        current_index += index[1]
+    return extracted_key, ''.join(sources_array)
 def gh_key():
-    response_key = client.get('https://github.com/enimax-anime/key/blob/e4/key.txt').json()
+    response_key = client.get('https://github.com/theonlymo/keys/blob/e4/key').json()
     key = response_key["payload"]["blob"]["rawLines"][0]
     key = json.loads(key)
     return key
