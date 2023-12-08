@@ -81,6 +81,7 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 * <https://github.com/Infiniticity/akinator.py>
 * <https://github.com/mongodb/mongo-python-driver>
 * <https://github.com/python-pillow/Pillow>
+* <https://github.com/robertoduessmann/weather-api>
 
 ### Sites
 * <https://openai.com>
