@@ -63,6 +63,10 @@ async def halp(ctx: commands.Context):
                    value='Google AI PaLM text generation.', inline=False)
     emby.add_field(name='`-petals`', 
                    value='Run large language models at home, BitTorrent‑style.', inline=False)
+    emby.add_field(name='`-weather [query]`', 
+                   value='Check weather forecast using [weather-api](https://github.com/robertoduessmann/weather-api).', inline=False)
+    emby.add_field(name='`-ge [prompt = text/image]`', 
+                   value='Google AI Gemini language model.', inline=False)
     emby.add_field(name='`/help`', 
                    value='Show music commands help page.', inline=False)
     # emby.add_field(name='`-lex [prompt]`', 
@@ -98,48 +102,21 @@ async def ytdlp(ctx: commands.Context, arg1=None, arg2=None):
     bot.loop.create_task(YTDLP(ctx, arg1, arg2))
 
 # bard (legacy)
-from bard import Bard
-import time
-cookie_dict = {
-    "__Secure-1PSID": os.getenv("BARD"),
-    "__Secure-1PSIDTS": os.getenv("BARD0"),
-    # Any cookie values you want to pass session object.
-}
 @bot.command()
 async def bard(ctx: commands.Context, *, arg=None):
-    return await ctx.reply("This command requires cookies. Use `-palm` instead.")
-    msg = await ctx.reply("Generating response…")
-    old = round(time.time() * 1000)
-    try: response = Bard(cookie_dict=cookie_dict, timeout=60).get_answer(arg)
-    except Exception as e: return await msg.edit(content=f"**Error! :(**\n{e}")
-    await ctx.reply(response['content'][:2000])
-    if response['images']:
-        img = list(response['images'])
-        for i in range(len(img)):
-            await ctx.reply(img[i])
-    await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
+    await ctx.reply("This command requires cookies. Use `-palm` instead.")
 
 # palm (alternative to bard)
-import google.generativeai as PALM
-PALM.configure(api_key=os.getenv("PALM"))
+from googleai import PALM_LEGACY
 @bot.command()
 async def palm(ctx: commands.Context, *, arg=None):
-    async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
-        if not arg: arg = "Explain who you are, your functions, capabilities, limitations, and purpose."
-        msg = await ctx.reply("Generating response…")
-        old = round(time.time() * 1000)
-        try: 
-            text = PALM.generate_text(prompt=arg).result
-            if not text: return await msg.edit(content=f"**Error! :(**\nEmpty response.")
-            chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
-            replyFirst = True
-            for chunk in chunks:
-                if replyFirst: 
-                    replyFirst = False
-                    await ctx.reply(chunk)
-                else: await ctx.send(chunk)
-        except Exception as e: return await msg.edit(content=f"**Error! :(**\n{e}")
-        await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
+    await PALM_LEGACY(ctx, arg)
+
+# gemini
+from googleai import GEMINI
+@bot.command()
+async def ge(ctx: commands.Context, *, arg=None):
+    await GEMINI(ctx, arg)
 
 # :|
 from gelbooru import R34, GEL, SAFE
