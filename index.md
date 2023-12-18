@@ -1,5 +1,7 @@
 <script src="script.js"></script>
 <div style="position: relative;" markdown="1">
+<link rel="shortcut icon" href="https://i.imgur.com/nCXdGsA.png">
+<link rel="stylesheet" href="https://gdjkhp.github.io/style.css">
 
 ![amogus](https://gdjkhp.github.io/NoobGPT/noob%20new.png "amogus")
 <br>
@@ -53,9 +55,10 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-quiz (optional: [mode = all/anon/me] [version = any/v1/v2] [count = 1-50] [category = any/9-32] [difficulty = any/easy/medium/hard] [type = any/multiple/boolean])` Play a game of quiz.
 * `-ban [userid]` Return a user's Discord profile banner.
 * `-av [userid]` Return a user's Discord profile avatar.
-* `-palm [prompt]` Google AI PaLM text generation.
+* `-palm [prompt]` Google AI PaLM language model. (Legacy)
 * `-petals` Run large language models at home, BitTorrent‑style.
-* `-weather [query]` Check weather forecast using [weather-api](https://github.com/robertoduessmann/weather-api). 
+* `-weather [query]` Check weather forecast using [weather-api](https://github.com/robertoduessmann/weather-api).
+* `-ge [prompt = text/image]` Google AI Gemini language model.
 <!-- * `-lex [query/image]` Search AI Generated art (Stable Diffusion) made by the prompts of the community using [Lexica](https://lexica.art) -->
 
 ## Node.js Computer #3: Music Branch
@@ -95,7 +98,7 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 * <https://reddit.com/r/place>
 * <https://mongodb.com>
 * <https://bard.google.com>
-* <https://developers.generativeai.google/products/palm>
+* <https://ai.google.dev>
 * <https://sflix.se>
 <!-- * <https://lexica.art> -->
 
