@@ -60,7 +60,7 @@ async def halp(ctx: commands.Context):
     emby.add_field(name='`-av [userid]`', 
                    value='Return a user\'s Discord profile avatar.', inline=False)
     emby.add_field(name='`-palm [prompt]`', 
-                   value='Google AI PaLM text generation.', inline=False)
+                   value='Google AI PaLM language model. (Legacy)', inline=False)
     emby.add_field(name='`-petals`', 
                    value='Run large language models at home, BitTorrent‑style.', inline=False)
     emby.add_field(name='`-weather [query]`', 
