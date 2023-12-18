@@ -1,10 +1,3 @@
-@font-face {
-	font-family: font;
-	src: url(https://gdjkhp.github.io/fonts/AmaticSC-Regular.ttf);
-}
-body {
-	font-family: font;
-}
 body *, :not(*) {
 	cursor: url(https://i.imgur.com/nCXdGsA.png), auto;
 }
