@@ -1,6 +1,5 @@
 <script src="script.js"></script>
 <div style="position: relative;" markdown="1">
-<link rel="icon" href="https://gdjkhp.github.io/img/42247211_1895555103813303_6679866282172481536_n.jpg">
 <link rel="stylesheet" href="style.css">
 
 ![amogus](https://gdjkhp.github.io/NoobGPT/noob%20new.png "amogus")
