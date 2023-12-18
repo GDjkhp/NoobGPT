@@ -1,7 +1,7 @@
 <script src="script.js"></script>
 <div style="position: relative;" markdown="1">
 <link rel="shortcut icon" href="https://i.imgur.com/nCXdGsA.png">
-<link rel="stylesheet" href="https://gdjkhp.github.io/style.css">
+<link rel="stylesheet" href="style.css">
 
 ![amogus](https://gdjkhp.github.io/NoobGPT/noob%20new.png "amogus")
 <br>
