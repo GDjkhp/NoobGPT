@@ -3,21 +3,13 @@
 <link rel="stylesheet" href="style.css">
 
 ![amogus](https://gdjkhp.github.io/NoobGPT/noob%20new.png "amogus")
-<br>
-[March 28, 2023 - January 1, 2024](https://blog.replit.com/hosting-changes 
-"my discord bot had a good run
-i can no longer host this bot due to replit changes
-thank you everyone for using it
--GDjkhp")
-<br>
-Life-support arc has started. Expect downtimes and rate-limits.
 
 A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you.
 
 [Add to Server](https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=274881170432&scope=applications.commands%20bot)
 
 ## Source Code
-### [Look how everything works behind the scenes.](https://replit.com/@GDjkhp)
+### [~~Look how everything works behind the scenes.~~](https://replit.com/@GDjkhp)
 * <https://github.com/GDjkhp/level-up-loser>
 * <https://github.com/GDjkhp/level-up-loser-python-branch>
 * <https://github.com/GDjkhp/Discord-MusicBot>
