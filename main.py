@@ -12,12 +12,19 @@ bot = commands.Bot(command_prefix = "-",
                    help_command = None, 
                    allowed_mentions = mentions)
 
-# open server
-from request_listener import keep_alive
-keep_alive()
+# open server (replit legacy hack)
+# from request_listener import keep_alive
+# keep_alive()
 
 @bot.event
 async def on_ready():
+    print("The name of the BOT is:", bot.user.name)
+    print("The ID of the BOT is:", bot.user.id)
+    print("Running for the following servers: ")
+    number = 0
+    for guild in bot.guilds:
+        number += 1
+        print(f"{number}. ", guild)
     print(":)")
     await bot.change_presence(status=discord.Status.dnd)
 
@@ -219,5 +226,15 @@ async def weather(ctx: commands.Context, *, arg=None):
 @bot.command()
 async def legal(ctx: commands.Context):
     await ctx.reply(content="EVERY POST I HAVE EVER MADE ON THIS DISCORD IS SATIRE. I DO NOT CONDONE NOR SUPPORT ANY OF THE OPINIONS EXPRESSED ON THIS CHATROOM. Any post associated with this IP is satire and should be treated as such. At no point has anyone associated with this IP has condoned, encouraged, committed, or abated acts of violence or threats of violence against any persons, regardless of racial, ethnic, religious or cultural background. In case of an investigation by any federal entity or similar, I do not have any involvement with the people in it, I do not know how I am here, probably added by a third party, I do not support any actions by the member(s) of this group.")
+
+# arg
+from noobarg import start, end
+@bot.command()
+async def test(ctx: commands.Context, *, arg=None):
+    await start(ctx, arg)
+
+@bot.command()
+async def a(ctx: commands.Context, *, arg=None):
+    await end(ctx, arg)
 
 bot.run(os.getenv("TOKEN"))
