@@ -119,10 +119,10 @@ async def palm(ctx: commands.Context, *, arg=None):
     await PALM_LEGACY(ctx, arg)
 
 # gemini
-from googleai import GEMINI
+from googleai import GEMINI_REST
 @bot.command()
 async def ge(ctx: commands.Context, *, arg=None):
-    await GEMINI(ctx, arg)
+    await GEMINI_REST(ctx, arg)
 
 # :|
 from gelbooru import R34, GEL, SAFE
