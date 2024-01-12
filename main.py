@@ -18,9 +18,8 @@ bot = commands.Bot(command_prefix = "-",
 
 @bot.event
 async def on_ready():
-    print("The name of the BOT is:", bot.user.name)
-    print("The ID of the BOT is:", bot.user.id)
-    print("Running for the following servers: ")
+    print(f"{bot.user.name} (c) 2024 The Karakters Kompany. All rights reserved.")
+    print("Running for the following servers:")
     number = 0
     for guild in bot.guilds:
         number += 1
@@ -148,7 +147,7 @@ async def aki(ctx: commands.Context, arg1='people', arg2='en'):
 from lex import LEX
 @bot.command()
 async def lex(ctx: commands.Context, *, arg=None):
-    if not arg: return await ctx.reply("Good job finding this command. Bet you've seen this on source or caught someone using it.")
+    if not arg: return await ctx.reply("Good job finding this command. Bet you've seen this from the source or caught someone using it.")
     await LEX(ctx, arg)
 
 from quiz import QUIZ
