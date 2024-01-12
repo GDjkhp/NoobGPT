@@ -9,7 +9,8 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 [Add to Server](https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=274881170432&scope=applications.commands%20bot)
 
 ## Source Code
-### [~~Look how everything works behind the scenes.~~](https://replit.com/@GDjkhp)
+### This bot now runs on <https://bot-hosting.net>
+[~~Look how everything works behind the scenes.~~](https://replit.com/@GDjkhp)
 * <https://github.com/GDjkhp/level-up-loser>
 * <https://github.com/GDjkhp/level-up-loser-python-branch>
 * <https://github.com/GDjkhp/Discord-MusicBot>
@@ -24,7 +25,7 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 * `/help` Show music commands help page.
 
 ## Node.js Computer #1: Alpha Branch (Legacy)
-Originally intended as an XP Leveling System under the codename "LevelUpLoser". This is now a legacy server that hosts my OpenAI generative AI and other commands written in Javascript. I will migrate them to Python soon.
+Originally intended as an XP Leveling System under the codename "LevelUpLoser". This is now a legacy server that hosts my OpenAI generative AI and other commands written in Javascript. I will migrate them to Python soon. Currently not working.
 ### Prefix: -
 * `-ask [prompt]` OpenAI GPT-3.5-Turbo (ChatGPT) chat completion.
 * `-gpt [prompt]` OpenAI GPT-3 text completion.
@@ -53,7 +54,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 <!-- * `-lex [query/image]` Search AI Generated art (Stable Diffusion) made by the prompts of the community using [Lexica](https://lexica.art) -->
 
 ## Node.js Computer #3: Music Branch
-Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/tree/v5), an advanced discord music bot.
+Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/tree/v5), an advanced discord music bot. Currently not working.
 ### Slash commands
 * `/play [query/link]` Play something. Supports YouTube and Spotify.
 * `/nowplaying` Now playing.
@@ -94,8 +95,8 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 <!-- * <https://lexica.art> -->
 
 ### Legal
-<marquee>This bot is against Discord and Replit Terms of Service and some violates the licenses credited above. Proceed with caution!</marquee>
+<marquee>This bot is against Discord ~~and Replit~~ Terms of Service and some violates the licenses credited above. Proceed with caution!</marquee>
 Bot by GDjkhp
 <br>
-© The Karakters Kompany, 2023
+© The Karakters Kompany, 2024
 </div>
