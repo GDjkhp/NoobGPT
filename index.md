@@ -24,7 +24,7 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 * `-halp` Show prefix commands help page.
 * `/help` Show music commands help page.
 
-## Node.js Computer #1: Alpha Branch (Legacy)
+## Node.js Computer #1: Alpha Branch (Legacy) [NOT WORKING]
 Originally intended as an XP Leveling System under the codename "LevelUpLoser". This is now a legacy server that hosts my OpenAI generative AI and other commands written in Javascript. I will migrate them to Python soon. Currently not working.
 ### Prefix: -
 * `-ask [prompt]` OpenAI GPT-3.5-Turbo (ChatGPT) chat completion.
@@ -53,10 +53,10 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-ge [prompt = text/image]` Google AI Gemini language model.
 <!-- * `-lex [query/image]` Search AI Generated art (Stable Diffusion) made by the prompts of the community using [Lexica](https://lexica.art) -->
 
-## Node.js Computer #3: Music Branch
+## Node.js Computer #3: Music Branch [NOT WORKING]
 Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/tree/v5), an advanced discord music bot. Currently not working.
 ### Slash commands
-* `/play [query/link]` Play something. Supports YouTube and Spotify.
+* `/play [query/link]` Play something. Supports YouTube ~~and Spotify~~.
 * `/nowplaying` Now playing.
 * `/queue` Show query.
 * `/skip` Skip track.
@@ -95,7 +95,7 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 <!-- * <https://lexica.art> -->
 
 ### Legal
-<marquee>This bot is against Discord ~~and Replit~~ Terms of Service and some violates the licenses credited above. Proceed with caution!</marquee>
+<marquee>This bot is against Discord <s>and Replit</s> Terms of Service and some violates the licenses credited above. Proceed with caution!</marquee>
 Bot by GDjkhp
 <br>
 © The Karakters Kompany, 2024
