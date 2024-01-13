@@ -87,6 +87,39 @@ async def GEMINI(ctx: commands.Context, arg: str):
 headers = {'Content-Type': 'application/json'}
 def palm_proxy(model) -> str:
     return f"{os.getenv('PROXY')}v1/models/{model}:generateContent?key={os.getenv('PALM')}"
+def get_text(response_data) -> str:
+    # with open('gemini_response.json', 'w') as json_file:
+    #     json.dump(response.json(), json_file, indent=4)
+    # print(f"Response saved to 'gemini_response.json'")
+    if 'error' not in response_data and 'errorType' not in response_data:
+        return response_data.get("candidates", [])[0].get("content", {}).get("parts", [])[0].get("text", "")
+    else:
+        error_message = response_data.get('error', {}).get('message', 'Unknown error')
+        error_type = response_data.get('errorType', '')
+        return f"**Error! :(**\n{error_message}" if "error" in response_data else f"**Error! :(**\n{error_type}"
+def json_data(arg, base64_image_data):
+    if not arg:
+        arg_text = "Explain who you are, your functions, capabilities, limitations, and purpose."
+        arg_image_text = 'What is this a picture of?'
+    else:
+        arg_text = arg
+        arg_image_text = arg
+
+    return {
+        "contents": [
+            {
+                "parts": [
+                    {"text": arg_text if not base64_image_data else arg_image_text},
+                    {
+                        "inline_data": {
+                            "mime_type": "image/jpeg",
+                            "data": base64_image_data
+                        }
+                    } if base64_image_data else None
+                ]
+            }
+        ]
+    }
 
 async def GEMINI_REST(ctx: commands.Context, arg: str):
     async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
@@ -101,57 +134,12 @@ async def GEMINI_REST(ctx: commands.Context, arg: str):
                     async with session.get(attachment.url) as resp:
                         image_data = await resp.read()
                         base64_image_data = base64.b64encode(image_data).decode('utf-8')
-                        data = {
-                            "contents": [
-                                {
-                                    "parts": [
-                                        {"text": arg if arg else 'What is this a picture of?'},
-                                        {
-                                            "inline_data": {
-                                                "mime_type": "image/jpeg",
-                                                "data": base64_image_data
-                                            }
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                        response = requests.post(palm_proxy("gemini-pro-vision"), headers=headers, json=data)
-                        response_data = response.json()
-                        try:
-                            if "error" not in response_data:
-                                text = response_data.get("candidates", [])[0].get("content", {}).get("parts", [])[0].get("text", "")
-                            else:
-                                text = f"**Error! :(**\n{response_data.get('error', {}).get('message', 'Unknown error')}"
-                        except Exception as e:
-                            # with open('gemini_response.json', 'w') as json_file:
-                            #     json.dump(response.json(), json_file, indent=4)
-                            # print(f"Response saved to 'gemini_response.json'")
-                            text = f"**Error! :(**\n{response_data.get('errorType', '')}"
+                        response = requests.post(palm_proxy("gemini-pro-vision"), headers=headers, json=json_data(arg, base64_image_data))
+                        text = get_text(response.json())
         # text
         else:
-            if not arg: arg = "Explain who you are, your functions, capabilities, limitations, and purpose." # if nothing was supplied
-            data = {
-                "contents": [
-                    {
-                        "parts": [
-                            {"text": arg}
-                        ]
-                    }
-                ]
-            }
-            response = requests.post(palm_proxy("gemini-pro"), headers=headers, json=data)
-            response_data = response.json()
-            try:
-                if "error" not in response_data:
-                    text = response_data.get("candidates", [])[0].get("content", {}).get("parts", [])[0].get("text", "")
-                else:
-                    text = f"**Error! :(**\n{response_data.get('error', {}).get('message', 'Unknown error')}"
-            except Exception as e: 
-                # with open('gemini_response.json', 'w') as json_file:
-                #     json.dump(response.json(), json_file, indent=4)
-                # print(f"Response saved to 'gemini_response.json'")
-                text = f"**Error! :(**\n{response_data.get('errorType', '')}"
+            response = requests.post(palm_proxy("gemini-pro"), headers=headers, json=json_data(arg, None))
+            text = get_text(response.json())
         try: 
             if not text: return await msg.edit(content=f"**Error! :(**\nEmpty response.")
             chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
