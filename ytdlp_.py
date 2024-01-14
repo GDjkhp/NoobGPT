@@ -44,7 +44,8 @@ def get_ydl_opts(arg):
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': arg,
                 'preferredquality': '320',
-            }]
+            }],
+            'noplaylist': True,
         }
     
     elif arg in video_formats: # disabled
@@ -53,9 +54,11 @@ def get_ydl_opts(arg):
             'postprocessors': [{
                 'key': 'FFmpegVideoConvertor',
                 'preferedformat': arg,
-            }]
+            }],
+            'noplaylist': True,
         }
     else: 
         return {
             'match_filter': checkSize,
+            'noplaylist': True,
         }
