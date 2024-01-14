@@ -105,6 +105,7 @@ def i2c(c) -> str:
     elif c == 69: return "💀"
     elif c == -1: return "❓"
     elif c == 1337: return "🚪"
+    elif c == 666: return "💽"
     else: return "❌"
 
 def i2ca(c) -> str:
@@ -128,7 +129,7 @@ def parseText(settings: dict, results: list, index: int, players: dict, c: int, 
         text = f"{question_fix(results[index]['question'])}\n{results[index][settings['correct_key']]}"
         text += keysScore(players)
     else:
-        z = [420, 69, -1, 1337]
+        z = [420, 69, -1, 1337, 666]
         if not c in z: 
             check = results[index][settings["correct_key"]] == results[index]["choices"][c]
             r = f"\n{question_fix(results[index]['question'])}\n{results[index][settings['correct_key']]}\nScore: {players[ctx.author.id]['score']} "
@@ -172,6 +173,7 @@ class QuizView(discord.ui.View):
         self.add_item(ButtonChoice(results, index, ctx, 69, players, 2, "PURGE", settings))
         self.add_item(ButtonChoice(results, index, ctx, 1337, players, 2, "LEAVE", settings))
         self.add_item(ButtonChoice(results, index, ctx, 420, players, 2, "END", settings))
+        self.add_item(ButtonChoice(results, index, ctx, 666, players, 2, "UPDATE", settings))
 
 class ButtonChoice(discord.ui.Button):
     def __init__(self, results: list, index: int, ctx: commands.Context, c: int, players: dict, row: int, id: str, settings: dict):
@@ -237,7 +239,14 @@ class ButtonChoice(discord.ui.Button):
             return await interaction.response.edit_message(content=purge+text,
                                                            embed=BuildQuestion(self.results, self.index, self.ctx, self.players, self.settings), 
                                                            view=QuizView(self.results, self.index, self.ctx, self.players, self.settings))
-        
+        if self.id == "UPDATE":
+            if interaction.user.id != host_id: 
+                return await interaction.response.send_message(f"Only <@{host_id}> can press this button.", ephemeral=True)
+            await interaction.message.edit(content="Message updated.", embed=None, view=None)
+            return await interaction.response.send_message(content=keysScore(self.players),
+                                                           embed=BuildQuestion(self.results, self.index, self.ctx, self.players, self.settings), 
+                                                           view=QuizView(self.results, self.index, self.ctx, self.players, self.settings))
+            
         # solo lock
         if not self.settings["multiplayer"] and interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"{self.ctx.message.author.mention} is playing this game and set to singleplayer.", 

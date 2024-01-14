@@ -179,10 +179,11 @@ from hangman import HANG
 async def hang(ctx: commands.Context, mode: str=None, count: str=None, type: str=None):
     await HANG(ctx, mode, count, type, None, None)
 
-from place import PLACE
+# from place import PLACE
 @bot.command()
 async def place(ctx: commands.Context, x: str=None, y: str=None, z: str=None):
-    bot.loop.create_task(PLACE(ctx, x, y, z))
+    return await ctx.reply("i love having bugs in my code")
+    # bot.loop.create_task(PLACE(ctx, x, y, z))
 
 # petals
 from petals import PETALS

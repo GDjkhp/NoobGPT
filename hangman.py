@@ -34,6 +34,7 @@ def id2e(id: str) -> str:
     if id == "INPUT": return "📔"
     if id == "LEAVE": return "💩"
     if id == "NEXT": return "🩲"
+    if id == "UPDATE": return "💽"
 
 def c_state(r: int):
     if r == 1: return 0x00ff00
@@ -59,6 +60,7 @@ class QuizView(discord.ui.View):
         elif index+1 < len(words):
             self.add_item(ButtonChoice("NEXT", ctx, words, index, box, dead, settings, players))
         self.add_item(ButtonChoice("LEAVE", ctx, words, index, box, dead, settings, players))
+        self.add_item(ButtonChoice("UPDATE", ctx, words, index, box, dead, settings, players))
 
 class MyModal(discord.ui.Modal):
     def __init__(self, ctx: commands.Context, words: list, index: int, box: list, dead: list, settings: dict, players: dict):
@@ -107,7 +109,7 @@ class ButtonChoice(discord.ui.Button):
             self.players[k]["host"] = True
         # solo lock
         if self.settings["mode"] != "all" and interaction.user.id != host_id:
-            return await interaction.response.send_message(content=f"<@{host_id}> is playing this game. Multiplayer TBD",
+            return await interaction.response.send_message(content=f"<@{host_id}> is playing this game. Use `-hang` to create your own game.",
                                                            ephemeral=True)
         # register player choice
         if not interaction.user.id in self.players: self.players[interaction.user.id] = add_player(interaction.user)
@@ -140,6 +142,13 @@ class ButtonChoice(discord.ui.Button):
             await interaction.response.edit_message(content=c2e(self.box), 
                                                     embed=QuizEmbed(self.words, self.index+1, self.settings, self.players, self.ctx), 
                                                     view=QuizView(self.ctx, self.words, self.index+1, self.box, self.dead, self.settings, self.players))
+        if self.id == "UPDATE":
+            if interaction.user.id != host_id: 
+                return await interaction.response.send_message(f"Only <@{host_id}> can press this button.", ephemeral=True)
+            await interaction.message.edit(content="Message updated.", embed=None, view=None)
+            await interaction.response.send_message(content=c2e(self.box), 
+                                                    embed=QuizEmbed(self.words, self.index, self.settings, self.players, self.ctx), 
+                                                    view=QuizView(self.ctx, self.words, self.index, self.box, self.dead, self.settings, self.players))
 
 def QuizEmbed(words: list, index: int, settings: dict, players: dict, ctx: commands.Context) -> discord.Embed:
     c = c_state(settings["result"])
