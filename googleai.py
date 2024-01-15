@@ -87,16 +87,33 @@ async def GEMINI(ctx: commands.Context, arg: str):
 headers = {'Content-Type': 'application/json'}
 def palm_proxy(model) -> str:
     return f"{os.getenv('PROXY')}v1/models/{model}:generateContent?key={os.getenv('PALM')}"
+
+def check_reponse(response_data) -> bool:
+    return response_data.get("candidates", []) and \
+        response_data["candidates"][0].get("content", {}).get("parts", []) and \
+            response_data["candidates"][0]["content"]["parts"][0].get("text", "")
+
+def get_error(response_data) -> str:
+    if response_data.get("promptFeedback", {}):
+        result = "**Error! :(**\n"
+        for entry in response_data.get("promptFeedback", {}).get("safetyRatings", []):
+            if entry['probability'] != 'NEGLIGIBLE':
+                result += f"{entry['category']}: {entry['probability']}\n"
+        return result
+    
+    error_message = response_data.get('error', {}).get('message', 'Unknown error')
+    error_type = response_data.get('errorType', '')
+    return f"**Error! :(**\n{error_message}" if "error" in response_data else f"**Error! :(**\n{error_type}"
+
 def get_text(response_data) -> str:
     # with open('gemini_response.json', 'w') as json_file:
-    #     json.dump(response.json(), json_file, indent=4)
+    #     json.dump(response_data, json_file, indent=4)
     # print(f"Response saved to 'gemini_response.json'")
-    if 'error' not in response_data and 'errorType' not in response_data:
-        return response_data.get("candidates", [])[0].get("content", {}).get("parts", [])[0].get("text", "")
+    if check_reponse(response_data):
+        return response_data["candidates"][0]["content"]["parts"][0]["text"]
     else:
-        error_message = response_data.get('error', {}).get('message', 'Unknown error')
-        error_type = response_data.get('errorType', '')
-        return f"**Error! :(**\n{error_message}" if "error" in response_data else f"**Error! :(**\n{error_type}"
+        return get_error(response_data)
+    
 def json_data(arg, base64_image_data):
     if not arg:
         arg_text = "Explain who you are, your functions, capabilities, limitations, and purpose."
