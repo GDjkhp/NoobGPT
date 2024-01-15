@@ -25,7 +25,7 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 * `/help` Show music commands help page.
 
 ## Node.js Computer #1: Alpha Branch (Legacy) [NOT WORKING]
-Originally intended as an XP Leveling System under the codename "LevelUpLoser". This is now a legacy server that hosts my OpenAI generative AI and other commands written in Javascript. I will migrate them to Python soon. Currently not working.
+Originally intended as an XP Leveling System under the codename "LevelUpLoser". This is now a legacy server that hosts my OpenAI generative AI and other commands written in Javascript. I will migrate them to Python soon.
 ### Prefix: -
 * `-ask [prompt]` OpenAI GPT-3.5-Turbo (ChatGPT) chat completion.
 * `-gpt [prompt]` OpenAI GPT-3 text completion.
@@ -53,8 +53,8 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-ge [prompt = text/image]` Google AI Gemini language model.
 <!-- * `-lex [query/image]` Search AI Generated art (Stable Diffusion) made by the prompts of the community using [Lexica](https://lexica.art) -->
 
-## Node.js Computer #3: Music Branch [NOT WORKING]
-Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/tree/v5), an advanced discord music bot. Currently not working.
+## Node.js Computer #3: Music Branch
+Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/tree/v5), an advanced discord music bot.
 ### Slash commands
 * `/play [query/link]` Play something. Supports YouTube ~~and Spotify~~.
 * `/nowplaying` Now playing.
