@@ -17,7 +17,8 @@ gogoanime = r.url[:-1] if r else domain
 async def Gogoanime(msg: discord.Message, arg: str):
     try: result = resultsAnime(searchAnime(arg))
     except: return await msg.edit(content="Error! Domain changed most likely.")
-    await msg.edit(content=None, embed=buildSearch(arg, result, 0), view = MyView4(arg, result, 0))
+    try: await msg.edit(content=None, embed=buildSearch(arg, result, 0), view = MyView4(arg, result, 0))
+    except Exception as e: return await msg.edit(content=f"Error!\n{e}")
 
 def buildAnime(details: list) -> discord.Embed():
     embed = discord.Embed(title=details[title], description=details[desc], color=0x00ff00)
