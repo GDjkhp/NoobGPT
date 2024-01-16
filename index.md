@@ -25,17 +25,17 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 * `/help` Show music commands help page.
 
 ## Node.js Computer #1: Alpha Branch (Legacy) [NOT WORKING]
-Originally intended as an XP Leveling System under the codename "LevelUpLoser". This is now a legacy server that hosts my OpenAI generative AI and other commands written in Javascript. I will migrate them to Python soon.
+Originally intended as an XP Leveling System under the codename "LevelUpLoser" and previously hosts my OpenAI generative AI. This is now a legacy server that runs my other commands written in Javascript. I will migrate them to Python soon.
 ### Prefix: -
-* `-ask [prompt]` OpenAI GPT-3.5-Turbo (ChatGPT) chat completion.
-* `-gpt [prompt]` OpenAI GPT-3 text completion.
-* `-imagine [prompt]` OpenAI Dall-E image generation.
 * `-quote` Reply to a message to make it a quote.
 * `-ms` Play minesweeper.
 
 ## Python Computer #2: Beta Branch
 Collection of random and unique stuff I came up with, mostly games and useful tools. This is where I add new features regularly.
 ### Prefix: -
+* `-ask [prompt]` OpenAI GPT-3.5-Turbo (ChatGPT) chat completion.
+* `-gpt [prompt]` OpenAI gpt-3.5-turbo-instruct text completion.
+* `-imagine [prompt]` OpenAI Dall-E image generation.
 * `-bard [prompt]` [Google Bard](https://bard.google.com) chat completion. (Deprecated)
 * `-anime [query]` Search and watch Anime using [Gogoanime](https://gogoanimehd.io).
 * `-tv [query]` Search and watch TV shows and movies using [SFlix](https://sflix.se).
