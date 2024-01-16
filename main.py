@@ -250,4 +250,9 @@ async def imagine(ctx: commands.Context):
 async def gpt(ctx: commands.Context):
     await gpt3(ctx.message)
 
+from quoteport import quote_this
+@bot.command()
+async def quote(ctx: commands.Context):
+    bot.loop.create_task(quote_this(ctx))
+
 bot.run(os.getenv("TOKEN"))
