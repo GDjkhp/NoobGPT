@@ -237,4 +237,17 @@ async def test(ctx: commands.Context, *, arg=None):
 async def a(ctx: commands.Context, *, arg=None):
     await end(ctx, arg)
 
+from openai_ import chat, image, gpt3
+@bot.command()
+async def ask(ctx: commands.Context):
+    await chat(ctx.message)
+
+@bot.command()
+async def imagine(ctx: commands.Context):
+    await image(ctx.message)
+
+@bot.command()
+async def gpt(ctx: commands.Context):
+    await gpt3(ctx.message)
+
 bot.run(os.getenv("TOKEN"))
