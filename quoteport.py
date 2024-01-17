@@ -119,10 +119,10 @@ class RenderCanvas:
 
             font_size -= font_size_step
 
-        x = 300  # Adjust x-coordinate as needed
-        y = 50   # Adjust y-coordinate as needed
-
+        x = 425  # Adjust x-coordinate as needed
+        y = 100   # Adjust y-coordinate as needed
+        
         for i, line in enumerate(lines):
             if i == len(lines) - 1:
                 font = ImageFont.truetype(font_path, size=25)
-            draw.multiline_text((x, y + (i * line_height)), line, font=font, fill='white')
+            draw.multiline_text((x, y + (i * line_height)), line, font=font, fill='white', anchor="mm")
