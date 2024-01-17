@@ -6,9 +6,10 @@
 
 A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you.
 
-[Add to Server](https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=274881170432&scope=applications.commands%20bot)
+## Usage
+### [Add to server](https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=274881170432&scope=applications.commands%20bot) or [send a direct message](https://discord.com/channels/@me/1090974620892536832) to start using.
 
-## Source Code
+## Source code
 ### This bot now runs on <https://bot-hosting.net>
 [~~Look how everything works behind the scenes.~~](https://replit.com/@GDjkhp)
 * <https://github.com/GDjkhp/level-up-loser>
@@ -80,7 +81,7 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 
 ### Sites
 * <https://openai.com>
-* <https://gogoanimehd.io>
+* <https://anitaku.to>
 * <https://actvid.rs>
 * <https://akinator.com>
 * <https://opentdb.com>
