@@ -56,7 +56,7 @@ async def image(message: discord.Message, info: discord.Message=None):
     promptMsg = "Generate something." if promptMsg == "" else promptMsg
     try:
         response = client.images.generate(
-            model="dall-e-3",
+            model="dall-e-2",
             prompt=promptMsg
         )
     except Exception as e:
