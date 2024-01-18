@@ -61,7 +61,7 @@ async def image(message: discord.Message, info: discord.Message=None):
         )
     except Exception as e:
         return await info.edit(content=f"**Error! :(**\n{e}")
-    await message.reply(file=discord_image(response.data[0].url, promptMsg))
+    await message.reply(file=await discord_image(response.data[0].url, promptMsg))
     await info.edit(content=f"Took {round(time.time() * 1000)-old}ms")
 
 async def gpt3(message: discord.Message, info: discord.Message=None):
