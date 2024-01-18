@@ -13,7 +13,7 @@ async def quote_this(ctx: commands.Context):
         content_with_usernames = replace_mentions(referenced_message)
         render_canvas = RenderCanvas()
         image_data = await render_canvas.build_word(content_with_usernames, referenced_message.attachments[0].url if referenced_message.attachments else None,
-                                                   f'- {referenced_message.author.name}#{referenced_message.author.discriminator}',
+                                                   f'- {referenced_message.author.name}',
                                                    referenced_message.author.avatar.url)
         await ctx.reply(file=discord.File(image_data, 'quote.png'))
         return await info.edit(content=f"Took {round(time.time() * 1000)-old}ms")
@@ -64,6 +64,7 @@ class RenderCanvas:
         font_path = './res/AmaticSC-Regular.ttf'
         amogus_font_size = 100
         draw.font = ImageFont.truetype(font_path, size=amogus_font_size)
+        if text: text = f"“{text}”"
         await self.wrap_text(draw, text, user, 200, 200, font_path, amogus_font_size)
 
         # return everything all at once
@@ -120,9 +121,9 @@ class RenderCanvas:
             font_size -= font_size_step
 
         x = 425  # Adjust x-coordinate as needed
-        y = 100   # Adjust y-coordinate as needed
+        y = 50   # Adjust y-coordinate as needed
         
         for i, line in enumerate(lines):
             if i == len(lines) - 1:
                 font = ImageFont.truetype(font_path, size=25)
-            draw.multiline_text((x, y + (i * line_height)), line, font=font, fill='white', anchor="mm")
+            draw.multiline_text((x, y + (i * line_height)), line, font=font, fill='white', anchor="ma")
