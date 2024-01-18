@@ -20,15 +20,20 @@ async def quote_this(ctx: commands.Context):
     await ctx.reply("⁉️")
 
 def replace_mentions(message: discord.Message):
-    content_with_usernames = message.content
+    content = message.content
     if message.mentions:
-        mentions = message.mentions
-        for m in mentions:
-            content_with_usernames = content_with_usernames.replace(
-                '<@{}>'.format(m.id),
-                '@{}'.format(m.name)
+        for mention in message.mentions:
+            content = content.replace(
+                f'<@{mention.id}>',
+                f'@{mention.name}'
             )
-    return content_with_usernames
+    if message.role_mentions:
+        for role_mention in message.role_mentions:
+            content = content.replace(
+                f'<@&{role_mention.id}>',
+                f'@{role_mention.name}'
+            )
+    return content
 
 class RenderCanvas:
     async def build_word(self, text, attach, user, avatar_url):
