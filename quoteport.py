@@ -70,7 +70,7 @@ class RenderCanvas:
         font_path_bold = './res/AmaticSC-Bold.ttf'
         amogus_font_size = 100
         draw.font = ImageFont.truetype(font_path, size=amogus_font_size)
-        if text: text = f"“{text}”"
+        # if text: text = f"“{text}”"
         await self.wrap_text(draw, text, user, 200, 200, font_path, font_path_bold, amogus_font_size)
 
         # return everything all at once
