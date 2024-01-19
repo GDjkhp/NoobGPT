@@ -67,10 +67,11 @@ class RenderCanvas:
 
         # text anything
         font_path = './res/AmaticSC-Regular.ttf'
+        font_path_bold = './res/AmaticSC-Bold.ttf'
         amogus_font_size = 100
         draw.font = ImageFont.truetype(font_path, size=amogus_font_size)
         if text: text = f"“{text}”"
-        await self.wrap_text(draw, text, user, 200, 200, font_path, amogus_font_size)
+        await self.wrap_text(draw, text, user, 200, 200, font_path, font_path_bold, amogus_font_size)
 
         # return everything all at once
         img_byte_array = BytesIO()
@@ -88,7 +89,7 @@ class RenderCanvas:
                     raise OSError(f"Failed to load image from URL: {url}")
     
     # disappointingly disgusting
-    async def wrap_text(self, draw: ImageDraw.ImageDraw, text, user, max_width, max_height, font_path, max_font_size):
+    async def wrap_text(self, draw: ImageDraw.ImageDraw, text, user, max_width, max_height, font_path, font_path_bold, max_font_size):
         min_font_size = 10
         font_size_step = 1
 
@@ -96,7 +97,7 @@ class RenderCanvas:
         lines = []
 
         while font_size >= min_font_size:
-            font = ImageFont.truetype(font_path, size=font_size)
+            font = ImageFont.truetype(font_path_bold, size=font_size)
             words = text.split(' ')
             lines = []
             current_line = words[0]
