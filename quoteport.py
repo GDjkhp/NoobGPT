@@ -5,16 +5,19 @@ from io import BytesIO
 import aiohttp
 import time
 
+font_reg = './res/AmaticSC-Regular.ttf'
+font_bold = './res/AmaticSC-Bold.ttf'
+
 async def quote_this(ctx: commands.Context):
     if ctx.message.reference:
         info = await ctx.reply("Quoting…")
         old = round(time.time() * 1000)
         referenced_message = await ctx.message.channel.fetch_message(ctx.message.reference.message_id)
-        content_with_usernames = replace_mentions(referenced_message)
+        content = replace_mentions(referenced_message)
         render_canvas = RenderCanvas()
-        image_data = await render_canvas.build_word(content_with_usernames, referenced_message.attachments[0].url if referenced_message.attachments else None,
-                                                   f'- {referenced_message.author.name}',
-                                                   referenced_message.author.avatar.url)
+        image_data = await render_canvas.build_word(content, 
+                                                    referenced_message.attachments[0].url if referenced_message.attachments else None,
+                                                   f'- {referenced_message.author.name}', referenced_message.author.avatar.url)
         await ctx.reply(file=discord.File(image_data, 'quote.png'))
         return await info.edit(content=f"Took {round(time.time() * 1000)-old}ms")
     await ctx.reply("⁉️")
@@ -36,15 +39,15 @@ def replace_mentions(message: discord.Message):
     return content
 
 class RenderCanvas:
-    async def build_word(self, text, attach, user, avatar_url):
+    async def build_word(self, text: str, attach: str, user: str, avatar_url: str):
         # create Image instance
         img = Image.new('RGBA', (600, 300), color='black')
         draw = ImageDraw.Draw(img)
 
-        # draw anything
+        # TODO: draw anything
         try:
             if attach:
-                png = Image.open(await self.load_image(attach))
+                png = Image.open(await self.load_image(attach)) # bad
                 img.paste(png.resize((int(png.width / 2), int(png.height / 2))), (200, 25))
         except Exception as e:
             print(e)
@@ -66,12 +69,8 @@ class RenderCanvas:
         img.paste(avatar.resize((200, 200)), (50, 50))
 
         # text anything
-        font_path = './res/AmaticSC-Regular.ttf'
-        font_path_bold = './res/AmaticSC-Bold.ttf'
-        amogus_font_size = 100
-        draw.font = ImageFont.truetype(font_path, size=amogus_font_size)
         # if text: text = f"“{text}”"
-        await self.wrap_text(draw, text, user, 200, 200, font_path, font_path_bold, amogus_font_size)
+        await self.wrap_text(draw, text, user, 200, 200, 100)
 
         # return everything all at once
         img_byte_array = BytesIO()
@@ -89,7 +88,7 @@ class RenderCanvas:
                     raise OSError(f"Failed to load image from URL: {url}")
     
     # disappointingly disgusting
-    async def wrap_text(self, draw: ImageDraw.ImageDraw, text, user, max_width, max_height, font_path, font_path_bold, max_font_size):
+    async def wrap_text(self, draw: ImageDraw.ImageDraw, text: str, user: str, max_width: int, max_height: int, max_font_size: int):
         min_font_size = 10
         font_size_step = 1
 
@@ -97,7 +96,7 @@ class RenderCanvas:
         lines = []
 
         while font_size >= min_font_size:
-            font = ImageFont.truetype(font_path_bold, size=font_size)
+            font = ImageFont.truetype(font_bold, size=font_size)
             words = text.split(' ')
             lines = []
             current_line = words[0]
@@ -131,5 +130,5 @@ class RenderCanvas:
         
         for i, line in enumerate(lines):
             if i == len(lines) - 1:
-                font = ImageFont.truetype(font_path, size=25)
+                font = ImageFont.truetype(font_reg, size=25)
             draw.multiline_text((x, y + (i * line_height)), line, font=font, fill='white', anchor="ma")
