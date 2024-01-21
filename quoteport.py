@@ -4,9 +4,15 @@ from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 import aiohttp
 import time
+from imagetext_py import *
 
 font_reg = './res/AmaticSC-Regular.ttf'
 font_bold = './res/AmaticSC-Bold.ttf'
+
+FontDB.SetDefaultEmojiOptions(EmojiOptions(parse_discord_emojis=True))
+FontDB.LoadFromDir("./res")
+font_real_bold = FontDB.Query("AmaticSC-Bold NotoSansJP-Bold")
+font_real_reg = FontDB.Query("AmaticSC-Regular NotoSansJP-Regular")
 
 async def quote_this(ctx: commands.Context):
     if ctx.message.reference:
@@ -17,7 +23,7 @@ async def quote_this(ctx: commands.Context):
         render_canvas = RenderCanvas()
         image_data = await render_canvas.build_word(content, 
                                                     referenced_message.attachments[0].url if referenced_message.attachments else None,
-                                                   f'- {referenced_message.author.name}', referenced_message.author.avatar.url)
+                                                    f'- {referenced_message.author.name}', referenced_message.author.avatar.url)
         await ctx.reply(file=discord.File(image_data, 'quote.png'))
         return await info.edit(content=f"Took {round(time.time() * 1000)-old}ms")
     await ctx.reply("⁉️")
@@ -40,9 +46,9 @@ def replace_mentions(message: discord.Message):
 
 class RenderCanvas:
     async def build_word(self, text: str, attach: str, user: str, avatar_url: str):
-        # create Image instance
-        img = Image.new('RGBA', (600, 300), color='black')
-        draw = ImageDraw.Draw(img)
+        # load image and text anything
+        # if text: text = f"“{text}”"
+        img = await self.wrap_text(text, user, 200, 200, 100)
 
         # TODO: draw anything
         try:
@@ -68,10 +74,6 @@ class RenderCanvas:
         avatar = Image.open(await self.load_image(avatar_url))
         img.paste(avatar.resize((200, 200)), (50, 50))
 
-        # text anything
-        # if text: text = f"“{text}”"
-        await self.wrap_text(draw, text, user, 200, 200, 100)
-
         # return everything all at once
         img_byte_array = BytesIO()
         img.save(img_byte_array, format='PNG')
@@ -88,7 +90,10 @@ class RenderCanvas:
                     raise OSError(f"Failed to load image from URL: {url}")
     
     # disappointingly disgusting
-    async def wrap_text(self, draw: ImageDraw.ImageDraw, text: str, user: str, max_width: int, max_height: int, max_font_size: int):
+    async def wrap_text(self, text: str, user: str, max_width: int, max_height: int, max_font_size: int) -> Image.Image:
+        img = Image.new('RGBA', (600, 300), color='black') # create fake Image instance
+        draw = ImageDraw.Draw(img)
+
         min_font_size = 10
         font_size_step = 1
 
@@ -125,10 +130,41 @@ class RenderCanvas:
 
             font_size -= font_size_step
 
-        x = 425  # Adjust x-coordinate as needed
-        y = 50   # Adjust y-coordinate as needed
-        
+        # real canvas
+        cv = Canvas(600, 300, (0, 0, 0, 255))
+        white = Paint.Color((255, 255, 255, 255))
+        x, y = 425, 50
+
+        # for i, line in enumerate(lines):
+        #     if i == len(lines) - 1:
+        #         font = ImageFont.truetype(font_reg, size=25)
+        #     draw.multiline_text((x, y + (i * line_height)), line, font=font, fill='white', anchor="ma")
+
         for i, line in enumerate(lines):
             if i == len(lines) - 1:
-                font = ImageFont.truetype(font_reg, size=25)
-            draw.multiline_text((x, y + (i * line_height)), line, font=font, fill='white', anchor="ma")
+                draw_text_wrapped(
+                    canvas=cv,
+                    text=line,
+                    x=x, y=y + (i * line_height),
+                    ax=0.5, ay=0,
+                    size=25,
+                    width=200,
+                    font=font_real_reg,
+                    fill=white,
+                    align=TextAlign.Center,
+                    draw_emojis=True
+                )
+        lines.remove(user)
+        draw_text_multiline(
+            canvas=cv,
+            lines=lines,
+            x=x, y=y,
+            ax=0.5, ay=0,
+            size=font_size,
+            width=200,
+            font=font_real_bold,
+            fill=white,
+            align=TextAlign.Center,
+            draw_emojis=True
+        )
+        return cv.to_image()
