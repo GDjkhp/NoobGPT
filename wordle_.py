@@ -48,7 +48,7 @@ def check_and_push(arg: str, dead: dict, real: str):
     for c in arg:
         if c == real[index]: 
             if not c in dead["green"]: dead["green"].append(c)
-        elif real.find(c) == -1: # another blunder
+        elif real.find(c) != -1: # another blunder
             if not c in dead["yellow"]: dead["yellow"].append(c)
         elif not c in dead["gray"]: dead["gray"].append(c)
         index+=1
