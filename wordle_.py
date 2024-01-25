@@ -238,7 +238,7 @@ class MyModal(discord.ui.Modal):
         else:
             self.settings["step"] += 1
             if self.settings["step"] != 6:
-                await interaction.channel.send(embed=QuizEmbed(self.settings, self.index, self.words, self.players),
+                await interaction.channel.send(embed=QuizEmbed(self.settings, self.index, self.words, self.players), content=format_hearts(self.dead),
                                                view=QuizView(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history),
                                                file=wordle_image(self.history, word))
             else:
