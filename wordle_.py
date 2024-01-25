@@ -22,8 +22,11 @@ def id2e(id: str) -> str:
     if id == "NEXT": return "🩲"
     if id == "UPDATE": return "💽"
 
-def game_reset(dead: dict):
+def game_reset(dead: dict, settings: dict, history: list):
     dead["yellow"] = dead["green"] = dead["gray"] = []
+    settings["step"] = 0
+    settings["result"] = -1
+    history.clear()
 
 def keys(d: dict) -> str:
     text = ""
@@ -60,7 +63,7 @@ def button_confirm(d, k) -> bool:
     return False
 
 def format_hearts(dead: dict) -> str:
-    return f":grey_heart: {dead['gray']}\n:yellow_heart: {dead['yellow']}\n:green_heart: {dead['green']}"
+    return f":green_heart: {dead['green']}\n:yellow_heart: {dead['yellow']}\n:grey_heart: {dead['gray']}"
 
 def draw_rounded_rectangle(draw: ImageDraw.ImageDraw, position: tuple, size: tuple, radius: int, color: str):
     x, y = position
@@ -193,9 +196,7 @@ class ButtonChoice(discord.ui.Button):
         if self.id == "INPUT": # removing return was hot
             return await interaction.response.send_modal(MyModal(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history))
         if self.id == "NEXT":
-            self.settings["step"] = 0
-            self.settings["result"] = -1
-            self.history = []
+            game_reset(self.dead, self.settings, self.history)
             await interaction.channel.send(content=f"New game.\n{format_hearts(self.dead)}",
                                            embed=QuizEmbed(self.settings, self.index+1, self.words, self.players),
                                            file=wordle_image(self.history, self.words[self.index+1]["word"]),
@@ -223,20 +224,21 @@ class MyModal(discord.ui.Modal):
         # you don't belong here
         if len(i) != 5:
             return await interaction.response.send_message(content="hey, 5 letters pls.", ephemeral=True)
+        
         self.history.append(i)
+        check_and_push(i, self.dead, word)
 
         if i == word:
-            game_reset(self.dead)
             self.settings["result"] = 1
             self.players[interaction.user.id]["score"] += 1
-            await interaction.channel.send(embed=QuizEmbed(self.settings, self.index, self.words, self.players), content=format_hearts(self.dead),
+            await interaction.channel.send(embed=QuizEmbed(self.settings, self.index, self.words, self.players),
+                                           content=format_hearts(self.dead),
                                            view=QuizView(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history),
                                            file=wordle_image(self.history, word))
         else:
             self.settings["step"] += 1
             if self.settings["step"] != 6:
-                check_and_push(i, self.dead, word)
-                await interaction.channel.send(embed=QuizEmbed(self.settings, self.index, self.words, self.players), content=format_hearts(self.dead),
+                await interaction.channel.send(embed=QuizEmbed(self.settings, self.index, self.words, self.players),
                                                view=QuizView(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history),
                                                file=wordle_image(self.history, word))
             else:
@@ -274,6 +276,6 @@ async def wordle(ctx: commands.Context, mode: str, count: str):
     dead = {"yellow": [], "green": [], "gray": []}
     settings = {"step": 0, "mode": mode, "result": -1}
     history = []
-    await ctx.reply(content=None, file=wordle_image(history, words[0]["word"].upper()),
+    await ctx.reply(file=wordle_image(history, words[0]["word"].upper()),
                     embed=QuizEmbed(settings, 0, words, players), view=QuizView(ctx, words, 0, dead, settings, players, history))
     await msg.delete()
