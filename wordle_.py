@@ -107,9 +107,13 @@ def draw_rounded_rectangle(draw: ImageDraw.ImageDraw, position: tuple, size: tup
     )
 
 def wordle_image(history: list, real: str) -> discord.File:
-    img = Image.new('RGBA', (500, len(history)*100 if history else 100))
+    img = Image.new('RGBA', (500, 600))
     draw = ImageDraw.Draw(img)
     x, y, size = 0, 0, 100
+
+    for i in range(5):
+        for j in range(6):
+            draw_rounded_rectangle(draw, (i*100, j*100), (size, size), 25, colors[0])
     
     if history:
         for word in history:
@@ -125,10 +129,6 @@ def wordle_image(history: list, real: str) -> discord.File:
                 x+=size
                 index+=1
             y+=size
-    else:
-        for c in real:
-            draw_rounded_rectangle(draw, (x, 0), (size, size), 25, colors[0])
-            x+=size
 
     # return everything all at once
     img_byte_array = BytesIO()
