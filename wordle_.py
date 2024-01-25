@@ -197,7 +197,7 @@ class ButtonChoice(discord.ui.Button):
             return await interaction.response.send_modal(MyModal(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history))
         if self.id == "NEXT":
             game_reset(self.dead, self.settings, self.history)
-            await interaction.channel.send(content=f"New game.\n{format_hearts(self.dead)}",
+            await interaction.channel.send(content=f"New game.",
                                            embed=QuizEmbed(self.settings, self.index+1, self.words, self.players),
                                            file=wordle_image(self.history, self.words[self.index+1]["word"]),
                                            view=QuizView(self.ctx, self.words, self.index+1, self.dead, self.settings, self.players, self.history))
@@ -223,29 +223,27 @@ class MyModal(discord.ui.Modal):
 
         # you don't belong here
         if len(i) != 5:
-            return await interaction.response.send_message(content="hey, 5 letters pls.", ephemeral=True)
+            return await interaction.response.send_message(content="hey, 5 letter words only pls.", ephemeral=True)
         
         self.history.append(i)
         check_and_push(i, self.dead, word)
 
-        if i == word:
+        if i == word: # you win
             self.settings["result"] = 1
             self.players[interaction.user.id]["score"] += 1
             await interaction.channel.send(embed=QuizEmbed(self.settings, self.index, self.words, self.players),
-                                           content=format_hearts(self.dead),
                                            view=QuizView(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history),
                                            file=wordle_image(self.history, word))
         else:
             self.settings["step"] += 1
-            if self.settings["step"] != 6:
+            if self.settings["step"] != 6: # in-game
                 await interaction.channel.send(embed=QuizEmbed(self.settings, self.index, self.words, self.players), content=format_hearts(self.dead),
                                                view=QuizView(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history),
                                                file=wordle_image(self.history, word))
-            else:
+            else: # you lose
                 self.settings["result"] = 0
                 await interaction.channel.send(embed=QuizEmbed(self.settings, self.index, self.words, self.players),
-                                               content=f"GAME OVER!\n{word}",
-                                               view=None,
+                                               content=f"GAME OVER!\n{word}", view=None,
                                                file=wordle_image(self.history, word))
         await interaction.message.delete()
         await interaction.response.defer()
