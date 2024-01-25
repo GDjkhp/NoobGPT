@@ -20,7 +20,7 @@ def logic_sense(id0: str, id1: str) -> str:
     else:
         return "DRAW"
 
-class RPCView(discord.ui.View):
+class RPSView(discord.ui.View):
     def __init__(self, player: discord.User, w: str):
         super().__init__(timeout=None)
         self.add_item(ButtonChoice("ROCK", player, w))
@@ -35,7 +35,7 @@ class ButtonChoice(discord.ui.Button):
     async def callback(self, interaction: discord.Interaction):
         if not self.player:
             await interaction.response.edit_message(content=f"{interaction.user.mention} :vs: :interrobang:", 
-                                                    view=RPCView(interaction.user, self.id))
+                                                    view=RPSView(interaction.user, self.id))
         else:
             if self.player == interaction.user: 
                 return await interaction.response.send_message("You played yourself. Oh wait, you can't.", ephemeral=True)

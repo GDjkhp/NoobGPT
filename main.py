@@ -261,9 +261,9 @@ from wordle_ import wordle
 async def word(ctx: commands.Context, mode: str=None, count: str=None):
     await wordle(ctx, mode, count)
 
-from rpc_game import RPCView
+from rps_game import RPSView
 @bot.command()
-async def rpc(ctx: commands.Context):
-    await ctx.reply(":index_pointing_at_the_viewer:", view=RPCView(None, None))
+async def rps(ctx: commands.Context):
+    await ctx.reply(":index_pointing_at_the_viewer:", view=RPSView(None, None))
 
 bot.run(os.getenv("TOKEN"))
