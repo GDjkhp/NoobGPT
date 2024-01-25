@@ -55,12 +55,15 @@ def button_confirm(d, k) -> bool:
 class QuizView(discord.ui.View):
     def __init__(self, ctx: commands.Context, words: list, index: int, box: str, dead: list, settings: dict, players: dict):
         super().__init__(timeout=None)
+        possible_games = True
         if words[index]["word"].replace("_", " ").lower() != box: 
             self.add_item(ButtonChoice("INPUT", ctx, words, index, box, dead, settings, players))
         elif index+1 < len(words):
             self.add_item(ButtonChoice("NEXT", ctx, words, index, box, dead, settings, players))
-        self.add_item(ButtonChoice("LEAVE", ctx, words, index, box, dead, settings, players))
-        self.add_item(ButtonChoice("UPDATE", ctx, words, index, box, dead, settings, players))
+            possible_games = False
+        if possible_games:
+            self.add_item(ButtonChoice("LEAVE", ctx, words, index, box, dead, settings, players))
+            self.add_item(ButtonChoice("UPDATE", ctx, words, index, box, dead, settings, players))
 
 class MyModal(discord.ui.Modal):
     def __init__(self, ctx: commands.Context, words: list, index: int, box: list, dead: list, settings: dict, players: dict):
@@ -166,7 +169,7 @@ async def HANG(ctx: commands.Context, mode: str, count: str, gtype: str, cat: st
         if mode in modes: pass
         else: return await msg.edit(content="Mode not found."+params)
     else: mode = "me"
-    synsets_data = read_json_file('synsets.json')
+    synsets_data = read_json_file('./res/dict/synsets.json')
     if count:
         try:
             if int(count) > 0 and int(count) <= len(synsets_data): pass

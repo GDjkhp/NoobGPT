@@ -116,13 +116,13 @@ async def bard(ctx: commands.Context, *, arg=None):
 from googleai import PALM_LEGACY
 @bot.command()
 async def palm(ctx: commands.Context, *, arg=None):
-    await PALM_LEGACY(ctx, arg)
+    await GEMINI_REST(ctx, arg, True)
 
 # gemini
 from googleai import GEMINI_REST
 @bot.command()
 async def ge(ctx: commands.Context, *, arg=None):
-    await GEMINI_REST(ctx, arg)
+    await GEMINI_REST(ctx, arg, False)
 
 # :|
 from gelbooru import R34, GEL, SAFE
@@ -254,5 +254,11 @@ from quoteport import quote_this
 @bot.command()
 async def quote(ctx: commands.Context):
     bot.loop.create_task(quote_this(ctx))
+
+# the real
+from wordle_ import wordle
+@bot.command()
+async def word(ctx: commands.Context, mode: str=None, count: str=None):
+    await wordle(ctx, mode, count)
 
 bot.run(os.getenv("TOKEN"))

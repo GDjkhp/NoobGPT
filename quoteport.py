@@ -6,11 +6,11 @@ import aiohttp
 import time
 from imagetext_py import *
 
-font_reg = './res/AmaticSC-Regular.ttf'
-font_bold = './res/AmaticSC-Bold.ttf'
+font_reg = './res/font/AmaticSC-Regular.ttf'
+font_bold = './res/font/AmaticSC-Bold.ttf'
 
 FontDB.SetDefaultEmojiOptions(EmojiOptions(parse_discord_emojis=True))
-FontDB.LoadFromDir("./res")
+FontDB.LoadFromDir("./res/font")
 font_real_bold = FontDB.Query("AmaticSC-Bold NotoSansJP-Bold")
 font_real_reg = FontDB.Query("AmaticSC-Regular NotoSansJP-Regular")
 
