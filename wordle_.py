@@ -48,12 +48,22 @@ def QuizEmbed(settings: dict, index: int, words: list, players: dict) -> discord
 
 def check_and_push(arg: str, dead: dict, real: str):
     index = 0
+    real_temp = str(real)
     for c in arg:
         if c == real[index]: 
-            if not c in dead["green"]: dead["green"].append(c)
-        elif real.find(c) != -1: # another blunder
-            if not c in dead["yellow"]: dead["yellow"].append(c)
-        elif not c in dead["gray"]: dead["gray"].append(c)
+            if not c in dead["green"]: 
+                dead["green"].append(c)
+            if c in dead["yellow"]: 
+                dead["yellow"].remove(c)
+            real_temp = real_temp.replace(c, "", 1)
+
+        elif c in real_temp and c not in dead["green"]: # blunder?
+            if not c in dead["yellow"]: 
+                dead["yellow"].append(c)
+            real_temp = real_temp.replace(c, "", 1)
+
+        elif not c in dead["gray"] and c not in dead["green"]: 
+            dead["gray"].append(c)
         index+=1
 
 def button_confirm(d, k) -> bool:
@@ -118,11 +128,14 @@ def wordle_image(history: list, real: str) -> discord.File:
     if history:
         for word in history:
             x, index = 0, 0
+            real_temp = str(real)
             for c in word:
                 if c == real[index]:
                     draw_rounded_rectangle(draw, (x, y), (size, size), 25, colors[2])
-                elif real.find(c) != -1: # blunder
+                    real_temp = real_temp.replace(c, "", 1)
+                elif c in real_temp:
                     draw_rounded_rectangle(draw, (x, y), (size, size), 25, colors[1])
+                    real_temp = real_temp.replace(c, "", 1)
                 else: 
                     draw_rounded_rectangle(draw, (x, y), (size, size), 25, colors[0])
                 draw.text((x+50, y+50), c, fill="white", anchor="mm", font=font)
@@ -148,7 +161,7 @@ class QuizView(discord.ui.View):
             self.add_item(ButtonChoice("INPUT", ctx, words, index, dead, settings, players, history))
         if possible_games:
             self.add_item(ButtonChoice("LEAVE", ctx, words, index, dead, settings, players, history))
-            self.add_item(ButtonChoice("UPDATE", ctx, words, index, dead, settings, players, history))
+            # self.add_item(ButtonChoice("UPDATE", ctx, words, index, dead, settings, players, history))
 
 class ButtonChoice(discord.ui.Button):
     def __init__(self, id: str, ctx: commands.Context, words: list, index: int, dead: dict, settings: dict, players: dict, history: list):
@@ -192,21 +205,21 @@ class ButtonChoice(discord.ui.Button):
                                                         embed=QuizEmbed(self.settings, self.index, self.words, self.players),
                                                         view=QuizView(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history))
             else: 
-                return await interaction.response.edit_message(content=f"You left.", embed=None, view=None)
+                return await interaction.response.edit_message(content=f"You left.\n{self.words[self.index]['word'].upper()}", embed=None, view=None)
         if self.id == "INPUT": # removing return was hot
             return await interaction.response.send_modal(MyModal(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history))
         if self.id == "NEXT":
             game_reset(self.dead, self.settings, self.history)
             await interaction.channel.send(content=f"New game.",
                                            embed=QuizEmbed(self.settings, self.index+1, self.words, self.players),
-                                           file=wordle_image(self.history, self.words[self.index+1]["word"]),
+                                           file=wordle_image(self.history, self.words[self.index+1]["word"].upper()),
                                            view=QuizView(self.ctx, self.words, self.index+1, self.dead, self.settings, self.players, self.history))
         if self.id == "UPDATE":
             if interaction.user.id != host_id: 
                 return await interaction.response.send_message(f"Only <@{host_id}> can press this button.", ephemeral=True)
             await interaction.channel.send(content=f"Message updated.\n{format_hearts(self.dead)}",
                                            embed=QuizEmbed(self.settings, self.index, self.words, self.players),
-                                           file=wordle_image(self.history, self.words[self.index]["word"]),
+                                           file=wordle_image(self.history, self.words[self.index]["word"].upper()),
                                            view=QuizView(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history))
         await interaction.message.delete()
         await interaction.response.defer()
