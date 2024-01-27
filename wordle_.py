@@ -4,6 +4,12 @@ import json
 import random
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
+import pymongo
+import os
+
+myclient = pymongo.MongoClient(os.getenv('MONGO'))
+mycol = myclient["games"]["wordle"]
+mentions = discord.AllowedMentions(everyone=False, users=False, roles=False, replied_user=False)
 
 font = ImageFont.truetype("./res/font/LibreFranklin-Bold.ttf", size=75)
 colors = ["#787c7e", "#e9c342", "#77a76a"] # gray yellow green
@@ -240,8 +246,25 @@ class MyModal(discord.ui.Modal):
         
         self.history.append(i)
         check_and_push(i, self.dead, word)
+        await interaction.response.defer()
 
         if i == word: # you win
+            # leaderboard test
+            user_data = mycol.find_one({"user": interaction.user.id})
+            if not user_data:
+                # If the user does not exist in the collection, insert a new document
+                mycol.insert_one({
+                    "user": interaction.user.id,
+                    "servers": [interaction.guild_id],
+                    "score": 6-self.settings["step"]  # Set an initial score, modify as needed
+                })
+            else:
+                # If the user exists, update the existing document
+                mycol.update_one(
+                    {"user": interaction.user.id},
+                    {"$addToSet": {"servers": interaction.guild_id}, "$inc": {"score": 6-self.settings["step"]}}
+                )
+            
             self.settings["result"] = 1
             self.players[interaction.user.id]["score"] += 1
             await interaction.channel.send(embed=QuizEmbed(self.settings, self.index, self.words, self.players),
@@ -259,24 +282,45 @@ class MyModal(discord.ui.Modal):
                                                content=f"GAME OVER!\n{word}", view=None,
                                                file=wordle_image(self.history, word))
         await interaction.message.delete()
-        await interaction.response.defer()
+
+async def brag_function(ctx: commands.Context, mode: str, optional: str):
+    sorted_scores = mycol.find({"servers": ctx.guild.id}).sort("score", pymongo.DESCENDING)
+    if mode == "rank":
+        server_data = mycol.find_one({"user": ctx.message.author.id, "servers": ctx.guild.id})
+        if not server_data:
+            return await ctx.reply(content="🤨")
+        count = 0
+        for user_data in sorted_scores:
+            count+=1
+            if user_data['user'] == ctx.author.id:
+                return await ctx.reply(f"{ctx.author.mention}\nRANK: #{count}\nSCORE: {server_data['score']}", allowed_mentions=mentions)
+    if mode == "lead":
+        format_str = ""
+        index, limit = 0, 5
+        for user_data in sorted_scores:
+            index+=1
+            format_str += f"{index}. <@{user_data['user']}>: {user_data['score']}\n"
+            if index == limit: break
+        return await ctx.reply(format_str, allowed_mentions=mentions)
 
 async def wordle(ctx: commands.Context, mode: str, count: str):
-    msg = await ctx.reply("wordle prototype")
-    params = "```-hang [<word>, mode: <all/hardcore/me>, count: <1-50>]```"
+    params = "```-hang [mode: <all/hardcore/me> OR stats: <rank/lead/global>, count: <1-50>]```"
+
+    if mode in ["lead", "rank", "global"]:
+        return await brag_function(ctx, mode, count)
 
     if mode:
         modes = ["all", "me", "hardcore"]
         if mode in modes: pass
-        else: return await msg.edit(content="Mode not found."+params)
+        else: return await ctx.reply(content="Mode not found."+params)
     else: mode = "me"
 
     synsets_data = read_json_file("./res/dict/synsets_wordle.json")
     if count:
         try:
             if int(count) > 0 and int(count) <= len(synsets_data): pass
-            else: return await msg.edit(content=f"Must be greater than 0 and less than or equal to {len(synsets_data)}."+params)
-        except: return await msg.edit(content="Not a valid integer.\n"+params)
+            else: return await ctx.reply(content=f"Must be greater than 0 and less than or equal to {len(synsets_data)}."+params)
+        except: return await ctx.reply(content="Not a valid integer.\n"+params)
     else: count = 1
 
     random.shuffle(synsets_data)
@@ -289,4 +333,3 @@ async def wordle(ctx: commands.Context, mode: str, count: str):
     history = []
     await ctx.reply(file=wordle_image(history, words[0]["word"].upper()),
                     embed=QuizEmbed(settings, 0, words, players), view=QuizView(ctx, words, 0, dead, settings, players, history))
-    await msg.delete()
