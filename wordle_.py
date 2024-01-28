@@ -9,7 +9,6 @@ import os
 
 myclient = pymongo.MongoClient(os.getenv('MONGO'))
 mycol = myclient["games"]["wordle"]
-mentions = discord.AllowedMentions(everyone=False, users=False, roles=False, replied_user=False)
 
 font = ImageFont.truetype("./res/font/LibreFranklin-Bold.ttf", size=75)
 colors = ["#787c7e", "#e9c342", "#77a76a"] # gray yellow green
@@ -283,25 +282,44 @@ class MyModal(discord.ui.Modal):
                                                file=wordle_image(self.history, word))
         await interaction.message.delete()
 
+async def brag_embed(server_scores, ctx: commands.Context, global_lead: bool) -> discord.Embed:
+    e = discord.Embed(color=0x00ff00, title=ctx.guild if not global_lead else "GLOBAL", description="wordle prototype")
+    index, limit = 0, 10
+    for user_data in server_scores:
+        index+=1
+        try: member = await ctx.guild.fetch_member(user_data['user'])
+        except discord.NotFound: member = None
+        member_name = member.name if member else "???"
+        e.add_field(name=f"{index}. {member_name}", value=f"Score: {user_data['score']}", inline=False)
+        if index == limit: break
+    return e
+
 async def brag_function(ctx: commands.Context, mode: str, optional: str):
-    sorted_scores = mycol.find({"servers": ctx.guild.id}).sort("score", pymongo.DESCENDING)
+    try: 
+        if not optional or int(optional): pass
+    except: return await ctx.reply("⁉️")
+
+    server_scores = mycol.find({"servers": ctx.guild.id}).sort("score", pymongo.DESCENDING)
+    user_data = mycol.find_one({"user": ctx.author.id if not optional else int(optional), "servers": ctx.guild.id})
+
+    if not user_data or not server_scores:
+        return await ctx.reply(content="🤨")
+    
     if mode == "rank":
-        server_data = mycol.find_one({"user": ctx.message.author.id, "servers": ctx.guild.id})
-        if not server_data:
-            return await ctx.reply(content="🤨")
         count = 0
-        for user_data in sorted_scores:
+        for user_data in server_scores:
             count+=1
-            if user_data['user'] == ctx.author.id:
-                return await ctx.reply(f"{ctx.author.mention}\nRANK: #{count}\nSCORE: {server_data['score']}", allowed_mentions=mentions)
+            if user_data['user'] == ctx.author.id if not optional else int(optional):
+                try: member = await ctx.guild.fetch_member(int(optional))
+                except discord.NotFound: return await ctx.reply(content="🤨")
+                return await ctx.reply(f"{ctx.author if not optional else member.name}\nRANK: #{count}, SCORE: {user_data['score']}")
+            
     if mode == "lead":
-        format_str = ""
-        index, limit = 0, 5
-        for user_data in sorted_scores:
-            index+=1
-            format_str += f"{index}. <@{user_data['user']}>: {user_data['score']}\n"
-            if index == limit: break
-        return await ctx.reply(format_str, allowed_mentions=mentions)
+        return await ctx.reply(embed=await brag_embed(server_scores, ctx, False))
+    
+    if mode == "global":
+        global_scores = mycol.find({}).sort("score", pymongo.DESCENDING)
+        return await ctx.reply(embed=await brag_embed(global_scores, ctx, True))
 
 async def wordle(ctx: commands.Context, mode: str, count: str):
     params = "```-hang [mode: <all/hardcore/me> OR stats: <rank/lead/global>, count: <1-50>]```"
