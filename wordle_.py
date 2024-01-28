@@ -28,10 +28,12 @@ def id2e(id: str) -> str:
     if id == "UPDATE": return "💽"
 
 def game_reset(dead: dict, settings: dict, history: list):
-    dead["yellow"] = dead["green"] = dead["gray"] = []
     settings["step"] = 0
     settings["result"] = -1
     history.clear()
+    dead["yellow"].clear()
+    dead["green"].clear()
+    dead["gray"].clear()
 
 def keys(d: dict) -> str:
     text = ""
