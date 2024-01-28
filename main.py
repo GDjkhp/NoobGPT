@@ -16,6 +16,9 @@ bot = commands.Bot(command_prefix = "-",
 # from request_listener import keep_alive
 # keep_alive()
 
+# gde test
+from gde_hall_of_fame import main
+
 @bot.event
 async def on_ready():
     print(f"{bot.user.name} (c) 2024 The Karakters Kompany. All rights reserved.")
@@ -26,6 +29,7 @@ async def on_ready():
         print(f"{number}. ", guild)
     print(":)")
     await bot.change_presence(status=discord.Status.dnd)
+    bot.loop.create_task(main()) # gde bot
 
 # TODO: store the strings on a json file that syncs with the website
 @bot.command()
@@ -265,9 +269,5 @@ from rps_game import RPSView
 @bot.command()
 async def rps(ctx: commands.Context):
     await ctx.reply(":index_pointing_at_the_viewer:", view=RPSView(None, None))
-
-# gde test
-from gde_hall_of_fame import main
-bot.loop.create_task(main())
 
 bot.run(os.getenv("TOKEN"))
