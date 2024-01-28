@@ -266,4 +266,8 @@ from rps_game import RPSView
 async def rps(ctx: commands.Context):
     await ctx.reply(":index_pointing_at_the_viewer:", view=RPSView(None, None))
 
+# gde test
+from gde_hall_of_fame import main
+bot.loop.create_task(main())
+
 bot.run(os.getenv("TOKEN"))
