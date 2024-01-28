@@ -298,9 +298,9 @@ async def brag_function(ctx: commands.Context, mode: str, optional: str):
     try: 
         if not optional or int(optional): pass
     except: return await ctx.reply("⁉️")
-
+    user_id = ctx.author.id if not optional else int(optional)
     server_scores = mycol.find({"servers": ctx.guild.id}).sort("score", pymongo.DESCENDING)
-    user_data = mycol.find_one({"user": ctx.author.id if not optional else int(optional), "servers": ctx.guild.id})
+    user_data = mycol.find_one({"user": user_id, "servers": ctx.guild.id})
 
     if not user_data or not server_scores:
         return await ctx.reply(content="🤨")
@@ -309,10 +309,11 @@ async def brag_function(ctx: commands.Context, mode: str, optional: str):
         count = 0
         for user_data in server_scores:
             count+=1
-            if user_data['user'] == ctx.author.id if not optional else int(optional):
-                try: member = await ctx.guild.fetch_member(int(optional))
+            if user_data['user'] == user_id:
+                try: 
+                    if optional: member = await ctx.guild.fetch_member(user_id)
                 except discord.NotFound: return await ctx.reply(content="🤨")
-                return await ctx.reply(f"{ctx.author if not optional else member.name}\nRANK: #{count}, SCORE: {user_data['score']}")
+                return await ctx.reply(f"{ctx.author if not optional else member}\nRANK: #{count}, SCORE: {user_data['score']}")
             
     if mode == "lead":
         return await ctx.reply(embed=await brag_embed(server_scores, ctx, False))
