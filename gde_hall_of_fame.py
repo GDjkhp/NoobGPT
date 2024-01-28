@@ -20,9 +20,9 @@ async def check_and_send_level_up(client_discord: commands.Bot, old_data, new_da
                 channel = client_discord.get_channel(channel_id)
                 await channel.send(f"Level up! {new_player['username']} reached level {new_level}!")
 
-async def main():
+async def main(client_discord: commands.Bot):
     # guild_id = your_discord_guild_id
-    # server_members = await get_server_members(guild_id)
+    # server_members = await get_server_members(client_discord, guild_id)
 
     while True:
         # Record data
@@ -35,4 +35,4 @@ async def main():
         new_data = requests.get("https://mee6.xyz/api/plugins/levels/leaderboard/398627612299362304?limit=1000").json()
 
         # Compare old to new data and send messages for level ups
-        await check_and_send_level_up(data, new_data, None) # server_members
+        await check_and_send_level_up(client_discord, data, new_data, None) # server_members

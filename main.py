@@ -29,7 +29,7 @@ async def on_ready():
         print(f"{number}. ", guild)
     print(":)")
     await bot.change_presence(status=discord.Status.dnd)
-    bot.loop.create_task(main()) # gde bot
+    bot.loop.create_task(main(bot)) # gde bot
 
 # TODO: store the strings on a json file that syncs with the website
 @bot.command()
