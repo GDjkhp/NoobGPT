@@ -14,9 +14,9 @@ async def check_and_send_level_up(client_discord: commands.Bot, old_data, new_da
         if new_player['id'] in server_members: # filter gde members
             old_level = old_player["level"]
             new_level = new_player["level"]
-            hundred_moment = new_level % 10 == 0 and new_level > old_level if old_level < 100 else new_level > old_level
-            if hundred_moment:
-                channel_id = 1201314997419130931 # change this to target channel soon
+            # hundred_moment = new_level % 10 == 0 and new_level > old_level if old_level < 100 else new_level > old_level
+            if new_level > old_level:
+                channel_id = 1201314997419130931
                 channel = client_discord.get_channel(channel_id)
                 await channel.send(f"GG <@{new_player['id']}>, you just advanced to level {new_level}!") # GG @GDjkhp, you just advanced to level 100!
 

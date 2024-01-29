@@ -134,20 +134,36 @@ def wordle_image(history: list, real: str) -> discord.File:
     
     if history:
         for word in history:
-            x, index = 0, 0
+            # consumables
             real_temp = str(real)
+            fake_temp = str(word)
+
+            # first pass
+            x, index = 0, 0
             for c in word:
                 if c == real[index]:
                     draw_rounded_rectangle(draw, (x, y), (size, size), 25, colors[2])
                     real_temp = real_temp.replace(c, "", 1)
-                elif c in real_temp:
-                    draw_rounded_rectangle(draw, (x, y), (size, size), 25, colors[1])
-                    real_temp = real_temp.replace(c, "", 1)
-                else: 
-                    draw_rounded_rectangle(draw, (x, y), (size, size), 25, colors[0])
-                draw.text((x+50, y+50), c, fill="white", anchor="mm", font=font)
+                    fake_temp = fake_temp.replace(c, "_", 1)
+                # elif not c in real_temp: 
+                #     draw_rounded_rectangle(draw, (x, y), (size, size), 25, colors[0])
                 x+=size
                 index+=1
+
+            # second pass
+            x, index = 0, 0
+            for c in fake_temp:
+                if c != "_" and c in real_temp:
+                    draw_rounded_rectangle(draw, (x, y), (size, size), 25, colors[1])
+                    real_temp = real_temp.replace(c, "", 1)
+                x+=size
+                index+=1
+
+            x = 0
+            for c in word:
+                draw.text((x+50, y+50), c, fill="white", anchor="mm", font=font)
+                x+=size
+
             y+=size
 
     # return everything all at once
@@ -245,9 +261,9 @@ class MyModal(discord.ui.Modal):
         if len(i) != 5:
             return await interaction.response.send_message(content="hey, 5 letter words only pls.", ephemeral=True)
         
+        await interaction.response.defer()
         self.history.append(i)
         check_and_push(i, self.dead, word)
-        await interaction.response.defer()
 
         if i == word: # you win
             # leaderboard test
