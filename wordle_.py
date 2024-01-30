@@ -54,23 +54,28 @@ def QuizEmbed(settings: dict, index: int, words: list, players: dict) -> discord
     return e
 
 def check_and_push(arg: str, dead: dict, real: str):
+    # consumables
+    real_temp = list(real)
+    fake_temp = list(arg)
+
+    # green
     index = 0
-    real_temp = str(real)
-    for c in arg:
-        if c == real[index]: 
-            if not c in dead["green"]: 
-                dead["green"].append(c)
-            if c in dead["yellow"]: 
-                dead["yellow"].remove(c)
-            real_temp = real_temp.replace(c, "", 1)
+    for c in fake_temp:
+        if c == real_temp[index]: 
+            if not c in dead["green"]: dead["green"].append(c)
+            if c in dead["yellow"]: dead["yellow"].remove(c)
+            real_temp[index] = ""
+            fake_temp[index] = "_"
+        elif not c in real_temp: 
+            if not c in dead["gray"]: dead["gray"].append(c)
+        index+=1
 
-        elif c in real_temp and c not in dead["green"]: # blunder?
-            if not c in dead["yellow"]: 
-                dead["yellow"].append(c)
-            real_temp = real_temp.replace(c, "", 1)
-
-        elif not c in dead["gray"] and c not in dead["green"]: 
-            dead["gray"].append(c)
+    # yellow
+    index = 0
+    for c in fake_temp:
+        if c in real_temp and c not in dead["green"]: # blunder?
+            if not c in dead["yellow"]: dead["yellow"].append(c)
+            real_temp.remove(c)
         index+=1
 
 def button_confirm(d, k) -> bool:
