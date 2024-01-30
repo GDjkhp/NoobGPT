@@ -317,7 +317,7 @@ async def brag_function(ctx: commands.Context, mode: str, optional: str):
         if not optional or int(optional): pass
     except: return await ctx.reply("⁉️")
     user_id = ctx.author.id if not optional else int(optional)
-    if not ctx.guild.id: return await ctx.reply(content="this is a server-only command.")
+    if not ctx.guild: return await ctx.reply(content="this is a server-only command.")
     server_scores = mycol.find({"servers": ctx.guild.id}).sort("score", pymongo.DESCENDING)
     user_data = mycol.find_one({"user": user_id, "servers": ctx.guild.id})
 
