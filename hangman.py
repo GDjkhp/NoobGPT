@@ -115,6 +115,7 @@ class ButtonChoice(discord.ui.Button):
             return await interaction.response.send_message(content=f"<@{host_id}> is playing this game. Use `-hang` to create your own game.",
                                                            ephemeral=True)
         # register player choice
+        await interaction.message.edit(view=None)
         if not interaction.user.id in self.players: self.players[interaction.user.id] = add_player(interaction.user)
         if self.id == "LEAVE": 
             a = False

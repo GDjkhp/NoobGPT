@@ -253,6 +253,7 @@ class ButtonChoice(discord.ui.Button):
                                                            ephemeral=True)
         
         # register player choice
+        await interaction.message.edit(view=None)
         if not interaction.user.id in self.players: self.players[interaction.user.id] = add_player(interaction.user)
         self.players[interaction.user.id]["choice"] = self.c
         
