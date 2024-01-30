@@ -370,6 +370,5 @@ async def wordle(ctx: commands.Context, mode: str, count: str):
     dead = {"yellow": [], "green": [], "gray": []}
     settings = {"step": 0, "mode": mode, "result": -1}
     history = []
-    words = [{"word": "brood"}]
     await ctx.reply(file=wordle_image(history, words[0]["word"].upper()),
                     embed=QuizEmbed(settings, 0, words, players), view=QuizView(ctx, words, 0, dead, settings, players, history))
