@@ -2,6 +2,11 @@ import requests
 from discord.ext import commands
 import asyncio
 
+gde_guild_id = 1092112710667358218
+gde_channel_id = 1201314997419130931
+gds_guild_id = 398627612299362304
+api = f"https://mee6.xyz/api/plugins/levels/leaderboard/{gds_guild_id}?limit=1000"
+
 async def get_server_members(client_discord: commands.Bot, guild_id: int):
     guild = client_discord.get_guild(guild_id)
     members = []
@@ -16,16 +21,14 @@ async def check_and_send_level_up(client_discord: commands.Bot, old_data, new_da
             new_level = new_player["level"]
             # hundred_moment = new_level % 10 == 0 and new_level > old_level if old_level < 100 else new_level > old_level
             if new_level > old_level:
-                channel_id = 1201314997419130931
-                channel = client_discord.get_channel(channel_id)
+                channel = client_discord.get_channel(gde_channel_id)
                 await channel.send(f"GG <@{new_player['id']}>, you just advanced to level {new_level}!") # GG @GDjkhp, you just advanced to level 100!
 
 async def main(client_discord: commands.Bot):
-    data = requests.get("https://mee6.xyz/api/plugins/levels/leaderboard/398627612299362304?limit=1000").json()
+    data = requests.get(api).json()
     while True:
         await asyncio.sleep(60)
-        new_data = requests.get("https://mee6.xyz/api/plugins/levels/leaderboard/398627612299362304?limit=1000").json()
-        guild_id = 1092112710667358218
-        server_members = await get_server_members(client_discord, guild_id)
+        new_data = requests.get(api).json()
+        server_members = await get_server_members(client_discord, gde_guild_id)
         await check_and_send_level_up(client_discord, data, new_data, server_members)
         data = new_data
