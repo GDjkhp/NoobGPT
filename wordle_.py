@@ -135,16 +135,16 @@ def wordle_image(history: list, real: str) -> discord.File:
     if history:
         for word in history:
             # consumables
-            real_temp = str(real)
-            fake_temp = str(word)
+            real_temp = list(real)
+            fake_temp = list(word)
 
             # first pass
             x, index = 0, 0
             for c in word:
                 if c == real[index]:
                     draw_rounded_rectangle(draw, (x, y), (size, size), 25, colors[2])
-                    real_temp = real_temp.replace(c, "", 1)
-                    fake_temp = fake_temp.replace(c, "_", 1)
+                    real_temp[index] = ""
+                    fake_temp[index] = "_"
                 # elif not c in real_temp: 
                 #     draw_rounded_rectangle(draw, (x, y), (size, size), 25, colors[0])
                 x+=size
@@ -153,9 +153,9 @@ def wordle_image(history: list, real: str) -> discord.File:
             # second pass
             x, index = 0, 0
             for c in fake_temp:
-                if c != "_" and c in real_temp:
+                if c in real_temp:
                     draw_rounded_rectangle(draw, (x, y), (size, size), 25, colors[1])
-                    real_temp = real_temp.replace(c, "", 1)
+                    real_temp[index] = ""
                 x+=size
                 index+=1
 
@@ -370,5 +370,6 @@ async def wordle(ctx: commands.Context, mode: str, count: str):
     dead = {"yellow": [], "green": [], "gray": []}
     settings = {"step": 0, "mode": mode, "result": -1}
     history = []
+    words = [{"word": "brood"}]
     await ctx.reply(file=wordle_image(history, words[0]["word"].upper()),
                     embed=QuizEmbed(settings, 0, words, players), view=QuizView(ctx, words, 0, dead, settings, players, history))
