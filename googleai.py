@@ -230,7 +230,7 @@ async def GEMINI_REST(ctx: commands.Context, arg: str, palm: bool):
                 except Exception as e: text = f"**Error! :(**\n{e}"
         else:
             try:
-                response = requests.post(palm_proxy(None), json=json_data_palm(arg, False)) # scary
+                response = requests.post(palm_proxy(None), json=json_data_palm(arg, not ctx.channel.nsfw)) # scary
                 text = get_text_palm(response.json())
             except Exception as e: text = f"**Error! :(**\n{e}"
         try: 
