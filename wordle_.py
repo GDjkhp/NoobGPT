@@ -11,7 +11,7 @@ myclient = pymongo.MongoClient(os.getenv('MONGO'))
 mycol = myclient["games"]["wordle"]
 
 font = ImageFont.truetype("./res/font/LibreFranklin-Bold.ttf", size=75)
-colors = ["#787c7e", "#e9c342", "#77a76a"] # gray yellow green
+colors = ["#787c7e", "#e9c342", "#77a76a"] # gray, yellow, green
 
 def read_json_file(file_path):
     with open(file_path, 'r') as json_file:
@@ -140,8 +140,8 @@ def wordle_image(history: list, real: str) -> discord.File:
 
             # first pass
             x, index = 0, 0
-            for c in word:
-                if c == real[index]:
+            for c in fake_temp:
+                if c == real_temp[index]:
                     draw_rounded_rectangle(draw, (x, y), (size, size), 25, colors[2])
                     real_temp[index] = ""
                     fake_temp[index] = "_"
@@ -151,13 +151,12 @@ def wordle_image(history: list, real: str) -> discord.File:
                 index+=1
 
             # second pass
-            x, index = 0, 0
+            x = 0
             for c in fake_temp:
                 if c in real_temp:
                     draw_rounded_rectangle(draw, (x, y), (size, size), 25, colors[1])
-                    real_temp[index] = ""
+                    real_temp.remove(c)
                 x+=size
-                index+=1
 
             x = 0
             for c in word:
