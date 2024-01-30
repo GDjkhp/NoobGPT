@@ -261,6 +261,7 @@ class MyModal(discord.ui.Modal):
         if len(i) != 5:
             return await interaction.response.send_message(content="hey, 5 letter words only pls.", ephemeral=True)
         
+        await interaction.message.edit(view=None)
         await interaction.response.defer()
         self.history.append(i)
         check_and_push(i, self.dead, word)
