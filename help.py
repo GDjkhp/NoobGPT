@@ -20,13 +20,13 @@ class ButtonSelect(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if self.l == "AI":
-            await interaction.response.send_message(embed=ai_embed(self.av), ephemeral=True)
+            await interaction.response.send_message(embed=await ai_embed(self.av), ephemeral=True)
         if self.l == "GAMES":
-            await interaction.response.send_message(embed=games_embed(self.av), ephemeral=True)
+            await interaction.response.send_message(embed=await games_embed(self.av), ephemeral=True)
         if self.l == "MEDIA":
-            await interaction.response.send_message(embed=media_embed(self.av), ephemeral=True)
+            await interaction.response.send_message(embed=await media_embed(self.av), ephemeral=True)
         if self.l == "UTILS":
-            await interaction.response.send_message(embed=utils_embed(self.av), ephemeral=True)
+            await interaction.response.send_message(embed=await utils_embed(self.av), ephemeral=True)
 
 def create_embed(color: int) -> discord.Embed:
     return discord.Embed(title="NoobGPT", 
