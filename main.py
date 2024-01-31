@@ -35,7 +35,7 @@ async def on_ready():
 from help import HALP
 @bot.command()
 async def halp(ctx: commands.Context):
-    await HALP(ctx)
+    await HALP(ctx, bot.user.avatar)
 
 @bot.command()
 async def legal(ctx: commands.Context):
