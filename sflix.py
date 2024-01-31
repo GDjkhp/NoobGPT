@@ -17,9 +17,10 @@ domain = "https://sflix.se"
 
 async def Sflix(ctx: commands.Context, arg: str):
     msg = await ctx.reply(f"Searching `{arg}`\nPlease wait…")
-    result = results(searchQuery(arg))
-    embed = buildSearch(arg, result, 0)
-    try: await msg.edit(content=None, embed = embed, view = MyView(ctx, result, arg, 0))
+    try:
+        result = results(searchQuery(arg)) 
+        embed = buildSearch(arg, result, 0)
+        await msg.edit(content=None, embed=embed, view=MyView(ctx, result, arg, 0))
     except Exception as e: return await msg.edit(content=f"**No results found**")
 
 # embed builders
