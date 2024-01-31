@@ -69,8 +69,8 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 ## Utils 🔧
 * `-quote` Reply to a message to make it a quote.
 * `-weather [query]` Check weather forecast using [weather-api](https://github.com/robertoduessmann/weather-api).
-* `-ban [userid]` Return a user's Discord profile banner.
 * `-av [userid]` Return a user's Discord profile avatar.
+* `-ban [userid]` Return a user's Discord profile banner.
 <!-- * `-lex [query/image]` Search AI Generated art (Stable Diffusion) made by the prompts of the community using [Lexica](https://lexica.art) -->
 
 ## Node.js Computer #2: Music Branch
