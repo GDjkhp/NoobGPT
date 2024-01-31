@@ -62,22 +62,22 @@ async def ai_embed(av: discord.Asset) -> discord.Embed:
 
 async def games_embed(av: discord.Asset) -> discord.Embed:
     emby = create_embed(0x00ffff)
-    emby.add_field(name='`-aki (optional: category = [people/animals/objects], [language])`', 
+    emby.add_field(name='`-aki (optional: category = [people/animals/objects] [language])`', 
                    value='Play a guessing game of [Akinator](https://akinator.com).', 
                    inline=False)
     emby.add_field(name='`-tic`', 
                    value='Play tic-tac-toe with someone. (Deprecated)', 
                    inline=False)
-    emby.add_field(name='`-hang (optional: mode = [all/hardcore/me], count = [1-50], [type = any/word/quiz], category = [any/9-32], difficulty = [any/easy/medium/hard])`', 
+    emby.add_field(name='`-hang (optional: mode = [all/hardcore/me] count = [1-50] [type = any/word/quiz] category = [any/9-32] difficulty = [any/easy/medium/hard])`', 
                    value='Play the word puzzle game of hangman.', 
                    inline=False)
-    emby.add_field(name='`-place (optional: x = [0-499], y = [0-499], zoom = [16x])`', 
+    emby.add_field(name='`-place (optional: x = [0-499] y = [0-499] zoom = [16x])`', 
                    value='Play the Reddit social experiment event about placing pixels on a canvas.', 
                    inline=False)
-    emby.add_field(name='`-quiz (optional: mode = [all/anon/me], version = [any/v1/v2], count = [1-50], category = [any/9-32], difficulty = [any/easy/medium/hard], type = [any/multiple/boolean])`', 
+    emby.add_field(name='`-quiz (optional: mode = [all/anon/me] version = [any/v1/v2] count = [1-50] category = [any/9-32] difficulty = [any/easy/medium/hard] type = [any/multiple/boolean])`', 
                    value='Play a game of quiz.', 
                    inline=False)
-    emby.add_field(name='`-word (optional: stats = [rank/lead/global] OR mode = [all/hardcore/me], count = [1-50])`', 
+    emby.add_field(name='`-word (optional: stats = [rank/lead/global] OR mode = [all/hardcore/me] count = [1-50])`', 
                    value='Play a game of wordle.', 
                    inline=False)
     emby.add_field(name='`-rps`', 
