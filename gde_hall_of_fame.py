@@ -11,7 +11,7 @@ async def get_server_members(client_discord: commands.Bot, guild_id: int):
     guild = client_discord.get_guild(guild_id)
     members = []
     if guild:
-        members = [member.id for member in guild.members]
+        members = [str(member.id) for member in guild.members]
     return members
 
 async def check_and_send_level_up(client_discord: commands.Bot, old_data, new_data, server_members):
@@ -32,6 +32,12 @@ async def check_and_send_level_up(client_discord: commands.Bot, old_data, new_da
             if old_rank > new_rank:
                 channel = client_discord.get_channel(gde_channel_id)
                 await channel.send(f"GG {new_player['username']}, you just advanced to rank #{new_rank}!")
+            # xp
+            # old_xp = old_player["xp"]
+            # new_xp = new_player["xp"]
+            # if new_xp > old_xp:
+            #     channel = client_discord.get_channel(gde_channel_id)
+            #     await channel.send(f"GG {new_player['username']}, you just earned {new_xp-old_xp} XP!")
 
 async def main(client_discord: commands.Bot):
     data = requests.get(api).json()

@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True
 mentions = discord.AllowedMentions(everyone=False, users=True, roles=True, replied_user=True)
 bot = commands.Bot(command_prefix = "-", 
                    intents = intents, 
