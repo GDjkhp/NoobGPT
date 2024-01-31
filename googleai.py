@@ -234,7 +234,7 @@ async def GEMINI_REST(ctx: commands.Context, arg: str, palm: bool):
                 text = get_text_palm(response.json())
             except Exception as e: text = f"**Error! :(**\n{e}"
         try: 
-            if not text: return await msg.edit(content=f"**Error! :(**\nEmpty response.")
+            if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
             chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
             replyFirst = True
             for chunk in chunks:

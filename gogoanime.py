@@ -1,4 +1,5 @@
 import discord
+from discord.ext import commands
 from httpclient import HttpClient
 from bs4 import BeautifulSoup as BS
 import re
@@ -14,11 +15,13 @@ domain = "https://anitaku.to"
 r = requests.get(domain)
 gogoanime = r.url[:-1] if r else domain
 
-async def Gogoanime(msg: discord.Message, arg: str):
-    try: result = resultsAnime(searchAnime(arg))
+async def Gogoanime(ctx: commands.Context, arg: str):
+    if arg: msg = await ctx.reply(f"Searching `{arg}`\nPlease wait…")
+    else: msg = await ctx.reply("Imagine something that doesn't exist. Must be sad. You are sad. You don't belong here.\nLet's all love lain.")
+    try: result = resultsAnime(searchAnime(arg if arg else "serial experiments lain"))
     except: return await msg.edit(content="Error! Domain changed most likely.")
-    try: await msg.edit(content=None, embed=buildSearch(arg, result, 0), view = MyView4(arg, result, 0))
-    except Exception as e: return await msg.edit(content=f"Error!\n{e}")
+    try: await msg.edit(content=None, embed=buildSearch(arg, result, 0), view = MyView4(ctx, arg, result, 0))
+    except Exception as e: return await msg.edit(content=f"**No results found**")
 
 def buildAnime(details: list) -> discord.Embed():
     embed = discord.Embed(title=details[title], description=details[desc], color=0x00ff00)
@@ -80,28 +83,31 @@ def get_max_page(length):
 
 # search
 class MyView4(discord.ui.View):
-    def __init__(self, arg: str, result: list, index: int):
+    def __init__(self, ctx: commands.Context, arg: str, result: list, index: int):
         super().__init__(timeout=None)
         last_index = min(index + pagelimit, len(result))
-        self.add_item(SelectChoice(index, result))
+        self.add_item(SelectChoice(ctx, index, result))
         if index - pagelimit > -1:
-            self.add_item(nextPage(arg, result, 0, "⏪"))
-            self.add_item(nextPage(arg, result, index - pagelimit, "◀️"))
+            self.add_item(nextPage(ctx, arg, result, 0, "⏪"))
+            self.add_item(nextPage(ctx, arg, result, index - pagelimit, "◀️"))
         if not last_index == len(result):
-            self.add_item(nextPage(arg, result, last_index, "▶️"))
+            self.add_item(nextPage(ctx, arg, result, last_index, "▶️"))
             max_page = get_max_page(len(result))
-            self.add_item(nextPage(arg, result, max_page, "⏩"))
+            self.add_item(nextPage(ctx, arg, result, max_page, "⏩"))
 
 class SelectChoice(discord.ui.Select):
-    def __init__(self, index: int, result: list):
+    def __init__(self, ctx: commands.Context, index: int, result: list):
         super().__init__(placeholder=f"{min(index + pagelimit, len(result))}/{len(result)} found")
-        i, self.result = index, result
+        i, self.result, self.ctx = index, result, ctx
         while i < len(result): 
             if (i < index+pagelimit): self.add_option(label=f"[{i + 1}] {result[i][title]}", value=i, description=f"{result[i][url]}")
             if (i == index+pagelimit): break
             i += 1
 
     async def callback(self, interaction: discord.Interaction):
+        if interaction.user != self.ctx.author: 
+            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+                                                           ephemeral=True)
         req = client.get(f"{gogoanime}{self.result[int(self.values[0])][url]}")
         soup = BS(req, "lxml")
 
@@ -115,15 +121,18 @@ class SelectChoice(discord.ui.Select):
                    self.result[int(self.values[0])][poster], animetype, released, genre]
 
         embed = buildAnime(details)
-        await interaction.response.edit_message(content=None, embed = embed, view = MyView5(details, 0))
+        await interaction.response.edit_message(content=None, embed = embed, view = MyView5(self.ctx, details, 0))
 
 # legacy code
 class ButtonSelect4(discord.ui.Button):
-    def __init__(self, index: int, result: list, row: int):
+    def __init__(self, ctx: commands.Context, index: int, result: list, row: int):
         super().__init__(label=index, style=discord.ButtonStyle.primary, row=row)
-        self.result = result
+        self.result, self.ctx = result, ctx
     
     async def callback(self, interaction: discord.Interaction):
+        if interaction.user != self.ctx.author: 
+            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+                                                           ephemeral=True)
         req = client.get(f"{gogoanime}{self.result[url]}")
         soup = BS(req, "lxml")
 
@@ -136,58 +145,69 @@ class ButtonSelect4(discord.ui.Button):
         details = [self.result[title], self.result[url], desc, episodes, self.result[poster], animetype, released, genre]
 
         embed = buildAnime(details)
-        await interaction.response.edit_message(embed = embed, view = MyView5(details, 0))
+        await interaction.response.edit_message(embed = embed, view = MyView5(self.ctx, details, 0))
 
 class nextPage(discord.ui.Button):
-    def __init__(self, arg: str, result: list, index: int, l: str):
+    def __init__(self, ctx: commands.Context, arg: str, result: list, index: int, l: str):
         super().__init__(emoji=l, style=discord.ButtonStyle.success)
-        self.result, self.index, self.arg = result, index, arg
+        self.result, self.index, self.arg, self.ctx = result, index, arg, ctx
     
     async def callback(self, interaction: discord.Interaction):
-        await interaction.response.edit_message(view = MyView4(self.arg, self.result, self.index))
+        if interaction.user != self.ctx.author: 
+            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+                                                           ephemeral=True)
+        await interaction.response.edit_message(view = MyView4(self.ctx, self.arg, self.result, self.index))
 
 # episode
 class MyView5(discord.ui.View):
-    def __init__(self, details: list, index: int):
+    def __init__(self, ctx: commands.Context, details: list, index: int):
         super().__init__(timeout=None)
         i = index
         column, row, last_index = 0, -1, int(details[ep])
         while i < int(details[ep]):
             if column % 4 == 0: row += 1
-            if (i < index+pagelimit): self.add_item(ButtonSelect5(i + 1, details[url], row))
+            if (i < index+pagelimit): self.add_item(ButtonSelect5(ctx, i + 1, details[url], row))
             if (i == index+pagelimit): last_index = i
             i += 1
             column += 1
         if index - pagelimit > -1:
-            self.add_item(nextPageEP(details, 0, 3, "⏪"))
-            self.add_item(nextPageEP(details, index - pagelimit, 3, "◀️"))
+            self.add_item(nextPageEP(ctx, details, 0, 3, "⏪"))
+            self.add_item(nextPageEP(ctx, details, index - pagelimit, 3, "◀️"))
         if not last_index == int(details[ep]):
-            self.add_item(nextPageEP(details, last_index, 3, "▶️"))
+            self.add_item(nextPageEP(ctx, details, last_index, 3, "▶️"))
             max_page = get_max_page(int(details[ep]))
-            self.add_item(nextPageEP(details, max_page, 3, "⏩"))
+            self.add_item(nextPageEP(ctx, details, max_page, 3, "⏩"))
 
 class ButtonSelect5(discord.ui.Button):
-    def __init__(self, index: int, sUrl: str, row: int):
+    def __init__(self, ctx: commands.Context, index: int, sUrl: str, row: int):
         super().__init__(label=index, style=discord.ButtonStyle.primary, row=row)
         self.index = index
         self.sUrl = sUrl
+        self.ctx = ctx
     
     async def callback(self, interaction: discord.Interaction):
+        if interaction.user != self.ctx.author: 
+            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+                                                           ephemeral=True)
         url = self.sUrl.split("/")[-1]
         request = client.get(f"{gogoanime}/{url}-episode-{self.index}")
         soup = BS(request, "lxml")
         video = soup.find("li", {"class": "doodstream"}).find("a")["data-video"]
-        await interaction.response.send_message(f"[{url}-episode-{self.index}]({video})")
+        if interaction.guild: await interaction.response.send_message("check your dms. use an adblocker to stream the anime.", ephemeral=True)
+        await interaction.user.send(f"[{url}-episode-{self.index}]({video})") # DMS
         # url0 = doodstream(
         #     soup.find("li", {"class": "doodstream"}).find("a")["data-video"]
         # )
         # await interaction.response.send_message(f"{url}-episode-{self.index}: {url0}")
 
 class nextPageEP(discord.ui.Button):
-    def __init__(self, details: list, index: int, row: int, l: str):
+    def __init__(self, ctx: commands.Context, details: list, index: int, row: int, l: str):
         super().__init__(emoji=l, style=discord.ButtonStyle.success, row=row)
-        self.details, self.index = details, index
+        self.details, self.index, self.ctx = details, index, ctx
     
     async def callback(self, interaction: discord.Interaction):
+        if interaction.user != self.ctx.author: 
+            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+                                                           ephemeral=True)
         embed = buildAnime(self.details)
         await interaction.response.edit_message(embed = embed, view = MyView5(self.details, self.index))

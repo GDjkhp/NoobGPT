@@ -9,12 +9,12 @@ import os
 myclient = pymongo.MongoClient(os.getenv('MONGO'))
 
 async def R34(ctx: commands.Context, arg: str):
-    if not ctx.channel.nsfw: return await ctx.reply("**No.**")
+    if not ctx.guild or not ctx.channel.nsfw: return await ctx.reply("**No.**")
     if arg: await search_posts(ctx, arg, "r34")
     else: await view_collection(ctx, "r34")
 
 async def GEL(ctx: commands.Context, arg: str):
-    if not ctx.channel.nsfw: return await ctx.reply("**No.**")
+    if not ctx.guild or not ctx.channel.nsfw: return await ctx.reply("**No.**")
     if arg: await search_posts(ctx, arg, "gel")
     else: await view_collection(ctx, "gel")
 
