@@ -41,7 +41,7 @@ Originally developed as an XP Leveling System under the codename "LevelUpLoser."
 * `-halp` Show prefix commands help page.
 * `/help` Show music commands help page.
 
-## Python Computer #1: Beta Branch
+# Python Computer #1: Beta Branch
 Collection of random and unique stuff I came up with, mostly games and useful tools. This is where I add new features regularly.
 ### Prefix: -
 ## AI 🤖
@@ -73,14 +73,6 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-ban [userid]` Return a user's Discord profile banner.
 <!-- * `-lex [query/image]` Search AI Generated art (Stable Diffusion) made by the prompts of the community using [Lexica](https://lexica.art) -->
 
-## Node.js Computer #2: Music Branch
-Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/tree/v5), an advanced discord music bot.
-### Slash commands
-* `/play [query/link]` Play something. Supports YouTube ~~and Spotify~~.
-* `/nowplaying` Now playing.
-* `/queue` Show query.
-* `/skip` Skip track.
-
 ## Under Development
 * `-place (optional: x = [0-499] y = [0-499] zoom = [16x])` Play the Reddit social experiment event about placing pixels on a canvas.
 * `-ms` Play minesweeper.
@@ -90,6 +82,14 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 * `-prefix` Change prefix. (admin-only)
 * `-alias` Change command alias. (admin-only)
 * `-toggle` Toggle available commands. (admin-only)
+
+# Node.js Computer #2: Music Branch
+Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/tree/v5), an advanced discord music bot.
+### Slash commands
+* `/play [query/link]` Play something. Supports YouTube ~~and Spotify~~.
+* `/nowplaying` Now playing.
+* `/queue` Show query.
+* `/skip` Skip track.
 
 ## Credits
 ### Code
