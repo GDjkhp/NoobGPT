@@ -6,7 +6,7 @@ from discord.ext import commands
 
 async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, diff: str, ty: str):
     msg = await ctx.reply("Crunching data…")
-    params = "```-quiz [mode: <all/anon/me>, version: <any/v1/v2>, count: <1-50>, category: <any/9-32>, difficulty: <any/easy/medium/hard>, type: <any/multiple/boolean>```"
+    params = "```-quiz [mode: <all/anon/me> version: <any/v1/v2> count: <1-50>, category: <any/9-32> difficulty: <any/easy/medium/hard> type: <any/multiple/boolean>```"
     try: 
         if count and (int(count) > 51 or int(count) < 1): return await msg.edit(content="Items must be 1-50.") 
         if not count: count = "50"
@@ -18,7 +18,7 @@ async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, d
     elif v == "v2": 
         req = f"https://the-trivia-api.com/v2/questions/?limit={int(count)}"
         ck = "correctAnswer"
-    else: return await msg.edit(content="Version not found."+params)
+    else: return await msg.edit(content="Version not found.\n"+params)
     if mode:
         modes = ["all", "anon"]
         a = False

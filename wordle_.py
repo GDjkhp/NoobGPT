@@ -347,7 +347,7 @@ async def brag_function(ctx: commands.Context, mode: str, optional: str):
         return await ctx.reply(embed=await brag_embed(global_scores, ctx, True))
 
 async def wordle(ctx: commands.Context, mode: str, count: str):
-    params = "```-word [stats: <rank/lead/global> OR mode: <all/hardcore/me>, count: <1-50>]```"
+    params = "```-word [stats: <rank/lead/global> OR mode: <all/hardcore/me> count: <1-50>]```"
 
     if mode in ["lead", "rank", "global"]:
         return await brag_function(ctx, mode, count)
@@ -355,7 +355,7 @@ async def wordle(ctx: commands.Context, mode: str, count: str):
     if mode:
         modes = ["all", "me", "hardcore"]
         if mode in modes: pass
-        else: return await ctx.reply(content="Mode not found."+params)
+        else: return await ctx.reply(content="Mode not found.\n"+params)
     else: mode = "me"
 
     synsets_data = read_json_file("./res/dict/synsets_wordle.json")
