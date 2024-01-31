@@ -26,16 +26,16 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 ## Replit
 - **Date:** March 28, 2023
 - **Environment:** Node.js Computer #0 (Alpha Branch)
-- **Uptime:** 0%
+- **Uptime:** No longer working
 
-Originally developed as an XP Leveling System under the codename "LevelUpLoser." Runs on [Replit](https://replit.com/)’s free tier, with unstable uptime, utilizing [Uptime Robot](https://uptimerobot.com/) until [January 4, 2024, due to hosting changes](https://blog.replit.com/hosting-changes).
+Originally developed as an XP Leveling System under the codename "LevelUpLoser". Runs on [Replit](https://replit.com/) free tier, with unstable uptime, utilizing [Uptime Robot](https://uptimerobot.com/) until [January 4, 2024, due to hosting changes](https://blog.replit.com/hosting-changes).
 
 ## bot-hosting.net
 - **Date:** January 11, 2024
 - **Environment:** Python/Node.js
 - **Uptime:** 99%
 
-[barack obama daily captcha solving abuse](https://bot-hosting.net/?aff=729554186777133088)
+[barack obama free hosting daily captcha solving abuse](https://bot-hosting.net/?aff=729554186777133088)
 
 # Bot Commands
 * `-halp` Show prefix commands help page.
