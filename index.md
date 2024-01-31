@@ -44,34 +44,34 @@ Originally developed as an XP Leveling System under the codename "LevelUpLoser."
 ## Python Computer #1: Beta Branch
 Collection of random and unique stuff I came up with, mostly games and useful tools. This is where I add new features regularly.
 ### Prefix: -
-* AI
-    * `-ask [prompt]` OpenAI GPT-3.5-Turbo (ChatGPT) chat completion.
-    * `-gpt [prompt]` OpenAI gpt-3.5-turbo-instruct text completion.
-    * `-imagine [prompt]` OpenAI Dall-E image generation.
-    * `-bard [prompt]` [Google Bard](https://bard.google.com) chat completion. (Deprecated)
-    * `-palm [prompt]` Google AI PaLM language model. (Legacy)
-    * `-ge [text/image]` Google AI Gemini language model.
-    * `-petals` Run large language models at home, BitTorrent‑style.
+## AI 🤖
+* `-ask [prompt]` OpenAI GPT-3.5-Turbo (ChatGPT) chat completion.
+* `-gpt [prompt]` OpenAI gpt-3.5-turbo-instruct text completion.
+* `-imagine [prompt]` OpenAI Dall-E image generation.
+* `-bard [prompt]` [Google Bard](https://bard.google.com) chat completion. (Deprecated)
+* `-palm [prompt]` Google AI PaLM language model. (Legacy)
+* `-ge [text/image]` Google AI Gemini language model.
+* `-petals` Run large language models at home, BitTorrent‑style.
 
-* Games
-    * `-aki (optional: category = [people/animals/objects] [language])` Play a guessing game of [Akinator](https://akinator.com).
-    * `-tic` Play tic-tac-toe with someone. (Deprecated)
-    * `-hang (optional: mode = [all/hardcore/me] count = [1-50] type = [any/word/quiz] category = [any/9-32] difficulty = [any/easy/medium/hard])` Play the word puzzle game of hangman.
-    * `-quiz (optional: mode = [all/anon/me] version = [any/v1/v2], count = [1-50] category = [any/9-32] [difficulty = any/easy/medium/hard] [type = any/multiple/boolean])` Play a game of quiz.
-    * `-word (optional: stats = [rank/lead/global] OR mode = [all/hardcore/me], count = [1-50])` Play a game of wordle.
-    * `-rps` Play rock-paper-scissors.
+## Games 🎲
+* `-aki (optional: category = [people/animals/objects] [language])` Play a guessing game of [Akinator](https://akinator.com).
+* `-tic` Play tic-tac-toe with someone. (Deprecated)
+* `-hang (optional: mode = [all/hardcore/me] count = [1-50] type = [any/word/quiz] category = [any/9-32] difficulty = [any/easy/medium/hard])` Play the word puzzle game of hangman.
+* `-quiz (optional: mode = [all/anon/me] version = [any/v1/v2], count = [1-50] category = [any/9-32] [difficulty = any/easy/medium/hard] [type = any/multiple/boolean])` Play a game of quiz.
+* `-word (optional: stats = [rank/lead/global] OR mode = [all/hardcore/me], count = [1-50])` Play a game of wordle.
+* `-rps` Play rock-paper-scissors.
 
-* Media
-    * `-anime [query]` Search and watch Anime using [Gogoanime](https://gogoanimehd.io).
-    * `-tv [query]` Search and watch TV shows and movies using [SFlix](https://sflix.se).
-    * `-ytdlp (optional: format = [mp3/m4a]) [link]` Download or convert a YouTube video under 25MB discord limit. [Supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md)
+## Media 💽
+* `-anime [query]` Search and watch Anime using [Gogoanime](https://gogoanimehd.io).
+* `-tv [query]` Search and watch TV shows and movies using [SFlix](https://sflix.se).
+* `-ytdlp (optional: format = [mp3/m4a]) [link]` Download or convert a YouTube video under 25MB discord limit. [Supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md)
     
-* Utils
-    * `-quote` Reply to a message to make it a quote.
-    * `-weather [query]` Check weather forecast using [weather-api](https://github.com/robertoduessmann/weather-api).
-    * `-ban [userid]` Return a user's Discord profile banner.
-    * `-av [userid]` Return a user's Discord profile avatar.
-    <!-- * `-lex [query/image]` Search AI Generated art (Stable Diffusion) made by the prompts of the community using [Lexica](https://lexica.art) -->
+## Utils 🔧
+* `-quote` Reply to a message to make it a quote.
+* `-weather [query]` Check weather forecast using [weather-api](https://github.com/robertoduessmann/weather-api).
+* `-ban [userid]` Return a user's Discord profile banner.
+* `-av [userid]` Return a user's Discord profile avatar.
+<!-- * `-lex [query/image]` Search AI Generated art (Stable Diffusion) made by the prompts of the community using [Lexica](https://lexica.art) -->
 
 ## Node.js Computer #2: Music Branch
 Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/tree/v5), an advanced discord music bot.
