@@ -57,8 +57,8 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-aki (optional: category = [people/animals/objects] [language])` Play a guessing game of [Akinator](https://akinator.com).
 * `-tic` Play tic-tac-toe with someone. (Deprecated)
 * `-hang (optional: mode = [all/hardcore/me] count = [1-50] type = [any/word/quiz] category = [any/9-32] difficulty = [any/easy/medium/hard])` Play the word puzzle game of hangman.
-* `-quiz (optional: mode = [all/anon/me] version = [any/v1/v2], count = [1-50] category = [any/9-32] [difficulty = any/easy/medium/hard] [type = any/multiple/boolean])` Play a game of quiz.
-* `-word (optional: stats = [rank/lead/global] OR mode = [all/hardcore/me], count = [1-50])` Play a game of wordle.
+* `-quiz (optional: mode = [all/anon/me] version = [any/v1/v2] count = [1-50] category = [any/9-32] [difficulty = any/easy/medium/hard] [type = any/multiple/boolean])` Play a game of quiz.
+* `-word (optional: stats = [rank/lead/global] OR mode = [all/hardcore/me] count = [1-50])` Play a game of wordle.
 * `-rps` Play rock-paper-scissors.
 
 ## Media 💽
