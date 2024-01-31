@@ -143,9 +143,8 @@ class SelectChoice(discord.ui.Select):
             try:
                 url = cdn_url(iframe_link, iframe_id)
                 embed = buildMovie(self.result[int(self.values[0])])
-                if interaction.guild: 
-                    await interaction.message.edit(embed=embed, view=None)
-                    await interaction.followup.send("check your dms. use a media player to play the file.", ephemeral=True)
+                await interaction.message.edit(embed=embed, view=None)
+                if interaction.guild: await interaction.followup.send("check your dms. use a media player to play the file.", ephemeral=True)
                 await interaction.user.send(f"[{self.result[int(self.values[0])][title]}]({url})") # DMS
             except Exception as e: await interaction.message.edit(e, view=None)
         
