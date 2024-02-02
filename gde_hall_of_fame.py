@@ -2,6 +2,7 @@ import requests
 from discord.ext import commands
 import asyncio
 
+delay = 60
 gde_guild_id = 1092112710667358218
 gde_channel_id = 1201314997419130931
 gds_guild_id = 398627612299362304
@@ -41,7 +42,8 @@ async def check_and_send_level_up(client_discord: commands.Bot, old_data, new_da
                 # rank
                 old_rank_index = cook_rank_index(old_data["players"], new_player["id"])
                 new_rank_index = cook_rank_index(new_data["players"], new_player["id"])
-                if old_rank_index and new_rank_index and old_rank_index > new_rank_index:
+                rank_logic = old_rank_index and new_rank_index and old_rank_index > new_rank_index and new_rank_index <= 100
+                if rank_logic:
                     channel = client_discord.get_channel(gde_channel_id)
                     await channel.send(f"GG {new_player['username']}, you just advanced to rank #{new_rank_index}!")
                 # xp
@@ -54,7 +56,7 @@ async def check_and_send_level_up(client_discord: commands.Bot, old_data, new_da
 async def main(client_discord: commands.Bot):
     old_data = requests.get(api).json()
     while True:
-        await asyncio.sleep(60)
+        await asyncio.sleep(delay)
         new_data = requests.get(api).json()
         server_members = await get_server_members(client_discord, gde_guild_id)
         await check_and_send_level_up(client_discord, old_data, new_data, server_members)

@@ -144,8 +144,7 @@ class SelectChoice(discord.ui.Select):
                 url = cdn_url(iframe_link, iframe_id)
                 embed = buildMovie(self.result[int(self.values[0])])
                 await interaction.message.edit(embed=embed, view=None)
-                if interaction.guild: await interaction.followup.send("check your dms. use a media player to play the file.", ephemeral=True)
-                await interaction.user.send(f"[{self.result[int(self.values[0])][title]}]({url})") # DMS
+                await interaction.followup.send(f"[{self.result[int(self.values[0])][title]}]({url})", ephemeral=True)
             except Exception as e: await interaction.message.edit(e, view=None)
         
 
@@ -286,8 +285,7 @@ class ButtonSelect3(discord.ui.Button):
         await interaction.response.defer()
         try:
             url = cdn_url(iframe_link, iframe_id)
-            if interaction.guild: await interaction.followup.send("check your dms. use a media player to play the file.", ephemeral=True)
-            await interaction.user.send(f"{self.title} [S{self.season}E{self.index}]({url})") # DMS
+            await interaction.followup.send(f"{self.title} [S{self.season}E{self.index}]({url})", ephemeral=True)
         except Exception as e: await interaction.message.edit(e, view=None)
 
 # sflix functions

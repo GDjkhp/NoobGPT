@@ -193,8 +193,7 @@ class ButtonSelect5(discord.ui.Button):
         request = client.get(f"{gogoanime}/{url}-episode-{self.index}")
         soup = BS(request, "lxml")
         video = soup.find("li", {"class": "doodstream"}).find("a")["data-video"]
-        if interaction.guild: await interaction.response.send_message("check your dms. use an adblocker to stream the anime.", ephemeral=True)
-        await interaction.user.send(f"[{url}-episode-{self.index}]({video})") # DMS
+        await interaction.followup.send(f"[{url}-episode-{self.index}]({video})", ephemeral=True)
         # url0 = doodstream(
         #     soup.find("li", {"class": "doodstream"}).find("a")["data-video"]
         # )
