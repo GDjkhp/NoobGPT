@@ -53,11 +53,18 @@ async def check_and_send_level_up(client_discord: commands.Bot, old_data, new_da
                 #     channel = client_discord.get_channel(gde_channel_id)
                 #     await channel.send(f"GG {new_player['username']}, you just earned {new_xp-old_xp} XP!")
 
+def req_real():
+    req = requests.get(api)
+    if req.status_code == 200:
+        return req.json()
+    return None
+
 async def main(client_discord: commands.Bot):
-    old_data = requests.get(api).json()
+    old_data = req_real()
     while True:
         await asyncio.sleep(delay)
-        new_data = requests.get(api).json()
-        server_members = await get_server_members(client_discord, gde_guild_id)
-        await check_and_send_level_up(client_discord, old_data, new_data, server_members)
-        old_data = new_data
+        new_data = req_real()
+        if new_data:
+            server_members = await get_server_members(client_discord, gde_guild_id)
+            await check_and_send_level_up(client_discord, old_data, new_data, server_members)
+            old_data = new_data
