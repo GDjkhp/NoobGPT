@@ -8,7 +8,7 @@ gde_channel_id = 1201314997419130931
 gds_guild_id = 398627612299362304
 api = f"https://mee6.xyz/api/plugins/levels/leaderboard/{gds_guild_id}?limit=1000"
 
-async def get_server_members(client_discord: commands.Bot, guild_id: int):
+def get_server_members(client_discord: commands.Bot, guild_id: int):
     guild = client_discord.get_guild(guild_id)
     members = []
     if guild:
@@ -65,6 +65,6 @@ async def main(client_discord: commands.Bot):
         await asyncio.sleep(delay)
         new_data = req_real()
         if new_data:
-            server_members = await get_server_members(client_discord, gde_guild_id)
+            server_members = get_server_members(client_discord, gde_guild_id)
             await check_and_send_level_up(client_discord, old_data, new_data, server_members)
             old_data = new_data
