@@ -1,4 +1,4 @@
-import requests
+import aiohttp
 from discord.ext import commands
 import asyncio
 
@@ -27,7 +27,7 @@ def get_player_data(data: list, id: str):
         if player["id"] == id: return player
     return None
 
-def check_and_send_level_up(old_data, new_data, server_members) -> list:
+def check_level_up(old_data, new_data, server_members) -> list:
     level_up_messages = []
     for new_player in new_data["players"]:
         if new_player["id"] in server_members: # filter gde members
@@ -52,20 +52,21 @@ def check_and_send_level_up(old_data, new_data, server_members) -> list:
                 #     level_up_messages.append(f"GG {new_player['username']}, you just earned {new_xp-old_xp} XP!")
     return level_up_messages
 
-def req_real():
-    req = requests.get(api)
-    if req.status_code == 200:
-        return req.json()
-    return None
+async def req_real():
+    async with aiohttp.ClientSession() as session:
+        async with session.get(api) as response:
+            if response.status == 200:
+                return await response.json()
+            return None
 
 async def main(client_discord: commands.Bot):
-    old_data = req_real()
+    old_data = await req_real()
     while True:
         await asyncio.sleep(delay)
-        new_data = req_real()
+        new_data = await req_real()
         if new_data:
             server_members = get_server_members(client_discord, gde_guild_id)
-            msgs = check_and_send_level_up(old_data, new_data, server_members)
+            msgs = check_level_up(old_data, new_data, server_members)
             if msgs:
                 channel = client_discord.get_channel(gde_channel_id)
                 await channel.send("\n".join(msgs))
