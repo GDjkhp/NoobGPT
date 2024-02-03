@@ -27,31 +27,30 @@ def get_player_data(data: list, id: str):
         if player["id"] == id: return player
     return None
 
-async def check_and_send_level_up(client_discord: commands.Bot, old_data, new_data, server_members):
+def check_and_send_level_up(old_data, new_data, server_members) -> list:
+    level_up_messages = []
     for new_player in new_data["players"]:
         if new_player["id"] in server_members: # filter gde members
-            old_player = get_player_data(old_data["players"], new_player['id'])
+            old_player = get_player_data(old_data["players"], new_player["id"])
             if old_player:
                 # level
                 old_level = old_player["level"]
                 new_level = new_player["level"]
                 # hundred_moment = new_level % 10 == 0 and new_level > old_level if old_level < 100 else new_level > old_level
                 if new_level > old_level:
-                    channel = client_discord.get_channel(gde_channel_id)
-                    await channel.send(f"GG <@{new_player['id']}>, you just advanced to level {new_level}!") # GG @GDjkhp, you just advanced to level 100!
+                    level_up_messages.append(f"GG <@{new_player['id']}>, you just advanced to level {new_level}!")
                 # rank
                 old_rank_index = cook_rank_index(old_data["players"], new_player["id"])
                 new_rank_index = cook_rank_index(new_data["players"], new_player["id"])
                 rank_logic = old_rank_index and new_rank_index and old_rank_index > new_rank_index and new_rank_index <= 100
                 if rank_logic:
-                    channel = client_discord.get_channel(gde_channel_id)
-                    await channel.send(f"GG {new_player['username']}, you just advanced to rank #{new_rank_index}!")
+                    level_up_messages.append(f"GG {new_player['username']}, you just advanced to rank #{new_rank_index}!")
                 # xp
                 # old_xp = old_player["xp"]
                 # new_xp = new_player["xp"]
                 # if new_xp > old_xp:
-                #     channel = client_discord.get_channel(gde_channel_id)
-                #     await channel.send(f"GG {new_player['username']}, you just earned {new_xp-old_xp} XP!")
+                #     level_up_messages.append(f"GG {new_player['username']}, you just earned {new_xp-old_xp} XP!")
+    return level_up_messages
 
 def req_real():
     req = requests.get(api)
@@ -66,5 +65,8 @@ async def main(client_discord: commands.Bot):
         new_data = req_real()
         if new_data:
             server_members = get_server_members(client_discord, gde_guild_id)
-            await check_and_send_level_up(client_discord, old_data, new_data, server_members)
+            msgs = check_and_send_level_up(old_data, new_data, server_members)
+            if msgs:
+                channel = client_discord.get_channel(gde_channel_id)
+                await channel.send("\n".join(msgs))
             old_data = new_data
