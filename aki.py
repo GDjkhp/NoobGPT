@@ -119,7 +119,8 @@ async def Aki(ctx: commands.Context, cat: str='people', lang: str='en'):
         return await msg.edit(content=f"Invalid language parameter.\nSupported languages:```{languages}```")
     if cat in categories:
         aki = Akinator()
-        session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False))
+        try: session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False))
+        except Exception as e: return await msg.edit(content=f"Error! :(\n{e}")
         if cat != 'people':
             q = await aki.start_game(language=f'{lang}_{cat}', child_mode=sfw, client_session=session)
         else: 

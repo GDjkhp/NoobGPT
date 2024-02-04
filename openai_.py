@@ -1,10 +1,10 @@
-from openai import OpenAI
+from openai import AsyncOpenAI
 import discord
 import time
 import requests
 import io
 
-client = OpenAI()
+client = AsyncOpenAI()
 
 # i really love this function
 async def loopMsg(message: discord.Message):
@@ -30,7 +30,7 @@ async def chat(message: discord.Message, info: discord.Message=None):
     old = round(time.time() * 1000)
     messagesArray = await loopMsg(message)
     try:
-        completion = client.chat.completions.create(
+        completion = await client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=messagesArray
         )
@@ -55,7 +55,7 @@ async def image(message: discord.Message, info: discord.Message=None):
         promptMsg = f"{promptMsg}: {hey.content.replace('-imagine ', '')}"
     promptMsg = "Generate something." if promptMsg == "" else promptMsg
     try:
-        response = client.images.generate(
+        response = await client.images.generate(
             model="dall-e-2",
             prompt=promptMsg
         )
@@ -70,7 +70,7 @@ async def gpt3(message: discord.Message, info: discord.Message=None):
     content = message.content.replace("-gpt ", "")
     content = "Generate 'Lorem ipsum…'" if content == "" else content
     try:
-        completion = client.completions.create(
+        completion = await client.completions.create(
             model="gpt-3.5-turbo-instruct",
             prompt=content
         )

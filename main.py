@@ -73,12 +73,12 @@ async def av(ctx: commands.Context, *, arg=None):
 from sflix import Sflix
 @bot.command()
 async def tv(ctx: commands.Context, *, arg=None):
-    await Sflix(ctx, arg)
+    bot.loop.create_task(Sflix(ctx, arg))
 
 from gogoanime import Gogoanime
 @bot.command()
 async def anime(ctx: commands.Context, *, arg=None):
-    await Gogoanime(ctx, arg)
+    bot.loop.create_task(Gogoanime(ctx, arg))
 
 from ytdlp_ import YTDLP
 @bot.command()
@@ -124,15 +124,15 @@ async def weather(ctx: commands.Context, *, arg=None):
 from openai_ import chat, image, gpt3
 @bot.command()
 async def ask(ctx: commands.Context):
-    await chat(ctx.message)
+    bot.loop.create_task(chat(ctx.message))
 
 @bot.command()
 async def imagine(ctx: commands.Context):
-    await image(ctx.message)
+    bot.loop.create_task(image(ctx.message))
 
 @bot.command()
 async def gpt(ctx: commands.Context):
-    await gpt3(ctx.message)
+    bot.loop.create_task(gpt3(ctx.message))
 
 # bard (legacy)
 @bot.command()
@@ -160,27 +160,27 @@ async def petals(ctx: commands.Context):
 from petals import BELUGA2
 @bot.command()
 async def beluga2(ctx: commands.Context, *, arg=None):
-    await BELUGA2(ctx, arg)
+    bot.loop.create_task(BELUGA2(ctx, arg))
 
 from petals import LLAMA2
 @bot.command()
 async def llama2(ctx: commands.Context, *, arg=None):
-    await LLAMA2(ctx, arg)
+    bot.loop.create_task(LLAMA2(ctx, arg))
 
 from petals import GUANACO
 @bot.command()
 async def guanaco(ctx: commands.Context, *, arg=None):
-    await GUANACO(ctx, arg)
+    bot.loop.create_task(GUANACO(ctx, arg))
 
 from petals import LLAMA
 @bot.command()
 async def llama(ctx: commands.Context, *, arg=None):
-    await LLAMA(ctx, arg)
+    bot.loop.create_task(LLAMA(ctx, arg))
 
 from petals import BLOOMZ
 @bot.command()
 async def bloomz(ctx: commands.Context, *, arg=None):
-    await BLOOMZ(ctx, arg)
+    bot.loop.create_task(BLOOMZ(ctx, arg))
 
 # the real games
 from tictactoe import TicTacToe
@@ -193,22 +193,22 @@ from aki import Aki
 @bot.command(name='aki')
 # @commands.max_concurrency(1, per=BucketType.default, wait=False)
 async def aki(ctx: commands.Context, arg1='people', arg2='en'):
-    await Aki(ctx, arg1, arg2)
+    bot.loop.create_task(Aki(ctx, arg1, arg2))
 
 from hangman import HANG
 @bot.command()
 async def hang(ctx: commands.Context, mode: str=None, count: str=None, type: str=None):
-    await HANG(ctx, mode, count, type, None, None)
+    bot.loop.create_task(HANG(ctx, mode, count, type, None, None))
 
 from quiz import QUIZ
 @bot.command()
 async def quiz(ctx: commands.Context, mode: str=None, v: str=None, count: str=None, cat: str=None, diff: str=None, ty: str=None):
-    await QUIZ(ctx, mode, v, count, cat, diff, ty)
+    bot.loop.create_task(QUIZ(ctx, mode, v, count, cat, diff, ty))
 
 from wordle_ import wordle
 @bot.command()
 async def word(ctx: commands.Context, mode: str=None, count: str=None):
-    await wordle(ctx, mode, count)
+    bot.loop.create_task(wordle(ctx, mode, count))
 
 from rps_game import RPSView
 @bot.command()
