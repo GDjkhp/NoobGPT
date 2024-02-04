@@ -111,22 +111,18 @@ class ButtonAction0(discord.ui.Button):
 async def Aki(ctx: commands.Context, cat: str='people', lang: str='en'):
     msg = await ctx.reply('Starting game…')
     categories = ['people', 'objects', 'animals']
-    sfw = not ctx.channel.nsfw
-    # Add support for different languages
+    sfw = not ctx.channel.nsfw if ctx.guild else True
     languages = ['en', 'ar', 'cn', 'de', 'es', 'fr', 'it', 'jp', 'kr', 'nl', 'pl', 'pt', 'ru', 'tr', 'id']
-    # Check if the language parameter was provided
     if not lang in languages:
         return await msg.edit(content=f"Invalid language parameter.\nSupported languages:```{languages}```")
-    if cat in categories:
+    if not cat in categories:
+        return await msg.edit(content=f'Category `{cat}` not found.\nAvailable categories:```{categories}```')
+    try: 
         aki = Akinator()
-        try: session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False))
-        except Exception as e: return await msg.edit(content=f"Error! :(\n{e}")
-        if cat != 'people':
-            q = await aki.start_game(language=f'{lang}_{cat}', child_mode=sfw, client_session=session)
-        else: 
-            q = await aki.start_game(language=f'{lang}', child_mode=sfw, client_session=session)
-    else: return await msg.edit(content=f'Category `{cat}` not found.\nAvailable categories:```{categories}```')
-    await msg.edit(content=None, embed=qEmbed(aki, ctx, q), view=QView(aki, ctx))
+        session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(verify_ssl=False))
+        q = await aki.start_game(language=f'{lang}' if cat == 'people' else f'{lang}_{cat}', child_mode=sfw, client_session=session)
+        await msg.edit(content=None, embed=qEmbed(aki, ctx, q), view=QView(aki, ctx))
+    except Exception as e: await msg.edit(content=f"Error! :(\n{e}")
 
 # @bot.event
 # async def on_command_error(ctx, error):

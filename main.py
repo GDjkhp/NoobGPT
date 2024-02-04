@@ -143,12 +143,12 @@ async def bard(ctx: commands.Context, *, arg=None):
 # from googleai import PALM_LEGACY
 @bot.command()
 async def palm(ctx: commands.Context, *, arg=None):
-    await GEMINI_REST(ctx, arg, True)
+    bot.loop.create_task(GEMINI_REST(ctx, arg, True))
 
 from googleai import GEMINI_REST
 @bot.command()
 async def ge(ctx: commands.Context, *, arg=None):
-    await GEMINI_REST(ctx, arg, False)
+    bot.loop.create_task(GEMINI_REST(ctx, arg, False))
 
 from petals import PETALS
 @bot.command()
@@ -190,7 +190,7 @@ async def tic(ctx: commands.Context):
     await ctx.send('Tic Tac Toe: X goes first', view=TicTacToe())
 
 from aki import Aki
-@bot.command(name='aki')
+@bot.command()
 # @commands.max_concurrency(1, per=BucketType.default, wait=False)
 async def aki(ctx: commands.Context, arg1='people', arg2='en'):
     bot.loop.create_task(Aki(ctx, arg1, arg2))
