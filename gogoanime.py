@@ -209,4 +209,4 @@ class nextPageEP(discord.ui.Button):
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         embed = buildAnime(self.details)
-        await interaction.response.edit_message(embed = embed, view = MyView5(self.details, self.index))
+        await interaction.response.edit_message(embed = embed, view = MyView5(self.ctx, self.details, self.index))

@@ -53,11 +53,15 @@ def check_level_up(old_data, new_data, server_members) -> list:
     return level_up_messages
 
 async def req_real():
-    async with aiohttp.ClientSession() as session:
-        async with session.get(api) as response:
-            if response.status == 200:
-                return await response.json()
-            return None
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(api) as response:
+                if response.status == 200:
+                    return await response.json()
+                return None
+    except Exception as e: 
+        print(e)
+    return None
 
 async def main(client_discord: commands.Bot):
     old_data = await req_real()
