@@ -3,7 +3,7 @@ from discord.ext import commands
 
 # this is a deed that i should've done a long time ago
 async def HALP(ctx: commands.Context, av: discord.Asset):
-    await ctx.reply("Help me help you.", view=HelpView(av))
+    await ctx.reply(embed=create_embed(0x00ff00, av), view=HelpView(av))
 
 class HelpView(discord.ui.View):
     def __init__(self, av: discord.Asset):
@@ -28,13 +28,22 @@ class ButtonSelect(discord.ui.Button):
         if self.l == "UTILS":
             await interaction.response.send_message(embed=await utils_embed(self.av), ephemeral=True)
 
-def create_embed(color: int) -> discord.Embed:
-    return discord.Embed(title="NoobGPT", 
+def create_embed(color: int, av: discord.Asset) -> discord.Embed:
+    emby = discord.Embed(title="NoobGPT", 
                          description="A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you.", 
                          url="https://gdjkhp.github.io/NoobGPT/", color=color) # 0x00ff00
+    emby.set_thumbnail(url='https://i.imgur.com/ZbnJAHI.gif')
+    emby.set_footer(text='Bot by GDjkhp\n© The Karakters Kompany, 2023', icon_url=av)
+    return emby
+
+def create_embed_cat(color: int, cat: str, av: discord.Asset) -> discord.Embed:
+    emby = discord.Embed(title=cat, color=color) # 0x00ff00
+    emby.set_thumbnail(url='https://i.imgur.com/ZbnJAHI.gif')
+    emby.set_footer(text='Bot by GDjkhp\n© The Karakters Kompany, 2023', icon_url=av)
+    return emby
 
 async def ai_embed(av: discord.Asset) -> discord.Embed:
-    emby = create_embed(0x00ff00)
+    emby = create_embed_cat(0x00ff00, "AI 🤖", av)
     emby.add_field(name='`-ask [prompt]`', 
                    value='OpenAI GPT-3.5-Turbo (ChatGPT) chat completion.', 
                    inline=False)
@@ -56,12 +65,10 @@ async def ai_embed(av: discord.Asset) -> discord.Embed:
     emby.add_field(name='`-petals`', 
                    value='Run large language models at home, BitTorrent‑style.', 
                    inline=False)
-    emby.set_thumbnail(url='https://i.imgur.com/ZbnJAHI.gif')
-    emby.set_footer(text='Bot by GDjkhp\n© The Karakters Kompany, 2023', icon_url=av)
     return emby
 
 async def games_embed(av: discord.Asset) -> discord.Embed:
-    emby = create_embed(0x00ffff)
+    emby = create_embed_cat(0x00ffff, "Games 🎲", av)
     emby.add_field(name='`-aki (optional: category = [people/animals/objects] [language])`', 
                    value='Play a guessing game of [Akinator](https://akinator.com).', 
                    inline=False)
@@ -83,12 +90,10 @@ async def games_embed(av: discord.Asset) -> discord.Embed:
     emby.add_field(name='`-rps`', 
                    value='Play rock-paper-scissors.',
                    inline=False)
-    emby.set_thumbnail(url='https://i.imgur.com/ZbnJAHI.gif')
-    emby.set_footer(text='Bot by GDjkhp\n© The Karakters Kompany, 2023', icon_url=av)
     return emby
     
 async def media_embed(av: discord.Asset) -> discord.Embed:
-    emby = create_embed(0xff0000)
+    emby = create_embed_cat(0xff0000, "Media 💽", av)
     emby.add_field(name='`/help`', 
                    value='Show music commands help page.', 
                    inline=False)
@@ -101,12 +106,10 @@ async def media_embed(av: discord.Asset) -> discord.Embed:
     emby.add_field(name='`-ytdlp (optional: format = [mp3/m4a]) [link]`', 
                    value='Download or convert a YouTube video under 25MB discord limit. [Supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md)', 
                    inline=False)
-    emby.set_thumbnail(url='https://i.imgur.com/ZbnJAHI.gif')
-    emby.set_footer(text='Bot by GDjkhp\n© The Karakters Kompany, 2023', icon_url=av)
     return emby
 
 async def utils_embed(av: discord.Asset) -> discord.Embed:
-    emby = create_embed(0x0000ff)
+    emby = create_embed_cat(0x0000ff, "Utils 🔧", av)
     emby.add_field(name='`-quote`', 
                    value='Reply to a message to make it a quote.', 
                    inline=False)
@@ -122,6 +125,4 @@ async def utils_embed(av: discord.Asset) -> discord.Embed:
     # emby.add_field(name='`-lex [prompt]`', 
     #                value='Search AI Generated art (Stable Diffusion) made by the prompts of the community using Lexica', 
     #                inline=False)
-    emby.set_thumbnail(url='https://i.imgur.com/ZbnJAHI.gif')
-    emby.set_footer(text='Bot by GDjkhp\n© The Karakters Kompany, 2023', icon_url=av)
     return emby

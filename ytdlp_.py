@@ -12,23 +12,24 @@ async def YTDLP(ctx: commands.Context, arg1: str, arg2: str):
         if arg2 and not arg1 in formats: return await ctx.reply(f"Unsupported format :(\nAvailable conversion formats: `{formats}`")
         elif not arg2: arg2, arg1 = arg1, None
         ydl_opts = get_ydl_opts(arg1)
+        msg = await ctx.reply("Cooking…")
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             try:
                 # fixme: broken if generic
                 info_dict = ydl.extract_info(arg2, download=False)
                 filename = ydl.prepare_filename(info_dict) if not arg1 else f"{os.path.splitext(ydl.prepare_filename(info_dict))[0]}.{arg1}"
-                msg = await ctx.reply(f"Preparing `{filename}`\nLet me cook.")
+                await msg.edit(content=f"Preparing `{filename}`\nLet me cook.")
                 # ydl.download(arg2) # this is faulty
                 await asyncio.to_thread(ydl.download, [arg2])  # Use asyncio to run download asynchronously
                 if os.path.isfile(filename):
                     try: 
-                        await ctx.reply(content=None, file=discord.File(filename))
+                        await ctx.reply(file=discord.File(filename))
                         await msg.edit(content=f"`{filename}` has been prepared successfully!\nTook {round(time.time() * 1000)-old}ms")
                     except: await msg.edit(content=f"Error: An error occured while cooking `{filename}`\nFile too large!")
                     os.remove(filename)
                 else: 
                     await msg.edit(content=f"Error: An error occured while cooking `{filename}`\nFile too large!")
-            except Exception as e: await ctx.reply(content=f"**Error! :(**\n{e}")
+            except Exception as e: await msg.edit(content=f"**Error! :(**\n{e}")
 
 def checkSize(info, *, incomplete):
     filesize = info.get('filesize') if info.get('filesize') else info.get('filesize_approx')
