@@ -33,13 +33,13 @@ def create_embed(color: int, av: discord.Asset) -> discord.Embed:
                          description="A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you.", 
                          url="https://gdjkhp.github.io/NoobGPT/", color=color) # 0x00ff00
     emby.set_thumbnail(url='https://i.imgur.com/ZbnJAHI.gif')
-    emby.set_footer(text='Bot by GDjkhp\n© The Karakters Kompany, 2023', icon_url=av)
+    emby.set_footer(text='Bot by GDjkhp\n© The Karakters Kompany, 2024', icon_url=av)
     return emby
 
 def create_embed_cat(color: int, cat: str, av: discord.Asset) -> discord.Embed:
     emby = discord.Embed(title=cat, color=color) # 0x00ff00
     emby.set_thumbnail(url='https://i.imgur.com/ZbnJAHI.gif')
-    emby.set_footer(text='Bot by GDjkhp\n© The Karakters Kompany, 2023', icon_url=av)
+    emby.set_footer(text='Bot by GDjkhp\n© The Karakters Kompany, 2024', icon_url=av)
     return emby
 
 async def ai_embed(av: discord.Asset) -> discord.Embed:
@@ -78,9 +78,9 @@ async def games_embed(av: discord.Asset) -> discord.Embed:
     emby.add_field(name='`-hang (optional: mode = [all/hardcore/me] count = [1-50] [type = any/word/quiz] category = [any/9-32] difficulty = [any/easy/medium/hard])`', 
                    value='Play the word puzzle game of hangman.', 
                    inline=False)
-    emby.add_field(name='`-place (optional: x = [0-499] y = [0-499] zoom = [16x])`', 
-                   value='Play the Reddit social experiment event about placing pixels on a canvas.', 
-                   inline=False)
+    # emby.add_field(name='`-place (optional: x = [0-499] y = [0-499] zoom = [16x])`', 
+    #                value='Play the Reddit social experiment event about placing pixels on a canvas.', 
+    #                inline=False)
     emby.add_field(name='`-quiz (optional: mode = [all/anon/me] version = [any/v1/v2] count = [1-50] category = [any/9-32] difficulty = [any/easy/medium/hard] type = [any/multiple/boolean])`', 
                    value='Play a game of quiz.', 
                    inline=False)
@@ -110,9 +110,9 @@ async def media_embed(av: discord.Asset) -> discord.Embed:
 
 async def utils_embed(av: discord.Asset) -> discord.Embed:
     emby = create_embed_cat(0x0000ff, "Utils 🔧", av)
-    emby.add_field(name='`-quote`', 
-                   value='Reply to a message to make it a quote.', 
-                   inline=False)
+    # emby.add_field(name='`-quote`', 
+    #                value='Reply to a message to make it a quote.', 
+    #                inline=False)
     emby.add_field(name='`-weather [query]`', 
                    value='Check weather forecast using [weather-api](https://github.com/robertoduessmann/weather-api).', 
                    inline=False)

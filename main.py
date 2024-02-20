@@ -101,7 +101,8 @@ async def safe(ctx: commands.Context, *, arg=None):
 from quoteport import quote_this
 @bot.command()
 async def quote(ctx: commands.Context):
-    bot.loop.create_task(quote_this(ctx))
+    return await ctx.reply("under development")
+    # bot.loop.create_task(quote_this(ctx))
 
 from lex import LEX
 @bot.command()
@@ -112,7 +113,7 @@ async def lex(ctx: commands.Context, *, arg=None):
 # from place import PLACE
 @bot.command()
 async def place(ctx: commands.Context, x: str=None, y: str=None, z: str=None):
-    return await ctx.reply("i love having bugs in my code")
+    return await ctx.reply("under development")
     # bot.loop.create_task(PLACE(ctx, x, y, z))
 
 from weather import Weather

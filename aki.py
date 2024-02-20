@@ -4,7 +4,7 @@ from discord.ext import commands
 from akinator.async_aki import Akinator
 import aiohttp
 
-def w(ctx: commands.Context, aki: Akinator) -> discord.Embed():
+def w(ctx: commands.Context, aki: Akinator) -> discord.Embed:
     # {'id': '444271', 
     # 'name': 'IShowSpeed', 
     # 'id_base': '19813121', 
@@ -28,7 +28,7 @@ def w(ctx: commands.Context, aki: Akinator) -> discord.Embed():
     embed_win.add_field(name="Questions", value=aki.step+1, inline=True)
     embed_win.add_field(name="Progress", value=f"{aki.progression}%", inline=True)
     return embed_win
-def qEmbed(aki: Akinator, ctx: commands.Context, q: str) -> discord.Embed():
+def qEmbed(aki: Akinator, ctx: commands.Context, q: str) -> discord.Embed:
     e = discord.Embed(title=f"{aki.step+1}. {q}", description=f"{aki.progression}%", color=0x00FF00)
     if ctx.message.author.avatar: e.set_author(name=ctx.author, icon_url=ctx.message.author.avatar.url)
     else: e.set_author(name=ctx.author)
