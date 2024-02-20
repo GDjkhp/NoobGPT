@@ -67,13 +67,13 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-ytdlp (optional: format = [mp3/m4a]) [link]` Download or convert a YouTube video under 25MB discord limit. [Supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md)
     
 ## Utils 🔧
-* `-quote` Reply to a message to make it a quote.
 * `-weather [query]` Check weather forecast using [weather-api](https://github.com/robertoduessmann/weather-api).
 * `-av [userid]` Return a user's Discord profile avatar.
 * `-ban [userid]` Return a user's Discord profile banner.
 <!-- * `-lex [query/image]` Search AI Generated art (Stable Diffusion) made by the prompts of the community using [Lexica](https://lexica.art) -->
 
 ## Under Development
+* `-quote` Reply to a message to make it a quote.
 * `-place (optional: x = [0-499] y = [0-499] zoom = [16x])` Play the Reddit social experiment event about placing pixels on a canvas.
 * `-ms` Play minesweeper.
 * `-chess` Play chess.
