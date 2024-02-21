@@ -57,7 +57,7 @@ async def search_posts(ctx: commands.Context, arg: str, api: str):
     await message.edit(content=None, embed = await BuildEmbed(tags, results, 0, True if api == "safe" else False, [False, False], ctx), 
                        view = ImageView(tags, results, 0, True if api == "safe" else False, [False, False], ctx, api))
 
-async def BuildEmbed(tags: list, results, index: int, safe: bool, lock: list, ctx: commands.Context) -> discord.Embed():
+async def BuildEmbed(tags: list, results, index: int, safe: bool, lock: list, ctx: commands.Context) -> discord.Embed:
     embed = discord.Embed(title=f"Search results: `{tags}`", description=f"{index+1}/{len(results)} found", color=0x00ff00)
     # if safe and not await Gelbooru(api='https://safebooru.org/').is_deleted(results[index].hash): 
     #     embed.add_field(name="This post was deleted.", value=results[index].hash)
