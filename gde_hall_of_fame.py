@@ -56,9 +56,7 @@ async def req_real():
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(api) as response:
-                if response.status == 200:
-                    return await response.json()
-                return None
+                if response.status == 200: return await response.json()
     except Exception as e: 
         print(e)
     return None
