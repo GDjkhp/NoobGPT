@@ -7,6 +7,7 @@ gde_guild_id = 1092112710667358218
 gde_channel_id = 1201314997419130931
 gds_guild_id = 398627612299362304
 api = f"https://mee6.xyz/api/plugins/levels/leaderboard/{gds_guild_id}?limit=1000"
+loop_running_gde = False
 
 def get_server_members(client_discord: commands.Bot, guild_id: int):
     guild = client_discord.get_guild(guild_id)
@@ -62,6 +63,10 @@ async def req_real():
     return None
 
 async def main(client_discord: commands.Bot):
+    global loop_running_gde
+    if loop_running_gde:
+        return
+    loop_running_gde = True
     old_data = await req_real()
     while True:
         await asyncio.sleep(delay)
