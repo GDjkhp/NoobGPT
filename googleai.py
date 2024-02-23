@@ -202,6 +202,11 @@ def json_data_palm(arg: str, safe: bool):
         ] if not safe else None,
     }
 
+async def req_real(url, json, headers, palm):
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, json=json, headers=headers) as response:
+            return get_text_palm(await response.json()) if palm else get_text(await response.json())
+
 async def GEMINI_REST(ctx: commands.Context, arg: str, palm: bool):
     async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
         msg = await ctx.reply("Generating response…")
@@ -217,21 +222,18 @@ async def GEMINI_REST(ctx: commands.Context, arg: str, palm: bool):
                             image_data = await resp.read()
                             base64_data = base64.b64encode(image_data).decode('utf-8')
                             try:
-                                response = requests.post(palm_proxy("gemini-pro-vision"), headers=headers, 
-                                                        json=json_data(arg, base64_data, attachment.content_type))
-                                text = get_text(response.json())
+                                text = await req_real(palm_proxy("gemini-pro-vision"), 
+                                                      json_data(arg, base64_data, attachment.content_type), headers, False)
                             except Exception as e: text = f"**Error! :(**\n{e}"
                 else: text = "**Error! :(**\nUnsupported file format."
             # text
             else:
                 try:
-                    response = requests.post(palm_proxy("gemini-pro"), headers=headers, json=json_data(arg))
-                    text = get_text(response.json())
+                    text = await req_real(palm_proxy("gemini-pro"), json_data(arg), headers, False)
                 except Exception as e: text = f"**Error! :(**\n{e}"
         else:
             try:
-                response = requests.post(palm_proxy(None), json=json_data_palm(arg, not ctx.channel.nsfw)) # scary
-                text = get_text_palm(response.json())
+                text = await req_real(palm_proxy(None), json_data_palm(arg, not ctx.channel.nsfw), headers, True) # scary
             except Exception as e: text = f"**Error! :(**\n{e}"
         try: 
             if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")

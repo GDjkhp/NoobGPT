@@ -65,6 +65,9 @@ async def ai_embed(av: discord.Asset) -> discord.Embed:
     emby.add_field(name='`-petals`', 
                    value='Run large language models at home, BitTorrent‑style.', 
                    inline=False)
+    emby.add_field(name='`-perplex`', 
+                   value='Perplexity AI unlocks the power of knowledge with information discovery and sharing.', 
+                   inline=False)
     return emby
 
 async def games_embed(av: discord.Asset) -> discord.Embed:

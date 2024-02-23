@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 import os
 from dotenv import load_dotenv
 
@@ -19,6 +19,13 @@ bot = commands.Bot(command_prefix = "-",
 
 # gde test
 from gde_hall_of_fame import main
+# @tasks.loop(seconds=60)  # task runs every 60 seconds
+# async def my_background_task():
+#     bot.loop.create_task(main(bot)) # gde bot
+
+# @my_background_task.before_loop
+# async def before_my_task():
+#     await bot.wait_until_ready()  # wait until the bot logs in
 
 @bot.event
 async def on_ready():
@@ -122,6 +129,63 @@ async def weather(ctx: commands.Context, *, arg=None):
     await Weather(ctx, arg)
 
 # AI
+from perplexity import main_perplexity, help_perplexity
+@bot.command()
+async def perplex(ctx: commands.Context):
+    await ctx.reply(help_perplexity())
+
+@bot.command()
+async def ll(ctx: commands.Context):
+    bot.loop.create_task(main_perplexity(ctx, 0))
+
+@bot.command()
+async def c34(ctx: commands.Context):
+    bot.loop.create_task(main_perplexity(ctx, 1))
+
+@bot.command()
+async def c70(ctx: commands.Context):
+    bot.loop.create_task(main_perplexity(ctx, 2))
+
+@bot.command()
+async def mis(ctx: commands.Context):
+    bot.loop.create_task(main_perplexity(ctx, 3))
+
+@bot.command()
+async def mix(ctx: commands.Context):
+    bot.loop.create_task(main_perplexity(ctx, 4))
+
+@bot.command()
+async def p7(ctx: commands.Context):
+    bot.loop.create_task(main_perplexity(ctx, 7))
+
+@bot.command()
+async def p70(ctx: commands.Context):
+    bot.loop.create_task(main_perplexity(ctx, 8))
+
+@bot.command()
+async def p8x(ctx: commands.Context):
+    bot.loop.create_task(main_perplexity(ctx, 9))
+
+# @bot.command()
+# async def med(ctx: commands.Context):
+#     bot.loop.create_task(main_perplexity(ctx, 10))
+
+# @bot.command()
+# async def l7(ctx: commands.Context):
+#     bot.loop.create_task(main_perplexity(ctx, 11))
+
+# @bot.command()
+# async def l34(ctx: commands.Context):
+#     bot.loop.create_task(main_perplexity(ctx, 12))
+
+# @bot.command()
+# async def g2(ctx: commands.Context):
+#     bot.loop.create_task(main_perplexity(ctx, 13))
+
+# @bot.command()
+# async def g7(ctx: commands.Context):
+#     bot.loop.create_task(main_perplexity(ctx, 14))
+
 from openai_ import chat, image, gpt3
 @bot.command()
 async def ask(ctx: commands.Context):
