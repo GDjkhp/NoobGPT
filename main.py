@@ -166,25 +166,9 @@ async def p70(ctx: commands.Context):
 async def p8x(ctx: commands.Context):
     bot.loop.create_task(main_perplexity(ctx, 9))
 
-# @bot.command()
-# async def med(ctx: commands.Context):
-#     bot.loop.create_task(main_perplexity(ctx, 10))
-
-# @bot.command()
-# async def l7(ctx: commands.Context):
-#     bot.loop.create_task(main_perplexity(ctx, 11))
-
-# @bot.command()
-# async def l34(ctx: commands.Context):
-#     bot.loop.create_task(main_perplexity(ctx, 12))
-
-# @bot.command()
-# async def g2(ctx: commands.Context):
-#     bot.loop.create_task(main_perplexity(ctx, 13))
-
-# @bot.command()
-# async def g7(ctx: commands.Context):
-#     bot.loop.create_task(main_perplexity(ctx, 14))
+@bot.command()
+async def son(ctx: commands.Context):
+    bot.loop.create_task(main_perplexity(ctx, 10))
 
 from openai_ import chat, image, gpt3
 @bot.command()

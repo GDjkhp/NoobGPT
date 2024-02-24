@@ -36,11 +36,7 @@ models = [
     "pplx-7b-online", # p7
     "pplx-70b-online", # p70
     "pplx-8x7b-online", # p8x
-    # "mistral-medium", # med
-    # "llava-v1.5-7b", # l7
-    # "llava-v1.6-34b", # l34
-    # "gemma-2b-it", # g2
-    # "gemma-7b-it", # g7
+    "sonar-medium-online", # son
 ]
 
 def help_perplexity() -> str:
@@ -52,11 +48,7 @@ def help_perplexity() -> str:
     text += f"`-p7`: {models[7]}\n"
     text += f"`-p70`: {models[8]}\n"
     text += f"`-p8x`: {models[9]}\n"
-    # text += f"`-med`: {models[10]}\n"
-    # text += f"`-l7`: {models[11]}\n"
-    # text += f"`-l34`: {models[12]}\n"
-    # text += f"`-g2`: {models[13]}\n"
-    # text += f"`-g7`: {models[14]}\n"
+    text += f"`-son`: {models[10]}\n"
     return text
 
 async def make_request(model: str, messages: list):
