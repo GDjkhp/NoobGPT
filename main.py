@@ -139,36 +139,32 @@ async def ll(ctx: commands.Context):
     bot.loop.create_task(main_perplexity(ctx, 0))
 
 @bot.command()
-async def c34(ctx: commands.Context):
+async def cll(ctx: commands.Context):
     bot.loop.create_task(main_perplexity(ctx, 1))
 
 @bot.command()
-async def c70(ctx: commands.Context):
+async def mis(ctx: commands.Context):
     bot.loop.create_task(main_perplexity(ctx, 2))
 
 @bot.command()
-async def mis(ctx: commands.Context):
+async def mix(ctx: commands.Context):
     bot.loop.create_task(main_perplexity(ctx, 3))
 
 @bot.command()
-async def mix(ctx: commands.Context):
+async def ssc(ctx: commands.Context):
     bot.loop.create_task(main_perplexity(ctx, 4))
 
 @bot.command()
-async def p7(ctx: commands.Context):
+async def sso(ctx: commands.Context):
+    bot.loop.create_task(main_perplexity(ctx, 5))
+
+@bot.command()
+async def smc(ctx: commands.Context):
+    bot.loop.create_task(main_perplexity(ctx, 6))
+
+@bot.command()
+async def smo(ctx: commands.Context):
     bot.loop.create_task(main_perplexity(ctx, 7))
-
-@bot.command()
-async def p70(ctx: commands.Context):
-    bot.loop.create_task(main_perplexity(ctx, 8))
-
-@bot.command()
-async def p8x(ctx: commands.Context):
-    bot.loop.create_task(main_perplexity(ctx, 9))
-
-@bot.command()
-async def son(ctx: commands.Context):
-    bot.loop.create_task(main_perplexity(ctx, 10))
 
 from openai_ import chat, image, gpt3
 @bot.command()

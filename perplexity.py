@@ -27,28 +27,24 @@ async def loopMsg(message: discord.Message):
 
 models = [
     "llama-2-70b-chat", # ll
-    "codellama-34b-instruct", # c34
-    "codellama-70b-instruct", # c70
+    "codellama-70b-instruct", # cll
     "mistral-7b-instruct", # mis
     "mixtral-8x7b-instruct", # mix
-    "pplx-7b-chat",
-    "pplx-70b-chat",
-    "pplx-7b-online", # p7
-    "pplx-70b-online", # p70
-    "pplx-8x7b-online", # p8x
-    "sonar-medium-online", # son
+    "sonar-small-chat", # ssc
+    "sonar-small-online", # sso
+    "sonar-medium-chat", # smc
+    "sonar-medium-online", #smo
 ]
 
 def help_perplexity() -> str:
-    text = f"`-ll`: {models[0]}\n"
-    text += f"`-c34`: {models[1]}\n"
-    text += f"`-c70`: {models[2]}\n"
-    text += f"`-mis`: {models[3]}\n"
-    text += f"`-mix`: {models[4]}\n"
-    text += f"`-p7`: {models[7]}\n"
-    text += f"`-p70`: {models[8]}\n"
-    text += f"`-p8x`: {models[9]}\n"
-    text += f"`-son`: {models[10]}\n"
+    text  = f"`-ll`: {models[0]}\n"
+    text += f"`-cll`: {models[1]}\n"
+    text += f"`-mis`: {models[2]}\n"
+    text += f"`-mix`: {models[3]}\n"
+    text += f"`-ssc`: {models[4]}\n"
+    text += f"`-sso`: {models[5]}\n"
+    text += f"`-smc`: {models[6]}\n"
+    text += f"`-smo`: {models[7]}\n"
     return text
 
 async def make_request(model: str, messages: list):
