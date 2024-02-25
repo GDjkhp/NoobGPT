@@ -7,7 +7,12 @@ gde_guild_id = 1092112710667358218
 gde_channel_id = 1201314997419130931
 gds_guild_id = 398627612299362304
 api = f"https://mee6.xyz/api/plugins/levels/leaderboard/{gds_guild_id}?limit=1000"
-loop_running_gde = False
+
+api2 = f"{api}&page=1"
+robert_id = 290162530720940034
+styx_channel_id = 1211058454232440874
+
+loop_running_gde, loop_running_rob = False, False
 
 def get_server_members(client_discord: commands.Bot, guild_id: int):
     guild = client_discord.get_guild(guild_id)
@@ -53,7 +58,19 @@ def check_level_up(old_data, new_data, server_members) -> list:
                 #     level_up_messages.append(f"GG {new_player['username']}, you just earned {new_xp-old_xp} XP!")
     return level_up_messages
 
-async def req_real():
+def check_robert(old_data, new_data) -> list:
+    level_up_messages = []
+    for new_player in new_data["players"]:
+        old_player = get_player_data(old_data["players"], new_player["id"])
+        if old_player and new_player["id"] == str(robert_id):
+            # xp
+            old_xp = old_player["xp"]
+            new_xp = new_player["xp"]
+            if new_xp > old_xp:
+                level_up_messages.append(f"<@539408209769922560>, {new_player['username']} is currently in chat!")
+    return level_up_messages
+
+async def req_real(api):
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(api) as response:
@@ -67,14 +84,35 @@ async def main(client_discord: commands.Bot):
     if loop_running_gde:
         return
     loop_running_gde = True
-    old_data = await req_real()
+    print("gde bot started")
+    old_data = await req_real(api)
     while True:
         await asyncio.sleep(delay)
-        new_data = await req_real()
+        new_data = await req_real(api)
         if new_data:
             server_members = get_server_members(client_discord, gde_guild_id)
             msgs = check_level_up(old_data, new_data, server_members)
             if msgs:
                 channel = client_discord.get_channel(gde_channel_id)
                 await channel.send("\n".join(msgs))
+            old_data = new_data
+
+async def main_rob(client_discord: commands.Bot):
+    global loop_running_rob
+    if loop_running_rob:
+        return
+    loop_running_rob = True
+    await asyncio.sleep(30) # just to be safe
+    print("robtop bot started")
+    old_data = await req_real(api2)
+    while True:
+        await asyncio.sleep(delay)
+        new_data = await req_real(api2)
+        if new_data:
+            msgs = check_robert(old_data, new_data)
+            if msgs:
+                channel = client_discord.get_channel(styx_channel_id)
+                await channel.send("\n".join(msgs))
+                print("robtop in chat")
+                await asyncio.sleep(3600) # 1 hour
             old_data = new_data
