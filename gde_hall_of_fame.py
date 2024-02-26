@@ -1,6 +1,7 @@
 import aiohttp
 from discord.ext import commands
 import asyncio
+import discord
 
 delay = 60
 gde_guild_id = 1092112710667358218
@@ -10,7 +11,7 @@ api = f"https://mee6.xyz/api/plugins/levels/leaderboard/{gds_guild_id}?limit=100
 
 api2 = f"{api}&page=1"
 robert_id = 290162530720940034
-styx_channel_id = 1211058454232440874
+styx_channel_id = 1211627356712865822
 
 loop_running_gde, loop_running_rob = False, False
 
@@ -116,3 +117,16 @@ async def main_rob(client_discord: commands.Bot):
                 print("robtop in chat")
                 await asyncio.sleep(3600) # 1 hour
             old_data = new_data
+
+chan_ids = [
+    1211060587828871209, # staff-mod
+    1211060710885429258, # birthdays
+    1211061933357277224, # requests
+    1211239042897682503, # demonlist
+    1211060932114128926, # other
+]
+async def main_styx(bot: commands.Bot, message: discord.Message):
+    if message.channel.id in chan_ids:
+        chan = bot.get_channel(styx_channel_id)
+        link = f"https://discord.com/channels/1211058238318182471/{message.channel.id}/{message.id}"
+        await chan.send(f"<@539408209769922560>\n{message.content}\n{link}")

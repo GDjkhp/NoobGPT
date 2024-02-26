@@ -18,7 +18,7 @@ bot = commands.Bot(command_prefix = "-",
 # keep_alive()
 
 # gde test
-from gde_hall_of_fame import main, main_rob
+from gde_hall_of_fame import main, main_rob, main_styx
 # @tasks.loop(seconds=60)  # task runs every 60 seconds
 # async def my_background_task():
 #     bot.loop.create_task(main(bot)) # gde bot
@@ -39,6 +39,10 @@ async def on_ready():
     await bot.change_presence(status=discord.Status.dnd)
     bot.loop.create_task(main(bot))
     bot.loop.create_task(main_rob(bot))
+
+@bot.event
+async def on_message(message: discord.Message):
+    bot.loop.create_task(main_styx(bot, message))
 
 # TODO: store the strings on a json file that syncs with the website
 from help import HALP
