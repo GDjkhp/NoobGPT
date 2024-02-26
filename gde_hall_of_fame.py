@@ -87,6 +87,7 @@ async def main(client_discord: commands.Bot):
     loop_running_gde = True
     print("gde bot started")
     old_data = await req_real(api)
+    if old_data: print("mee6 api ok")
     while True:
         await asyncio.sleep(delay)
         new_data = await req_real(api)
@@ -106,6 +107,7 @@ async def main_rob(client_discord: commands.Bot):
     await asyncio.sleep(30) # just to be safe
     print("robtop bot started")
     old_data = await req_real(api2)
+    if old_data: print("mee6 api2 ok")
     while True:
         await asyncio.sleep(delay)
         new_data = await req_real(api2)
