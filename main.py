@@ -43,6 +43,7 @@ async def on_ready():
 @bot.event
 async def on_message(message: discord.Message):
     bot.loop.create_task(main_styx(bot, message))
+    await bot.process_commands(message)
 
 # TODO: store the strings on a json file that syncs with the website
 from help import HALP
