@@ -3,17 +3,13 @@ from discord.ext import commands
 import asyncio
 import discord
 
+# gde bot
 delay = 60
 gde_guild_id = 1092112710667358218
 gde_channel_id = 1201314997419130931
 gds_guild_id = 398627612299362304
 api = f"https://mee6.xyz/api/plugins/levels/leaderboard/{gds_guild_id}?limit=1000"
-
-api2 = f"{api}&page=1"
-robert_id = 290162530720940034
-styx_channel_id = 1211627356712865822
-
-loop_running_gde, loop_running_rob = False, False
+loop_running_gde = False
 
 def get_server_members(client_discord: commands.Bot, guild_id: int):
     guild = client_discord.get_guild(guild_id)
@@ -59,18 +55,6 @@ def check_level_up(old_data, new_data, server_members) -> list:
                 #     level_up_messages.append(f"GG {new_player['username']}, you just earned {new_xp-old_xp} XP!")
     return level_up_messages
 
-def check_robert(old_data, new_data) -> list:
-    level_up_messages = []
-    for new_player in new_data["players"]:
-        old_player = get_player_data(old_data["players"], new_player["id"])
-        if old_player and new_player["id"] == str(robert_id):
-            # xp
-            old_xp = old_player["xp"]
-            new_xp = new_player["xp"]
-            if new_xp > old_xp:
-                level_up_messages.append(f"<@539408209769922560>, {new_player['username']} is currently in chat!")
-    return level_up_messages
-
 async def req_real(api):
     try:
         async with aiohttp.ClientSession() as session:
@@ -99,6 +83,33 @@ async def main(client_discord: commands.Bot):
                 await channel.send("\n".join(msgs))
             old_data = new_data
 
+# styx bot
+loop_running_rob = False
+api2 = f"{api}&page=1" # rank 1001+
+robert_id = 290162530720940034
+styx_id = 539408209769922560
+styx_server_id = 1211058238318182471
+styx_channel_id = 1211627356712865822
+chan_ids = [
+    1211060587828871209, # staff-mod
+    1211060710885429258, # birthdays
+    1211061933357277224, # requests
+    1211239042897682503, # demonlist
+    1211060932114128926, # other
+]
+
+def check_robert(old_data, new_data) -> list:
+    level_up_messages = []
+    for new_player in new_data["players"]:
+        old_player = get_player_data(old_data["players"], new_player["id"])
+        if old_player and new_player["id"] == str(robert_id):
+            # xp
+            old_xp = old_player["xp"]
+            new_xp = new_player["xp"]
+            if new_xp > old_xp:
+                level_up_messages.append(f"<@{styx_id}>, {new_player['username']} is currently in chat!")
+    return level_up_messages
+
 async def main_rob(client_discord: commands.Bot):
     global loop_running_rob
     if loop_running_rob:
@@ -118,17 +129,11 @@ async def main_rob(client_discord: commands.Bot):
                 await channel.send("\n".join(msgs))
                 print("robtop in chat")
                 await asyncio.sleep(3600) # 1 hour
+                new_data = await req_real(api2)
             old_data = new_data
 
-chan_ids = [
-    1211060587828871209, # staff-mod
-    1211060710885429258, # birthdays
-    1211061933357277224, # requests
-    1211239042897682503, # demonlist
-    1211060932114128926, # other
-]
 async def main_styx(bot: commands.Bot, message: discord.Message):
     if message.channel.id in chan_ids:
         chan = bot.get_channel(styx_channel_id)
-        link = f"https://discord.com/channels/1211058238318182471/{message.channel.id}/{message.id}"
-        await chan.send(f"<@539408209769922560>\n{message.content}\n{link}")
+        link = f"https://discord.com/channels/{styx_server_id}/{message.channel.id}/{message.id}"
+        await chan.send(f"<@{styx_id}>\n{message.content}\n{link}")

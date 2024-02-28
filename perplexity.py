@@ -34,6 +34,11 @@ models = [
     "sonar-small-online", # sso
     "sonar-medium-chat", # smc
     "sonar-medium-online", #smo
+
+    # not perplex
+    "claude-2.1", # cla
+    "mistral-medium-latest", # mm
+    "mistral-large-latest", # ml
 ]
 
 def help_perplexity() -> str:
@@ -45,7 +50,15 @@ def help_perplexity() -> str:
     text += f"`-sso`: {models[5]}\n"
     text += f"`-smc`: {models[6]}\n"
     text += f"`-smo`: {models[7]}\n"
+    text += f"`-cla`: {models[8]}\n"
+    text += f"`-mm`: {models[9]}\n"
+    text += f"`-ml`: {models[10]}\n"
     return text
+
+async def the_real_req(url: str, payload: dict, headers: dict):
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, json=payload, headers=headers) as response:
+            return await response.json()
 
 async def make_request(model: str, messages: list):
     url = "https://api.perplexity.ai/chat/completions"
@@ -64,9 +77,36 @@ async def make_request(model: str, messages: list):
         "authorization": f"Bearer {os.getenv('PERPLEXITY')}"
     }
 
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url, json=payload, headers=headers) as response:
-            return await response.json()
+    return await the_real_req(url, payload, headers)
+
+async def make_request_claude(model: str, messages: list):
+    url = "https://api.anthropic.com/v1/messages"
+    payload = {
+        "model": model, # claude-2.1, claude-instant-1.2
+        "max_tokens": 1024,
+        "messages": messages
+    }
+    headers = {
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+        "x-api-key": os.getenv('ANTHROPIC')
+    }
+
+    return await the_real_req(url, payload, headers)
+
+async def make_request_mistral(model: str, messages: list):
+    url = "https://api.mistral.ai/v1/chat/completions"
+    payload = {
+        "model": model,
+        "messages": messages
+    }
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json",
+        "authorization": f"Bearer {os.getenv('MISTRAL')}"
+    }
+
+    return await the_real_req(url, payload, headers)
 
 async def main_perplexity(ctx: commands.Context, model: int):
     async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
@@ -83,5 +123,49 @@ async def main_perplexity(ctx: commands.Context, model: int):
                     replyFirst = False
                     await ctx.reply(chunk)
                 else: await ctx.send(chunk)
-        except Exception as e: return await msg.edit(content=f"**Error! :(**\n{e}")
+        except Exception as e:
+            print(response)
+            bruh = response["detail"][0]["msg"] if response.get("detail") else e
+            return await msg.edit(content=f"**Error! :(**\n{bruh}")
+        await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
+
+async def main_anthropic(ctx: commands.Context, model: str):
+    async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
+        msg = await ctx.reply("Generating response…")
+        old = round(time.time() * 1000)
+        response = await make_request_claude(model, await loopMsg(ctx.message)) # spicy
+        try: 
+            text = response["content"][0]["text"]
+            if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
+            chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
+            replyFirst = True
+            for chunk in chunks:
+                if replyFirst: 
+                    replyFirst = False
+                    await ctx.reply(chunk)
+                else: await ctx.send(chunk)
+        except Exception as e:
+            print(response)
+            bruh = response["error"]["message"] if response.get("error") else e
+            return await msg.edit(content=f"**Error! :(**\n{bruh}")
+        await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
+
+async def main_mistral(ctx: commands.Context, model: str):
+    async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
+        msg = await ctx.reply("Generating response…")
+        old = round(time.time() * 1000)
+        response = await make_request_mistral(model, await loopMsg(ctx.message)) # spicy
+        try: 
+            text = response["choices"][0]["message"]["content"]
+            if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
+            chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
+            replyFirst = True
+            for chunk in chunks:
+                if replyFirst: 
+                    replyFirst = False
+                    await ctx.reply(chunk)
+                else: await ctx.send(chunk)
+        except Exception as e:
+            print(response)
+            return await msg.edit(content=f"**Error! :(**\n{e}") # i can't assume here
         await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")

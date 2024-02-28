@@ -135,7 +135,20 @@ async def weather(ctx: commands.Context, *, arg=None):
     await Weather(ctx, arg)
 
 # AI
-from perplexity import main_perplexity, help_perplexity
+from perplexity import main_perplexity, help_perplexity, main_anthropic, main_mistral
+
+@bot.command()
+async def mm(ctx: commands.Context):
+    bot.loop.create_task(main_mistral(ctx, "mistral-medium-latest"))
+
+@bot.command()
+async def ml(ctx: commands.Context):
+    bot.loop.create_task(main_mistral(ctx, "mistral-large-latest"))
+
+@bot.command()
+async def cla(ctx: commands.Context):
+    bot.loop.create_task(main_anthropic(ctx, "claude-2.1"))
+
 @bot.command()
 async def perplex(ctx: commands.Context):
     await ctx.reply(help_perplexity())
