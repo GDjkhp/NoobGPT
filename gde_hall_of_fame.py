@@ -88,15 +88,9 @@ loop_running_rob = False
 api2 = f"{api}&page=1" # rank 1001+
 robert_id = 290162530720940034
 styx_id = 539408209769922560
-styx_server_id = 1211058238318182471
-styx_channel_id = 1211627356712865822
-chan_ids = [
-    1211060587828871209, # staff-mod
-    1211060710885429258, # birthdays
-    1211061933357277224, # requests
-    1211239042897682503, # demonlist
-    1211060932114128926, # other
-]
+styx_server_id = 1212407934022328390
+styx_channel_id = 1212408057800302602
+chan_ids = [1212408057800302602]
 
 def check_robert(old_data, new_data) -> list:
     level_up_messages = []
@@ -133,7 +127,8 @@ async def main_rob(client_discord: commands.Bot):
             old_data = new_data
 
 async def main_styx(bot: commands.Bot, message: discord.Message):
+    if message.author.id == bot.user.id: return # prevent spam on same channel
     if message.channel.id in chan_ids:
         chan = bot.get_channel(styx_channel_id)
         link = f"https://discord.com/channels/{styx_server_id}/{message.channel.id}/{message.id}"
-        await chan.send(f"<@{styx_id}>\n{message.content}\n{link}")
+        await chan.send(content=f"<@{styx_id}>\n{message.content}\n{link}", embeds=message.embeds)
