@@ -52,6 +52,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-palm [prompt]` Google AI PaLM language model. (Legacy)
 * `-ge [text/image]` Google AI Gemini language model.
 * `-petals` Run large language models at home, BitTorrent‑style.
+* `-perplex` Perplexity AI unlocks the power of knowledge with information discovery and sharing.
 
 ## Games 🎲
 * `-aki (optional: category = [people/animals/objects] [language])` Play a guessing game of [Akinator](https://akinator.com).
