@@ -1,10 +1,19 @@
 from discord.ext import commands
-import requests
+import aiohttp
 from urllib import parse as p
+
+async def req_real(api):
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(api) as response:
+                if response.status == 200: return await response.json()
+    except Exception as e: 
+        print(e)
+    return None
 
 async def Weather(ctx: commands.Context, arg):
     message = await ctx.reply(f"Calculating…")
-    try: results = requests.get('https://goweather.herokuapp.com/weather/'+p.quote_plus(arg)).json()
+    try: results = await req_real('https://goweather.herokuapp.com/weather/'+p.quote_plus(arg))
     except: return await message.edit(content="I tripped.")
     if "message" in results: return await message.edit(content=results["message"]) # rare
     c = f"{arg} ({results['temperature']}, {results['wind']})\n{results['description']}\n"

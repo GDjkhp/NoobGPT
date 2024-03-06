@@ -1,6 +1,6 @@
 from discord.ext import commands
 import time
-import requests
+import aiohttp
 import websockets
 import json
 import re
@@ -100,8 +100,17 @@ async def LLAMA(ctx: commands.Context, arg: str):
 async def BLOOMZ(ctx: commands.Context, arg: str):
     await petalsWebsocket(ctx, arg, 'bigscience/bloomz')
 
-def PETALS() -> str:
-    status = requests.get("https://health.petals.dev/api/v1/state").json()
+async def req_real(api):
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(api) as response:
+                if response.status == 200: return await response.json()
+    except Exception as e: 
+        print(e)
+    return None
+
+async def PETALS() -> str:
+    status = await req_real("https://health.petals.dev/api/v1/state")
     text = "# [Petals](https://petals.dev/)\nRun large language models at home, BitTorrent‑style.\n\n"
     text += "Commands:\n`-beluga2, -llama2, -guanaco, -llama, -bloomz`\n\nModels:```diff\n"
     for i in status["model_reports"]: 

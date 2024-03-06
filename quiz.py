@@ -1,8 +1,17 @@
-import requests
+import aiohttp
 from urllib import parse as p
 import random
 import discord
 from discord.ext import commands
+
+async def req_real(api):
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(api) as response:
+                if response.status == 200: return await response.json()
+    except Exception as e: 
+        print(e)
+    return None
 
 async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, diff: str, ty: str):
     msg = await ctx.reply("Crunching data…")
@@ -29,7 +38,8 @@ async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, d
         if mode == "me": a = True
         if not a: return await msg.edit(content="Mode not found."+params)
     v2cat = "science,film_and_tv,music,history,geography,art_and_literature,sport_and_leisure,general_knowledge,science,food_and_drink".split(",")
-    categories = v2cat if v == "v2" else requests.get("https://opentdb.com/api_category.php").json()["trivia_categories"]
+    req_fake = await req_real("https://opentdb.com/api_category.php")
+    categories = v2cat if v == "v2" else req_fake["trivia_categories"]
     if cat:
         a = False
         if v == "v1" and any([str(item["id"]) == cat for item in categories]):
@@ -57,7 +67,8 @@ async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, d
         if ty == "any": a = True
         if not a: return await msg.edit(content="Type not found!"+params)
     settings = {"multiplayer": multi, "anon": anon, "difficulty": diff, "type": ty, "count": int(count), "correct_key": ck}
-    results = requests.get(req).json()["results"] if v == "v1" else requests.get(req).json()
+    req_fake0 = await req_real(req)
+    results = req_fake0["results"] if v == "v1" else req_fake0
     if not results: return await msg.edit(content="Error crunching questions, try again.")
     results = decodeResults(results, settings["correct_key"])
     players = {}

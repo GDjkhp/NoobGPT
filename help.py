@@ -113,9 +113,9 @@ async def media_embed(av: discord.Asset) -> discord.Embed:
 
 async def utils_embed(av: discord.Asset) -> discord.Embed:
     emby = create_embed_cat(0x0000ff, "Utils 🔧", av)
-    # emby.add_field(name='`-quote`', 
-    #                value='Reply to a message to make it a quote.', 
-    #                inline=False)
+    emby.add_field(name='`-quote`', 
+                   value='Reply to a message to make it a quote.', 
+                   inline=False)
     emby.add_field(name='`-weather [query]`', 
                    value='Check weather forecast using [weather-api](https://github.com/robertoduessmann/weather-api).', 
                    inline=False)

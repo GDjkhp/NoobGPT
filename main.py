@@ -114,8 +114,8 @@ async def safe(ctx: commands.Context, *, arg=None):
 from quoteport import quote_this
 @bot.command()
 async def quote(ctx: commands.Context):
-    return await ctx.reply("under development")
-    # bot.loop.create_task(quote_this(ctx))
+    # return await ctx.reply("under development")
+    bot.loop.create_task(quote_this(ctx))
 
 from lex import LEX
 @bot.command()
@@ -209,7 +209,7 @@ async def gpt(ctx: commands.Context):
 # bard (legacy)
 @bot.command()
 async def bard(ctx: commands.Context, *, arg=None):
-    await ctx.reply("This command requires cookies. Use `-ge` or `-halp` -> `AI` instead.")
+    await ctx.reply("This command requires cookies. Use `-halp` -> `AI` instead.")
 
 # palm (alternative to bard)
 # from googleai import PALM_LEGACY
@@ -227,7 +227,7 @@ from petals import PETALS
 async def petals(ctx: commands.Context):
     async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
         msg = await ctx.reply("Pinging…")
-        await msg.edit(content=PETALS())
+        await msg.edit(content=await PETALS())
 
 from petals import BELUGA2
 @bot.command()

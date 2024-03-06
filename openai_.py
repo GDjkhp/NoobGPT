@@ -1,7 +1,7 @@
 from openai import AsyncOpenAI
 import discord
 import time
-import requests
+import aiohttp
 import io
 
 client = AsyncOpenAI()
@@ -18,11 +18,12 @@ async def loopMsg(message: discord.Message):
     return previousMessages + [{"role": role, "content": content}]
 
 async def discord_image(link: str, prompt: str) -> discord.File:
-    image_request = requests.get(link)
-    if image_request.status_code == 200:
-        image_bytes = image_request.content
-        image_data = io.BytesIO(image_bytes)
-        return discord.File(fp=image_data, filename=f'{prompt}.png')
+    async with aiohttp.ClientSession() as session:
+        async with session.get(link) as response:
+            if response.status == 200:
+                image_bytes = await response.read()
+                image_data = io.BytesIO(image_bytes)
+                return discord.File(fp=image_data, filename=f'{prompt}.png')
     return None
 
 async def chat(message: discord.Message, info: discord.Message=None):

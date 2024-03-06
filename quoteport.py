@@ -5,6 +5,7 @@ from io import BytesIO
 import aiohttp
 import time
 from imagetext_py import *
+import asyncio
 
 font_reg = './res/font/AmaticSC-Regular.ttf'
 font_bold = './res/font/AmaticSC-Bold.ttf'
@@ -48,7 +49,7 @@ class RenderCanvas:
     async def build_word(self, text: str, attach: str, user: str, avatar_url: str):
         # load image and text anything
         # if text: text = f"“{text}”"
-        img = await self.wrap_text(text, user, 200, 200, 100)
+        img = await asyncio.to_thread(self.wrap_text, text, user, 200, 200, 100) # slow
 
         # TODO: draw anything
         try:
@@ -90,7 +91,7 @@ class RenderCanvas:
                     raise OSError(f"Failed to load image from URL: {url}")
     
     # disappointingly disgusting
-    async def wrap_text(self, text: str, user: str, max_width: int, max_height: int, max_font_size: int) -> Image.Image:
+    def wrap_text(self, text: str, user: str, max_width: int, max_height: int, max_font_size: int) -> Image.Image:
         img = Image.new('RGBA', (600, 300), color='black') # create fake Image instance
         draw = ImageDraw.Draw(img)
 
