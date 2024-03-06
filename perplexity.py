@@ -39,6 +39,8 @@ models = [
     "claude-2.1", # cla
     "mistral-medium-latest", # mm
     "mistral-large-latest", # ml
+    "claude-3-opus-20240229", # c3o
+    "claude-3-sonnet-20240229", #c3s
 ]
 
 def help_perplexity() -> str:
@@ -53,6 +55,8 @@ def help_perplexity() -> str:
     text += f"`-cla`: {models[8]}\n"
     text += f"`-mm`: {models[9]}\n"
     text += f"`-ml`: {models[10]}\n"
+    text += f"`-c3o`: {models[11]}\n"
+    text += f"`-c3s`: {models[12]}\n"
     return text
 
 async def the_real_req(url: str, payload: dict, headers: dict):

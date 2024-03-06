@@ -150,6 +150,14 @@ async def cla(ctx: commands.Context):
     bot.loop.create_task(main_anthropic(ctx, "claude-2.1"))
 
 @bot.command()
+async def c3o(ctx: commands.Context):
+    bot.loop.create_task(main_anthropic(ctx, "claude-3-opus-20240229"))
+
+@bot.command()
+async def c3s(ctx: commands.Context):
+    bot.loop.create_task(main_anthropic(ctx, "claude-3-sonnet-20240229"))
+
+@bot.command()
 async def perplex(ctx: commands.Context):
     await ctx.reply(help_perplexity())
 
