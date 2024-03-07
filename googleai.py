@@ -207,6 +207,10 @@ async def req_real(url, json, headers, palm):
         async with session.post(url, json=json, headers=headers) as response:
             return get_text_palm(await response.json()) if palm else get_text(await response.json())
 
+def handle_error(e: Exception) -> str:
+    print(e)
+    return "**Error! :(**"
+
 async def GEMINI_REST(ctx: commands.Context, arg: str, palm: bool):
     async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
         msg = await ctx.reply("Generating response…")
@@ -224,17 +228,17 @@ async def GEMINI_REST(ctx: commands.Context, arg: str, palm: bool):
                             try:
                                 text = await req_real(palm_proxy("gemini-pro-vision"), 
                                                       json_data(arg, base64_data, attachment.content_type), headers, False)
-                            except Exception as e: text = f"**Error! :(**\n{e}"
+                            except Exception as e: text = handle_error(e)
                 else: text = "**Error! :(**\nUnsupported file format."
             # text
             else:
                 try:
                     text = await req_real(palm_proxy("gemini-pro"), json_data(arg), headers, False)
-                except Exception as e: text = f"**Error! :(**\n{e}"
+                except Exception as e: text = handle_error(e)
         else:
             try:
                 text = await req_real(palm_proxy(None), json_data_palm(arg, not ctx.channel.nsfw), headers, True) # scary
-            except Exception as e: text = f"**Error! :(**\n{e}"
+            except Exception as e: text = handle_error(e)
         try: 
             if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
             chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
