@@ -17,7 +17,6 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 * <https://github.com/GDjkhp/Discord-MusicBot>
 
 ## Support
-<br>
 Feature requests, contributions, and improvements are welcome!
 <br>
 Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) or reach out [GDjkhp](https://gdjkhp.github.io)
