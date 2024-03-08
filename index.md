@@ -17,22 +17,28 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 * <https://github.com/GDjkhp/Discord-MusicBot>
 
 ## Support
+<br>
 Feature requests, contributions, and improvements are welcome!
 <br>
 Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) or reach out [GDjkhp](https://gdjkhp.github.io)
+
+## Donate
+All funds will be transferred to my friend, Riney. She's been diagnosed with lung cancer.
+<br>
+[Paypal](https://paypal.me/GDjkhp)
 
 # Overview
 
 ## Replit
 - **Date:** March 28, 2023
-- **Environment:** Node.js Computer #0 (Alpha Branch)
+- **Environment:** Node.js (Alpha)
 - **Uptime:** No longer working
 
 Originally developed as an XP Leveling System under the codename "LevelUpLoser". Runs on [Replit](https://replit.com/) free tier, with unstable uptime, utilizing [Uptime Robot](https://uptimerobot.com/) until [January 4, 2024, due to hosting changes](https://blog.replit.com/hosting-changes).
 
 ## bot-hosting.net
 - **Date:** January 11, 2024
-- **Environment:** Python/Node.js
+- **Environment:** Python (Beta), Node.js (Music)
 - **Uptime:** 99%
 
 [barack obama free hosting daily captcha solving abuse](https://bot-hosting.net/?aff=729554186777133088)
@@ -68,13 +74,13 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-ytdlp (optional: format = [mp3/m4a]) [link]` Download or convert a YouTube video under 25MB discord limit. [Supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md)
     
 ## Utils 🔧
+* `-quote` Reply to a message to make it a quote.
 * `-weather [query]` Check weather forecast using [weather-api](https://github.com/robertoduessmann/weather-api).
 * `-av [userid]` Return a user's Discord profile avatar.
 * `-ban [userid]` Return a user's Discord profile banner.
 <!-- * `-lex [query/image]` Search AI Generated art (Stable Diffusion) made by the prompts of the community using [Lexica](https://lexica.art) -->
 
 ## Under Development
-* `-quote` Reply to a message to make it a quote.
 * `-place (optional: x = [0-499] y = [0-499] zoom = [16x])` Play the Reddit social experiment event about placing pixels on a canvas.
 * `-ms` Play minesweeper.
 * `-chess` Play chess.
@@ -83,6 +89,8 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-prefix` Change prefix. (admin-only)
 * `-alias` Change command alias. (admin-only)
 * `-toggle` Toggle available commands. (admin-only)
+* `-plugins` Import and export custom commands. (admin-only)
+* `-buck` Play a game of Buckshot Roulette.
 
 # Node.js Computer #2: Music Branch
 Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/tree/v5), an advanced discord music bot.
@@ -126,6 +134,10 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 * <https://ai.google.dev>
 * <https://sflix.se>
 <!-- * <https://lexica.art> -->
+
+### Special Thanks
+* `jaicraft` Perplexity, Claude, Mistral access
+* `aychelletroller` OpenAI access
 
 ### Legal
 <marquee>This bot <s>is against Discord and Replit Terms of Service and</s> violates the licenses credited above. Proceed with caution!</marquee>
