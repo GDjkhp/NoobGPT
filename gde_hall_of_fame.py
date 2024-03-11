@@ -102,7 +102,7 @@ def check_robert(old_data, new_data) -> list:
             old_xp = old_player["xp"]
             new_xp = new_player["xp"]
             if new_xp > old_xp:
-                level_up_messages.append(f"<@{styx_id}>, {new_player['username']} is currently in chat!")
+                level_up_messages.append(f"<@&{role_id}>, {new_player['username']} is currently in chat!")
     return level_up_messages
 
 async def main_rob(client_discord: commands.Bot):
@@ -127,9 +127,18 @@ async def main_rob(client_discord: commands.Bot):
                 new_data = await req_real(api2)
             old_data = new_data
 
+def build_attachments(message: discord.Message) -> str:
+    if message.attachments:
+        build_str = ""
+        for file in message.attachments:
+            build_str += f"{file.url}\n" # don't even try (can be an image, video, or any file)
+        return build_str
+    return ""
+
 async def main_styx(bot: commands.Bot, message: discord.Message):
     if message.author.id == bot.user.id: return # prevent spam on same channel
     if message.channel.id in chan_ids:
         chan = bot.get_channel(styx_channel_id)
         # link = f"https://discord.com/channels/{styx_server_id}/{message.channel.id}/{message.id}"
-        await chan.send(content=f"<@&{role_id}>\n{message.content}", embeds=message.embeds) # \n{link}
+        await chan.send(content=f"<@&{role_id}>\n{message.content}\n{build_attachments(message)}", 
+                        embeds=message.embeds) # \n{link}
