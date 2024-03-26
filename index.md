@@ -26,9 +26,9 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 <details><summary><b>All funds raised will go directly to my friend, Riney. She has been diagnosed with lung cancer.</b></summary>
 Riney, also known as Sky47, is one of the top users of this bot. I met her in the official Geometry Dash discord server as a fellow Filipino. Ever since I added this bot to her own server, she has been really freaky and having fun with it.
 
-![nuke](https://i.imgur.com/3dJei65.png "nuke")
-![UwU](https://i.imgur.com/A5OkIkk.png "UwU")
-![circle](https://i.imgur.com/MpkPaHC.png "circle")
+<img src="https://i.imgur.com/3dJei65.png">
+<img src="https://i.imgur.com/A5OkIkk.png">
+<img src="https://i.imgur.com/MpkPaHC.png">
 
 Note: For every successful transaction, users will get ProGPT subscription when it's released.
 </details>
