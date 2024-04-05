@@ -99,6 +99,11 @@ async def ytdlp(ctx: commands.Context, arg1=None, arg2=None):
     if not arg1: arg1, arg2 = "mp3", "dQw4w9WgXcQ"
     bot.loop.create_task(YTDLP(ctx, arg1, arg2))
 
+from cobalt import COBALT_API
+@bot.command()
+async def cob(ctx: commands.Context, *, arg:str=""):
+    bot.loop.create_task(COBALT_API(ctx, arg.split()))
+
 # :|
 from gelbooru import R34, GEL, SAFE
 @bot.command()
