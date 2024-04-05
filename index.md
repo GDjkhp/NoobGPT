@@ -79,6 +79,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-anime [query]` Search and watch Anime using [Gogoanime](https://gogoanimehd.io).
 * `-tv [query]` Search and watch TV shows and movies using [SFlix](https://sflix.se).
 * `-ytdlp (optional: format = [mp3/m4a]) [link]` Download or convert a YouTube video under 25MB discord limit. [Supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md)
+* `-cob [link]` [save what you love](https://cobalt.tools) 
     
 ## Utils 🔧
 * `-quote` Reply to a message to make it a quote.
@@ -140,6 +141,7 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 * <https://bard.google.com>
 * <https://ai.google.dev>
 * <https://sflix.se>
+* <https://cobalt.tools>
 <!-- * <https://lexica.art> -->
 
 ### Special Thanks
