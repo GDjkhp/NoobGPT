@@ -23,7 +23,7 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 
 ## Donate
 [Paypal](https://paypal.me/GDjkhp)
-<details><summary><b>All funds raised will go directly to my friend, Riney. She has been diagnosed with lung cancer.</b></summary>
+<!-- <details><summary><b>All funds raised will go directly to my friend, Riney. She has been diagnosed with lung cancer.</b></summary>
 Riney, also known as Sky47, is one of the top users of this bot. I met her in the official Geometry Dash discord server as a fellow Filipino. Ever since I added this bot to her own server, she has been really freaky and having fun with it.
 <br>
 <img src="https://i.imgur.com/3dJei65.png">
@@ -31,7 +31,7 @@ Riney, also known as Sky47, is one of the top users of this bot. I met her in th
 <img src="https://i.imgur.com/MpkPaHC.png">
 <br>
 Note: For every successful transaction, users will get ProGPT subscription when it's released.
-</details>
+</details> -->
 <br>
 
 # Overview
@@ -78,8 +78,8 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 ## Media 💽
 * `-anime [query]` Search and watch Anime using [Gogoanime](https://gogoanimehd.io).
 * `-tv [query]` Search and watch TV shows and movies using [SFlix](https://sflix.se).
-* `-ytdlp (optional: format = [mp3/m4a]) [link]` Download or convert a YouTube video under 25MB discord limit. [Supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md)
-* `-cob [link]` [save what you love](https://cobalt.tools) 
+* `-ytdlp (optional: format = [mp3/m4a]) [link]` Download or convert a YouTube video under 25MB discord limit using [yt-dlp](https://github.com/yt-dlp/yt-dlp). See [supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md).
+* `-cob [link]` [cobalt](https://cobalt.tools) is a media downloader that doesn't piss you off. See [supported sites](https://github.com/wukko/cobalt?tab=readme-ov-file#supported-services).
     
 ## Utils 🔧
 * `-quote` Reply to a message to make it a quote.
@@ -89,6 +89,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 <!-- * `-lex [query/image]` Search AI Generated art (Stable Diffusion) made by the prompts of the community using [Lexica](https://lexica.art) -->
 
 ## Under Development
+Note: Facebook Messenger and Telegram ports are coming soon.
 * `-place (optional: x = [0-499] y = [0-499] zoom = [16x])` Play the Reddit social experiment event about placing pixels on a canvas.
 * `-ms` Play minesweeper.
 * `-chess` Play chess.
