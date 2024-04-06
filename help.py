@@ -109,7 +109,7 @@ async def media_embed(av: discord.Asset) -> discord.Embed:
     emby.add_field(name='`-ytdlp (optional: format = [mp3/m4a]) [link]`', 
                    value='Download or convert a YouTube video under 25MB discord limit using [yt-dlp](https://github.com/yt-dlp/yt-dlp). See [supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md).', 
                    inline=False)
-    emby.add_field(name='`-cob [url]`', 
+    emby.add_field(name='`-cob [link]`', 
                    value='[cobalt](https://cobalt.tools) is a media downloader that doesn\'t piss you off. See [supported sites](https://github.com/wukko/cobalt?tab=readme-ov-file#supported-services).', 
                    inline=False)
     return emby

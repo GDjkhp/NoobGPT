@@ -127,7 +127,7 @@ async def COBALT_API(ctx: commands.Context, args: list[str]):
                 vimeoDash = True
                 args.remove(x)
 
-        help_text = '-cob [url]\noptional:'
+        help_text = '-cob [link]\n\noptional:'
         help_text+= '\nvCodec = ["h264", "av1", "vp9"]'
         help_text+= '\nvQuality = ["max", "4320", "2160", "1440", "1080", "720", "480", "360", "240", "144"]'
         help_text+= '\naFormat = ["best", "mp3", "ogg", "wav", "opus"]'
@@ -138,10 +138,10 @@ async def COBALT_API(ctx: commands.Context, args: list[str]):
         url = args[0]
         response = await payload_cooker(url, vCodec, vQuality, aFormat, filenamePattern, 
                                         isAudioOnly, isTTFullAudio, isAudioMuted, dubLang, disableMetadata, twitterGif, vimeoDash)
-        filename = await get_filename(response["url"])
         # redirect, picker not tested. see https://github.com/wukko/cobalt?tab=readme-ov-file#additional-notes-or-features-per-service
         bad = ["error", "rate-limit", "redirect", "picker"]
-        return await msg.edit(content=f"{filename if filename else ''}\nstatus: {response['status']}\n{round(time.time() * 1000)-old}ms", 
+        filename = "" if response["status"] in bad else await get_filename(response["url"])
+        return await msg.edit(content=f"{filename}\nstatus: {response['status']}\n{round(time.time() * 1000)-old}ms", 
                               view=None if response["status"] in bad else DownloadView(response["url"]))
         
 class DownloadView(discord.ui.View):
