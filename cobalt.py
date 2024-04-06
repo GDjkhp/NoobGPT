@@ -58,6 +58,21 @@ async def payload_cooker(
     # print(payload)
     return await the_real_req(payload)
 
+async def get_filename(url):
+    async with aiohttp.ClientSession() as session:
+        async with session.head(url) as response:
+            content_disposition = response.headers.get('Content-Disposition')
+            if content_disposition:
+                filename_start = content_disposition.find('filename=') + len('filename=')
+                filename_end = content_disposition.find(';', filename_start)
+                if filename_end == -1:
+                    filename_end = None
+                filename = content_disposition[filename_start:filename_end].strip('"')
+                return filename
+            else:
+                print("Content-Disposition header not found.")
+                return None
+
 async def COBALT_API(ctx: commands.Context, args: list[str]):
     async with ctx.typing():
         msg = await ctx.reply("…")
@@ -67,7 +82,7 @@ async def COBALT_API(ctx: commands.Context, args: list[str]):
         vCodec:str = None
         vQuality:str = None
         aFormat:str = None
-        filenamePattern:str = None
+        filenamePattern:str = "nerdy" # default
         isAudioOnly:bool = False
         isTTFullAudio:bool = False
         isAudioMuted:bool = False
@@ -112,17 +127,21 @@ async def COBALT_API(ctx: commands.Context, args: list[str]):
                 vimeoDash = True
                 args.remove(x)
 
-        help_text = '-cob [url]'
-        help_text+= '\n["max", "4320", "2160", "1440", "1080", "720", "480", "360", "240", "144"]'
-        help_text+= '\n["best", "mp3", "ogg", "wav", "opus"]'
-        help_text+= '\n[more here](https://github.com/wukko/cobalt/blob/current/docs/api.md#request-body-variables)'
+        help_text = '-cob [url]\noptional:'
+        help_text+= '\nvCodec = ["h264", "av1", "vp9"]'
+        help_text+= '\nvQuality = ["max", "4320", "2160", "1440", "1080", "720", "480", "360", "240", "144"]'
+        help_text+= '\naFormat = ["best", "mp3", "ogg", "wav", "opus"]'
+        help_text+= '\nfilenamePattern = ["classic", "pretty", "basic", "nerdy"]'
+        help_text+= '\nisAudioOnly, isTTFullAudio, isAudioMuted, dubLang, disableMetadata, twitterGif, vimeoDash'
 
         if not args: return await msg.edit(content=help_text)
         url = args[0]
         response = await payload_cooker(url, vCodec, vQuality, aFormat, filenamePattern, 
                                         isAudioOnly, isTTFullAudio, isAudioMuted, dubLang, disableMetadata, twitterGif, vimeoDash)
+        filename = await get_filename(response["url"])
+        # redirect, picker not tested. see https://github.com/wukko/cobalt?tab=readme-ov-file#additional-notes-or-features-per-service
         bad = ["error", "rate-limit", "redirect", "picker"]
-        return await msg.edit(content=f"status: {response['status']}\n{round(time.time() * 1000)-old}ms", 
+        return await msg.edit(content=f"{filename if filename else ''}\nstatus: {response['status']}\n{round(time.time() * 1000)-old}ms", 
                               view=None if response["status"] in bad else DownloadView(response["url"]))
         
 class DownloadView(discord.ui.View):
