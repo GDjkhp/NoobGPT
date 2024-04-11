@@ -52,6 +52,7 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
             )
             wh = await get_webhook(ctx.channel)
             wh = await update_webhook(wh, x["name"], x["avatar"])
+            await asyncio.sleep(2)
             await wh.send(data['replies'][0]['text'])
             await reset_webhook(wh)
 
@@ -247,6 +248,7 @@ class SelectChoice(discord.ui.Select):
 
         wh = await get_webhook(self.ctx.channel)
         wh = await update_webhook(wh, data["name"], data["avatar"])
+        await asyncio.sleep(2)
         await wh.send(chat["messages"][0]["text"])
         await reset_webhook(wh)
 
