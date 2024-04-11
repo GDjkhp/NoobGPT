@@ -45,17 +45,16 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
             chars = [db["characters"][0]]
     if not chars: return
     
-    async with ctx.typing():
-        for x in chars:
-            if x["name"] == msg.author.name: continue
-            data = await client.chat.send_message(
-                x["history_id"], x["username"], clean_text
-            )
-            wh = await get_webhook(ctx.channel)
-            wh = await update_webhook(wh, x["name"], x["avatar"])
-            await asyncio.sleep(2)
-            await wh.send(data['replies'][0]['text'])
-            await reset_webhook(wh)
+    for x in chars:
+        if x["name"] == msg.author.name: continue
+        data = await client.chat.send_message(
+            x["history_id"], x["username"], clean_text
+        )
+        wh = await get_webhook(ctx.channel)
+        wh = await update_webhook(wh, x["name"], x["avatar"])
+        await asyncio.sleep(2)
+        await wh.send(data['replies'][0]['text'])
+        await reset_webhook(wh)
 
 async def add_char(ctx: commands.Context, text: str):
     # fucked up the perms again
