@@ -395,6 +395,7 @@ def add_database(server_id: int):
             "characters": []
         }
     )
+    return fetch_database(server_id)
 
 def fetch_database(server_id: int) -> dict:
     return mycol.find_one({"guild":server_id})
