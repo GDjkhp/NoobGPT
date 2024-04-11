@@ -68,6 +68,9 @@ async def ai_embed(av: discord.Asset) -> discord.Embed:
     emby.add_field(name='`-perplex`', 
                    value='Perplexity AI unlocks the power of knowledge with information discovery and sharing.', 
                    inline=False)
+    emby.add_field(name='`-chelp`', 
+                   value='Character.ai is an American neural language model chatbot service that can generate human-like text responses and participate in contextual conversation.', 
+                   inline=False)
     return emby
 
 async def games_embed(av: discord.Asset) -> discord.Embed:

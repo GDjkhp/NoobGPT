@@ -40,9 +40,14 @@ async def on_ready():
     bot.loop.create_task(main(bot))
     bot.loop.create_task(main_rob(bot))
 
+from c_ai_discord import add_char, delete_char, t_chan, t_adm, c_ai, set_rate, random_msg
 @bot.event
 async def on_message(message: discord.Message):
     bot.loop.create_task(main_styx(bot, message))
+
+    bot.loop.create_task(random_msg(bot, message))
+    bot.loop.create_task(c_ai(bot, message, None))
+
     await bot.process_commands(message)
 
 # TODO: store the strings on a json file that syncs with the website
@@ -258,6 +263,27 @@ from petals import BLOOMZ
 @bot.command()
 async def bloomz(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(BLOOMZ(ctx, arg))
+
+# TESTING
+@bot.command()
+async def cadd(ctx: commands.Context, *, arg=None):
+    bot.loop.create_task(add_char(ctx, arg))
+
+@bot.command()
+async def cdel(ctx: commands.Context):
+    bot.loop.create_task(delete_char(ctx))
+
+@bot.command()
+async def cadm(ctx: commands.Context):
+    bot.loop.create_task(t_adm(ctx))
+
+@bot.command()
+async def cchan(ctx: commands.Context):
+    bot.loop.create_task(t_chan(ctx))
+
+@bot.command()
+async def crate(ctx: commands.Context, *, arg=None):
+    bot.loop.create_task(set_rate(ctx, arg))
 
 # the real games
 from tictactoe import TicTacToe

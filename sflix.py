@@ -41,7 +41,7 @@ def detailed(embed: discord.Embed, details: list):
     embed.add_field(name="Genre", value=details[2])
     embed.add_field(name="Casts", value=details[3])
     embed.add_field(name="Production", value=details[6])
-def buildMovie(result) -> discord.Embed():
+def buildMovie(result) -> discord.Embed:
     details = detail(result)
     embed = discord.Embed(title=result[title], description=details[0], color=0x00ff00)
     valid_url = p.quote(result[poster], safe=":/")
@@ -49,7 +49,7 @@ def buildMovie(result) -> discord.Embed():
     detailed(embed, details)
     embed.set_footer(text="Note: Play the file using VLC/MPV media player :)")
     return embed
-def buildSeasons(season_ids, result) -> discord.Embed():
+def buildSeasons(season_ids, result) -> discord.Embed:
     details = detail(result)
     embed = discord.Embed(title=result[title], description=details[0], color=0x00ff00)
     valid_url = p.quote(result[poster], safe=":/")
@@ -57,7 +57,7 @@ def buildSeasons(season_ids, result) -> discord.Embed():
     detailed(embed, details)
     embed.add_field(name="Seasons", value=len(season_ids))
     return embed
-def buildEpisodes(episodes, season, result) -> discord.Embed():
+def buildEpisodes(episodes, season, result) -> discord.Embed:
     embed = discord.Embed(title=f"{result[title]}", description=f"Season {season}", color=0x00ff00)
     valid_url = p.quote(result[poster], safe=":/")
     embed.set_image(url = valid_url)
@@ -66,7 +66,7 @@ def buildEpisodes(episodes, season, result) -> discord.Embed():
     embed.add_field(name="Episodes", value=len(episodes))
     embed.set_footer(text="Note: Play the file using VLC/MPV media player :)")
     return embed
-def buildSearch(arg: str, result: list, index: int) -> discord.Embed():
+def buildSearch(arg: str, result: list, index: int) -> discord.Embed:
     embed = discord.Embed(title=f"Search results: `{arg}`", description=f"{len(result)} found", color=0x00ff00)
     # embed.set_thumbnail(url = bot.user.avatar)
     i = index
@@ -129,17 +129,17 @@ class SelectChoice(discord.ui.Select):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
+        await interaction.message.edit(view=None)
+        await interaction.response.defer()
         if self.result[int(self.values[0])][mv_tv] == "TV":
             r = client.get(f"{domain}/ajax/v2/tv/seasons/{self.result[int(self.values[0])][aid]}")
             season_ids = [i["data-id"] for i in BS(r, "lxml").select(".dropdown-item")]
             embed = buildSeasons(season_ids, self.result[int(self.values[0])])
-            await interaction.response.defer()
             await interaction.message.edit(embed = embed, view = MyView2(self.ctx, self.result[int(self.values[0])], season_ids, 0))
         else:
             sid = server_id(self.result[int(self.values[0])][aid])
             iframe_url, tv_id = get_link(sid)
             iframe_link, iframe_id = rabbit_id(iframe_url)
-            await interaction.response.defer()
             try:
                 url = cdn_url(iframe_link, iframe_id)
                 embed = buildMovie(self.result[int(self.values[0])])
@@ -158,17 +158,17 @@ class ButtonSelect(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
+        await interaction.message.edit(view=None)
+        await interaction.response.defer()
         if self.result[mv_tv] == "TV":
             r = client.get(f"{domain}/ajax/v2/tv/seasons/{self.result[aid]}")
             season_ids = [i["data-id"] for i in BS(r, "lxml").select(".dropdown-item")]
             embed = buildSeasons(season_ids, self.result)
-            await interaction.response.defer()
             await interaction.message.edit(embed = embed, view = MyView2(self.ctx, self.result, season_ids, 0))
         else:
             sid = server_id(self.result[aid])
             iframe_url, tv_id = get_link(sid)
             iframe_link, iframe_id = rabbit_id(iframe_url)
-            await interaction.response.defer()
             try:
                 url = cdn_url(iframe_link, iframe_id)
                 embed = buildMovie(self.result)
@@ -184,8 +184,9 @@ class ButtonNextSearch(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        embed = buildSearch(self.arg, self.result, self.index)
+        await interaction.message.edit(view=None)
         await interaction.response.defer()
+        embed = buildSearch(self.arg, self.result, self.index)
         await interaction.message.edit(embed = embed, view = MyView(self.ctx, self.result, self.arg, self.index))
 
 # season
@@ -217,11 +218,12 @@ class ButtonSelect2(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
+        await interaction.message.edit(view=None)
+        await interaction.response.defer()
         z = f"{domain}/ajax/v2/season/episodes/{self.season_id}"
         rf = client.get(z)
         episodes = [i["data-id"] for i in BS(rf, "lxml").select(".episode-item")]
         embed = buildEpisodes(episodes, self.index, self.result)
-        await interaction.response.defer()
         await interaction.message.edit(embed = embed, view = MyView3(self.ctx, self.season_id, episodes, self.result, 0, self.index))
 
 class ButtonNextSeason(discord.ui.Button):
@@ -233,8 +235,9 @@ class ButtonNextSeason(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        embed = buildSeasons(self.season_ids, self.result)
+        await interaction.message.edit(view=None)
         await interaction.response.defer()
+        embed = buildSeasons(self.season_ids, self.result)
         await interaction.message.edit(embed = embed, view = MyView2(self.ctx, self.result, self.season_ids, self.index))
 
 # episode
@@ -266,8 +269,9 @@ class ButtonNextEp(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        embed = buildEpisodes(self.episodes, self.season, self.result)
+        await interaction.message.edit(view=None)
         await interaction.response.defer()
+        embed = buildEpisodes(self.episodes, self.season, self.result)
         await interaction.message.edit(embed = embed, view = MyView3(self.ctx, self.season_id, self.episodes, self.result, self.index, self.season))
 
 class ButtonSelect3(discord.ui.Button):
@@ -279,10 +283,10 @@ class ButtonSelect3(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
+        await interaction.response.defer()
         sid = ep_server_id(self.episode)
         iframe_url, tv_id = get_link(sid)
         iframe_link, iframe_id = rabbit_id(iframe_url)
-        await interaction.response.defer()
         try:
             url = cdn_url(iframe_link, iframe_id)
             await interaction.followup.send(f"{self.title} [S{self.season}E{self.index}]({url})", ephemeral=True)

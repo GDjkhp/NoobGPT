@@ -4,18 +4,27 @@ from httpclient import HttpClient
 from bs4 import BeautifulSoup as BS
 import re
 from urllib import parse as p
-import requests
+import pymongo
+import os
+import asyncio
 
 client, client0 = HttpClient(), HttpClient()
 title, url, aid, mv_tv, poster = 0, 1, 2, 3, 4
 desc, ep, animetype, released, genre = 2, 3, 5, 6, 7
 pagelimit = 12
 
-domain = "https://anitaku.to"
-r = requests.get(domain)
-gogoanime = r.url[:-1] if r else domain
+myclient = pymongo.MongoClient(os.getenv('MONGO'))
+mycol = myclient["utils"]["anime"]
+data = mycol.find_one({"name":"gogoanime"})
+gogoanime = data["url"] # "https://anitaku.so"
+
+def get_domain():
+    global gogoanime
+    data = mycol.find_one({"name":"gogoanime"})
+    gogoanime = data["url"]
 
 async def Gogoanime(ctx: commands.Context, arg: str):
+    await asyncio.to_thread(get_domain)
     if arg: msg = await ctx.reply(f"Searching `{arg}`\nPlease wait…")
     else: msg = await ctx.reply("Imagine something that doesn't exist. Must be sad. You are sad. You don't belong here.\nLet's all love lain.")
     try: result = resultsAnime(searchAnime(arg if arg else "serial experiments lain"))
@@ -23,7 +32,7 @@ async def Gogoanime(ctx: commands.Context, arg: str):
     try: await msg.edit(content=None, embed=buildSearch(arg, result, 0), view = MyView4(ctx, arg, result, 0))
     except Exception as e: return await msg.edit(content=f"**No results found**")
 
-def buildAnime(details: list) -> discord.Embed():
+def buildAnime(details: list) -> discord.Embed:
     embed = discord.Embed(title=details[title], description=details[desc], color=0x00ff00)
     valid_url = p.quote(details[poster], safe=":/")
     embed.set_image(url = valid_url)
@@ -35,7 +44,7 @@ def buildAnime(details: list) -> discord.Embed():
     return embed
 
 # legacy code
-def buildSearch(arg: str, result: list, index: int) -> discord.Embed():
+def buildSearch(arg: str, result: list, index: int) -> discord.Embed:
     embed = discord.Embed(title=f"Search results: `{arg}`", description=f"{len(result)} found", color=0x00ff00)
     # embed.set_thumbnail(url = bot.user.avatar)
     i = index
@@ -108,6 +117,8 @@ class SelectChoice(discord.ui.Select):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
+        await interaction.message.edit(view=None)
+        await interaction.response.defer()
         req = client.get(f"{gogoanime}{self.result[int(self.values[0])][url]}")
         soup = BS(req, "lxml")
 
@@ -133,6 +144,8 @@ class ButtonSelect4(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
+        await interaction.message.edit(view=None)
+        await interaction.response.defer()
         req = client.get(f"{gogoanime}{self.result[url]}")
         soup = BS(req, "lxml")
 
@@ -156,6 +169,8 @@ class nextPage(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
+        await interaction.message.edit(view=None)
+        await interaction.response.defer()
         await interaction.response.edit_message(view = MyView4(self.ctx, self.arg, self.result, self.index))
 
 # episode
@@ -189,11 +204,12 @@ class ButtonSelect5(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
+        await interaction.response.defer()
         url = self.sUrl.split("/")[-1]
         request = client.get(f"{gogoanime}/{url}-episode-{self.index}")
         soup = BS(request, "lxml")
         video = soup.find("li", {"class": "doodstream"}).find("a")["data-video"]
-        await interaction.response.send_message(f"[{url}-episode-{self.index}]({video})", ephemeral=True)
+        await interaction.followup.send(f"[{url}-episode-{self.index}]({video})", ephemeral=True)
         # url0 = doodstream(
         #     soup.find("li", {"class": "doodstream"}).find("a")["data-video"]
         # )
@@ -208,5 +224,7 @@ class nextPageEP(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
+        await interaction.message.edit(view=None)
+        await interaction.response.defer()
         embed = buildAnime(self.details)
         await interaction.response.edit_message(embed = embed, view = MyView5(self.ctx, self.details, self.index))
