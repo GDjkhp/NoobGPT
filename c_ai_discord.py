@@ -89,7 +89,7 @@ async def delete_char(ctx: commands.Context):
     
     async with ctx.typing():
         if not db["characters"]: return await ctx.reply("no entries found")
-        await ctx.reply(view=DeleteView(ctx, db["characters"], 0), embed=delete_embed(ctx.guild, db["characters"], 0))
+        await ctx.reply(view=DeleteView(ctx, db["characters"], 0), embed=delete_embed(ctx.guild, db["characters"], 0, 0xff0000))
 
 async def t_chan(ctx: commands.Context):
     # fucked up the perms again
@@ -146,6 +146,20 @@ async def set_rate(ctx: commands.Context, num):
     await asyncio.to_thread(push_rate, ctx.guild.id, num)
     await ctx.reply(f"message_rate set to {num}")
 
+async def view_char(ctx: commands.Context):
+    # fucked up the perms again
+    permissions = ctx.guild.me.guild_permissions
+    if not permissions.manage_webhooks or not permissions.manage_roles:
+        return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
+    
+    db = await asyncio.to_thread(get_database, ctx.guild.id)
+    if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
+        return await ctx.reply("channel not found")
+    
+    async with ctx.typing():
+        if not db["characters"]: return await ctx.reply("no entries found")
+        await ctx.reply(view=AvailView(ctx, db["characters"], 0), embed=delete_embed(ctx.guild, db["characters"], 0, 0x00ff00))
+
 async def c_help(ctx: commands.Context):
     text = "Character.ai is an American neural language model chatbot service that can generate human-like text responses and participate in contextual conversation."
     text += "\n\nAvailable commands:"
@@ -155,6 +169,7 @@ async def c_help(ctx: commands.Context):
     text += "\n`-cmode` toggle channel mode"
     text += "\n`-cadm` toggle admin approval"
     text += "\n`-crate <int>` set random message rate (0-100)"
+    text += "\n`-cchar` available characters"
     await ctx.reply(text)
 
 # utils
@@ -179,8 +194,8 @@ def search_embed(arg: str, result: list, index: int):
         if (i < index+pagelimit): embed.add_field(name=f"[{i + 1}] {result[i]['participant__name']}", value=f"{result[i]['title']}")
         i += 1
     return embed
-def delete_embed(arg: str, result: list, index: int):
-    embed = discord.Embed(title=arg, description=f"{len(result)} found", color=0xff0000)
+def delete_embed(arg: str, result: list, index: int, col: int):
+    embed = discord.Embed(title=arg, description=f"{len(result)} found", color=col)
     i = index
     while i < len(result):
         if (i < index+pagelimit): 
@@ -343,7 +358,31 @@ class nextPageDelete(discord.ui.Button):
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(view = DeleteView(self.ctx, self.result, self.index), 
-                                                embed= delete_embed(self.ctx.guild, self.result, self.index))
+                                                embed= delete_embed(self.ctx.guild, self.result, self.index, 0xff0000))
+
+class AvailView(discord.ui.View):
+    def __init__(self, ctx: commands.Context, result: list, index: int):
+        super().__init__(timeout=None)
+        last_index = min(index + pagelimit, len(result))
+        if index - pagelimit > -1:
+            self.add_item(nextPageAvail(ctx, result, 0, "⏪"))
+            self.add_item(nextPageAvail(ctx, result, index - pagelimit, "◀️"))
+        if not last_index == len(result):
+            self.add_item(nextPageAvail(ctx, result, last_index, "▶️"))
+            max_page = get_max_page(len(result))
+            self.add_item(nextPageAvail(ctx, result, max_page, "⏩"))
+
+class nextPageAvail(discord.ui.Button):
+    def __init__(self, ctx: commands.Context, result: list, index: int, l: str):
+        super().__init__(emoji=l, style=discord.ButtonStyle.success)
+        self.result, self.index, self.ctx = result, index, ctx
+    
+    async def callback(self, interaction: discord.Interaction):
+        if interaction.user != self.ctx.author: 
+            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+                                                           ephemeral=True)
+        await interaction.response.edit_message(view = AvailView(self.ctx, self.result, self.index), 
+                                                embed= delete_embed(self.ctx.guild, self.result, self.index, 0x00ff00))
 
 # database handling: slow?
 def add_database(server_id: int):
