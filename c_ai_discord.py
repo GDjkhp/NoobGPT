@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from  character_ai import PyAsyncCAI
+from character_ai import PyAsyncCAI
 import asyncio
 import os
 import pymongo
@@ -12,7 +12,7 @@ mycol = myclient["ai"]["character"]
 client = PyAsyncCAI(os.getenv('CHARACTER'))
 pagelimit=12
 
-async def c_ai(bot: commands.Bot, msg: discord.Message, char: list = None):
+async def c_ai(bot: commands.Bot, msg: discord.Message):
     if msg.author.id == bot.user.id: return
     ctx = await bot.get_context(msg) # context hack
 
@@ -26,7 +26,7 @@ async def c_ai(bot: commands.Bot, msg: discord.Message, char: list = None):
         return
 
     # get character (roles, reply, lowercase mention)
-    chars = [] if not char else char
+    chars = []
     clean_text = clean_message(msg)
     for x in db["characters"]:
         if x["name"].lower() in clean_text.lower(): 
@@ -35,6 +35,13 @@ async def c_ai(bot: commands.Bot, msg: discord.Message, char: list = None):
         ref_msg = await msg.channel.fetch_message(msg.reference.message_id)
         for x in db["characters"]:
             if x["name"] == ref_msg.author.name: chars.append(x)
+
+    if not chars:
+        trigger = generate_random_bool(db["message_rate"])
+        if trigger and db["characters"]:
+            # print("random get")
+            random.shuffle(db["characters"])
+            chars = [db["characters"][0]]
     if not chars: return
     
     async with ctx.typing():
@@ -47,26 +54,6 @@ async def c_ai(bot: commands.Bot, msg: discord.Message, char: list = None):
             wh = await update_webhook(wh, x["name"], x["avatar"])
             await wh.send(data['replies'][0]['text'])
             await reset_webhook(wh)
-
-async def random_msg(bot: commands.Bot, msg: discord.Message):
-    if msg.author.id == bot.user.id: return
-    ctx = await bot.get_context(msg) # context hack
-
-    # fucked up the perms again
-    permissions = ctx.guild.me.guild_permissions
-    if not permissions.manage_webhooks or not permissions.manage_roles:
-        return
-
-    db = await asyncio.to_thread(get_database, ctx.guild.id)
-    if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
-        return
-    
-    trigger = generate_random_bool(db["message_rate"])
-    if trigger and db["characters"]:
-        # print("random get")
-        random.shuffle(db["characters"])
-        pick_one = [db["characters"][0]]
-        await c_ai(bot, msg, pick_one)
 
 async def add_char(ctx: commands.Context, text: str):
     # fucked up the perms again

@@ -40,13 +40,11 @@ async def on_ready():
     bot.loop.create_task(main(bot))
     bot.loop.create_task(main_rob(bot))
 
-from c_ai_discord import add_char, delete_char, t_chan, t_adm, c_ai, set_rate, random_msg, c_help
+from c_ai_discord import add_char, delete_char, t_chan, t_adm, c_ai, set_rate, c_help
 @bot.event
 async def on_message(message: discord.Message):
     bot.loop.create_task(main_styx(bot, message))
-
-    bot.loop.create_task(random_msg(bot, message))
-    bot.loop.create_task(c_ai(bot, message, None))
+    bot.loop.create_task(c_ai(bot, message))
 
     await bot.process_commands(message)
 
