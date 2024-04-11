@@ -142,14 +142,14 @@ async def set_rate(ctx: commands.Context, num):
     await asyncio.to_thread(push_rate, ctx.guild.id, num)
     await ctx.reply(f"message_rate set to {num}")
 
-async def chelp(ctx: commands.Context):
+async def c_help(ctx: commands.Context):
     text = "Character.ai is an American neural language model chatbot service that can generate human-like text responses and participate in contextual conversation."
-    text += "\nAvailable commands:"
-    text += "\n`-cadd <query>` = add a character"
-    text += "\n`-cdel` = delete a character"
-    text += "\n`-cchan` = add channel"
-    text += "\n`-cadm` = toggle admin approval"
-    text += "\n`-crate <int>` = set random message rate (0-100)"
+    text += "\n\nAvailable commands:"
+    text += "\n`-cadd <query>` add a character"
+    text += "\n`-cdel` delete a character"
+    text += "\n`-cchan` add channel"
+    text += "\n`-cadm` toggle admin approval"
+    text += "\n`-crate <int>` set random message rate (0-100)"
     await ctx.reply(text)
 
 # utils
