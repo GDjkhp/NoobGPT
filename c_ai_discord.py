@@ -22,7 +22,7 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
         return
 
     db = await asyncio.to_thread(get_database, ctx.guild.id)
-    if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
+    if db["channel_mode"] and (not db["channels"] or not ctx.channel.id in db["channels"]): 
         return
 
     # get character (roles, reply, lowercase mention)
@@ -63,7 +63,7 @@ async def add_char(ctx: commands.Context, text: str):
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     
     db = await asyncio.to_thread(get_database, ctx.guild.id)
-    if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
+    if db["channel_mode"] and (not db["channels"] or not ctx.channel.id in db["channels"]): 
         return await ctx.reply("channel not found")
     if db["admin_approval"] and not ctx.author.guild_permissions.administrator:
         return await ctx.reply("not an admin")
@@ -81,7 +81,7 @@ async def delete_char(ctx: commands.Context):
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     
     db = await asyncio.to_thread(get_database, ctx.guild.id)
-    if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
+    if db["channel_mode"] and (not db["channels"] or not ctx.channel.id in db["channels"]): 
         return await ctx.reply("channel not found")
     if db["admin_approval"] and not ctx.author.guild_permissions.administrator:
         return await ctx.reply("not an admin")
@@ -152,7 +152,7 @@ async def view_char(ctx: commands.Context):
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     
     db = await asyncio.to_thread(get_database, ctx.guild.id)
-    if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
+    if db["channel_mode"] and (not db["channels"] or not ctx.channel.id in db["channels"]): 
         return await ctx.reply("channel not found")
     
     async with ctx.typing():
@@ -400,9 +400,9 @@ def fetch_database(server_id: int) -> dict:
     return mycol.find_one({"guild":server_id})
 
 def get_database(server_id: int):
-    if not list(mycol.find({"guild":server_id})):
-        add_database(server_id)
-    return fetch_database(server_id)
+    entry_exists = mycol.count_documents({"guild": server_id})
+    if entry_exists > 0: return fetch_database(server_id)
+    else: return add_database(server_id)
 
 def push_database(server_id: int, data):
     mycol.update_one({"guild":server_id}, {"$push": {"characters": dict(data)}})
