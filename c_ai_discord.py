@@ -41,6 +41,7 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
         if trigger and db["characters"]:
             # print("random get")
             random.shuffle(db["characters"])
+            if db["characters"][0] == msg.author.name: return
             chars = [db["characters"][0]]
     if not chars: return
     
@@ -119,6 +120,21 @@ async def t_adm(ctx: commands.Context):
         await asyncio.to_thread(push_ad, ctx.guild.id)
         await ctx.reply("admin approval on")
 
+async def t_mode(ctx: commands.Context):
+    # fucked up the perms again
+    permissions = ctx.guild.me.guild_permissions
+    if not permissions.manage_webhooks or not permissions.manage_roles:
+        return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
+    if not ctx.author.guild_permissions.administrator:
+        return await ctx.reply("not an admin")
+    db = await asyncio.to_thread(get_database, ctx.guild.id)
+    if db["channel_mode"]: 
+        await asyncio.to_thread(pull_mode, ctx.guild.id)
+        await ctx.reply("channel mode off")
+    else: 
+        await asyncio.to_thread(push_mode, ctx.guild.id)
+        await ctx.reply("channel mode on")
+
 async def set_rate(ctx: commands.Context, num):
     if not num: return await ctx.reply("?")
     if not num.isdigit(): return await ctx.reply("not a digit")
@@ -136,6 +152,7 @@ async def c_help(ctx: commands.Context):
     text += "\n`-cadd <query>` add a character"
     text += "\n`-cdel` delete a character"
     text += "\n`-cchan` add channel"
+    text += "\n`-cmode` toggle channel mode"
     text += "\n`-cadm` toggle admin approval"
     text += "\n`-crate <int>` set random message rate (0-100)"
     await ctx.reply(text)
@@ -148,7 +165,8 @@ async def load_image(url):
                 image_data = await response.read()
                 return image_data
             else:
-                raise OSError(f"Failed to load image from URL: {url}")
+                print(f"Failed to load image from URL: {url}")
+                return await load_image("https://gdjkhp.github.io/img/dc.png")
 async def search_char(text: str):
     return await client.character.search(text)
 def get_max_page(length):

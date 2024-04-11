@@ -40,7 +40,7 @@ async def on_ready():
     bot.loop.create_task(main(bot))
     bot.loop.create_task(main_rob(bot))
 
-from c_ai_discord import add_char, delete_char, t_chan, t_adm, c_ai, set_rate, c_help
+from c_ai_discord import add_char, delete_char, t_chan, t_adm, c_ai, set_rate, c_help, t_mode
 @bot.event
 async def on_message(message: discord.Message):
     bot.loop.create_task(main_styx(bot, message))
@@ -286,6 +286,10 @@ async def crate(ctx: commands.Context, *, arg=None):
 @bot.command()
 async def chelp(ctx: commands.Context):
     bot.loop.create_task(c_help(ctx))
+
+@bot.command()
+async def cmode(ctx: commands.Context):
+    bot.loop.create_task(t_mode(ctx))
 
 # the real games
 from tictactoe import TicTacToe
