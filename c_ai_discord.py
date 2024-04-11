@@ -63,7 +63,7 @@ async def random_msg(bot: commands.Bot, msg: discord.Message):
     
     trigger = generate_random_bool(db["message_rate"])
     if trigger and db["characters"]:
-        print("random get")
+        # print("random get")
         random.shuffle(db["characters"])
         pick_one = [db["characters"][0]]
         await c_ai(bot, msg, pick_one)
@@ -177,7 +177,8 @@ def delete_embed(arg: str, result: list, index: int):
     embed = discord.Embed(title=arg, description=f"{len(result)} found", color=0xff0000)
     i = index
     while i < len(result):
-        if (i < index+pagelimit): embed.add_field(name=f"[{i + 1}] {result[i]['name']}", value=None)
+        if (i < index+pagelimit): 
+            embed.add_field(name=f"[{i + 1}] {result[i]['name']}", value=result[i]['description'])
         i += 1
     return embed
 def generate_random_bool(num):
@@ -246,6 +247,7 @@ class SelectChoice(discord.ui.Select):
         img = await load_image(f"https://characterai.io/i/80/static/avatars/{selected['avatar_file_name']}")
         data = {
             "name": selected["participant__name"],
+            "description": selected['title'],
             "username": tgt,
             "history_id": chat["external_id"],
             "role_id": role.id,
