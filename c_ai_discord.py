@@ -77,7 +77,7 @@ async def add_char(ctx: commands.Context, text: str):
             await ctx.reply(view=MyView4(ctx, text, res["characters"], 0), embed=search_embed(text, res["characters"], 0))
         except Exception as e:
             print(e)
-            await ctx.reply("an error occured. wait for a cloudflare protection bypass.")
+            await ctx.reply("an error occured")
 
 async def delete_char(ctx: commands.Context):
     # fucked up the perms again
@@ -287,7 +287,7 @@ class SelectChoice(discord.ui.Select):
             await send_webhook_message(self.ctx, data, chat["messages"][0]["text"])
         except Exception as e:
             print(e)
-            await interaction.message.edit(content="an error occured. wait for a cloudflare protection bypass.", embed=None, view=None)
+            await interaction.message.edit(content="an error occured", embed=None, view=None)
 
 class MyView4(discord.ui.View):
     def __init__(self, ctx: commands.Context, arg: str, result: list, index: int):
