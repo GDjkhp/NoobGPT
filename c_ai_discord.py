@@ -372,6 +372,7 @@ class DeleteView(discord.ui.View):
             self.add_item(nextPageDelete(ctx, result, last_index, "▶️"))
             max_page = get_max_page(len(result))
             self.add_item(nextPageDelete(ctx, result, max_page, "⏩"))
+        self.add_item(CancelButton(ctx))
 
 class nextPageDelete(discord.ui.Button):
     def __init__(self, ctx: commands.Context, result: list, index: int, l: str):
