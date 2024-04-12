@@ -14,6 +14,7 @@ pagelimit=12
 
 async def c_ai(bot: commands.Bot, msg: discord.Message):
     if msg.author.id == bot.user.id: return
+    if msg.content == None: return
     ctx = await bot.get_context(msg) # context hack
 
     # fucked up the perms again
@@ -27,7 +28,7 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
 
     # get character (roles, reply, lowercase mention)
     chars = []
-    clean_text = clean_message(msg)
+    clean_text = replace_mentions(msg)
     for x in db["characters"]:
         if x["name"].lower() in clean_text.lower(): 
             chars.append(x)
@@ -53,7 +54,7 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
         wh = await get_webhook(ctx.channel)
         wh = await update_webhook(wh, x["name"], x["avatar"])
         await asyncio.sleep(2)
-        await wh.send(data['replies'][0]['text'])
+        await wh.send(clean_gdjkhp(data['replies'][0]['text'], ctx.author.name))
         await reset_webhook(wh)
 
 async def add_char(ctx: commands.Context, text: str):
@@ -68,8 +69,9 @@ async def add_char(ctx: commands.Context, text: str):
     if db["admin_approval"] and not ctx.author.guild_permissions.administrator:
         return await ctx.reply("not an admin")
     
-    if not text: return await ctx.reply("?")
-    async with ctx.typing():
+    if not text: 
+        return await ctx.reply("?") # TODO: do trending here
+    else:
         res = await search_char(text)
         if not res["characters"]: return await ctx.reply("no results found")
         await ctx.reply(view=MyView4(ctx, text, res["characters"], 0), embed=search_embed(text, res["characters"], 0))
@@ -154,10 +156,9 @@ async def view_char(ctx: commands.Context):
     db = await asyncio.to_thread(get_database, ctx.guild.id)
     if db["channel_mode"] and (not db["channels"] or not ctx.channel.id in db["channels"]): 
         return await ctx.reply("channel not found")
-    
-    async with ctx.typing():
-        if not db["characters"]: return await ctx.reply("no entries found")
-        await ctx.reply(view=AvailView(ctx, db["characters"], 0), embed=delete_embed(ctx.guild, db["characters"], 0, 0x00ff00))
+    if not db["characters"]: return await ctx.reply("no entries found")
+    text = f"message_rate: {db['message_rate']}%\nmessage_mode: {db['message_mode']}\nadmin_approval: {db['admin-approval']}"
+    await ctx.reply(view=AvailView(ctx, db["characters"], 0), embed=delete_embed(ctx.guild, db["characters"], 0, 0x00ff00), content=text)
 
 async def c_help(ctx: commands.Context):
     text = "Character.ai is an American neural language model chatbot service that can generate human-like text responses and participate in contextual conversation."
@@ -223,9 +224,6 @@ def replace_mentions(message: discord.Message):
                 role_mention.name
             )
     return content
-def clean_message(message: discord.Message) -> str:
-    text = replace_mentions(message)
-    return clean_gdjkhp(text, message.author.name)
 
 class SelectChoice(discord.ui.Select):
     def __init__(self, ctx: commands.Context, index: int, result: list):
@@ -281,7 +279,7 @@ class SelectChoice(discord.ui.Select):
         wh = await get_webhook(self.ctx.channel)
         wh = await update_webhook(wh, data["name"], data["avatar"])
         await asyncio.sleep(2)
-        await wh.send(chat["messages"][0]["text"])
+        await wh.send(clean_gdjkhp(chat["messages"][0]["text"], self.ctx.author.name))
         await reset_webhook(wh)
 
 class MyView4(discord.ui.View):

@@ -132,7 +132,7 @@ class SelectChoice(discord.ui.Select):
                    self.result[int(self.values[0])][poster], animetype, released, genre]
 
         embed = buildAnime(details)
-        await interaction.response.edit_message(content=None, embed = embed, view = MyView5(self.ctx, details, 0))
+        await interaction.message.edit(content=None, embed = embed, view = MyView5(self.ctx, details, 0))
 
 # legacy code
 class ButtonSelect4(discord.ui.Button):
@@ -158,7 +158,7 @@ class ButtonSelect4(discord.ui.Button):
         details = [self.result[title], self.result[url], desc, episodes, self.result[poster], animetype, released, genre]
 
         embed = buildAnime(details)
-        await interaction.response.edit_message(embed = embed, view = MyView5(self.ctx, details, 0))
+        await interaction.message.edit(embed = embed, view = MyView5(self.ctx, details, 0))
 
 class nextPage(discord.ui.Button):
     def __init__(self, ctx: commands.Context, arg: str, result: list, index: int, l: str):
@@ -171,7 +171,7 @@ class nextPage(discord.ui.Button):
                                                            ephemeral=True)
         await interaction.message.edit(view=None)
         await interaction.response.defer()
-        await interaction.response.edit_message(view = MyView4(self.ctx, self.arg, self.result, self.index))
+        await interaction.message.edit(view = MyView4(self.ctx, self.arg, self.result, self.index))
 
 # episode
 class MyView5(discord.ui.View):
@@ -213,7 +213,7 @@ class ButtonSelect5(discord.ui.Button):
         # url0 = doodstream(
         #     soup.find("li", {"class": "doodstream"}).find("a")["data-video"]
         # )
-        # await interaction.response.send_message(f"{url}-episode-{self.index}: {url0}")
+        # await interaction.followup.send(f"{url}-episode-{self.index}: {url0}")
 
 class nextPageEP(discord.ui.Button):
     def __init__(self, ctx: commands.Context, details: list, index: int, row: int, l: str):
@@ -227,4 +227,4 @@ class nextPageEP(discord.ui.Button):
         await interaction.message.edit(view=None)
         await interaction.response.defer()
         embed = buildAnime(self.details)
-        await interaction.response.edit_message(embed = embed, view = MyView5(self.ctx, self.details, self.index))
+        await interaction.message.edit(embed = embed, view = MyView5(self.ctx, self.details, self.index))

@@ -145,8 +145,7 @@ class SelectChoice(discord.ui.Select):
                 embed = buildMovie(self.result[int(self.values[0])])
                 await interaction.message.edit(embed=embed, view=None)
                 await interaction.followup.send(f"[{self.result[int(self.values[0])][title]}]({url})", ephemeral=True)
-            except Exception as e: await interaction.message.edit(e, view=None)
-        
+            except Exception as e: await interaction.message.edit(content=e, view=None)
 
 # legacy code
 class ButtonSelect(discord.ui.Button):
@@ -173,7 +172,7 @@ class ButtonSelect(discord.ui.Button):
                 url = cdn_url(iframe_link, iframe_id)
                 embed = buildMovie(self.result)
                 await interaction.message.edit(embed=embed, view=None, content=f"[{self.result[title]}]({url})")
-            except Exception as e: await interaction.message.edit(e, view=None)
+            except Exception as e: await interaction.message.edit(content=e, view=None)
             
 class ButtonNextSearch(discord.ui.Button):
     def __init__(self, ctx: commands.Context, arg: str, result: list, index: int, l: str):
@@ -290,7 +289,7 @@ class ButtonSelect3(discord.ui.Button):
         try:
             url = cdn_url(iframe_link, iframe_id)
             await interaction.followup.send(f"{self.title} [S{self.season}E{self.index}]({url})", ephemeral=True)
-        except Exception as e: await interaction.message.edit(e, view=None)
+        except Exception as e: await interaction.message.edit(content=e, view=None)
 
 # sflix functions
 def server_id(mov_id: str) -> str:
