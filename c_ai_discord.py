@@ -160,7 +160,7 @@ async def view_char(ctx: commands.Context):
     if db["channel_mode"] and (not db["channels"] or not ctx.channel.id in db["channels"]): 
         return await ctx.reply("channel not found")
     if not db["characters"]: return await ctx.reply("no entries found")
-    text = f"message_rate: {db['message_rate']}%\nmessage_mode: {db['message_mode']}\nadmin_approval: {db['admin-approval']}"
+    text = f"message_rate: {db['message_rate']}%\nchannel_mode: {db['channel_mode']}\nadmin_approval: {db['admin_approval']}"
     await ctx.reply(view=AvailView(ctx, db["characters"], 0), embed=delete_embed(ctx.guild, db["characters"], 0, 0x00ff00), content=text)
 
 async def c_help(ctx: commands.Context):
