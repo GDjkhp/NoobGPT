@@ -48,14 +48,13 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
     
     for x in chars:
         if x["name"] == msg.author.name: continue
-        data = await client.chat.send_message(
-            x["history_id"], x["username"], clean_text
-        )
-        wh = await get_webhook(ctx.channel)
-        wh = await update_webhook(wh, x["name"], x["avatar"])
-        await asyncio.sleep(2)
-        await wh.send(clean_gdjkhp(data['replies'][0]['text'], ctx.author.name))
-        await reset_webhook(wh)
+        try:
+            data = await client.chat.send_message(
+                x["history_id"], x["username"], clean_text
+            )
+            await send_webhook_message(ctx, x, data['replies'][0]['text'])
+        except Exception as e:
+            print(e)
 
 async def add_char(ctx: commands.Context, text: str):
     # fucked up the perms again
@@ -72,9 +71,13 @@ async def add_char(ctx: commands.Context, text: str):
     if not text: 
         return await ctx.reply("?") # TODO: do trending here
     else:
-        res = await search_char(text)
-        if not res["characters"]: return await ctx.reply("no results found")
-        await ctx.reply(view=MyView4(ctx, text, res["characters"], 0), embed=search_embed(text, res["characters"], 0))
+        try:
+            res = await search_char(text)
+            if not res["characters"]: return await ctx.reply("no results found")
+            await ctx.reply(view=MyView4(ctx, text, res["characters"], 0), embed=search_embed(text, res["characters"], 0))
+        except Exception as e:
+            print(e)
+            await ctx.reply("an error occured. wait for a cloudflare protection bypass.")
 
 async def delete_char(ctx: commands.Context):
     # fucked up the perms again
@@ -224,6 +227,12 @@ def replace_mentions(message: discord.Message):
                 role_mention.name
             )
     return content
+async def send_webhook_message(ctx: commands.Context, x, text):
+    wh = await get_webhook(ctx.channel)
+    wh = await update_webhook(wh, x["name"], x["avatar"])
+    await asyncio.sleep(2)
+    await wh.send(clean_gdjkhp(text, ctx.author.name))
+    await reset_webhook(wh)
 
 class SelectChoice(discord.ui.Select):
     def __init__(self, ctx: commands.Context, index: int, result: list):
@@ -252,35 +261,33 @@ class SelectChoice(discord.ui.Select):
                 if x["name"] == selected["participant__name"]: found = True
             if found:
                 return await interaction.followup.send(f"{selected['participant__name']} is already in chat", ephemeral=True)
-            
-        chat = await client.chat.new_chat(selected["external_id"])
-        participants = chat['participants']
-        if not participants[0]['is_human']:
-            tgt = participants[0]['user']['username']
-        else:
-            tgt = participants[1]['user']['username']
-
-        role = await create_role(self.ctx, selected["participant__name"])
         
-        img = await load_image(f"https://characterai.io/i/80/static/avatars/{selected['avatar_file_name']}")
-        data = {
-            "name": selected["participant__name"],
-            "description": selected['title'],
-            "username": tgt,
-            "history_id": chat["external_id"],
-            "role_id": role.id,
-            "avatar": img
-        }
+        try:
+            chat = await client.chat.new_chat(selected["external_id"])
+            participants = chat['participants']
+            if not participants[0]['is_human']:
+                tgt = participants[0]['user']['username']
+            else:
+                tgt = participants[1]['user']['username']
 
-        await asyncio.to_thread(push_database, self.ctx.guild.id, data)
+            role = await create_role(self.ctx, selected["participant__name"])
+            
+            img = await load_image(f"https://characterai.io/i/80/static/avatars/{selected['avatar_file_name']}")
+            data = {
+                "name": selected["participant__name"],
+                "description": selected['title'],
+                "username": tgt,
+                "history_id": chat["external_id"],
+                "role_id": role.id,
+                "avatar": img
+            }
 
-        await interaction.message.edit(content=f"{selected['participant__name']} has been added to the server", embed=None, view=None)
-
-        wh = await get_webhook(self.ctx.channel)
-        wh = await update_webhook(wh, data["name"], data["avatar"])
-        await asyncio.sleep(2)
-        await wh.send(clean_gdjkhp(chat["messages"][0]["text"], self.ctx.author.name))
-        await reset_webhook(wh)
+            await asyncio.to_thread(push_database, self.ctx.guild.id, data)
+            await interaction.message.edit(content=f"{selected['participant__name']} has been added to the server", embed=None, view=None)
+            await send_webhook_message(self.ctx, data, chat["messages"][0]["text"])
+        except Exception as e:
+            print(e)
+            await interaction.message.edit(content="an error occured. wait for a cloudflare protection bypass.", embed=None, view=None)
 
 class MyView4(discord.ui.View):
     def __init__(self, ctx: commands.Context, arg: str, result: list, index: int):
