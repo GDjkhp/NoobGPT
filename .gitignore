@@ -2,11 +2,7 @@
 test.py
 *.pyc
 test2.py
-gemini_response.json
 res/dict/synsets_wordle.json
 res/dict/synsets.json
-rank_card.png
 meeseeks.py
-mee6_data_new.json
-mee6_data.json
 tama-anim-merge.gif

@@ -262,10 +262,18 @@ from petals import BLOOMZ
 async def bloomz(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(BLOOMZ(ctx, arg))
 
-# TESTING
+# CHARACTER AI
 @bot.command()
 async def cadd(ctx: commands.Context, *, arg=None):
-    bot.loop.create_task(add_char(ctx, arg))
+    bot.loop.create_task(add_char(ctx, arg, ""))
+
+@bot.command()
+async def crec(ctx: commands.Context):
+    bot.loop.create_task(add_char(ctx, "", "recommended"))
+
+@bot.command()
+async def ctren(ctx: commands.Context):
+    bot.loop.create_task(add_char(ctx, "", "trending"))
 
 @bot.command()
 async def cdel(ctx: commands.Context):

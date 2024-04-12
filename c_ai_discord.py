@@ -56,7 +56,7 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
         except Exception as e:
             print(e)
 
-async def add_char(ctx: commands.Context, text: str):
+async def add_char(ctx: commands.Context, text: str, list_type: str):
     # fucked up the perms again
     permissions = ctx.guild.me.guild_permissions
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -68,16 +68,16 @@ async def add_char(ctx: commands.Context, text: str):
     if db["admin_approval"] and not ctx.author.guild_permissions.administrator:
         return await ctx.reply("not an admin")
     
-    if not text: 
-        return await ctx.reply("?") # TODO: do trending here
-    else:
-        try:
-            res = await search_char(text)
-            if not res["characters"]: return await ctx.reply("no results found")
-            await ctx.reply(view=MyView4(ctx, text, res["characters"], 0), embed=search_embed(text, res["characters"], 0))
-        except Exception as e:
-            print(e)
-            await ctx.reply("an error occured")
+    if not list_type in ["trending", "recommended"]: 
+        if not text: return await ctx.reply("?")
+    else: text = list_type
+    try:
+        res = await search_char(text, list_type)
+        if not res: return await ctx.reply("no results found")
+        await ctx.reply(view=MyView4(ctx, text, res, 0), embed=search_embed(text, res, 0))
+    except Exception as e:
+        print(e)
+        await ctx.reply("an error occured")
 
 async def delete_char(ctx: commands.Context):
     # fucked up the perms again
@@ -173,9 +173,20 @@ async def c_help(ctx: commands.Context):
     text += "\n`-cadm` toggle admin approval"
     text += "\n`-crate <int>` set random message rate (0-100)"
     text += "\n`-cchar` available characters"
+    text += "\n`-ctren` trending characters"
+    text += "\n`-crec` recommended characters"
     await ctx.reply(text)
 
 # utils
+async def search_char(text: str, list_type: str):
+    if list_type == "trending": 
+        res = await client.character.trending()
+        return res["trending_characters"]
+    if list_type == "recommended":
+        res = await client.character.recommended()
+        return res["recommended_characters"]
+    res = await client.character.search(text)
+    return res["characters"]
 async def load_image(url):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
@@ -185,8 +196,6 @@ async def load_image(url):
             else:
                 print(f"Failed to load image from URL: {url}")
                 return await load_image("https://gdjkhp.github.io/img/dc.png")
-async def search_char(text: str):
-    return await client.character.search(text)
 def get_max_page(length):
     if length % pagelimit != 0: return length - (length % pagelimit)
     return length - pagelimit
@@ -240,7 +249,7 @@ class SelectChoice(discord.ui.Select):
         i, self.result, self.ctx = index, result, ctx
         while i < len(result): 
             if (i < index+pagelimit): 
-                self.add_option(label=f"[{i + 1}] {result[i]['participant__name']}", value=i, description=f"{result[i]['title']}")
+                self.add_option(label=f"[{i + 1}] {result[i]['participant__name']}", value=i, description=f"{result[i]['title']}"[:100])
             if (i == index+pagelimit): break
             i += 1
 
@@ -301,6 +310,7 @@ class MyView4(discord.ui.View):
             self.add_item(nextPage(ctx, arg, result, last_index, "▶️"))
             max_page = get_max_page(len(result))
             self.add_item(nextPage(ctx, arg, result, max_page, "⏩"))
+        self.add_item(CancelButton(ctx))
 
 class nextPage(discord.ui.Button):
     def __init__(self, ctx: commands.Context, arg: str, result: list, index: int, l: str):
@@ -313,6 +323,17 @@ class nextPage(discord.ui.Button):
                                                            ephemeral=True)
         await interaction.response.edit_message(view = MyView4(self.ctx, self.arg, self.result, self.index), 
                                                 embed=search_embed(self.arg, self.result, self.index))
+        
+class CancelButton(discord.ui.Button):
+    def __init__(self, ctx: commands.Context):
+        super().__init__(emoji="❌", style=discord.ButtonStyle.success)
+        self.ctx = ctx
+    
+    async def callback(self, interaction: discord.Interaction):
+        if interaction.user != self.ctx.author: 
+            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+                                                           ephemeral=True)
+        await interaction.response.edit_message(view=None, embed=None, content="the operation was cancelled")
 
 class DeleteChoice(discord.ui.Select):
     def __init__(self, ctx: commands.Context, index: int, result: list):
@@ -320,7 +341,7 @@ class DeleteChoice(discord.ui.Select):
         i, self.result, self.ctx = index, result, ctx
         while i < len(result): 
             if (i < index+pagelimit): 
-                self.add_option(label=f"[{i + 1}] {result[i]['name']}", value=i)
+                self.add_option(label=f"[{i + 1}] {result[i]['name']}", value=i, description=result[i]["description"][:100])
             if (i == index+pagelimit): break
             i += 1
 
