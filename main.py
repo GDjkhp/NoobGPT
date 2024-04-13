@@ -44,7 +44,7 @@ from c_ai_discord import add_char, delete_char, t_chan, t_adm, c_ai, set_rate, c
 @bot.event
 async def on_message(message: discord.Message):
     bot.loop.create_task(main_styx(bot, message))
-    await c_ai(bot, message)
+    bot.loop.create_task(c_ai(bot, message))
 
     await bot.process_commands(message)
 
