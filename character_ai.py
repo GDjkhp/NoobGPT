@@ -1,8 +1,15 @@
 from contextlib import asynccontextmanager
 import websockets
-import tls_client
+# import tls_client
+from curl_cffi.requests import AsyncSession
 import asyncio
 import json
+import sys
+
+if sys.platform == 'win32':
+    asyncio.set_event_loop_policy(
+        asyncio.WindowsSelectorEventLoopPolicy()
+    )
 
 class PyCAIError(Exception):
     pass
@@ -28,8 +35,12 @@ class PyAsyncCAI:
         if plus: sub = 'plus'
         else: sub = 'beta'
 
-        self.session = tls_client.Session(
-            client_identifier='firefox_120'
+        # self.session = tls_client.Session(
+        #     client_identifier='firefox_120'
+        # )
+
+        self.session = AsyncSession(
+            impersonate='chrome120'
         )
 
         setattr(self.session, 'url', f'https://{sub}.character.ai/')
@@ -42,7 +53,7 @@ class PyAsyncCAI:
         self.chat2 = self.chat2(token, None, self.session)
 
     async def request(
-        url: str, session: tls_client.Session,
+        url: str, session: AsyncSession,
         *, token: str = None, method: str = 'GET',
         data: dict = None, split: bool = False,
         neo: bool = False
@@ -57,27 +68,30 @@ class PyAsyncCAI:
         else:
             key = token
 
+        link = link.replace(" ", "+")
+        # print(link)
+
         headers = {
-            'User-Agent': 'okhttp/5.0.0-SNAPSHOT',
-            'Accept': 'application/json, text/plain, */*',
-            'Accept-Language': 'en-US,en;q=0.5',
-            'Referer': 'https://beta.character.ai/',
             'Authorization': f'Token {key}',
-            'Origin': 'https://beta.character.ai',
+            # 'User-Agent': 'okhttp/5.0.0-SNAPSHOT',
+            # 'Accept': 'application/json, text/plain, */*',
+            # 'Accept-Language': 'en-US,en;q=0.5',
+            # 'Referer': 'https://beta.character.ai/',
+            # 'Origin': 'https://beta.character.ai',
         }
 
         if method == 'GET':
-            response = session.get(
+            response = await session.get(
                 link, headers=headers
             )
 
         elif method == 'POST':
-            response = session.post(
+            response = await session.post(
                 link, headers=headers, json=data
             )
 
         elif method == 'PUT':
-            response = session.put(
+            response = await session.put(
                 link, headers=headers, json=data
             )
 
@@ -115,11 +129,11 @@ class PyAsyncCAI:
                     'wss://neo.character.ai/ws/',
                     extra_headers = {
                         'Cookie': f'HTTP_AUTHORIZATION="Token {key}"',
-                        'origin': 'https://neo.character.ai',
-                        'Upgrade': 'websocket',
-                        'Sec-WebSocket-Extensions': 'permessage-deflate',
-                        'Host': 'neo.character.ai',
-                        'User-Agent': 'okhttp/5.0.0-SNAPSHOT',
+                        # 'origin': 'https://neo.character.ai',
+                        # 'Upgrade': 'websocket',
+                        # 'Sec-WebSocket-Extensions': 'permessage-deflate',
+                        # 'Host': 'neo.character.ai',
+                        # 'User-Agent': 'okhttp/5.0.0-SNAPSHOT',
                     }
                 )
             except websockets.exceptions.InvalidStatusCode:
@@ -140,7 +154,7 @@ class PyAsyncCAI:
 
         """
         def __init__(
-            self, token: str, session: tls_client.Session
+            self, token: str, session: AsyncSession
         ):
             self.token = token
             self.session = session
@@ -212,7 +226,7 @@ class PyAsyncCAI:
 
         """
         def __init__(
-            self, token: str, session: tls_client.Session
+            self, token: str, session: AsyncSession
         ):
             self.token = token
             self.session = session
@@ -368,7 +382,7 @@ class PyAsyncCAI:
 
         """
         def __init__(
-            self, token: str, session: tls_client.Session
+            self, token: str, session: AsyncSession
         ):
             self.token = token
             self.session = session
@@ -490,7 +504,7 @@ class PyAsyncCAI:
 
         """
         def __init__(
-            self, token: str, session: tls_client.Session
+            self, token: str, session: AsyncSession
         ):
             self.token = token
             self.session = session
@@ -638,7 +652,7 @@ class PyAsyncCAI:
         def __init__(
             self, token: str,
             ws: websockets.WebSocketClientProtocol,
-            session: tls_client.Session
+            session: AsyncSession
         ):
             self.token = token
             self.session = session

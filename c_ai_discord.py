@@ -477,7 +477,7 @@ def fetch_role(ctx: commands.Context, id: int) -> discord.Role:
 
 # webhook handling
 async def create_webhook(channel: discord.TextChannel, name: str, av: bytes) -> discord.Webhook:
-    return await channel.create_webhook(name=name, av=av)
+    return await channel.create_webhook(name=name, avatar=av)
 
 async def delete_webhook(webhook: discord.Webhook):
     return await webhook.delete()
