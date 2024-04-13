@@ -236,6 +236,7 @@ def replace_mentions(message: discord.Message):
 async def send_webhook_message(ctx: commands.Context, x, text):
     wh = await ctx.channel.create_webhook(name=x["name"], avatar=x["avatar"])
     await wh.send(clean_gdjkhp(text, ctx.author.name))
+    await asyncio.sleep(60)
     await wh.delete()
 
 class SelectChoice(discord.ui.Select):
