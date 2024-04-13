@@ -48,13 +48,11 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
     
     for x in chars:
         if x["name"] == msg.author.name: continue
-        try:
-            data = await client.chat.send_message(
-                x["history_id"], x["username"], clean_text
-            )
-            await send_webhook_message(ctx, x, data['replies'][0]['text'])
-        except Exception as e:
-            print(e)
+        data = None
+        data = await client.chat.send_message(
+            x["history_id"], x["username"], clean_text
+        )
+        if data: await send_webhook_message(ctx, x, data['replies'][0]['text'])
 
 async def add_char(ctx: commands.Context, text: str, list_type: str):
     # fucked up the perms again
@@ -91,9 +89,8 @@ async def delete_char(ctx: commands.Context):
     if db["admin_approval"] and not ctx.author.guild_permissions.administrator:
         return await ctx.reply("not an admin")
     
-    async with ctx.typing():
-        if not db["characters"]: return await ctx.reply("no entries found")
-        await ctx.reply(view=DeleteView(ctx, db["characters"], 0), embed=delete_embed(ctx.guild, db["characters"], 0, 0xff0000))
+    if not db["characters"]: return await ctx.reply("no entries found")
+    await ctx.reply(view=DeleteView(ctx, db["characters"], 0), embed=delete_embed(ctx.guild, db["characters"], 0, 0xff0000))
 
 async def t_chan(ctx: commands.Context):
     # fucked up the perms again
@@ -237,11 +234,10 @@ def replace_mentions(message: discord.Message):
             )
     return content
 async def send_webhook_message(ctx: commands.Context, x, text):
-    wh = await get_webhook(ctx.channel)
-    wh = await update_webhook(wh, x["name"], x["avatar"])
-    await asyncio.sleep(2)
+    wh = await create_webhook(ctx.channel, x["name"], x["avatar"])
+    # await asyncio.sleep(5)
     await wh.send(clean_gdjkhp(text, ctx.author.name))
-    await reset_webhook(wh)
+    await delete_webhook(wh)
 
 class SelectChoice(discord.ui.Select):
     def __init__(self, ctx: commands.Context, index: int, result: list):
@@ -273,6 +269,11 @@ class SelectChoice(discord.ui.Select):
         
         try:
             chat = await client.chat.new_chat(selected["external_id"])
+        except Exception as e:
+            print(e)
+            return await interaction.message.edit(content="an error occured", embed=None, view=None)
+        
+        if chat:
             participants = chat['participants']
             if not participants[0]['is_human']:
                 tgt = participants[0]['user']['username']
@@ -294,9 +295,6 @@ class SelectChoice(discord.ui.Select):
             await asyncio.to_thread(push_database, self.ctx.guild.id, data)
             await interaction.message.edit(content=f"{selected['participant__name']} has been added to the server", embed=None, view=None)
             await send_webhook_message(self.ctx, data, chat["messages"][0]["text"])
-        except Exception as e:
-            print(e)
-            await interaction.message.edit(content="an error occured", embed=None, view=None)
 
 class MyView4(discord.ui.View):
     def __init__(self, ctx: commands.Context, arg: str, result: list, index: int):
@@ -478,23 +476,8 @@ def fetch_role(ctx: commands.Context, id: int) -> discord.Role:
     return ctx.guild.get_role(id)
 
 # webhook handling
-async def fetch_webhook(channel: discord.TextChannel) -> discord.Webhook:
-    webhooks = await channel.webhooks()
-    for x in webhooks:
-        if x.name == 'NoobGPT':
-            return x
-    return None
+async def create_webhook(channel: discord.TextChannel, name: str, av: bytes) -> discord.Webhook:
+    return await channel.create_webhook(name=name, av=av)
 
-async def create_webhook(channel: discord.TextChannel) -> discord.Webhook:
-    return await channel.create_webhook(name='NoobGPT')
-
-async def update_webhook(webhook: discord.Webhook, name: str, av: str):
-    return await webhook.edit(name=name, avatar=av)
-
-async def reset_webhook(webhook: discord.Webhook):
-    return await webhook.edit(name="NoobGPT", avatar=None)
-
-async def get_webhook(channel: discord.TextChannel):
-    wh = await fetch_webhook(channel)
-    if not wh: wh = await create_webhook(channel)
-    return wh
+async def delete_webhook(webhook: discord.Webhook):
+    return await webhook.delete()
