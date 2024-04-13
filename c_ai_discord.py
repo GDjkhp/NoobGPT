@@ -234,10 +234,9 @@ def replace_mentions(message: discord.Message):
             )
     return content
 async def send_webhook_message(ctx: commands.Context, x, text):
-    wh = await create_webhook(ctx.channel, x["name"], x["avatar"])
-    # await asyncio.sleep(5)
+    wh = await ctx.channel.create_webhook(name=x["name"], avatar=x["avatar"])
     await wh.send(clean_gdjkhp(text, ctx.author.name))
-    await delete_webhook(wh)
+    await wh.delete()
 
 class SelectChoice(discord.ui.Select):
     def __init__(self, ctx: commands.Context, index: int, result: list):
@@ -474,10 +473,3 @@ async def delete_role(role: discord.Role):
 
 def fetch_role(ctx: commands.Context, id: int) -> discord.Role:
     return ctx.guild.get_role(id)
-
-# webhook handling
-async def create_webhook(channel: discord.TextChannel, name: str, av: bytes) -> discord.Webhook:
-    return await channel.create_webhook(name=name, avatar=av)
-
-async def delete_webhook(webhook: discord.Webhook):
-    return await webhook.delete()
