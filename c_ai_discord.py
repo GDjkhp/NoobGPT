@@ -52,7 +52,7 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
         data = await client.chat.send_message(
             x["history_id"], x["username"], clean_text
         )
-        if data: await send_webhook_message(ctx, x, data['replies'][0]['text'])
+        if data: await send_webhook_message(ctx, x, data['replies'][0]['text'], bot)
 
 async def add_char(ctx: commands.Context, text: str, list_type: str):
     # fucked up the perms again
@@ -233,11 +233,17 @@ def replace_mentions(message: discord.Message):
                 role_mention.name
             )
     return content
-async def send_webhook_message(ctx: commands.Context, x, text):
-    wh = await ctx.channel.create_webhook(name=x["name"], avatar=x["avatar"])
+async def webhook_exists(webhook_url):
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.head(webhook_url) as response:
+                return response.status != 404
+    except Exception as e:
+        print("Error:", e)
+        return False
+async def send_webhook_message(ctx: commands.Context, x, text, bot):
+    wh = await get_webhook(ctx, x, bot)
     await wh.send(clean_gdjkhp(text, ctx.author.name))
-    await asyncio.sleep(60)
-    await wh.delete()
 
 class SelectChoice(discord.ui.Select):
     def __init__(self, ctx: commands.Context, index: int, result: list):
@@ -280,21 +286,30 @@ class SelectChoice(discord.ui.Select):
             else:
                 tgt = participants[1]['user']['username']
 
-            role = await create_role(self.ctx, selected["participant__name"])
-            
+            whs = await self.ctx.channel.webhooks()
+            if len(whs) == 15: return await interaction.message.edit(content="webhook limit reached, please delete at least one", 
+                                                                     embed=None, view=None)
             img = await load_image(f"https://characterai.io/i/80/static/avatars/{selected['avatar_file_name']}")
+            wh = await self.ctx.channel.create_webhook(name=selected["participant__name"], avatar=img)
+            role = await create_role(self.ctx, selected["participant__name"])
             data = {
                 "name": selected["participant__name"],
                 "description": selected['title'],
                 "username": tgt,
                 "history_id": chat["external_id"],
                 "role_id": role.id,
-                "avatar": img
+                "avatar": img,
+                "webhooks": [
+                    {
+                        "channel": self.ctx.channel.id,
+                        "url": wh.url
+                    }
+                ]
             }
-
-            await asyncio.to_thread(push_database, self.ctx.guild.id, data)
+            await asyncio.to_thread(push_character, self.ctx.guild.id, data)
             await interaction.message.edit(content=f"{selected['participant__name']} has been added to the server", embed=None, view=None)
-            await send_webhook_message(self.ctx, data, chat["messages"][0]["text"])
+            # await send_webhook_message(self.ctx, data, chat["messages"][0]["text"])
+            await wh.send(clean_gdjkhp(chat["messages"][0]["text"], self.ctx.author.name))
 
 class MyView4(discord.ui.View):
     def __init__(self, ctx: commands.Context, arg: str, result: list, index: int):
@@ -354,8 +369,9 @@ class DeleteChoice(discord.ui.Select):
 
         role = fetch_role(self.ctx, selected["role_id"])
         await delete_role(role)
+        await delete_webhooks(self.ctx, selected)
 
-        await asyncio.to_thread(pull_database, self.ctx.guild.id, selected)
+        await asyncio.to_thread(pull_character, self.ctx.guild.id, selected)
         await interaction.message.edit(content=f"{selected['name']} has been deleted to the server", embed=None, view=None)
 
 class DeleteView(discord.ui.View):
@@ -417,7 +433,7 @@ def add_database(server_id: int):
             "message_rate": 66,
             "channel_mode": True,
             "channels": [],
-            "characters": []
+            "characters": [],
         }
     )
     return fetch_database(server_id)
@@ -430,10 +446,10 @@ def get_database(server_id: int):
     if entry_exists > 0: return fetch_database(server_id)
     else: return add_database(server_id)
 
-def push_database(server_id: int, data):
+def push_character(server_id: int, data):
     mycol.update_one({"guild":server_id}, {"$push": {"characters": dict(data)}})
 
-def pull_database(server_id: int, data):
+def pull_character(server_id: int, data):
     mycol.update_one({"guild":server_id}, {"$pull": {"characters": dict(data)}})
 
 def push_chan(server_id: int, data):
@@ -464,6 +480,43 @@ def pull_mode(server_id: int):
 
 def push_rate(server_id: int, value: int):
     mycol.update_one({"guild":server_id}, {"$set": {"message_rate": value}})
+
+def push_webhook(server_id: int, c_data, w_data):
+    if not c_data.get("webhooks"): 
+        c_data["webhooks"] = []
+    c_data["webhooks"].append(w_data)
+    push_character(server_id, c_data)
+
+async def get_webhook(ctx: commands.Context, c_data, bot):
+    test = await asyncio.to_thread(mycol.find_one, {"guild":ctx.guild.id})
+    chars = test["characters"]
+    for x in chars:
+        if x["name"] == c_data["name"]:
+            if not x.get("webhooks"): break # malform fix
+            for w in x["webhooks"]:
+                if w["channel"] == ctx.channel.id:
+                    if await webhook_exists(w["url"]):
+                        wh = discord.Webhook.from_url(w["url"], client=bot)
+                        return wh
+    
+    await asyncio.to_thread(pull_character, ctx.guild.id, c_data)
+    wh = await ctx.channel.create_webhook(name=c_data["name"], avatar=c_data["avatar"])
+    await asyncio.to_thread(push_webhook, ctx.guild.id, c_data, {"channel": ctx.channel.id, "url": wh.url})
+    return wh
+
+async def delete_webhooks(ctx: commands.Context, c_data):
+    test = await asyncio.to_thread(mycol.find_one, {"guild":ctx.guild.id})
+    chars = test["characters"]
+    for x in chars:
+        if x["name"] == c_data["name"]:
+            channels = ctx.guild.text_channels
+            for chan in channels:
+                perms = chan.permissions_for(ctx.guild.me)
+                if perms.manage_webhooks:
+                    whs = await chan.webhooks()
+                    for w in whs:
+                        if w.name == c_data["name"]:
+                            await w.delete()
 
 # role handling
 async def create_role(ctx: commands.Context, name: str) -> discord.Role:
