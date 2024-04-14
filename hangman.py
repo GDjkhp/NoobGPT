@@ -114,9 +114,6 @@ class ButtonChoice(discord.ui.Button):
         if self.settings["mode"] != "all" and interaction.user.id != host_id:
             return await interaction.response.send_message(content=f"<@{host_id}> is playing this game. Use `-hang` to create your own game.",
                                                            ephemeral=True)
-        # register player choice
-        await interaction.message.edit(view=None)
-        if not interaction.user.id in self.players: self.players[interaction.user.id] = add_player(interaction.user)
         if self.id == "LEAVE": 
             a = False
             keys_to_remove = []
@@ -135,6 +132,11 @@ class ButtonChoice(discord.ui.Button):
                                                         view=QuizView(self.ctx, self.words, self.index, self.box, self.dead, self.settings, self.players))
             else: await interaction.response.edit_message(content=f"You left.\n{c2e(self.words[self.index]['word'].replace('_', ' ').lower())}", 
                                                           embed=None, view=None)
+                
+        # register player choice
+        await interaction.message.edit(view=None)
+        if not interaction.user.id in self.players: self.players[interaction.user.id] = add_player(interaction.user)
+
         if self.id == "INPUT": 
             await interaction.response.send_modal(MyModal(self.ctx, self.words, self.index, self.box, self.dead, self.settings, self.players))
         if self.id == "NEXT":
