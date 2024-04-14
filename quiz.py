@@ -16,10 +16,12 @@ async def req_real(api):
 async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, diff: str, ty: str):
     msg = await ctx.reply("Crunching data…")
     params = "```-quiz [mode: <all/anon/me> version: <any/v1/v2> count: <1-50> category: <any/9-32> difficulty: <any/easy/medium/hard> type: <any/multiple/boolean>```"
-    try: 
-        if count and (int(count) > 51 or int(count) < 1): return await msg.edit(content="Items must be 1-50.") 
-        if not count: count = "50"
-    except: return await msg.edit(content="Must be integer :("+params)
+    if count:
+        if count.isdigit():
+            if int(count) > 51 or int(count) < 1: 
+                return await msg.edit(content="Items must be 1-50.") 
+        else: return await msg.edit(content="Must be integer :("+params)
+    else: count = "50"
     multi, anon, ck, req = False, False, None, None
     if v == None or v == "v1" or v == "any": 
         req = f"https://opentdb.com/api.php?amount={int(count)}&encode=url3986"

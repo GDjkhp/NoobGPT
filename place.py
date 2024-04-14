@@ -38,10 +38,10 @@ async def PLACE(ctx: commands.Context, x: str, y: str, z: str):
     params = f"```-place [x: <0-{width-1}>, y: <0-{height-1}>, zoom:<16x>]```"
     msg = await ctx.reply("Drawing canvas…")
     if x and y:
-        try:
+        if x.isdigit() and y.isdigit():
             if int(x) > -1 and int(x) < width and int(y) > -1 and int(y) < height: pass
             else: return await ctx.reply(f"Must be {width}x{height}")
-        except: return await ctx.reply(f"Must be integer and {width}x{height}")
+        else: return await ctx.reply(f"Must be integer and {width}x{height}")
     else: x, y = 0, 0
     if z:
         z = extract_number(z)

@@ -360,10 +360,10 @@ async def wordle(ctx: commands.Context, mode: str, count: str):
 
     synsets_data = read_json_file("./res/dict/synsets_wordle.json")
     if count:
-        try:
+        if count.isdigit():
             if int(count) > 0 and int(count) <= len(synsets_data): pass
             else: return await ctx.reply(content=f"Must be greater than 0 and less than or equal to {len(synsets_data)}."+params)
-        except: return await ctx.reply(content="Not a valid integer.\n"+params)
+        else: return await ctx.reply(content="Not a valid integer.\n"+params)
     else: count = 1
 
     random.shuffle(synsets_data)

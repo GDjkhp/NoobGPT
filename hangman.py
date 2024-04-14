@@ -172,10 +172,10 @@ async def HANG(ctx: commands.Context, mode: str, count: str, gtype: str, cat: st
     else: mode = "me"
     synsets_data = read_json_file('./res/dict/synsets.json')
     if count:
-        try:
+        if count.isdigit():
             if int(count) > 0 and int(count) <= len(synsets_data): pass
             else: return await msg.edit(content=f"Must be greater than 0 and less than or equal to {len(synsets_data)}."+params)
-        except: return await msg.edit(content="Not a valid integer.\n"+params)
+        else: return await msg.edit(content="Not a valid integer.\n"+params)
     else: count = 1
     random.shuffle(synsets_data)
     words, index = synsets_data if mode == "hardcore" else synsets_data[:int(count)], 0

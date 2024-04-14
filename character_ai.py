@@ -112,9 +112,10 @@ class PyAsyncCAI:
             return data
 
     async def ping(self):
-        return self.session.get(
+        response = await self.session.get(
             'https://neo.character.ai/ping/'
-        ).json()
+        )
+        return response.json()
 
     @asynccontextmanager
     async def connect(self, token: str = None):
