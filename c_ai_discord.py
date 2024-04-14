@@ -13,6 +13,7 @@ client = PyAsyncCAI(os.getenv('CHARACTER'))
 pagelimit=12
 
 async def c_ai(bot: commands.Bot, msg: discord.Message):
+    if not msg.guild: return
     if msg.author.id == bot.user.id: return
     if msg.content == None: return
     ctx = await bot.get_context(msg) # context hack
@@ -45,16 +46,17 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
             if db["characters"][0] == msg.author.name: return
             chars = [db["characters"][0]]
     if not chars: return
-    
-    for x in chars:
-        if x["name"] == msg.author.name: continue
-        data = None
-        data = await client.chat.send_message(
-            x["history_id"], x["username"], clean_text
-        )
-        if data: await send_webhook_message(ctx, x, data['replies'][0]['text'], bot)
+    async with ctx.typing():
+        for x in chars:
+            if x["name"] == msg.author.name: continue
+            data = None
+            data = await client.chat.send_message(
+                x["history_id"], x["username"], clean_text
+            )
+            if data: await send_webhook_message(ctx, x, data['replies'][0]['text'], bot)
 
 async def add_char(ctx: commands.Context, text: str, list_type: str):
+    if not ctx.guild: return await ctx.reply("not supported")
     # fucked up the perms again
     permissions = ctx.guild.me.guild_permissions
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -78,6 +80,7 @@ async def add_char(ctx: commands.Context, text: str, list_type: str):
         await ctx.reply("an error occured")
 
 async def delete_char(ctx: commands.Context):
+    if not ctx.guild: return await ctx.reply("not supported")
     # fucked up the perms again
     permissions = ctx.guild.me.guild_permissions
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -93,6 +96,7 @@ async def delete_char(ctx: commands.Context):
     await ctx.reply(view=DeleteView(ctx, db["characters"], 0), embed=delete_embed(ctx.guild, db["characters"], 0, 0xff0000))
 
 async def t_chan(ctx: commands.Context):
+    if not ctx.guild: return await ctx.reply("not supported")
     # fucked up the perms again
     permissions = ctx.guild.me.guild_permissions
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -107,6 +111,7 @@ async def t_chan(ctx: commands.Context):
     else: await ctx.reply("channel removed from the list")
 
 async def t_adm(ctx: commands.Context):
+    if not ctx.guild: return await ctx.reply("not supported")
     # fucked up the perms again
     permissions = ctx.guild.me.guild_permissions
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -122,6 +127,7 @@ async def t_adm(ctx: commands.Context):
         await ctx.reply("admin approval on")
 
 async def t_mode(ctx: commands.Context):
+    if not ctx.guild: return await ctx.reply("not supported")
     # fucked up the perms again
     permissions = ctx.guild.me.guild_permissions
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -137,6 +143,7 @@ async def t_mode(ctx: commands.Context):
         await ctx.reply("channel mode on")
 
 async def set_rate(ctx: commands.Context, num):
+    if not ctx.guild: return await ctx.reply("not supported")
     if not num: return await ctx.reply("?")
     if not num.isdigit(): return await ctx.reply("not a digit")
     num = int(num)
@@ -148,6 +155,7 @@ async def set_rate(ctx: commands.Context, num):
     await ctx.reply(f"message_rate set to {num}")
 
 async def view_char(ctx: commands.Context):
+    if not ctx.guild: return await ctx.reply("not supported")
     # fucked up the perms again
     permissions = ctx.guild.me.guild_permissions
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -243,7 +251,7 @@ async def webhook_exists(webhook_url):
         return False
 async def send_webhook_message(ctx: commands.Context, x, text, bot):
     wh = await get_webhook(ctx, x, bot)
-    await wh.send(clean_gdjkhp(text, ctx.author.name))
+    if wh: await wh.send(clean_gdjkhp(text, ctx.author.name))
 
 class SelectChoice(discord.ui.Select):
     def __init__(self, ctx: commands.Context, index: int, result: list):
@@ -308,7 +316,6 @@ class SelectChoice(discord.ui.Select):
             }
             await asyncio.to_thread(push_character, self.ctx.guild.id, data)
             await interaction.message.edit(content=f"{selected['participant__name']} has been added to the server", embed=None, view=None)
-            # await send_webhook_message(self.ctx, data, chat["messages"][0]["text"])
             await wh.send(clean_gdjkhp(chat["messages"][0]["text"], self.ctx.author.name))
 
 class MyView4(discord.ui.View):
@@ -498,9 +505,10 @@ async def get_webhook(ctx: commands.Context, c_data, bot):
                     if await webhook_exists(w["url"]):
                         wh = discord.Webhook.from_url(w["url"], client=bot)
                         return wh
-    
-    await asyncio.to_thread(pull_character, ctx.guild.id, c_data)
+    whs = await ctx.channel.webhooks()
+    if len(whs) == 15: return None
     wh = await ctx.channel.create_webhook(name=c_data["name"], avatar=c_data["avatar"])
+    await asyncio.to_thread(pull_character, ctx.guild.id, c_data)
     await asyncio.to_thread(push_webhook, ctx.guild.id, c_data, {"channel": ctx.channel.id, "url": wh.url})
     return wh
 
