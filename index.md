@@ -38,7 +38,7 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 ## Donate
 [Paypal](https://paypal.me/GDjkhp)
 <details><summary><b>why you should invest on noobgpt</b></summary>
-<img src="https://gdjkhp.github.io/img/tenor.gif"></img>
+<img src="https://gdjkhp.github.io/img/tenor.gif">
 </details>
 <br>
 <!-- <details><summary><b>All funds raised will go directly to my friend, Riney. She has been diagnosed with lung cancer.</b></summary>
