@@ -6,6 +6,7 @@ import os
 import pymongo
 import aiohttp
 import random
+import re
 
 myclient = pymongo.MongoClient(os.getenv('MONGO'))
 mycol = myclient["ai"]["character"]
@@ -29,7 +30,7 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
 
     # get character (lowercase mention, roles, reply)
     chars = []
-    clean_text = replace_mentions(msg)
+    clean_text = replace_mentions(msg, bot)
     for x in db["characters"]:
         if x["name"].lower() in clean_text.lower(): 
             chars.append(x)
@@ -227,7 +228,7 @@ def generate_random_bool(num):
     return result < chance
 def clean_gdjkhp(o: str, n: str):
     return o.replace("GDjkhp", n)
-def replace_mentions(message: discord.Message):
+def replace_mentions(message: discord.Message, bot: commands.Bot):
     content = message.content
     if message.mentions:
         for mention in message.mentions:
@@ -241,8 +242,12 @@ def replace_mentions(message: discord.Message):
                 f'<@&{role_mention.id}>',
                 role_mention.name
             )
-    for emoji in message.guild.emojis:
+    # Replace emojis from the global cache
+    for emoji in bot.emojis:
         content = content.replace(str(emoji), f':{emoji.name}:')
+    # Find and remove custom emojis from servers the bot isn't in (Nitro emojis)
+    nitro_emoji_pattern = r'<a?:[^\s]+:([0-9]+)>'
+    content = re.sub(nitro_emoji_pattern, '', content)
     return content
 async def webhook_exists(webhook_url):
     try:
@@ -252,7 +257,7 @@ async def webhook_exists(webhook_url):
     except Exception as e:
         print("Error:", e)
         return False
-async def send_webhook_message(ctx: commands.Context, x, text, bot):
+async def send_webhook_message(ctx: commands.Context, x, text, bot: commands.Bot):
     wh = await get_webhook(ctx, x, bot)
     if wh: await wh.send(clean_gdjkhp(text, ctx.author.name))
 
@@ -498,7 +503,7 @@ def push_webhook(server_id: int, c_data, w_data):
     c_data["webhooks"].append(w_data)
     push_character(server_id, c_data)
 
-async def get_webhook(ctx: commands.Context, c_data, bot):
+async def get_webhook(ctx: commands.Context, c_data, bot: commands.Bot):
     test = await asyncio.to_thread(mycol.find_one, {"guild":ctx.guild.id})
     chars = test["characters"]
     for x in chars:
