@@ -71,7 +71,7 @@ async def get_filename(url):
                 return filename
             else:
                 print("Content-Disposition header not found.")
-                return None
+                return ""
 
 async def COBALT_API(ctx: commands.Context, args: list[str]):
     async with ctx.typing():
@@ -139,15 +139,27 @@ async def COBALT_API(ctx: commands.Context, args: list[str]):
         response = await payload_cooker(url, vCodec, vQuality, aFormat, filenamePattern, 
                                         isAudioOnly, isTTFullAudio, isAudioMuted, dubLang, disableMetadata, twitterGif, vimeoDash)
         # redirect, picker not tested. see https://github.com/wukko/cobalt?tab=readme-ov-file#additional-notes-or-features-per-service
-        bad = ["error", "rate-limit", "redirect", "picker"]
-        filename = "" if response["status"] in bad else await get_filename(response["url"])
-        return await msg.edit(content=f"{filename}\nstatus: {response['status']}\n{round(time.time() * 1000)-old}ms", 
-                              view=None if response["status"] in bad else DownloadView(response["url"]))
+        filename = ""
+        links = []
+        bad = ["error", "rate-limit"]
+        if response["status"] in bad:
+            filename = response["text"]
+        else:
+            if response["status"] == "picker":
+                for link in response["picker"]:
+                    links.append(link["url"])
+            else: 
+                filename = await get_filename(response["url"])
+                links.append(response["url"])
+        
+        await msg.edit(content=f"{filename}\nstatus: {response['status']}\n{round(time.time() * 1000)-old}ms", 
+                       view=None if response["status"] in bad else DownloadView(links))
         
 class DownloadView(discord.ui.View):
-    def __init__(self, link: str):
+    def __init__(self, links: list):
         super().__init__(timeout=None)
-        self.add_item(discord.ui.Button(style=discord.ButtonStyle.link, url=link, label="Download", emoji="⬇️"))
+        for x in links[:25]:
+            self.add_item(discord.ui.Button(style=discord.ButtonStyle.link, url=x, label=f"Download", emoji="⬇️"))
         
 # async def test():
 #     resp = await payload_cooker("https://www.youtube.com/watch?v=dQw4w9WgXcQ", "mp3")
