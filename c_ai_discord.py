@@ -259,7 +259,9 @@ async def webhook_exists(webhook_url):
         return False
 async def send_webhook_message(ctx: commands.Context, x, text, bot: commands.Bot):
     wh = await get_webhook(ctx, x, bot)
-    if wh: await wh.send(clean_gdjkhp(text, ctx.author.name))
+    if wh: 
+        await asyncio.sleep(5) # cooldown for rate limit (0.5 * 60, 30 messages per minute)
+        await wh.send(clean_gdjkhp(text, ctx.author.name))
 
 class SelectChoice(discord.ui.Select):
     def __init__(self, ctx: commands.Context, index: int, result: list):
