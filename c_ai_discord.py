@@ -241,6 +241,8 @@ def replace_mentions(message: discord.Message):
                 f'<@&{role_mention.id}>',
                 role_mention.name
             )
+    for emoji in message.guild.emojis:
+        content = content.replace(str(emoji), f':{emoji.name}:')
     return content
 async def webhook_exists(webhook_url):
     try:
