@@ -15,7 +15,7 @@ pagelimit=12
 async def c_ai(bot: commands.Bot, msg: discord.Message):
     if not msg.guild: return
     if msg.author.id == bot.user.id: return
-    if msg.content == None: return
+    if msg.content == "": return
     ctx = await bot.get_context(msg) # context hack
 
     # fucked up the perms again
@@ -27,7 +27,7 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
     if db["channel_mode"] and (not db["channels"] or not ctx.channel.id in db["channels"]): 
         return
 
-    # get character (roles, reply, lowercase mention)
+    # get character (lowercase mention, roles, reply)
     chars = []
     clean_text = replace_mentions(msg)
     for x in db["characters"]:
@@ -46,6 +46,7 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
             if db["characters"][0] == msg.author.name: return
             chars = [db["characters"][0]]
     if not chars: return
+
     async with ctx.typing():
         for x in chars:
             if x["name"] == msg.author.name: continue
@@ -297,7 +298,7 @@ class SelectChoice(discord.ui.Select):
             whs = await self.ctx.channel.webhooks()
             if len(whs) == 15: return await interaction.message.edit(content="webhook limit reached, please delete at least one", 
                                                                      embed=None, view=None)
-            img = await load_image(f"https://characterai.io/i/80/static/avatars/{selected['avatar_file_name']}")
+            img = await load_image(f"https://characterai.io/i/400/static/avatars/{selected['avatar_file_name']}")
             wh = await self.ctx.channel.create_webhook(name=selected["participant__name"], avatar=img)
             role = await create_role(self.ctx, selected["participant__name"])
             data = {
@@ -375,7 +376,7 @@ class DeleteChoice(discord.ui.Select):
         await interaction.response.defer()
 
         role = fetch_role(self.ctx, selected["role_id"])
-        await delete_role(role)
+        if role: await delete_role(role)
         await delete_webhooks(self.ctx, selected)
 
         await asyncio.to_thread(pull_character, self.ctx.guild.id, selected)
@@ -488,6 +489,7 @@ def pull_mode(server_id: int):
 def push_rate(server_id: int, value: int):
     mycol.update_one({"guild":server_id}, {"$set": {"message_rate": value}})
 
+# webhook handling (ugly but safe)
 def push_webhook(server_id: int, c_data, w_data):
     if not c_data.get("webhooks"): 
         c_data["webhooks"] = []
