@@ -7,7 +7,21 @@
 A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you.
 
 ## Usage
-### [Add to server](https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=274881170432&scope=applications.commands%20bot) or [send a direct message](https://discord.com/channels/@me/1090974620892536832) to start using.
+### [Add to server](https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=70781869870080&scope=applications.commands%20bot) or [send a direct message](https://discord.com/channels/@me/1090974620892536832) to start using.
+
+<details><summary><b>permissions and data collection</b></summary>
+<h2>permissions</h2>
+<li>read/send messages, attachments, files, embeds, links</li>
+<li>use custom emojis and stickers</li>
+<li>speak, join voice (music)</li>
+<li>manage webhooks, manage roles (character.ai)</li>
+
+<h2>data collection</h2>
+legend: <span style="color: red;">not accessed</span> / <span style="color: lime;">accessed</span> / <span style="color: yellow;">collected</span>
+<li>server: <span style="color: lime;">name</span>, <span style="color: yellow;">id</span>, <span style="color: yellow;">channels</span>, <span style="color: yellow;">roles</span>, <span style="color: yellow;">webhooks</span>, <span style="color: red;">invite</span>, <span style="color: red;">audit</span>, <span style="color: red;">events</span>, <span style="color: red;">monetization</span>, <span style="color: lime;">emojis</span>, <span style="color: red;">stickers</span></li>
+<li>user: <span style="color: lime;">name</span>, <span style="color: yellow;">id</span>, <span style="color: lime;">avatar</span>, <span style="color: lime;">banner</span></li>
+<li>message: <span style="color: lime;">content</span>, <span style="color: lime;">files</span>, <span style="color: lime;">embeds</span>, <span style="color: lime;">links</span></li>
+</details>
 
 ## Source Code
 ### This bot now runs on <https://bot-hosting.net>
@@ -31,8 +45,8 @@ Riney, also known as Sky47, is one of the top users of this bot. I met her in th
 <img src="https://i.imgur.com/MpkPaHC.png">
 <br>
 Note: For every successful transaction, users will get ProGPT subscription when it's released.
-</details> -->
-<br>
+</details>
+<br> -->
 
 # Overview
 
@@ -66,6 +80,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-ge [text/image]` Google AI Gemini language model.
 * `-petals` Run large language models at home, BitTorrent‑style.
 * `-perplex` Perplexity AI unlocks the power of knowledge with information discovery and sharing.
+* `-chelp` Character.ai is an American neural language model chatbot service that can generate human-like text responses and participate in contextual conversation.
 
 ## Games 🎲
 * `-aki (optional: category = [people/animals/objects] [language])` Play a guessing game of [Akinator](https://akinator.com).
@@ -127,6 +142,7 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 * <https://github.com/mongodb/mongo-python-driver>
 * <https://github.com/python-pillow/Pillow>
 * <https://github.com/robertoduessmann/weather-api>
+* <https://github.com/kramcat/CharacterAI>
 
 ### Sites
 * <https://openai.com>
@@ -143,11 +159,12 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 * <https://ai.google.dev>
 * <https://sflix.se>
 * <https://cobalt.tools>
+* <https://character.ai>
 <!-- * <https://lexica.art> -->
 
 ### Special Thanks
 * `jaicraft` Perplexity, Claude, Mistral access
-* `aychelletroller` OpenAI access
+<!-- * `aychelletroller` OpenAI access -->
 
 ### Legal
 <marquee>This bot <s>is against Discord and Replit Terms of Service and</s> violates the licenses credited above. Proceed with caution!</marquee>
