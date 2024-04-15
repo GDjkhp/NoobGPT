@@ -18,7 +18,7 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 
 <h2>data collection</h2>
 legend: <span style="color: red;">not accessed</span> / <span style="color: lime;">accessed</span> / <span style="color: yellow;">collected</span>
-<li>server: <span style="color: lime;">name</span>, <span style="color: yellow;">id</span>, <span style="color: yellow;">channels</span>, <span style="color: yellow;">roles</span>, <span style="color: yellow;">webhooks</span>, <span style="color: red;">invite</span>, <span style="color: red;">audit</span>, <span style="color: red;">events</span>, <span style="color: red;">monetization</span>, <span style="color: lime;">emojis</span>, <span style="color: red;">stickers</span></li>
+<li>server: <span style="color: lime;">name</span>, <span style="color: yellow;">id</span>, <span style="color: yellow;">channels</span>, <span style="color: yellow;">roles</span>, <span style="color: yellow;">webhooks</span>, <span style="color: lime;">emojis</span>, <span style="color: red;">stickers</span>, <span style="color: red;">invite</span>, <span style="color: red;">audit</span>, <span style="color: red;">events</span>, <span style="color: red;">monetization</span></li>
 <li>user: <span style="color: lime;">name</span>, <span style="color: yellow;">id</span>, <span style="color: lime;">avatar</span>, <span style="color: lime;">banner</span></li>
 <li>message: <span style="color: lime;">content</span>, <span style="color: lime;">files</span>, <span style="color: lime;">embeds</span>, <span style="color: lime;">links</span></li>
 </details>
@@ -37,6 +37,10 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 
 ## Donate
 [Paypal](https://paypal.me/GDjkhp)
+<details><summary><b>why you should invest on noobgpt</b></summary>
+<img src="https://gdjkhp.github.io/img/tenor.gif"></img>
+</details>
+<br>
 <!-- <details><summary><b>All funds raised will go directly to my friend, Riney. She has been diagnosed with lung cancer.</b></summary>
 Riney, also known as Sky47, is one of the top users of this bot. I met her in the official Geometry Dash discord server as a fellow Filipino. Ever since I added this bot to her own server, she has been really freaky and having fun with it.
 <br>
