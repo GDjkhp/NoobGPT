@@ -34,7 +34,7 @@ async def run_tasks():
                     await send_webhook_message(ctx, x, text)
                     typing_chans.remove(ctx.channel.id)
                     
-        await asyncio.sleep(5)
+        await asyncio.sleep(1) # DO NOT REMOVE
 def add_task(ctx, x, text):
     tasks_queue.put((ctx, x, text))
 async def c_ai_init():
