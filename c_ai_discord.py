@@ -51,13 +51,8 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
     for x in chars:
         if x["name"] == msg.author.name: continue
         data = None
-        if ctx.me.typing():
-            data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
-            if data: await send_webhook_message(ctx, x, data['replies'][0]['text'])
-        else:
-            async with ctx.typing():
-                data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
-                if data: await send_webhook_message(ctx, x, data['replies'][0]['text'])
+        data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
+        if data: await send_webhook_message(ctx, x, data['replies'][0]['text'])
 
 async def add_char(ctx: commands.Context, text: str, list_type: str):
     if not ctx.guild: return await ctx.reply("not supported")
