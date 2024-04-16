@@ -138,7 +138,6 @@ async def COBALT_API(ctx: commands.Context, args: list[str]):
         url = args[0]
         response = await payload_cooker(url, vCodec, vQuality, aFormat, filenamePattern, 
                                         isAudioOnly, isTTFullAudio, isAudioMuted, dubLang, disableMetadata, twitterGif, vimeoDash)
-        # redirect, picker not tested. see https://github.com/wukko/cobalt?tab=readme-ov-file#additional-notes-or-features-per-service
         filename = ""
         links = []
         bad = ["error", "rate-limit"]

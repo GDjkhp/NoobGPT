@@ -48,14 +48,17 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
             chars = [db["characters"][0]]
     if not chars: return
 
-    async with ctx.typing():
-        for x in chars:
-            if x["name"] == msg.author.name: continue
-            data = None
-            data = await client.chat.send_message(
-                x["history_id"], x["username"], clean_text
-            )
-            if data: await send_webhook_message(ctx, x, data['replies'][0]['text'], bot)
+    for x in chars:
+        if x["name"] == msg.author.name: continue
+        data = None
+        data = await client.chat.send_message(
+            x["history_id"], x["username"], clean_text
+        )
+        if data and not ctx.me.typing(): 
+            async with ctx.typing():
+                await send_webhook_message(ctx, x, data['replies'][0]['text'])
+        if data and ctx.me.typing():
+            await send_webhook_message(ctx, x, data['replies'][0]['text'])
 
 async def add_char(ctx: commands.Context, text: str, list_type: str):
     if not ctx.guild: return await ctx.reply("not supported")
@@ -257,10 +260,10 @@ async def webhook_exists(webhook_url):
     except Exception as e:
         print("Error:", e)
         return False
-async def send_webhook_message(ctx: commands.Context, x, text, bot: commands.Bot):
-    wh = await get_webhook(ctx, x, bot)
+async def send_webhook_message(ctx: commands.Context, x, text):
+    wh = await get_webhook(ctx, x)
     if wh: 
-        await asyncio.sleep(5) # cooldown for rate limit (0.5 * 60, 30 messages per minute)
+        # await asyncio.sleep(5) # cooldown for rate limit (0.5 * 60, 30 messages per minute)
         await wh.send(clean_gdjkhp(text, ctx.author.name))
 
 class SelectChoice(discord.ui.Select):
@@ -505,7 +508,7 @@ def push_webhook(server_id: int, c_data, w_data):
     c_data["webhooks"].append(w_data)
     push_character(server_id, c_data)
 
-async def get_webhook(ctx: commands.Context, c_data, bot: commands.Bot):
+async def get_webhook(ctx: commands.Context, c_data):
     test = await asyncio.to_thread(mycol.find_one, {"guild":ctx.guild.id})
     chars = test["characters"]
     for x in chars:
@@ -514,7 +517,7 @@ async def get_webhook(ctx: commands.Context, c_data, bot: commands.Bot):
             for w in x["webhooks"]:
                 if w["channel"] == ctx.channel.id:
                     if await webhook_exists(w["url"]):
-                        wh = discord.Webhook.from_url(w["url"], client=bot)
+                        wh = discord.Webhook.from_url(w["url"], client=ctx.bot)
                         return wh
     whs = await ctx.channel.webhooks()
     if len(whs) == 15: return None
