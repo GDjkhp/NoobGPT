@@ -7,6 +7,7 @@ import pymongo
 import aiohttp
 import random
 import re
+from queue import Queue
 
 myclient = pymongo.MongoClient(os.getenv('MONGO'))
 mycol = myclient["ai"]["character"]
@@ -14,6 +15,33 @@ client = PyAsyncCAI(os.getenv('CHARACTER'))
 pagelimit=12
 typing_chans = []
 
+# queue system
+tasks_queue = Queue()
+async def run_tasks():
+    while True:
+        if not tasks_queue.empty():
+            ctx, x, text = tasks_queue.get()
+
+            db = await asyncio.to_thread(get_database, ctx.guild.id)
+            if db["channel_mode"] and not ctx.channel.id in db["channels"]: continue
+            if db["message_rate"] == 0: continue
+            
+            if ctx.channel.id in typing_chans:
+                await send_webhook_message(ctx, x, text)
+            else:
+                async with ctx.typing():
+                    typing_chans.append(ctx.channel.id)
+                    await send_webhook_message(ctx, x, text)
+                    typing_chans.remove(ctx.channel.id)
+                    
+        await asyncio.sleep(5)
+def add_task(ctx, x, text):
+    tasks_queue.put((ctx, x, text))
+async def c_ai_init():
+    task = asyncio.create_task(run_tasks())
+    await task
+
+# the real
 async def c_ai(bot: commands.Bot, msg: discord.Message):
     if not msg.guild: return
     if msg.author.id == bot.user.id: return
@@ -49,15 +77,8 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
     for x in chars:
         if x["name"] == msg.author.name: continue
         data = None
-        if ctx.channel.id in typing_chans:
-            data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
-            if data: await send_webhook_message(ctx, x, data['replies'][0]['text'])
-        else:
-            async with ctx.typing():
-                typing_chans.append(ctx.channel.id)
-                data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
-                if data: await send_webhook_message(ctx, x, data['replies'][0]['text'])
-                typing_chans.remove(ctx.channel.id)
+        data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
+        if data: add_task(ctx, x, data['replies'][0]['text'])
 
 async def add_char(ctx: commands.Context, text: str, list_type: str):
     if not ctx.guild: return await ctx.reply("not supported")
@@ -258,9 +279,7 @@ async def webhook_exists(webhook_url):
         return False
 async def send_webhook_message(ctx: commands.Context, x, text):
     wh = await get_webhook(ctx, x)
-    if wh:
-        await asyncio.sleep(1)
-        await wh.send(clean_gdjkhp(text, ctx.author.name))
+    if wh: await wh.send(clean_gdjkhp(text, ctx.author.name))
 # TODO: fix: add space? on each end. bug: van -> vanish (true)
 def snake(text: str):
     words = []
