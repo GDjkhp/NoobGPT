@@ -33,7 +33,7 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
     chars = []
     clean_text = replace_mentions(msg, bot)
     for x in db["characters"]:
-        if x["name"].lower() in clean_text.lower(): 
+        if smart_str_compare(clean_text, x["name"]):
             chars.append(x)
     if msg.reference:
         ref_msg = await msg.channel.fetch_message(msg.reference.message_id)
@@ -45,8 +45,8 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
         if trigger and db["characters"]:
             # print("random get")
             random.shuffle(db["characters"])
-            if db["characters"][0] == msg.author.name: return
-            chars = [db["characters"][0]]
+            if not db["characters"][0] == msg.author.name:
+                chars.append(db["characters"][0])
     if not chars: return
 
     for x in chars:
@@ -247,12 +247,9 @@ def replace_mentions(message: discord.Message, bot: commands.Bot):
                 f'<@&{role_mention.id}>',
                 role_mention.name
             )
-    # Replace emojis from the global cache
-    for emoji in bot.emojis:
+    for emoji in bot.emojis: # global cache
         content = content.replace(str(emoji), f':{emoji.name}:')
-    # Find and remove custom emojis from servers the bot isn't in (Nitro emojis)
-    nitro_emoji_pattern = r'<a?:[^\s]+:([0-9]+)>'
-    content = re.sub(nitro_emoji_pattern, '', content)
+    content = re.sub(r'<a?:[^\s]+:([0-9]+)>', '', content) # nitro_emoji_pattern
     return content
 async def webhook_exists(webhook_url):
     try:
@@ -264,9 +261,34 @@ async def webhook_exists(webhook_url):
         return False
 async def send_webhook_message(ctx: commands.Context, x, text):
     wh = await get_webhook(ctx, x)
-    if wh: 
-        # await asyncio.sleep(5) # cooldown for rate limit (0.5 * 60, 30 messages per minute)
+    if wh:
+        await asyncio.sleep(1)
         await wh.send(clean_gdjkhp(text, ctx.author.name))
+def snake(text: str):
+    words = []
+    current_word = ""
+    for char in text:
+        if char.isupper():
+            if current_word:
+                words.append(current_word)
+            current_word = char.lower()
+        else:
+            current_word += char
+    if current_word:
+        words.append(current_word)
+    return words
+def smart_str_compare(text: str, char: str):
+    snake_splits = snake(char)
+    text, char = text.lower(), char.lower()
+    char_splits = char.split()
+    no_space_char = re.sub(r'[^a-zA-Z0-9]', '', char)
+    if char in text: return True # old
+    if no_space_char in text: return True
+    for x in char_splits:
+        if x in text: return True
+    for x in snake_splits: # weird
+        if x in text: return True
+    return False
 
 class SelectChoice(discord.ui.Select):
     def __init__(self, ctx: commands.Context, index: int, result: list):
