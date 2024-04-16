@@ -22,19 +22,16 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
 
     # fucked up the perms again
     permissions = ctx.guild.me.guild_permissions
-    if not permissions.manage_webhooks or not permissions.manage_roles:
-        return
+    if not permissions.manage_webhooks or not permissions.manage_roles: return
 
     db = await asyncio.to_thread(get_database, ctx.guild.id)
-    if db["channel_mode"] and (not db["channels"] or not ctx.channel.id in db["channels"]): 
-        return
+    if db["channel_mode"] and not ctx.channel.id in db["channels"]: return
 
     # get character (lowercase mention, roles, reply)
     chars = []
     clean_text = replace_mentions(msg, bot)
     for x in db["characters"]:
-        if smart_str_compare(clean_text, x["name"]):
-            chars.append(x)
+        if smart_str_compare(clean_text, x["name"]): chars.append(x)
     if msg.reference:
         ref_msg = await msg.channel.fetch_message(msg.reference.message_id)
         for x in db["characters"]:
@@ -264,6 +261,7 @@ async def send_webhook_message(ctx: commands.Context, x, text):
     if wh:
         await asyncio.sleep(1)
         await wh.send(clean_gdjkhp(text, ctx.author.name))
+# TODO: fix: add space? on each end. bug: van -> vanish (true)
 def snake(text: str):
     words = []
     current_word = ""
