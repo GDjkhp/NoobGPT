@@ -12,6 +12,7 @@ myclient = pymongo.MongoClient(os.getenv('MONGO'))
 mycol = myclient["ai"]["character"]
 client = PyAsyncCAI(os.getenv('CHARACTER'))
 pagelimit=12
+typing_chans = []
 
 async def c_ai(bot: commands.Bot, msg: discord.Message):
     if not msg.guild: return
@@ -51,8 +52,15 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
     for x in chars:
         if x["name"] == msg.author.name: continue
         data = None
-        data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
-        if data: await send_webhook_message(ctx, x, data['replies'][0]['text'])
+        if ctx.channel.id in typing_chans:
+            data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
+            if data: await send_webhook_message(ctx, x, data['replies'][0]['text'])
+        else:
+            async with ctx.typing():
+                typing_chans.append(ctx.channel.id)
+                data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
+                if data: await send_webhook_message(ctx, x, data['replies'][0]['text'])
+                typing_chans.remove(ctx.channel.id)
 
 async def add_char(ctx: commands.Context, text: str, list_type: str):
     if not ctx.guild: return await ctx.reply("not supported")
