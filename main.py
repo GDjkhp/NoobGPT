@@ -27,7 +27,7 @@ from gde_hall_of_fame import main, main_rob, main_styx
 # async def before_my_task():
 #     await bot.wait_until_ready()  # wait until the bot logs in
 
-from c_ai_discord import add_char, delete_char, t_chan, t_adm, c_ai, set_rate, c_help, t_mode, view_char, c_ai_init
+from c_ai_discord import add_char, delete_char, t_chan, t_adm, c_ai, set_rate, c_help, t_mode, view_char, c_ai_init, edit_char
 @bot.event
 async def on_ready():
     print(f"{bot.user.name} (c) 2024 The Karakters Kompany. All rights reserved.")
@@ -303,6 +303,10 @@ async def cmode(ctx: commands.Context):
 @bot.command()
 async def cchar(ctx: commands.Context):
     bot.loop.create_task(view_char(ctx))
+
+@bot.command()
+async def cedit(ctx: commands.Context, rate=None):
+    bot.loop.create_task(edit_char(ctx, rate))
 
 # the real games
 from tictactoe import TicTacToe
