@@ -14,6 +14,7 @@ mycol = myclient["ai"]["character"]
 client = PyAsyncCAI(os.getenv('CHARACTER'))
 pagelimit=12
 typing_chans = []
+supported = [discord.TextChannel, discord.VoiceChannel, discord.StageChannel] # sussy
 
 # queue system
 tasks_queue = Queue()
@@ -26,13 +27,15 @@ async def run_tasks():
             if db["channel_mode"] and not ctx.channel.id in db["channels"]: continue
             if db["message_rate"] == 0: continue
             
-            if ctx.channel.id in typing_chans:
-                await send_webhook_message(ctx, x, text)
-            else:
-                async with ctx.typing():
-                    typing_chans.append(ctx.channel.id)
+            try:
+                if ctx.channel.id in typing_chans:
                     await send_webhook_message(ctx, x, text)
-                    typing_chans.remove(ctx.channel.id)
+                else:
+                    async with ctx.typing():
+                        typing_chans.append(ctx.channel.id)
+                        await send_webhook_message(ctx, x, text)
+                        typing_chans.remove(ctx.channel.id)
+            except Exception as e: print(e)
                     
         await asyncio.sleep(1) # DO NOT REMOVE
 def add_task(ctx, x, text):
@@ -43,17 +46,18 @@ async def c_ai_init():
 
 # the real
 async def c_ai(bot: commands.Bot, msg: discord.Message):
-    if not msg.guild: return
+    if not type(msg.channel) in supported: return
     if msg.author.id == bot.user.id: return
-    if msg.content == "": return
+    if msg.content == "": return # you can send blank messages
     ctx = await bot.get_context(msg) # context hack
 
     # fucked up the perms again
-    permissions = ctx.guild.me.guild_permissions
+    permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles: return
 
     db = await asyncio.to_thread(get_database, ctx.guild.id)
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: return
+    if db["message_rate"] == 0: return
 
     # get character (lowercase mention, roles, reply)
     chars = []
@@ -81,9 +85,9 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
         if data: add_task(ctx, x, data['replies'][0]['text'])
 
 async def add_char(ctx: commands.Context, text: str, list_type: str):
-    if not ctx.guild: return await ctx.reply("not supported")
+    if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
-    permissions = ctx.guild.me.guild_permissions
+    permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     
@@ -105,9 +109,9 @@ async def add_char(ctx: commands.Context, text: str, list_type: str):
         await ctx.reply("an error occured")
 
 async def delete_char(ctx: commands.Context):
-    if not ctx.guild: return await ctx.reply("not supported")
+    if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
-    permissions = ctx.guild.me.guild_permissions
+    permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     
@@ -121,9 +125,9 @@ async def delete_char(ctx: commands.Context):
     await ctx.reply(view=DeleteView(ctx, db["characters"], 0), embed=delete_embed(ctx.guild, db["characters"], 0, 0xff0000))
 
 async def t_chan(ctx: commands.Context):
-    if not ctx.guild: return await ctx.reply("not supported")
+    if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
-    permissions = ctx.guild.me.guild_permissions
+    permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     
@@ -136,9 +140,9 @@ async def t_chan(ctx: commands.Context):
     else: await ctx.reply("channel removed from the list")
 
 async def t_adm(ctx: commands.Context):
-    if not ctx.guild: return await ctx.reply("not supported")
+    if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
-    permissions = ctx.guild.me.guild_permissions
+    permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     if not ctx.author.guild_permissions.administrator:
@@ -152,9 +156,9 @@ async def t_adm(ctx: commands.Context):
         await ctx.reply("admin approval on")
 
 async def t_mode(ctx: commands.Context):
-    if not ctx.guild: return await ctx.reply("not supported")
+    if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
-    permissions = ctx.guild.me.guild_permissions
+    permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     if not ctx.author.guild_permissions.administrator:
@@ -168,7 +172,7 @@ async def t_mode(ctx: commands.Context):
         await ctx.reply("channel mode on")
 
 async def set_rate(ctx: commands.Context, num):
-    if not ctx.guild: return await ctx.reply("not supported")
+    if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     if not num: return await ctx.reply("?")
     if not num.isdigit(): return await ctx.reply("not a digit")
     num = int(num)
@@ -180,9 +184,9 @@ async def set_rate(ctx: commands.Context, num):
     await ctx.reply(f"message_rate set to {num}")
 
 async def view_char(ctx: commands.Context):
-    if not ctx.guild: return await ctx.reply("not supported")
+    if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
-    permissions = ctx.guild.me.guild_permissions
+    permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     
@@ -299,12 +303,15 @@ def smart_str_compare(text: str, char: str):
     text, char = text.lower(), char.lower()
     char_splits = char.split()
     no_space_char = re.sub(r'[^a-zA-Z0-9]', '', char)
+    remove_symbols_text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
     if char in text: return True # old
     if no_space_char in text: return True
     for x in char_splits:
-        if x in text: return True
+        for y in remove_symbols_text.split():
+            if x == y: return True
     for x in snake_splits: # weird
-        if x in text: return True
+        for y in remove_symbols_text.split():
+            if x == y: return True
     return False
 
 class SelectChoice(discord.ui.Select):
@@ -572,8 +579,9 @@ async def delete_webhooks(ctx: commands.Context, c_data):
     chars = test["characters"]
     for x in chars:
         if x["name"] == c_data["name"]:
-            channels = ctx.guild.text_channels
+            channels = ctx.guild.channels
             for chan in channels:
+                if not type(chan) in supported: continue
                 perms = chan.permissions_for(ctx.guild.me)
                 if perms.manage_webhooks:
                     whs = await chan.webhooks()
