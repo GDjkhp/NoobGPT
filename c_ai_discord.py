@@ -21,25 +21,29 @@ tasks_queue = Queue()
 async def run_tasks():
     while True:
         if not tasks_queue.empty():
-            ctx, x, text = tasks_queue.get()
+            ctx, x, clean_text = tasks_queue.get()
 
             db = await asyncio.to_thread(get_database, ctx.guild.id)
             if db["channel_mode"] and not ctx.channel.id in db["channels"]: continue
             if db["message_rate"] == 0: continue
+
             if generate_random_bool(get_rate(ctx.channel.id, x)):
                 try:
                     if ctx.channel.id in typing_chans:
-                        await send_webhook_message(ctx, x, text)
+                        data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
+                        if data: await send_webhook_message(ctx, x, data['replies'][0]['text'])
                     else:
                         async with ctx.typing():
                             typing_chans.append(ctx.channel.id)
-                            await send_webhook_message(ctx, x, text)
+                            data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
+                            if data: await send_webhook_message(ctx, x, data['replies'][0]['text'])
                             typing_chans.remove(ctx.channel.id)
-                except Exception as e: print(e)
-                    
+                except Exception as e: print(e)      
         await asyncio.sleep(1) # DO NOT REMOVE
-def add_task(ctx, x, text):
-    tasks_queue.put((ctx, x, text))
+
+def add_task(ctx, x, clean_text):
+    tasks_queue.put((ctx, x, clean_text))
+
 async def c_ai_init():
     task = asyncio.create_task(run_tasks())
     await task
@@ -81,9 +85,8 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
     for x in chars:
         if x["name"] == msg.author.name: continue
         data = None
-        if generate_random_bool(get_rate(ctx.channel.id, x)):
-            data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
-            if data: add_task(ctx, x, data['replies'][0]['text'])
+        if generate_random_bool(get_rate(ctx.channel.id, x)): 
+            add_task(ctx, x, clean_text)
 
 async def add_char(ctx: commands.Context, text: str, list_type: str):
     if not type(ctx.channel) in supported: return await ctx.reply("not supported")
@@ -123,7 +126,7 @@ async def delete_char(ctx: commands.Context):
         return await ctx.reply("channel not found")
     
     if not db["characters"]: return await ctx.reply("no entries found")
-    await ctx.reply(view=DeleteView(ctx, db["characters"], 0), embed=delete_embed(ctx.guild, db["characters"], 0, 0xff0000))
+    await ctx.reply(view=DeleteView(ctx, db["characters"], 0), embed=view_embed(ctx, db["characters"], 0, 0xff0000))
 
 async def t_chan(ctx: commands.Context):
     if not type(ctx.channel) in supported: return await ctx.reply("not supported")
@@ -208,7 +211,7 @@ async def view_char(ctx: commands.Context):
     
     if not db["characters"]: return await ctx.reply("no entries found")
     text = f"message_rate: {db['message_rate']}%\nchannel_mode: {db['channel_mode']}\nadmin_approval: {db['admin_approval']}"
-    await ctx.reply(view=AvailView(ctx, db["characters"], 0), embed=delete_embed(ctx.guild, db["characters"], 0, 0x00ff00), content=text)
+    await ctx.reply(view=AvailView(ctx, db["characters"], 0), embed=view_embed(ctx, db["characters"], 0, 0x00ff00), content=text)
 
 async def edit_char(ctx: commands.Context, rate: str):
     if not type(ctx.channel) in supported: return await ctx.reply("not supported")
@@ -275,12 +278,12 @@ def search_embed(arg: str, result: list, index: int):
         if (i < index+pagelimit): embed.add_field(name=f"[{i + 1}] {result[i]['participant__name']}", value=f"{result[i]['title']}")
         i += 1
     return embed
-def delete_embed(arg: str, result: list, index: int, col: int):
-    embed = discord.Embed(title=arg, description=f"{len(result)} found", color=col)
+def view_embed(ctx: commands.Context, result: list, index: int, col: int):
+    embed = discord.Embed(title=ctx.guild, description=f"{len(result)} found", color=col)
     i = index
     while i < len(result):
         if (i < index+pagelimit): 
-            embed.add_field(name=f"[{i + 1}] {result[i]['name']}", value=result[i]['description'])
+            embed.add_field(name=f"[{i + 1}] {result[i]['name']}", value=f"{get_rate(ctx.channel.id, result[i])}%")
         i += 1
     return embed
 def edit_embed(ctx: commands.Context, result: list, index: int, col: int):
@@ -362,10 +365,9 @@ def fix_num(num):
     return num
 def get_rate(id: int, x):
     for wh in x["webhooks"]:
-        if wh["channel"] == id: 
+        if wh["channel"] == id:
             if wh.get("char_message_rate"):
                 return wh["char_message_rate"]
-            else: return 100
     return 0
 
 class SelectChoice(discord.ui.Select):
@@ -521,7 +523,7 @@ class nextPageDelete(discord.ui.Button):
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(view = DeleteView(self.ctx, self.result, self.index), 
-                                                embed= delete_embed(self.ctx.guild, self.result, self.index, 0xff0000))
+                                                embed= view_embed(self.ctx, self.result, self.index, 0xff0000))
 
 class AvailView(discord.ui.View):
     def __init__(self, ctx: commands.Context, result: list, index: int):
@@ -545,7 +547,7 @@ class nextPageAvail(discord.ui.Button):
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(view = AvailView(self.ctx, self.result, self.index), 
-                                                embed= delete_embed(self.ctx.guild, self.result, self.index, 0x00ff00))
+                                                embed= view_embed(self.ctx, self.result, self.index, 0x00ff00))
 
 class EditChoice(discord.ui.Select):
     def __init__(self, ctx: commands.Context, index: int, result: list, rate: int):
@@ -608,6 +610,7 @@ class EditView(discord.ui.View):
             self.add_item(nextPageEdit(ctx, result, last_index, "▶️", rate))
             max_page = get_max_page(len(result))
             self.add_item(nextPageEdit(ctx, result, max_page, "⏩", rate))
+        self.add_item(CancelButton(ctx))
 
 class nextPageEdit(discord.ui.Button):
     def __init__(self, ctx: commands.Context, result: list, index: int, l: str, rate: int):
