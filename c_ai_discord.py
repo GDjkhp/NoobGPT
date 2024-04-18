@@ -336,7 +336,7 @@ async def send_webhook_message(ctx: commands.Context, x, text):
     wh = await get_webhook(ctx, x)
     if wh:
         if type(ctx.channel) == discord.Thread:
-            await wh.send(clean_gdjkhp(text, ctx.author.name), thread=ctx.channel.id)
+            await wh.send(clean_gdjkhp(text, ctx.author.name), thread=ctx.channel)
         else:
             await wh.send(clean_gdjkhp(text, ctx.author.name))
 def snake(text: str):
@@ -460,7 +460,7 @@ class SelectChoice(discord.ui.Select):
             await asyncio.to_thread(push_character, self.ctx.guild.id, data)
             await interaction.message.edit(content=f"{selected['participant__name']} has been added to the server", embed=None, view=None)
             if type(parent) == discord.Thread:
-                await wh.send(clean_gdjkhp(chat["messages"][0]["text"], self.ctx.author.name), thread=self.ctx.channel.id)
+                await wh.send(clean_gdjkhp(chat["messages"][0]["text"], self.ctx.author.name), thread=self.ctx.channel)
             else:
                 await wh.send(clean_gdjkhp(chat["messages"][0]["text"], self.ctx.author.name))
 
