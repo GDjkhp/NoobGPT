@@ -21,7 +21,7 @@ tasks_queue = Queue()
 async def run_tasks():
     while True:
         if not tasks_queue.empty():
-            ctx, x, clean_text = tasks_queue.get()
+            ctx, x, text = tasks_queue.get()
 
             db = await asyncio.to_thread(get_database, ctx.guild.id)
             if db["channel_mode"] and not ctx.channel.id in db["channels"]: continue
@@ -30,19 +30,17 @@ async def run_tasks():
             if generate_random_bool(get_rate(ctx, x)):
                 try:
                     if ctx.channel.id in typing_chans:
-                        data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
-                        if data: await send_webhook_message(ctx, x, data['replies'][0]['text'])
+                        await send_webhook_message(ctx, x, text)
                     else:
                         async with ctx.typing():
                             typing_chans.append(ctx.channel.id)
-                            data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
-                            if data: await send_webhook_message(ctx, x, data['replies'][0]['text'])
+                            await send_webhook_message(ctx, x, text)
                             typing_chans.remove(ctx.channel.id)
                 except Exception as e: print(e)      
         await asyncio.sleep(1) # DO NOT REMOVE
 
-def add_task(ctx, x, clean_text):
-    tasks_queue.put((ctx, x, clean_text))
+def add_task(ctx, x, text):
+    tasks_queue.put((ctx, x, text))
 
 async def c_ai_init():
     task = asyncio.create_task(run_tasks())
@@ -84,9 +82,16 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
 
     for x in chars:
         if x["name"] == msg.author.name: continue
-        data = None
-        if generate_random_bool(get_rate(ctx, x)): 
-            add_task(ctx, x, clean_text)
+        if generate_random_bool(get_rate(ctx, x)):
+            if ctx.channel.id in typing_chans:
+                data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
+                if data: add_task(ctx, x, data['replies'][0]['text'])
+            else:
+                async with ctx.typing():
+                    typing_chans.append(ctx.channel.id)
+                    data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
+                    if data: add_task(ctx, x, data['replies'][0]['text'])
+                    typing_chans.remove(ctx.channel.id)
 
 async def add_char(ctx: commands.Context, text: str, list_type: str):
     if not type(ctx.channel) in supported: return await ctx.reply("not supported")
