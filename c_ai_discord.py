@@ -624,14 +624,14 @@ class EditChoice(discord.ui.Select):
             if type(parent) == discord.Thread:
                 parent = parent.parent
                 threads = [{"id": self.ctx.channel.id, "rate": self.rate}]
-            selected["webhooks"] = mod_webhooks # malform fix
             whs = await parent.webhooks()
             if len(whs) == 15:
                 return await interaction.message.edit(content="webhook limit reached, please delete at least one", embed=None, view=None)
             wh = await parent.create_webhook(name=selected["name"], avatar=selected["avatar"])
             await asyncio.to_thread(pull_character, self.ctx.guild.id, selected)
+            selected["webhooks"] = mod_webhooks # malform fix
             await asyncio.to_thread(push_webhook, self.ctx.guild.id, selected, {
-                "channel": self.ctx.channel.id, "url": wh.url, "char_message_rate": self.rate, "threads": threads})
+                "channel": parent.id, "url": wh.url, "char_message_rate": self.rate, "threads": threads})
 
         await interaction.message.edit(content=f"{selected['name']} char_message_rate is now set to {self.rate} on this channel", 
                                        embed=None, view=None)
