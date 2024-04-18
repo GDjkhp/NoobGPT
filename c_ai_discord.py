@@ -14,7 +14,7 @@ mycol = myclient["ai"]["character"]
 client = PyAsyncCAI(os.getenv('CHARACTER'))
 pagelimit=12
 typing_chans = []
-supported = [discord.TextChannel, discord.VoiceChannel, discord.StageChannel] # sussy
+supported = [discord.TextChannel, discord.VoiceChannel, discord.StageChannel, discord.Thread] # sussy
 
 # queue system
 tasks_queue = Queue()
@@ -27,7 +27,7 @@ async def run_tasks():
             if db["channel_mode"] and not ctx.channel.id in db["channels"]: continue
             if db["message_rate"] == 0: continue
 
-            if generate_random_bool(get_rate(ctx.channel.id, x)):
+            if generate_random_bool(get_rate(ctx, x)):
                 try:
                     if ctx.channel.id in typing_chans:
                         data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
@@ -85,7 +85,7 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
     for x in chars:
         if x["name"] == msg.author.name: continue
         data = None
-        if generate_random_bool(get_rate(ctx.channel.id, x)): 
+        if generate_random_bool(get_rate(ctx, x)): 
             add_task(ctx, x, clean_text)
 
 async def add_char(ctx: commands.Context, text: str, list_type: str):
@@ -283,7 +283,7 @@ def view_embed(ctx: commands.Context, result: list, index: int, col: int):
     i = index
     while i < len(result):
         if (i < index+pagelimit): 
-            embed.add_field(name=f"[{i + 1}] {result[i]['name']}", value=f"{get_rate(ctx.channel.id, result[i])}%")
+            embed.add_field(name=f"[{i + 1}] {result[i]['name']}", value=f"{get_rate(ctx, result[i])}%")
         i += 1
     return embed
 def edit_embed(ctx: commands.Context, result: list, index: int, col: int):
@@ -291,7 +291,7 @@ def edit_embed(ctx: commands.Context, result: list, index: int, col: int):
     i = index
     while i < len(result):
         if (i < index+pagelimit):
-            embed.add_field(name=f"[{i + 1}] {result[i]['name']}", value=f"{get_rate(ctx.channel.id, result[i])}%")
+            embed.add_field(name=f"[{i + 1}] {result[i]['name']}", value=f"{get_rate(ctx, result[i])}%")
         i += 1
     return embed
 def generate_random_bool(num):
@@ -329,7 +329,12 @@ async def webhook_exists(webhook_url):
         return False
 async def send_webhook_message(ctx: commands.Context, x, text):
     wh = await get_webhook(ctx, x)
-    if wh: await wh.send(clean_gdjkhp(text, ctx.author.name))
+    if wh:
+        if type(ctx.channel) == discord.Thread:
+            thread_wh = WebhookSender(wh)
+            await thread_wh.send(clean_gdjkhp(text, ctx.author.name))
+        else:
+            await wh.send(clean_gdjkhp(text, ctx.author.name))
 def snake(text: str):
     words = []
     current_word = ""
@@ -363,11 +368,19 @@ def fix_num(num):
     if num < 0: num = 0
     elif num > 100: num = 100
     return num
-def get_rate(id: int, x):
+def get_rate(ctx: commands.Context, x):
     for wh in x["webhooks"]:
-        if wh["channel"] == id:
-            if wh.get("char_message_rate"):
-                return wh["char_message_rate"]
+        parent = ctx.channel
+        if type(parent) == discord.Thread:
+            parent = parent.parent
+        if wh["channel"] == parent.id:
+            if type(ctx.channel) == discord.Thread:
+                if wh.get("threads"):
+                    for thread in wh["threads"]:
+                        if thread["id"] == ctx.channel.id:
+                            return thread["rate"]
+            else:
+                if wh.get("char_message_rate"): return wh["char_message_rate"]
     return 0
 
 class SelectChoice(discord.ui.Select):
@@ -411,11 +424,18 @@ class SelectChoice(discord.ui.Select):
             else:
                 tgt = participants[1]['user']['username']
 
-            whs = await self.ctx.channel.webhooks()
+            # thread support
+            parent = self.ctx.channel
+            threads = []
+            if type(parent) == discord.Thread:
+                parent = parent.parent
+                threads = [{"id": self.ctx.channel.id, "rate": 100}]
+
+            whs = await parent.webhooks()
             if len(whs) == 15: return await interaction.message.edit(content="webhook limit reached, please delete at least one", 
                                                                      embed=None, view=None)
             img = await load_image(f"https://characterai.io/i/400/static/avatars/{selected['avatar_file_name']}")
-            wh = await self.ctx.channel.create_webhook(name=selected["participant__name"], avatar=img)
+            wh = await parent.create_webhook(name=selected["participant__name"], avatar=img)
             role = await create_role(self.ctx, selected["participant__name"])
             data = {
                 "name": selected["participant__name"],
@@ -426,15 +446,20 @@ class SelectChoice(discord.ui.Select):
                 "avatar": img,
                 "webhooks": [
                     {
-                        "channel": self.ctx.channel.id,
+                        "channel": parent.id,
                         "url": wh.url,
                         "char_message_rate": 100,
+                        "threads": threads,
                     }
                 ]
             }
             await asyncio.to_thread(push_character, self.ctx.guild.id, data)
             await interaction.message.edit(content=f"{selected['participant__name']} has been added to the server", embed=None, view=None)
-            await wh.send(clean_gdjkhp(chat["messages"][0]["text"], self.ctx.author.name))
+            if type(parent) == discord.Thread:
+                thread_wh = WebhookSender(f"{wh.url}?thread_id={self.ctx.channel.id}")
+                await thread_wh.send(clean_gdjkhp(chat["messages"][0]["text"], self.ctx.author.name))
+            else:
+                await wh.send(clean_gdjkhp(chat["messages"][0]["text"], self.ctx.author.name))
 
 class MyView4(discord.ui.View):
     def __init__(self, ctx: commands.Context, arg: str, result: list, index: int):
@@ -555,7 +580,7 @@ class EditChoice(discord.ui.Select):
         i, self.result, self.ctx, self.rate = index, result, ctx, rate
         while i < len(result): 
             if (i < index+pagelimit):
-                self.add_option(label=f"[{i + 1}] {result[i]['name']}", value=i, description=f"{get_rate(ctx.channel.id, result[i])}%")
+                self.add_option(label=f"[{i + 1}] {result[i]['name']}", value=i, description=f"{get_rate(ctx, result[i])}%")
             if (i == index+pagelimit): break
             i += 1
 
@@ -576,24 +601,37 @@ class EditChoice(discord.ui.Select):
         found = False
         mod_webhooks = list(selected["webhooks"])
         for w in selected["webhooks"]:
-            if w["channel"] == self.ctx.channel.id:
-                if await webhook_exists(w["url"]):
+            parent = self.ctx.channel
+            if type(parent) == discord.Thread:
+                parent = parent.parent
+            if w["channel"] == parent.id:
+                url = w["url"]
+                if await webhook_exists(url):
                     found = True
                     await asyncio.to_thread(pull_character, self.ctx.guild.id, selected)
-                    w["char_message_rate"] = self.rate
+                    if type(self.ctx.channel) == discord.Thread:
+                        if not w.get("threads"): w["threads"] = []
+                        w["threads"].append({"id": self.ctx.channel.id, "rate": self.rate})
+                    else:
+                        w["char_message_rate"] = self.rate
                     await asyncio.to_thread(push_character, self.ctx.guild.id, selected)
                     break
                 else: mod_webhooks.remove(w)
         
         if not found: # create webhook
+            parent = self.ctx.channel
+            threads = []
+            if type(parent) == discord.Thread:
+                parent = parent.parent
+                threads = [{"id": self.ctx.channel.id, "rate": self.rate}]
             selected["webhooks"] = mod_webhooks # malform fix
-            whs = await self.ctx.channel.webhooks()
+            whs = await parent.webhooks()
             if len(whs) == 15:
                 return await interaction.message.edit(content="webhook limit reached, please delete at least one", embed=None, view=None)
             wh = await self.ctx.channel.create_webhook(name=selected["name"], avatar=selected["avatar"])
             await asyncio.to_thread(pull_character, self.ctx.guild.id, selected)
             await asyncio.to_thread(push_webhook, self.ctx.guild.id, selected, {
-                "channel": self.ctx.channel.id, "url": wh.url, "char_message_rate": self.rate})
+                "channel": self.ctx.channel.id, "url": wh.url, "char_message_rate": self.rate, "threads": threads})
 
         await interaction.message.edit(content=f"{selected['name']} char_message_rate is now set to {self.rate} on this channel", 
                                        embed=None, view=None)
@@ -694,14 +732,22 @@ async def get_webhook(ctx: commands.Context, c_data):
     wh, ch = None, None
     for x in chars:
         if x["name"] == c_data["name"]:
-            ch = x
             if not x.get("webhooks"): break # malform fix
             for w in list(x["webhooks"]):
-                if w["channel"] == ctx.channel.id:
-                    if await webhook_exists(w["url"]):
-                        wh = discord.Webhook.from_url(w["url"], client=ctx.bot)
+                parent = ctx.channel
+                if type(parent) == discord.Thread:
+                    parent = parent.parent
+                if w["channel"] == parent.id:
+                    url = w["url"]
+                    if await webhook_exists(url):
+                        if type(ctx.channel) == discord.Thread:
+                            return f'{url}?thread_id={ctx.channel.id}'
+                        wh = discord.Webhook.from_url(url, client=ctx.bot)
                         break
-                    else: x["webhooks"].remove(w)
+                    else: 
+                        ch = x
+                        x["webhooks"].remove(w)
+
     # silent delete
     if ch:
         await asyncio.to_thread(pull_character, ctx.guild.id, c_data)
@@ -709,12 +755,17 @@ async def get_webhook(ctx: commands.Context, c_data):
     if wh: return wh
 
     # create webhook?
-    whs = await ctx.channel.webhooks()
+    parent = ctx.channel
+    threads = []
+    if type(parent) == discord.Thread:
+        parent = parent.parent
+        threads = [{"id": ctx.channel.id, "rate": 100}]
+    whs = await parent.webhooks()
     if len(whs) == 15: return None
-    wh = await ctx.channel.create_webhook(name=c_data["name"], avatar=c_data["avatar"])
+    wh = await parent.create_webhook(name=c_data["name"], avatar=c_data["avatar"])
     await asyncio.to_thread(pull_character, ctx.guild.id, c_data)
     await asyncio.to_thread(push_webhook, ctx.guild.id, c_data, {
-        "channel": ctx.channel.id, "url": wh.url, "char_message_rate": 100})
+        "channel": ctx.channel.id, "url": wh.url, "char_message_rate": 100, "threads": threads})
     return wh
 
 async def delete_webhooks(ctx: commands.Context, c_data):
@@ -741,3 +792,20 @@ async def delete_role(role: discord.Role):
 
 def fetch_role(ctx: commands.Context, id: int) -> discord.Role:
     return ctx.guild.get_role(id)
+
+# thread webhook hack
+class WebhookSender:
+    def __init__(self, url):
+        self.url = url
+
+    async def send(self, text):
+        async with aiohttp.ClientSession() as session:
+            payload = {
+                "content": text
+            }
+            headers = {
+                "Content-Type": "application/json"
+            }
+            async with session.post(self.url, json=payload, headers=headers) as response:
+                if not response.status == 204:
+                    print("webhook thread hack error")
