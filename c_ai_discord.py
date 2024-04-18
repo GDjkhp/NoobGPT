@@ -336,8 +336,7 @@ async def send_webhook_message(ctx: commands.Context, x, text):
     wh = await get_webhook(ctx, x)
     if wh:
         if type(ctx.channel) == discord.Thread:
-            thread_wh = WebhookSender(wh)
-            await thread_wh.send(clean_gdjkhp(text, ctx.author.name))
+            await wh.send(clean_gdjkhp(text, ctx.author.name), thread=ctx.channel.id)
         else:
             await wh.send(clean_gdjkhp(text, ctx.author.name))
 def snake(text: str):
@@ -461,8 +460,7 @@ class SelectChoice(discord.ui.Select):
             await asyncio.to_thread(push_character, self.ctx.guild.id, data)
             await interaction.message.edit(content=f"{selected['participant__name']} has been added to the server", embed=None, view=None)
             if type(parent) == discord.Thread:
-                thread_wh = WebhookSender(f"{wh.url}?thread_id={self.ctx.channel.id}")
-                await thread_wh.send(clean_gdjkhp(chat["messages"][0]["text"], self.ctx.author.name))
+                await wh.send(clean_gdjkhp(chat["messages"][0]["text"], self.ctx.author.name), thread=self.ctx.channel.id)
             else:
                 await wh.send(clean_gdjkhp(chat["messages"][0]["text"], self.ctx.author.name))
 
@@ -745,8 +743,6 @@ async def get_webhook(ctx: commands.Context, c_data):
                 if w["channel"] == parent.id:
                     url = w["url"]
                     if await webhook_exists(url):
-                        if type(ctx.channel) == discord.Thread:
-                            return f'{url}?thread_id={ctx.channel.id}'
                         wh = discord.Webhook.from_url(url, client=ctx.bot)
                         break
                     else: 
@@ -798,7 +794,7 @@ async def delete_role(role: discord.Role):
 def fetch_role(ctx: commands.Context, id: int) -> discord.Role:
     return ctx.guild.get_role(id)
 
-# thread webhook hack
+# thread webhook hack, unused
 class WebhookSender:
     def __init__(self, url):
         self.url = url
