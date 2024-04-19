@@ -759,19 +759,15 @@ async def get_webhook(ctx: commands.Context, c_data):
     return wh
 
 async def delete_webhooks(ctx: commands.Context, c_data):
-    test = await asyncio.to_thread(mycol.find_one, {"guild":ctx.guild.id})
-    chars = test["characters"]
-    for x in chars:
-        if x["name"] == c_data["name"]:
-            channels = ctx.guild.channels
-            for chan in channels:
-                if not type(chan) in supported: continue
-                perms = chan.permissions_for(ctx.guild.me)
-                if perms.manage_webhooks:
-                    whs = await chan.webhooks()
-                    for w in whs:
-                        if w.name == c_data["name"]:
-                            await w.delete()
+    channels = ctx.guild.channels
+    for chan in channels:
+        if not type(chan) in supported: continue
+        perms = chan.permissions_for(ctx.guild.me)
+        if perms.manage_webhooks:
+            whs = await chan.webhooks()
+            for w in whs:
+                if w.name in c_data["name"]:
+                    await w.delete()
 
 # role handling
 async def create_role(ctx: commands.Context, name: str) -> discord.Role:
