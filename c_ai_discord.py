@@ -237,7 +237,7 @@ async def edit_char(ctx: commands.Context, rate: str):
 
     if not db["characters"]: return await ctx.reply("no entries found")
     await ctx.reply(view=EditView(ctx, db["characters"], 0, rate), 
-                    embed=edit_embed(ctx, db["characters"], 0, 0x00ffff))
+                    embed=view_embed(ctx, db["characters"], 0, 0x00ffff))
 
 async def c_help(ctx: commands.Context):
     text = "Character.ai is an American neural language model chatbot service that can generate human-like text responses and participate in contextual conversation."
@@ -288,15 +288,7 @@ def view_embed(ctx: commands.Context, result: list, index: int, col: int):
     i = index
     while i < len(result):
         if (i < index+pagelimit): 
-            embed.add_field(name=f"[{i + 1}] {result[i]['name']}", value=f"{get_rate(ctx, result[i])}%")
-        i += 1
-    return embed
-def edit_embed(ctx: commands.Context, result: list, index: int, col: int):
-    embed = discord.Embed(title="char_message_rate", description=f"{len(result)} found", color=col)
-    i = index
-    while i < len(result):
-        if (i < index+pagelimit):
-            embed.add_field(name=f"[{i + 1}] {result[i]['name']}", value=f"{get_rate(ctx, result[i])}%")
+            embed.add_field(name=f"[{i + 1}] {result[i]['name']}", value=f"[{get_rate(ctx, result[i])}%] {result[i]['description']}")
         i += 1
     return embed
 def generate_random_bool(num):
@@ -663,7 +655,7 @@ class nextPageEdit(discord.ui.Button):
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(view = EditView(self.ctx, self.result, self.index, self.rate), 
-                                                embed= edit_embed(self.ctx, self.result, self.index, 0x00ffff))
+                                                embed= view_embed(self.ctx, self.result, self.index, 0x00ffff))
 
 # database handling: slow?
 def add_database(server_id: int):
