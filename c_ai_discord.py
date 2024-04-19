@@ -14,7 +14,7 @@ mycol = myclient["ai"]["character"]
 client = PyAsyncCAI(os.getenv('CHARACTER'))
 pagelimit=12
 typing_chans = []
-supported = [discord.TextChannel, discord.VoiceChannel, discord.StageChannel, discord.Thread] # sussy
+supported = [discord.TextChannel, discord.VoiceChannel, discord.StageChannel, discord.ForumChannel, discord.Thread] # sussy
 
 # queue system
 tasks_queue = Queue()
@@ -405,7 +405,7 @@ class SelectChoice(discord.ui.Select):
             for x in db["characters"]:
                 if x["name"] == selected["participant__name"]: found = True
             if found:
-                return await interaction.followup.send(f"{selected['participant__name']} is already in chat", ephemeral=True)
+                return await interaction.message.edit(content=f"{selected['participant__name']} was already in chat")
         
         try:
             chat = await client.chat.new_chat(selected["external_id"])
@@ -451,7 +451,7 @@ class SelectChoice(discord.ui.Select):
             }
             await asyncio.to_thread(push_character, self.ctx.guild.id, data)
             await interaction.message.edit(content=f"{selected['participant__name']} has been added to the server", embed=None, view=None)
-            if type(parent) == discord.Thread:
+            if type(self.ctx.channel) == discord.Thread:
                 await wh.send(clean_gdjkhp(chat["messages"][0]["text"], self.ctx.author.name), thread=self.ctx.channel)
             else:
                 await wh.send(clean_gdjkhp(chat["messages"][0]["text"], self.ctx.author.name))
@@ -517,7 +517,7 @@ class DeleteChoice(discord.ui.Select):
         await delete_webhooks(self.ctx, selected)
 
         await asyncio.to_thread(pull_character, self.ctx.guild.id, selected)
-        await interaction.message.edit(content=f"{selected['name']} has been deleted to the server", embed=None, view=None)
+        await interaction.message.edit(content=f"{selected['name']} has been deleted from the server", embed=None, view=None)
 
 class DeleteView(discord.ui.View):
     def __init__(self, ctx: commands.Context, result: list, index: int):
@@ -722,29 +722,26 @@ def push_webhook(server_id: int, c_data, w_data):
     push_character(server_id, c_data)
 
 async def get_webhook(ctx: commands.Context, c_data):
-    test = await asyncio.to_thread(mycol.find_one, {"guild":ctx.guild.id})
-    chars = test["characters"]
-    wh, ch = None, None
-    for x in chars:
-        if x["name"] == c_data["name"]:
-            if not x.get("webhooks"): break # malform fix
-            for w in list(x["webhooks"]):
-                parent = ctx.channel
-                if type(parent) == discord.Thread:
-                    parent = parent.parent
-                if w["channel"] == parent.id:
-                    url = w["url"]
-                    if await webhook_exists(url):
-                        wh = discord.Webhook.from_url(url, client=ctx.bot)
-                        break
-                    else: 
-                        ch = x
-                        x["webhooks"].remove(w)
+    wh, mod_webhooks, silent_delete = None, None, False
+    if c_data.get("webhooks"): # malform fix
+        mod_webhooks = list(c_data["webhooks"])
+        for w in list(c_data["webhooks"]):
+            parent = ctx.channel
+            if type(parent) == discord.Thread:
+                parent = parent.parent
+            if w["channel"] == parent.id:
+                url = w["url"]
+                if await webhook_exists(url):
+                    wh = discord.Webhook.from_url(url, client=ctx.bot)
+                    break
+                else: 
+                    silent_delete = True
+                    mod_webhooks.remove(w)
 
-    # silent delete
-    if ch:
+    if silent_delete:
         await asyncio.to_thread(pull_character, ctx.guild.id, c_data)
-        await asyncio.to_thread(push_character, ctx.guild.id, ch)
+        c_data["webhooks"] = mod_webhooks
+        await asyncio.to_thread(push_character, ctx.guild.id, c_data)
     if wh: return wh
 
     # create webhook?
@@ -758,7 +755,7 @@ async def get_webhook(ctx: commands.Context, c_data):
     wh = await parent.create_webhook(name=c_data["name"], avatar=c_data["avatar"])
     await asyncio.to_thread(pull_character, ctx.guild.id, c_data)
     await asyncio.to_thread(push_webhook, ctx.guild.id, c_data, {
-        "channel": ctx.channel.id, "url": wh.url, "char_message_rate": 100, "threads": threads})
+        "channel": parent.id, "url": wh.url, "char_message_rate": 100, "threads": threads})
     return wh
 
 async def delete_webhooks(ctx: commands.Context, c_data):
