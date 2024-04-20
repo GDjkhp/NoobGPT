@@ -27,16 +27,15 @@ async def run_tasks():
             if db["channel_mode"] and not ctx.channel.id in db["channels"]: continue
             if db["message_rate"] == 0: continue
 
-            if generate_random_bool(get_rate(ctx, x)):
-                try:
-                    if ctx.channel.id in typing_chans:
+            try:
+                if ctx.channel.id in typing_chans:
+                    await send_webhook_message(ctx, x, text)
+                else:
+                    async with ctx.typing():
+                        typing_chans.append(ctx.channel.id)
                         await send_webhook_message(ctx, x, text)
-                    else:
-                        async with ctx.typing():
-                            typing_chans.append(ctx.channel.id)
-                            await send_webhook_message(ctx, x, text)
-                            typing_chans.remove(ctx.channel.id)
-                except Exception as e: print(e)      
+                        typing_chans.remove(ctx.channel.id)
+            except Exception as e: print(e)      
         await asyncio.sleep(1) # DO NOT REMOVE
 
 def add_task(ctx, x, text):
@@ -76,12 +75,12 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
         if trigger and db["characters"]:
             # print("random get")
             random.shuffle(db["characters"])
-            if not db["characters"][0] == msg.author.name:
+            if not msg.author.name in db["characters"][0]["name"]:
                 chars.append(db["characters"][0])
     if not chars: return
 
     for x in chars:
-        if x["name"] == msg.author.name: continue
+        if msg.author.name in x["name"]: continue
         if generate_random_bool(get_rate(ctx, x)):
             if ctx.channel.id in typing_chans:
                 data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
