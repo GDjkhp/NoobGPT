@@ -32,12 +32,12 @@ async def run_tasks():
             try:
                 if ctx.channel.id in typing_chans:
                     await send_webhook_message(ctx, x, text)
-                    typing_chans.remove(ctx.channel.id)
+                    if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
                 else:
                     async with ctx.typing():
                         typing_chans.append(ctx.channel.id)
                         await send_webhook_message(ctx, x, text)
-                        typing_chans.remove(ctx.channel.id)
+                        if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
             except Exception as e: print(e)      
         await asyncio.sleep(1) # DO NOT REMOVE
 
@@ -88,13 +88,13 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
             if ctx.channel.id in typing_chans:
                 data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
                 if data: add_task(ctx, x, data['replies'][0]['text'])
-                typing_chans.remove(ctx.channel.id)
+                if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
             else:
                 async with ctx.typing():
                     typing_chans.append(ctx.channel.id)
                     data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
                     if data: add_task(ctx, x, data['replies'][0]['text'])
-                    typing_chans.remove(ctx.channel.id)
+                    if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
 
 async def add_char(ctx: commands.Context, text: str, list_type: str):
     if not type(ctx.channel) in supported: return await ctx.reply("not supported")
