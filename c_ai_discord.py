@@ -32,6 +32,7 @@ async def run_tasks():
             try:
                 if ctx.channel.id in typing_chans:
                     await send_webhook_message(ctx, x, text)
+                    typing_chans.remove(ctx.channel.id)
                 else:
                     async with ctx.typing():
                         typing_chans.append(ctx.channel.id)
@@ -87,6 +88,7 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
             if ctx.channel.id in typing_chans:
                 data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
                 if data: add_task(ctx, x, data['replies'][0]['text'])
+                typing_chans.remove(ctx.channel.id)
             else:
                 async with ctx.typing():
                     typing_chans.append(ctx.channel.id)
@@ -356,9 +358,11 @@ def smart_str_compare(text: str, char: str):
     for x in char_splits:
         for y in remove_symbols_text.split():
             if x == y: return True
-    for x in snake_splits: # weird
-        for y in remove_symbols_text.split():
-            if x == y: return True
+    # weird, do not use for now 
+    # (EricVanWilderman -> eric, van, wilderman) (Kizuna AI -> kizuna, a, i)
+    # for x in snake_splits:
+    #     for y in remove_symbols_text.split():
+    #         if x == y: return True
     return False
 def fix_num(num):
     num = int(num)
