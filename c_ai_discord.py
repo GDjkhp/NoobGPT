@@ -26,6 +26,8 @@ async def run_tasks():
             db = await asyncio.to_thread(get_database, ctx.guild.id)
             if db["channel_mode"] and not ctx.channel.id in db["channels"]: continue
             if db["message_rate"] == 0: continue
+            for char in db["characters"]:
+                if x["name"] == char["name"] and get_rate(ctx, char) == 0: continue
 
             try:
                 if ctx.channel.id in typing_chans:
