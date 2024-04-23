@@ -85,11 +85,8 @@ async def GEMINI(ctx: commands.Context, arg: str):
         await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
 
 headers = {'Content-Type': 'application/json'}
-supported_formats = ["image/"] # , "video/"
 def palm_proxy(model: str) -> str:
-    if not model:
-        return f"{os.getenv('PROXY')}v1beta3/models/text-bison-001:generateText?key={os.getenv('PALM')}"
-    else: return f"{os.getenv('PROXY')}v1/models/{model}:generateContent?key={os.getenv('PALM')}"
+    return f"{os.getenv('PROXY')}v1beta/models/{model}?key={os.getenv('PALM')}"
 
 def check_response(response_data) -> bool:
     return response_data.get("candidates", []) and \
@@ -145,7 +142,7 @@ def get_text_palm(response_data) -> str:
 def json_data(arg, base64_data=None, mime=None):
     if not arg:
         arg_text = "Explain who you are, your functions, capabilities, limitations, and purpose."
-        arg_image_text = 'What is this a picture of?'
+        arg_image_text = 'What is this?'
     else:
         arg_text = arg
         arg_image_text = arg
@@ -216,29 +213,24 @@ async def GEMINI_REST(ctx: commands.Context, arg: str, palm: bool):
         msg = await ctx.reply("Generating response…")
         old = round(time.time() * 1000)
         text = None
+        # rewrite
+        proxy = palm_proxy("gemini-1.5-pro-latest:generateContent")
+        payload = json_data(arg)
         if not palm:
-            # image
             if len(ctx.message.attachments) > 0:
                 attachment = ctx.message.attachments[0]
-                if any(attachment.content_type.startswith(format) for format in supported_formats):
-                    async with aiohttp.ClientSession() as session:
-                        async with session.get(attachment.url) as resp:
-                            image_data = await resp.read()
-                            base64_data = base64.b64encode(image_data).decode('utf-8')
-                            try:
-                                text = await req_real(palm_proxy("gemini-pro-vision"), 
-                                                      json_data(arg, base64_data, attachment.content_type), headers, False)
-                            except Exception as e: text = handle_error(e)
-                else: text = "**Error! :(**\nUnsupported file format."
-            # text
-            else:
-                try:
-                    text = await req_real(palm_proxy("gemini-pro"), json_data(arg), headers, False)
-                except Exception as e: text = handle_error(e)
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(attachment.url) as resp:
+                        image_data = await resp.read()
+                        base64_data = base64.b64encode(image_data).decode('utf-8')
+                        payload = json_data(arg, base64_data, attachment.content_type)
         else:
-            try:
-                text = await req_real(palm_proxy(None), json_data_palm(arg, not ctx.channel.nsfw), headers, True) # scary
-            except Exception as e: text = handle_error(e)
+            proxy = palm_proxy("text-bison-001:generateText")
+            payload = json_data_palm(arg, not ctx.channel.nsfw)
+        try:
+            text = await req_real(proxy, payload, headers, palm)
+        except Exception as e: text = handle_error(e)
+        # silly
         try: 
             if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
             chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
