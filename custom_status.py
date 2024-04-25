@@ -52,8 +52,8 @@ async def silly_activities(bot: commands.Bot):
             "https://jkhp.newgrounds.com",
         ]
         if data["data"]["kv"]: 
-            key = random.choice(list(data["data"]["kv"]))
-            strings.append(data["data"]["kv"][key])
+            for key in list(data["data"]["kv"]):
+                strings.append(data["data"]["kv"][key])
         await bot.change_presence(activity=discord.CustomActivity(name=random.choice(strings)), 
                                   status=discord.Status.dnd)
         await asyncio.sleep(10)
