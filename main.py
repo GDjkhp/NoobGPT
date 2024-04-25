@@ -52,8 +52,8 @@ async def kvget(ctx: commands.Context, key=None):
     bot.loop.create_task(get_kv(ctx, key))
 
 @bot.command()
-async def kvset(ctx: commands.Context, key=None, value=None):
-    bot.loop.create_task(set_kv(ctx, key, value))
+async def kvset(ctx: commands.Context, *, arg=None):
+    bot.loop.create_task(set_kv(ctx, arg))
 
 @bot.command()
 async def kvdel(ctx: commands.Context, key=None):
