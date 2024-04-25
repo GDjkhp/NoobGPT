@@ -1,5 +1,7 @@
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
+import asyncio
+import random
 import os
 from dotenv import load_dotenv
 
@@ -17,17 +19,9 @@ bot = commands.Bot(command_prefix = "-",
 # from request_listener import keep_alive
 # keep_alive()
 
-# gde test
 from gde_hall_of_fame import main, main_rob, main_styx
-# @tasks.loop(seconds=60)  # task runs every 60 seconds
-# async def my_background_task():
-#     bot.loop.create_task(main(bot)) # gde bot
-
-# @my_background_task.before_loop
-# async def before_my_task():
-#     await bot.wait_until_ready()  # wait until the bot logs in
-
 from c_ai_discord import add_char, delete_char, t_chan, t_adm, c_ai, set_rate, c_help, t_mode, view_char, c_ai_init, edit_char
+from custom_status import silly_activities, view_kv, get_kv, set_kv, del_kv
 @bot.event
 async def on_ready():
     print(f"{bot.user.name} (c) 2024 The Karakters Kompany. All rights reserved.")
@@ -37,7 +31,7 @@ async def on_ready():
         number += 1
         print(f"{number}. ", guild)
     print(":)")
-    await bot.change_presence(status=discord.Status.dnd)
+    bot.loop.create_task(silly_activities(bot))
     bot.loop.create_task(main(bot))
     bot.loop.create_task(main_rob(bot))
     bot.loop.create_task(c_ai_init())
@@ -46,10 +40,26 @@ async def on_ready():
 async def on_message(message: discord.Message):
     bot.loop.create_task(main_styx(bot, message))
     bot.loop.create_task(c_ai(bot, message))
-
     await bot.process_commands(message)
 
-# TODO: store the strings on a json file that syncs with the website
+# personal
+@bot.command()
+async def kvview(ctx: commands.Context):
+    bot.loop.create_task(view_kv(ctx))
+
+@bot.command()
+async def kvget(ctx: commands.Context, key=None):
+    bot.loop.create_task(get_kv(ctx, key))
+
+@bot.command()
+async def kvset(ctx: commands.Context, key=None, value=None):
+    bot.loop.create_task(set_kv(ctx, key, value))
+
+@bot.command()
+async def kvdel(ctx: commands.Context, key=None):
+    bot.loop.create_task(del_kv(ctx, key))
+
+# TODO: store the strings in a json file that syncs with the website
 from help import HALP
 @bot.command()
 async def halp(ctx: commands.Context):

@@ -18,7 +18,7 @@ supported = [discord.TextChannel, discord.VoiceChannel, discord.StageChannel, di
 
 # queue system
 tasks_queue = Queue()
-async def run_tasks():
+async def c_ai_init():
     while True:
         if not tasks_queue.empty():
             ctx, x, text = tasks_queue.get()
@@ -43,10 +43,6 @@ async def run_tasks():
 
 def add_task(ctx, x, text):
     tasks_queue.put((ctx, x, text))
-
-async def c_ai_init():
-    task = asyncio.create_task(run_tasks())
-    await task
 
 # the real
 async def c_ai(bot: commands.Bot, msg: discord.Message):
