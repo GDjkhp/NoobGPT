@@ -30,7 +30,7 @@ async def silly_activities(bot: commands.Bot):
     while True:
         data = await the_real_req(f"https://api.lanyard.rest/v1/users/{user_id}")
         strings = [
-            f"G: {len(bot.guilds)} | U: {len(bot.users)}",
+            f"serving {len(bot.users)} users in {len(bot.guilds)} guilds",
             f"gdjkhp is currently {data['data']['discord_status']}",
             time.strftime("%B %d, %Y"),
             "free update: character.ai (-chelp)",
