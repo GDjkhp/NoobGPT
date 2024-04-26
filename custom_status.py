@@ -33,6 +33,7 @@ async def silly_activities(bot: commands.Bot):
             time.strftime("%B %d, %Y"),
             "free update: character.ai (-chelp)",
             "get started: -halp",
+            "dnd = stable, online = unstable",
             "RADIO ONSEN EUTOPIA",
             "feat. tama and sadako",
             "bot by gdjkhp",
