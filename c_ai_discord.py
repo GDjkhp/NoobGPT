@@ -65,7 +65,9 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
     ref_msg = await msg.channel.fetch_message(msg.reference.message_id) if msg.reference else None
     for x in db["characters"]:
         if x in chars: continue
-        if smart_str_compare(clean_text, x["name"]): chars.append(x)
+        if smart_str_compare(clean_text, x["name"]): 
+            chars.append(x)
+            continue
         if ref_msg and ref_msg.author.name in x["name"]: chars.append(x)
 
     if not chars:
