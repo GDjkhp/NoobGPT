@@ -7,9 +7,7 @@ import os
 import time
 
 user_id = 729554186777133088
-headers = {
-    "authorization": os.getenv("LANYARD")
-}
+headers = {"authorization": os.getenv("LANYARD")}
 
 async def the_real_req(url: str):
     async with aiohttp.ClientSession() as session:
