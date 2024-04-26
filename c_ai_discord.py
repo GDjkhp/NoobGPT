@@ -62,13 +62,11 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
     # get character (lowercase mention, roles, reply)
     chars = []
     clean_text = replace_mentions(msg, bot)
+    ref_msg = await msg.channel.fetch_message(msg.reference.message_id) if msg.reference else None
     for x in db["characters"]:
+        if x in chars: continue
         if smart_str_compare(clean_text, x["name"]): chars.append(x)
-    if msg.reference:
-        ref_msg = await msg.channel.fetch_message(msg.reference.message_id)
-        for x in db["characters"]:
-            if ref_msg.author.name in x["name"] and not x in chars: 
-                chars.append(x)
+        if ref_msg and ref_msg.author.name in x["name"]: chars.append(x)
 
     if not chars:
         trigger = generate_random_bool(db["message_rate"])
