@@ -67,7 +67,8 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
     if msg.reference:
         ref_msg = await msg.channel.fetch_message(msg.reference.message_id)
         for x in db["characters"]:
-            if ref_msg.author.name in x["name"]: chars.append(x)
+            if ref_msg.author.name in x["name"] and not x in chars: 
+                chars.append(x)
 
     if not chars:
         trigger = generate_random_bool(db["message_rate"])
