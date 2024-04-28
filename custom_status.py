@@ -26,35 +26,37 @@ async def the_real_delete(url: str):
 
 async def silly_activities(bot: commands.Bot):
     while True:
-        data = await the_real_req(f"https://api.lanyard.rest/v1/users/{user_id}")
-        strings = [
-            f"serving {len(bot.users)} users in {len(bot.guilds)} guilds",
-            f"gdjkhp is currently {data['data']['discord_status']}",
-            time.strftime("%B %d, %Y"),
-            "free update: character.ai (-chelp)",
-            "get started: -halp",
-            "dnd = stable, online = unstable",
-            "RADIO ONSEN EUTOPIA",
-            "feat. tama and sadako",
-            "bot by gdjkhp",
-            "made in yokohama, japan",
-            "hosted in finland",
-            "written in python and node.js",
-            "powered by pterodactyl",
-            "https://gdjkhp.github.io",
-            "https://gdjkhp.github.io/NoobGPT",
-            "https://github.com/GDjkhp/level-up-loser-python-branch",
-            "https://paypal.me/GDjkhp",
-            "https://discord.gg/ZbvhQYv9Ka",
-            "https://bot-hosting.net/?aff=729554186777133088",
-            "https://myanimelist.net/profile/GDjkhp",
-            "https://jkhp.newgrounds.com",
-        ]
-        if data["data"]["kv"]: 
-            for key in list(data["data"]["kv"]):
-                strings.append(data["data"]["kv"][key])
-        await bot.change_presence(activity=discord.CustomActivity(name=random.choice(strings)), 
-                                  status=discord.Status.dnd)
+        try:
+            data = await the_real_req(f"https://api.lanyard.rest/v1/users/{user_id}")
+            strings = [
+                f"serving {len(bot.users)} users in {len(bot.guilds)} guilds",
+                f"gdjkhp is currently {data['data']['discord_status']}",
+                time.strftime("%B %d, %Y"),
+                "free update: character.ai (-chelp)",
+                "get started: -halp",
+                "dnd = stable, online = unstable",
+                "RADIO ONSEN EUTOPIA",
+                "feat. tama and sadako",
+                "bot by gdjkhp",
+                "made in yokohama, japan",
+                "hosted in finland",
+                "written in python and node.js",
+                "powered by pterodactyl",
+                "https://gdjkhp.github.io",
+                "https://gdjkhp.github.io/NoobGPT",
+                "https://github.com/GDjkhp/level-up-loser-python-branch",
+                "https://paypal.me/GDjkhp",
+                "https://discord.gg/ZbvhQYv9Ka",
+                "https://bot-hosting.net/?aff=729554186777133088",
+                "https://myanimelist.net/profile/GDjkhp",
+                "https://jkhp.newgrounds.com",
+            ]
+            if data["data"]["kv"]: 
+                for key in list(data["data"]["kv"]):
+                    strings.append(data["data"]["kv"][key])
+            await bot.change_presence(activity=discord.CustomActivity(name=random.choice(strings)), 
+                                    status=discord.Status.dnd)
+        except Exception as e: print(e)
         await asyncio.sleep(10)
 
 async def view_kv(ctx: commands.Context):

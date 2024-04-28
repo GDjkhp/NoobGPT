@@ -1,7 +1,5 @@
 import discord
 from discord.ext import commands
-import asyncio
-import random
 import os
 from dotenv import load_dotenv
 
@@ -38,7 +36,7 @@ async def on_ready():
 
 @bot.event
 async def on_message(message: discord.Message):
-    bot.loop.create_task(main_styx(bot, message))
+    # bot.loop.create_task(main_styx(bot, message))
     bot.loop.create_task(c_ai(bot, message))
     await bot.process_commands(message)
 

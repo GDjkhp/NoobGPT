@@ -88,10 +88,10 @@ loop_running_rob = False
 api2 = f"{api}&page=1" # rank 1001+
 robert_id = 290162530720940034
 styx_id = 539408209769922560
-styx_server_id = 1213758959609978950
-styx_channel_id = 1213946372093517885
-chan_ids = [1213946372093517885]
-role_id = 1214840725049446421
+styx_server_id = 1213758959609978950 # no longer used
+styx_channel_id = 1181993133647601716 # gde?
+chan_ids = [1213946372093517885] # no longer used
+role_id = 1214840725049446421 # no longer used
 
 def check_robert(old_data, new_data) -> list:
     level_up_messages = []
@@ -102,7 +102,7 @@ def check_robert(old_data, new_data) -> list:
             old_xp = old_player["xp"]
             new_xp = new_player["xp"]
             if new_xp > old_xp:
-                level_up_messages.append(f"<@&{role_id}>, {new_player['username']} is currently in chat!")
+                level_up_messages.append(f"<@{styx_id}>, {new_player['username']} is currently in chat!")
     return level_up_messages
 
 async def main_rob(client_discord: commands.Bot):
@@ -135,6 +135,7 @@ def build_attachments(message: discord.Message) -> str:
         return build_str
     return ""
 
+# no longer used
 async def main_styx(bot: commands.Bot, message: discord.Message):
     if message.author.id == bot.user.id: return # prevent spam on same channel
     if message.channel.id in chan_ids:
