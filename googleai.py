@@ -202,11 +202,11 @@ def json_data_palm(arg: str, safe: bool):
 async def req_real(url, json, headers, palm):
     async with aiohttp.ClientSession() as session:
         async with session.post(url, json=json, headers=headers) as response:
-            return get_text_palm(await response.json()) if palm else get_text(await response.json())
-
-def handle_error(e: Exception) -> str:
-    print(e)
-    return "**Error! :(**"
+            if response.status == 200:
+                return get_text_palm(await response.json()) if palm else get_text(await response.json())
+            else:
+                print(await response.content.read())
+                return None
 
 async def GEMINI_REST(ctx: commands.Context, arg: str, palm: bool):
     async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
@@ -227,18 +227,14 @@ async def GEMINI_REST(ctx: commands.Context, arg: str, palm: bool):
         else:
             proxy = palm_proxy("text-bison-001:generateText")
             payload = json_data_palm(arg, not ctx.channel.nsfw)
-        try:
-            text = await req_real(proxy, payload, headers, palm)
-        except Exception as e: text = handle_error(e)
+        text = await req_real(proxy, payload, headers, palm)
         # silly
-        try: 
-            if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
-            chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
-            replyFirst = True
-            for chunk in chunks:
-                if replyFirst: 
-                    replyFirst = False
-                    await ctx.reply(chunk)
-                else: await ctx.send(chunk)
-        except Exception as e: return await msg.edit(content=f"**Error! :(**\n{e}")
+        if not text: return await msg.edit(content=f"**Error! :(**")
+        chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
+        replyFirst = True
+        for chunk in chunks:
+            if replyFirst: 
+                replyFirst = False
+                await ctx.reply(chunk)
+            else: await ctx.send(chunk)
         await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")

@@ -62,7 +62,11 @@ def help_perplexity() -> str:
 async def the_real_req(url: str, payload: dict, headers: dict):
     async with aiohttp.ClientSession() as session:
         async with session.post(url, json=payload, headers=headers) as response:
-            return await response.json()
+            if response.status == 200:
+                return await response.json()
+            else:
+                print(await response.content.read())
+                return None
 
 async def make_request(model: str, messages: list):
     url = "https://api.perplexity.ai/chat/completions"
@@ -113,11 +117,11 @@ async def make_request_mistral(model: str, messages: list):
     return await the_real_req(url, payload, headers)
 
 async def main_perplexity(ctx: commands.Context, model: int):
-    async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
+    async with ctx.typing():
         msg = await ctx.reply("Generating response…")
         old = round(time.time() * 1000)
-        response = await make_request(models[model], await loopMsg(ctx.message)) # spicy
         try: 
+            response = await make_request(models[model], await loopMsg(ctx.message)) # spicy
             text = response["choices"][0]["message"]["content"]
             if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
             chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
@@ -128,17 +132,17 @@ async def main_perplexity(ctx: commands.Context, model: int):
                     await ctx.reply(chunk)
                 else: await ctx.send(chunk)
         except Exception as e:
-            print(response)
-            bruh = response["detail"][0]["msg"] if response.get("detail") else e
-            return await msg.edit(content=f"**Error! :(**\n{bruh}")
+            # bruh = response["detail"][0]["msg"] if response and response.get("detail") else e
+            print(e)
+            return await msg.edit(content=f"**Error! :(**")
         await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
 
 async def main_anthropic(ctx: commands.Context, model: str):
-    async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
+    async with ctx.typing():
         msg = await ctx.reply("Generating response…")
         old = round(time.time() * 1000)
-        response = await make_request_claude(model, await loopMsg(ctx.message)) # spicy
-        try: 
+        try:
+            response = await make_request_claude(model, await loopMsg(ctx.message)) # spicy
             text = response["content"][0]["text"]
             if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
             chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
@@ -149,17 +153,17 @@ async def main_anthropic(ctx: commands.Context, model: str):
                     await ctx.reply(chunk)
                 else: await ctx.send(chunk)
         except Exception as e:
-            print(response)
-            bruh = response["error"]["message"] if response.get("error") else e
-            return await msg.edit(content=f"**Error! :(**\n{bruh}")
+            # bruh = response["error"]["message"] if response and response.get("error") else e
+            print(e)
+            return await msg.edit(content=f"**Error! :(**")
         await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
 
 async def main_mistral(ctx: commands.Context, model: str):
-    async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
+    async with ctx.typing():
         msg = await ctx.reply("Generating response…")
         old = round(time.time() * 1000)
-        response = await make_request_mistral(model, await loopMsg(ctx.message)) # spicy
         try: 
+            response = await make_request_mistral(model, await loopMsg(ctx.message)) # spicy
             text = response["choices"][0]["message"]["content"]
             if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
             chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
@@ -170,6 +174,6 @@ async def main_mistral(ctx: commands.Context, model: str):
                     await ctx.reply(chunk)
                 else: await ctx.send(chunk)
         except Exception as e:
-            print(response)
-            return await msg.edit(content=f"**Error! :(**\n{e}") # i can't assume here
+            print(e)
+            return await msg.edit(content=f"**Error! :(**") # i can't assume here
         await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")

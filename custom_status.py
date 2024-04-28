@@ -55,7 +55,7 @@ async def silly_activities(bot: commands.Bot):
                 for key in list(data["data"]["kv"]):
                     strings.append(data["data"]["kv"][key])
             await bot.change_presence(activity=discord.CustomActivity(name=random.choice(strings)), 
-                                    status=discord.Status.dnd)
+                                      status=discord.Status.dnd)
         except Exception as e: print(e)
         await asyncio.sleep(10)
 
