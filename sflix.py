@@ -47,7 +47,7 @@ def buildMovie(result) -> discord.Embed:
     valid_url = p.quote(result[poster], safe=":/")
     embed.set_image(url = valid_url)
     detailed(embed, details)
-    embed.set_footer(text="Note: Play the file using VLC/MPV media player :)")
+    embed.set_footer(text="Note: Use Adblockers :)")
     return embed
 def buildSeasons(season_ids, result) -> discord.Embed:
     details = detail(result)
@@ -64,7 +64,7 @@ def buildEpisodes(episodes, season, result) -> discord.Embed:
     details = detail(result)
     detailed(embed, details)
     embed.add_field(name="Episodes", value=len(episodes))
-    embed.set_footer(text="Note: Play the file using VLC/MPV media player :)")
+    embed.set_footer(text="Note: Use Adblockers :)")
     return embed
 def buildSearch(arg: str, result: list, index: int) -> discord.Embed:
     embed = discord.Embed(title=f"Search results: `{arg}`", description=f"{len(result)} found", color=0x00ff00)
@@ -141,10 +141,10 @@ class SelectChoice(discord.ui.Select):
             iframe_url, tv_id = get_link(sid)
             iframe_link, iframe_id = rabbit_id(iframe_url)
             try:
-                url = cdn_url(iframe_link, iframe_id)
+                # url = cdn_url(iframe_link, iframe_id)
                 embed = buildMovie(self.result[int(self.values[0])])
                 await interaction.message.edit(embed=embed, view=None)
-                await interaction.followup.send(f"[{self.result[int(self.values[0])][title]}]({url})", ephemeral=True)
+                await interaction.followup.send(f"[{self.result[int(self.values[0])][title]}]({iframe_url}&_debug=true)", ephemeral=True)
             except Exception as e: await interaction.message.edit(content=e, view=None)
 
 # legacy code
@@ -169,9 +169,9 @@ class ButtonSelect(discord.ui.Button):
             iframe_url, tv_id = get_link(sid)
             iframe_link, iframe_id = rabbit_id(iframe_url)
             try:
-                url = cdn_url(iframe_link, iframe_id)
+                # url = cdn_url(iframe_link, iframe_id)
                 embed = buildMovie(self.result)
-                await interaction.message.edit(embed=embed, view=None, content=f"[{self.result[title]}]({url})")
+                await interaction.message.edit(embed=embed, view=None, content=f"[{self.result[title]}]({iframe_url}&_debug=true)")
             except Exception as e: await interaction.message.edit(content=e, view=None)
             
 class ButtonNextSearch(discord.ui.Button):
@@ -287,8 +287,8 @@ class ButtonSelect3(discord.ui.Button):
         iframe_url, tv_id = get_link(sid)
         iframe_link, iframe_id = rabbit_id(iframe_url)
         try:
-            url = cdn_url(iframe_link, iframe_id)
-            await interaction.followup.send(f"{self.title} [S{self.season}E{self.index}]({url})", ephemeral=True)
+            # url = cdn_url(iframe_link, iframe_id)
+            await interaction.followup.send(f"{self.title} [S{self.season}E{self.index}]({iframe_url}&_debug=true)", ephemeral=True)
         except Exception as e: await interaction.message.edit(content=e, view=None)
 
 # sflix functions
