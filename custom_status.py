@@ -5,6 +5,7 @@ import random
 import aiohttp
 import os
 import time
+import json
 
 user_id = 729554186777133088
 headers = {"authorization": os.getenv("LANYARD")}
@@ -23,14 +24,21 @@ async def the_real_delete(url: str):
     async with aiohttp.ClientSession() as session:
         async with session.delete(url, headers=headers) as response:
             return response
+        
+def read_json_file(file_path):
+    with open(file_path, 'r') as json_file:
+        data = json.load(json_file)
+    return data
 
 async def silly_activities(bot: commands.Bot):
     while True:
         try:
             data = await the_real_req(f"https://api.lanyard.rest/v1/users/{user_id}")
+            splashes = read_json_file("./res/mandatory_settings_and_splashes.json")["some funny splashes you can modify"]
             strings = [
                 f"serving {len(bot.users)} users in {len(bot.guilds)} guilds",
                 f"gdjkhp is currently {data['data']['discord_status']}",
+                f"will return in {round(bot.latency*1000)}ms",
                 time.strftime("%B %d, %Y"),
                 "free update: character.ai (-chelp)",
                 "get started: -halp",
@@ -46,6 +54,7 @@ async def silly_activities(bot: commands.Bot):
             if data["data"]["kv"]: 
                 for key in list(data["data"]["kv"]):
                     strings.append(data["data"]["kv"][key])
+            strings.append(random.choice(splashes))
             await bot.change_presence(activity=discord.CustomActivity(name=random.choice(strings)), 
                                       status=discord.Status.dnd)
         except Exception as e: print(e)

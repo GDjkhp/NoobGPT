@@ -4,23 +4,24 @@ from httpclient import HttpClient
 from bs4 import BeautifulSoup as BS
 import re
 from urllib import parse as p
-import pymongo
-import os
+import json
 import asyncio
 
 client, client0 = HttpClient(), HttpClient()
 title, url, aid, mv_tv, poster = 0, 1, 2, 3, 4
 desc, ep, animetype, released, genre = 2, 3, 5, 6, 7
 pagelimit = 12
-
-myclient = pymongo.MongoClient(os.getenv('MONGO'))
-mycol = myclient["utils"]["anime"]
 gogoanime = "https://anitaku.so"
+
+def read_json_file(file_path):
+    with open(file_path, 'r') as json_file:
+        data = json.load(json_file)
+    return data
 
 def get_domain():
     global gogoanime
-    data = mycol.find_one({"name":"gogoanime"})
-    gogoanime = data["url"]
+    data = read_json_file("./res/mandatory_settings_and_splashes.json")
+    gogoanime = data["gogoanime"]
 
 async def Gogoanime(ctx: commands.Context, arg: str):
     await asyncio.to_thread(get_domain)
