@@ -367,6 +367,7 @@ def fix_num(num):
     elif num > 100: num = 100
     return num
 def get_rate(ctx: commands.Context, x):
+    if not x.get("webhooks"): return 0 # malform fix
     for wh in x["webhooks"]:
         parent = ctx.channel
         if type(parent) == discord.Thread:
