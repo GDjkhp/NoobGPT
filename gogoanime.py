@@ -15,8 +15,7 @@ pagelimit = 12
 
 myclient = pymongo.MongoClient(os.getenv('MONGO'))
 mycol = myclient["utils"]["anime"]
-data = mycol.find_one({"name":"gogoanime"})
-gogoanime = data["url"] # "https://anitaku.so"
+gogoanime = "https://anitaku.so"
 
 def get_domain():
     global gogoanime

@@ -241,17 +241,18 @@ async def edit_char(ctx: commands.Context, rate: str):
 
 async def c_help(ctx: commands.Context):
     text = "Character.ai is an American neural language model chatbot service that can generate human-like text responses and participate in contextual conversation."
-    text += "\n\nAvailable commands:"
+    text += "\n# Character commands"
+    text += "\n`-cchar` available characters"
     text += "\n`-cadd <query>` add a character"
     text += "\n`-cdel` delete a character"
-    text += "\n`-cchan` add channel"
-    text += "\n`-crate <int>` set global message_rate (0-100)"
-    text += "\n`-cedit <int>` set char_message_rate per channel (0-100)"
-    text += "\n`-cmode` toggle channel mode"
-    text += "\n`-cadm` toggle admin approval"
-    text += "\n`-cchar` available characters"
     text += "\n`-ctren` trending characters"
     text += "\n`-crec` recommended characters"
+    text += "\n# Server commands"
+    text += "\n`-cchan` add/remove channel"
+    text += "\n`-cadm` toggle admin approval"
+    text += "\n`-cmode` toggle channel mode"
+    text += "\n`-crate <int>` set global message_rate (0-100)"
+    text += "\n`-cedit <int>` set char_message_rate per channel (0-100)"
     await ctx.reply(text)
 
 # utils
@@ -781,20 +782,3 @@ async def delete_role(role: discord.Role):
 
 def fetch_role(ctx: commands.Context, id: int) -> discord.Role:
     return ctx.guild.get_role(id)
-
-# thread webhook hack, unused
-class WebhookSender:
-    def __init__(self, url):
-        self.url = url
-
-    async def send(self, text):
-        async with aiohttp.ClientSession() as session:
-            payload = {
-                "content": text
-            }
-            headers = {
-                "Content-Type": "application/json"
-            }
-            async with session.post(self.url, json=payload, headers=headers) as response:
-                if not response.status == 204:
-                    print("webhook thread hack error")

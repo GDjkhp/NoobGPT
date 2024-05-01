@@ -42,14 +42,6 @@ async def silly_activities(bot: commands.Bot):
                 "hosted in finland",
                 "written in python and node.js",
                 "powered by pterodactyl",
-                "https://gdjkhp.github.io",
-                "https://gdjkhp.github.io/NoobGPT",
-                "https://github.com/GDjkhp/level-up-loser-python-branch",
-                "https://paypal.me/GDjkhp",
-                "https://discord.gg/ZbvhQYv9Ka",
-                "https://bot-hosting.net/?aff=729554186777133088",
-                "https://myanimelist.net/profile/GDjkhp",
-                "https://jkhp.newgrounds.com",
             ]
             if data["data"]["kv"]: 
                 for key in list(data["data"]["kv"]):
