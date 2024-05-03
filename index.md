@@ -7,7 +7,7 @@
 A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you.
 
 ## Usage
-### [Add to server](https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=70781869870080&scope=applications.commands%20bot) or [send a direct message](https://discord.com/channels/@me/1090974620892536832) to start using.
+### [Add to server](https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=633731823291648&scope=applications.commands%20bot) or [send a direct message](https://discord.com/channels/@me/1090974620892536832) to start using.
 
 <details><summary><b>permissions and data collection</b></summary>
 <h2>permissions</h2>
@@ -74,12 +74,15 @@ Originally developed as an XP Leveling System under the codename "LevelUpLoser".
 Collection of random and unique stuff I came up with, mostly games and useful tools. This is where I add new features regularly.
 ### Prefix: -
 ## AI 🤖
+### OpenAI (Not working)
 * `-ask [prompt]` OpenAI GPT-3.5-Turbo (ChatGPT) chat completion.
 * `-gpt [prompt]` OpenAI gpt-3.5-turbo-instruct text completion.
 * `-imagine [prompt]` OpenAI Dall-E image generation.
-* `-bard [prompt]` [Google Bard](https://bard.google.com) chat completion. (Deprecated)
+### Google
+<!-- * `-bard [prompt]` [Google Bard](https://bard.google.com) chat completion. (Deprecated) -->
 * `-palm [prompt]` Google AI PaLM language model. (Legacy)
 * `-ge [text/image]` Google AI Gemini language model.
+### Uncategorized
 * `-petals` Run large language models at home, BitTorrent‑style.
 * `-perplex` Perplexity AI unlocks the power of knowledge with information discovery and sharing.
 * `-chelp` Character.ai is an American neural language model chatbot service that can generate human-like text responses and participate in contextual conversation.
@@ -93,7 +96,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-rps` Play rock-paper-scissors.
 
 ## Media 💽
-* `-anime [query]` Search and watch Anime using [Gogoanime](https://gogoanimehd.io).
+* `-anime [query]` Search and watch Anime using [Gogoanime](https://anitaku.so).
 * `-tv [query]` Search and watch TV shows and movies using [SFlix](https://sflix.se).
 * `-ytdlp (optional: format = [mp3/m4a]) [link]` Download or convert a YouTube video under 25MB discord limit using [yt-dlp](https://github.com/yt-dlp/yt-dlp). See [supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md).
 * `-cob [link]` [cobalt](https://cobalt.tools) is a media downloader that doesn't piss you off. See [supported sites](https://github.com/wukko/cobalt?tab=readme-ov-file#supported-services).
@@ -111,7 +114,7 @@ Note: Facebook Messenger and Telegram ports are coming soon.
 * `-ms` Play minesweeper.
 * `-chess` Play chess.
 * `-levels` Reworked XP Leveling System.
-* `-mee6` <https://gdjkhp.github.io/meeseeks-leaderboard-api/>
+* `-mee6` <https://gdjkhp.github.io/meeseeks-leaderboard-api>
 * `-prefix` Change prefix. (admin-only)
 * `-alias` Change command alias. (admin-only)
 * `-toggle` Toggle available commands. (admin-only)
@@ -148,7 +151,7 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 
 ### Sites
 * <https://openai.com>
-* <https://anitaku.to>
+* <https://anitaku.so>
 * <https://actvid.rs>
 * <https://akinator.com>
 * <https://opentdb.com>
