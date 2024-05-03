@@ -29,7 +29,7 @@ async def BARD(ctx: commands.Context, arg: str):
 import google.generativeai as PALM
 PALM.configure(api_key=os.getenv("PALM"))
 async def PALM_LEGACY(ctx: commands.Context, arg: str):
-    async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
+    async with ctx.typing():
         if not arg: arg = "Explain who you are, your functions, capabilities, limitations, and purpose."
         msg = await ctx.reply("Generating response…")
         old = round(time.time() * 1000)
@@ -52,7 +52,7 @@ genai.configure(api_key=os.getenv("PALM"))
 text_model = genai.GenerativeModel(model_name="gemini-pro")
 image_model = genai.GenerativeModel(model_name="gemini-pro-vision")
 async def GEMINI(ctx: commands.Context, arg: str):
-    async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
+    async with ctx.typing():
         msg = await ctx.reply("Generating response…")
         old = round(time.time() * 1000)
         text = None
@@ -209,7 +209,7 @@ async def req_real(url, json, headers, palm):
                 return None
 
 async def GEMINI_REST(ctx: commands.Context, arg: str, palm: bool):
-    async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
+    async with ctx.typing():
         msg = await ctx.reply("Generating response…")
         old = round(time.time() * 1000)
         text = None

@@ -558,6 +558,7 @@
         "https://discord.gg/ZbvhQYv9Ka",
         "https://bot-hosting.net/?aff=729554186777133088",
         "https://myanimelist.net/profile/GDjkhp",
-        "https://jkhp.newgrounds.com"
+        "https://jkhp.newgrounds.com",
+        "Use async ctx.typing() to indicate the bot is working on it."
     ]
 }

@@ -53,9 +53,9 @@ async def ai_embed(av: discord.Asset) -> discord.Embed:
     emby.add_field(name='`-imagine [prompt]`', 
                    value='OpenAI Dall-E image generation.', 
                    inline=False)
-    emby.add_field(name='`-bard [prompt]`', 
-                   value='[Google Bard](https://bard.google.com) chat completion. (Deprecated)', 
-                   inline=False)
+    # emby.add_field(name='`-bard [prompt]`', 
+    #                value='[Google Bard](https://bard.google.com) chat completion. (Deprecated)', 
+    #                inline=False)
     emby.add_field(name='`-palm [prompt]`', 
                    value='Google AI PaLM language model. (Legacy)', 
                    inline=False)

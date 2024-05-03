@@ -239,37 +239,16 @@ from googleai import GEMINI_REST
 async def ge(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(GEMINI_REST(ctx, arg, False))
 
-from petals import PETALS
+from petals import PETALS, petalsWebsocket
 @bot.command()
 async def petals(ctx: commands.Context):
-    async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
+    async with ctx.typing():
         msg = await ctx.reply("Pinging…")
         await msg.edit(content=await PETALS())
 
-from petals import BELUGA2
 @bot.command()
 async def beluga2(ctx: commands.Context, *, arg=None):
-    bot.loop.create_task(BELUGA2(ctx, arg))
-
-from petals import LLAMA2
-@bot.command()
-async def llama2(ctx: commands.Context, *, arg=None):
-    bot.loop.create_task(LLAMA2(ctx, arg))
-
-from petals import GUANACO
-@bot.command()
-async def guanaco(ctx: commands.Context, *, arg=None):
-    bot.loop.create_task(GUANACO(ctx, arg))
-
-from petals import LLAMA
-@bot.command()
-async def llama(ctx: commands.Context, *, arg=None):
-    bot.loop.create_task(LLAMA(ctx, arg))
-
-from petals import BLOOMZ
-@bot.command()
-async def bloomz(ctx: commands.Context, *, arg=None):
-    bot.loop.create_task(BLOOMZ(ctx, arg))
+    bot.loop.create_task(petalsWebsocket(ctx, arg, "petals-team/StableBeluga2"))
 
 # CHARACTER AI
 @bot.command()

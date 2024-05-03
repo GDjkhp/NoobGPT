@@ -5,7 +5,16 @@ import websockets
 import json
 import re
 
-# TODO: support read replies
+# list of old models
+'stabilityai/StableBeluga2'
+'meta-llama/Llama-2-70b-chat-hf'
+'meta-llama/Llama-2-70b-hf'
+'timdettmers/guanaco-65b'
+'huggyllama/llama-65b'
+'bigscience/bloomz'
+'meta-llama/Meta-Llama-3-70B'
+
+# TODO: support read replies (just supply conversation history in inputs, weird)
 async def petalsWebsocket(ctx: commands.Context, arg: str, model: str):
     """
     Connects to a WebSocket server and generates text using a specified model.
@@ -17,7 +26,7 @@ async def petalsWebsocket(ctx: commands.Context, arg: str, model: str):
     Returns:
         None
     """
-    async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
+    async with ctx.typing():
         msg = await ctx.reply("**Starting session…**")
         if not arg: arg = "Explain who you are, your functions, capabilities, limitations, and purpose."
         text = ""
@@ -85,21 +94,6 @@ async def send(ctx: commands.Context, text: str):
         else:
             await ctx.send(chunk)
 
-async def BELUGA2(ctx: commands.Context, arg: str):
-    await petalsWebsocket(ctx, arg, 'stabilityai/StableBeluga2')
-
-async def LLAMA2(ctx: commands.Context, arg: str):
-    await petalsWebsocket(ctx, arg, 'meta-llama/Llama-2-70b-chat-hf') # meta-llama/Llama-2-70b-hf
-
-async def GUANACO(ctx: commands.Context, arg: str):
-    await petalsWebsocket(ctx, arg, 'timdettmers/guanaco-65b')
-
-async def LLAMA(ctx: commands.Context, arg: str):
-    await petalsWebsocket(ctx, arg, 'huggyllama/llama-65b')
-
-async def BLOOMZ(ctx: commands.Context, arg: str):
-    await petalsWebsocket(ctx, arg, 'bigscience/bloomz')
-
 async def req_real(api):
     try:
         async with aiohttp.ClientSession() as session:
@@ -111,8 +105,8 @@ async def req_real(api):
 
 async def PETALS() -> str:
     status = await req_real("https://health.petals.dev/api/v1/state")
-    text = "# [Petals](https://petals.dev/)\nRun large language models at home, BitTorrent‑style.\n\n"
-    text += "Commands:\n`-beluga2, -llama2, -guanaco, -llama, -bloomz`\n\nModels:```diff\n"
+    text = "# [Petals](https://petals.dev)\nRun large language models at home, BitTorrent‑style.\n\n"
+    text += "Commands:\n`-beluga2`\n\nModels:```diff\n"
     for i in status["model_reports"]: 
         text += f"{'+ ' if i['state'] == 'healthy' else '- '}{i['name']}: {i['state']}\n"
     text += "```"

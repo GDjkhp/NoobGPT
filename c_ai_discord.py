@@ -21,23 +21,25 @@ tasks_queue = Queue()
 async def c_ai_init():
     while True:
         if not tasks_queue.empty():
-            ctx, x, text = tasks_queue.get()
-
-            db = await asyncio.to_thread(get_database, ctx.guild.id)
-            if db["channel_mode"] and not ctx.channel.id in db["channels"]: continue
-            if db["message_rate"] == 0: continue
-            for char in db["characters"]:
-                if x["name"] == char["name"] and get_rate(ctx, char) == 0: continue
-
+            ctx, x, text = tasks_queue.get()            
             try:
+                db = await asyncio.to_thread(get_database, ctx.guild.id)
+                if db["channel_mode"] and not ctx.channel.id in db["channels"]: continue
+                if db["message_rate"] == 0: continue
+                exist = False
+                for char in db["characters"]:
+                    if x["name"] == char["name"]:
+                        if get_rate(ctx, char) == 0: continue
+                        exist = True
+                if not exist: continue
                 if ctx.channel.id in typing_chans:
                     await send_webhook_message(ctx, x, text)
                 else:
                     typing_chans.append(ctx.channel.id)
                     async with ctx.typing():
                         await send_webhook_message(ctx, x, text)
-            except Exception as e: print(e)
-            if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
+                if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
+            except Exception as e: print(f"Exception in c_ai_init: {e}")
         await asyncio.sleep(1) # DO NOT REMOVE
 
 # the real
@@ -69,7 +71,6 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
     if not chars:
         trigger = generate_random_bool(db["message_rate"])
         if trigger and db["characters"]:
-            # print("random get")
             random.shuffle(db["characters"])
             if not msg.author.name in db["characters"][0]["name"]:
                 chars.append(db["characters"][0])
@@ -78,14 +79,16 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
     for x in chars:
         if msg.author.name in x["name"]: continue
         if generate_random_bool(get_rate(ctx, x)):
-            if ctx.channel.id in typing_chans:
-                data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
-                if data: tasks_queue.put((ctx, x, data['replies'][0]['text']))
-            else:
-                typing_chans.append(ctx.channel.id)
-                async with ctx.typing():
+            data = None
+            try:
+                if ctx.channel.id in typing_chans:
                     data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
-                    if data: tasks_queue.put((ctx, x, data['replies'][0]['text']))
+                else:
+                    typing_chans.append(ctx.channel.id)
+                    async with ctx.typing():
+                        data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
+            except Exception as e: print(f"Exception in c_ai: {e}")
+            if data: tasks_queue.put((ctx, x, data['replies'][0]['text']))
             if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
 
 async def add_char(ctx: commands.Context, text: str, list_type: str):
@@ -289,8 +292,7 @@ def view_embed(ctx: commands.Context, result: list, index: int, col: int):
     return embed
 def generate_random_bool(num):
     chance = num / 100 # convert number to probability
-    result = random.random() 
-    # print(result)
+    result = random.random()
     return result < chance
 def clean_gdjkhp(o: str, n: str):
     return o.replace("GDjkhp", n)
