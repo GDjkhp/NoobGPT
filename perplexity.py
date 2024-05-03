@@ -64,9 +64,7 @@ async def the_real_req(url: str, payload: dict, headers: dict):
         async with session.post(url, json=payload, headers=headers) as response:
             if response.status == 200:
                 return await response.json()
-            else:
-                print(await response.content.read())
-                return None
+            else: print(await response.content.read())
 
 async def make_request(model: str, messages: list):
     url = "https://api.perplexity.ai/chat/completions"

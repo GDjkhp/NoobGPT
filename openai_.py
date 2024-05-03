@@ -24,7 +24,6 @@ async def discord_image(link: str, prompt: str) -> discord.File:
                 image_bytes = await response.read()
                 image_data = io.BytesIO(image_bytes)
                 return discord.File(fp=image_data, filename=f'{prompt}.png')
-    return None
 
 async def chat(message: discord.Message, info: discord.Message=None):
     if not info: info = await message.reply("Generating response…")

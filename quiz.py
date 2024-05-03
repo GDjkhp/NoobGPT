@@ -9,9 +9,7 @@ async def req_real(api):
         async with aiohttp.ClientSession() as session:
             async with session.get(api) as response:
                 if response.status == 200: return await response.json()
-    except Exception as e: 
-        print(e)
-    return None
+    except Exception as e: print(e)
 
 async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, diff: str, ty: str):
     msg = await ctx.reply("Crunching data…")

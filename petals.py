@@ -99,9 +99,7 @@ async def req_real(api):
         async with aiohttp.ClientSession() as session:
             async with session.get(api) as response:
                 if response.status == 200: return await response.json()
-    except Exception as e: 
-        print(e)
-    return None
+    except Exception as e: print(e)
 
 async def PETALS() -> str:
     status = await req_real("https://health.petals.dev/api/v1/state")

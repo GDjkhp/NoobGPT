@@ -269,9 +269,6 @@ async def load_image(url):
             if response.status == 200:
                 image_data = await response.read()
                 return image_data
-            else:
-                print(f"Failed to load image from URL: {url}")
-                return await load_image("https://gdjkhp.github.io/img/dc.png")
 def get_max_page(length):
     if length % pagelimit != 0: return length - (length % pagelimit)
     return length - pagelimit
@@ -431,7 +428,10 @@ class SelectChoice(discord.ui.Select):
             whs = await parent.webhooks()
             if len(whs) == 15: return await interaction.message.edit(content="webhook limit reached, please delete at least one", 
                                                                      embed=None, view=None)
-            img = await load_image(f"https://characterai.io/i/400/static/avatars/{selected['avatar_file_name']}")
+            url = "https://cdn.discordapp.com/embed/avatars/4.png"
+            if selected['avatar_file_name']:
+                url = f"https://characterai.io/i/400/static/avatars/{selected['avatar_file_name']}"
+            img = await load_image(url)
             wh = await parent.create_webhook(name=selected["participant__name"], avatar=img)
             role = await create_role(self.ctx, selected["participant__name"])
             data = {

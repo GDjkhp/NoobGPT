@@ -204,9 +204,7 @@ async def req_real(url, json, headers, palm):
         async with session.post(url, json=json, headers=headers) as response:
             if response.status == 200:
                 return get_text_palm(await response.json()) if palm else get_text(await response.json())
-            else:
-                print(await response.content.read())
-                return None
+            else: print(await response.content.read())
 
 async def GEMINI_REST(ctx: commands.Context, arg: str, palm: bool):
     async with ctx.typing():
