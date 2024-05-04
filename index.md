@@ -78,10 +78,12 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-ask [prompt]` OpenAI GPT-3.5-Turbo (ChatGPT) chat completion.
 * `-gpt [prompt]` OpenAI gpt-3.5-turbo-instruct text completion.
 * `-imagine [prompt]` OpenAI Dall-E image generation.
+
 ### Google
 <!-- * `-bard [prompt]` [Google Bard](https://bard.google.com) chat completion. (Deprecated) -->
 * `-palm [prompt]` Google AI PaLM language model. (Legacy)
 * `-ge [text/image]` Google AI Gemini language model.
+
 ### Uncategorized
 * `-petals` Run large language models at home, BitTorrent‑style.
 * `-perplex` Perplexity AI unlocks the power of knowledge with information discovery and sharing.
