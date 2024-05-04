@@ -83,13 +83,23 @@ class ImageView(discord.ui.View):
         if not index == 0: 
             self.add_item(ButtonAction(tags, safe, results, 0, "⏪", 2, lock, ctx, db, ""))
             self.add_item(ButtonAction(tags, safe, results, index - 1, "◀️", 2, lock, ctx, db, ""))
+        else:
+            self.add_item(DisabledButton("⏪", 2))
+            self.add_item(DisabledButton("◀️", 2))
         if index + 1 < len(results): 
             self.add_item(ButtonAction(tags, safe, results, index + 1, "▶️", 2, lock, ctx, db, ""))
             self.add_item(ButtonAction(tags, safe, results, len(results)-1, "⏩", 2, lock, ctx, db, ""))
+        else:
+            self.add_item(DisabledButton("▶️", 2))
+            self.add_item(DisabledButton("⏩", 2))
         self.add_item(ButtonAction(tags, safe, results, random.randrange(0, len(results)), "🔀", 3, lock, ctx, db, ""))
         self.add_item(ButtonHeart(ctx, db, results[index].id, 3))
         self.add_item(ButtonAction(tags, safe, results, index, "🔒" if lock[1] else "🔓", 3, [lock[1], not lock[1]], ctx, db, ""))
         self.add_item(ButtonEnd(ctx, lock[1], 3))
+
+class DisabledButton(discord.ui.Button):
+    def __init__(self, e: str, r: int):
+        super().__init__(emoji=e, style=discord.ButtonStyle.success, disabled=True, row=r)
 
 class ButtonEnd(discord.ui.Button):
     def __init__(self, ctx: commands.Context, lock: bool, row: int):

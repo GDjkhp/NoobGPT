@@ -71,7 +71,7 @@ def buildSearch(arg: str, result: list, index: int) -> discord.Embed:
     # embed.set_thumbnail(url = bot.user.avatar)
     i = index
     while i < len(result):
-        if (i < index+pagelimit): embed.add_field(name=f"[{i + 1}] {result[i][title]}", value=f"{result[i][url]}")
+        if (i < index+pagelimit): embed.add_field(name=f"[{i + 1}] `{result[i][title]}`", value=f"{result[i][url]}")
         i += 1
     return embed
 
@@ -111,10 +111,17 @@ class MyView(discord.ui.View):
         if index - pagelimit > -1:
             self.add_item(ButtonNextSearch(ctx, arg, result, 0, "⏪"))
             self.add_item(ButtonNextSearch(ctx, arg, result, index - pagelimit, "◀️"))
+        else:
+            self.add_item(DisabledButton("⏪", 1))
+            self.add_item(DisabledButton("◀️", 1))
         if not last_index == len(result):
             self.add_item(ButtonNextSearch(ctx, arg, result, last_index, "▶️"))
             max_page = get_max_page(len(result))
             self.add_item(ButtonNextSearch(ctx, arg, result, max_page, "⏩"))
+        else:
+            self.add_item(DisabledButton("▶️", 1))
+            self.add_item(DisabledButton("⏩", 1))
+        self.add_item(CancelButton(ctx, 1))
 
 class SelectChoice(discord.ui.Select):
     def __init__(self, ctx: commands.Context, index: int, result: list):
@@ -203,10 +210,17 @@ class MyView2(discord.ui.View):
         if index - pagelimit > -1:
             self.add_item(ButtonNextSeason(ctx, result, season_ids, 0, 4, "⏪"))
             self.add_item(ButtonNextSeason(ctx, result, season_ids, index - pagelimit, 4, "◀️"))
+        else:
+            self.add_item(DisabledButton("⏪", 4))
+            self.add_item(DisabledButton("◀️", 4))
         if not last_index == len(season_ids):
             self.add_item(ButtonNextSeason(ctx, result, season_ids, last_index, 4, "▶️"))
             max_page = get_max_page(len(season_ids))
             self.add_item(ButtonNextSeason(ctx, result, season_ids, max_page, 4, "⏩"))
+        else:
+            self.add_item(DisabledButton("▶️", 4))
+            self.add_item(DisabledButton("⏩", 4))
+        self.add_item(CancelButton(ctx, 4))
 
 class ButtonSelect2(discord.ui.Button):
     def __init__(self, ctx: commands.Context, index: int, season_id: str, result: list, row: int):
@@ -254,10 +268,17 @@ class MyView3(discord.ui.View):
         if index - pagelimit > -1:
             self.add_item(ButtonNextEp(ctx, season_id, episodes, result, 0, season, 4, "⏪"))
             self.add_item(ButtonNextEp(ctx, season_id, episodes, result, index - pagelimit, season, 4, "◀️"))
+        else:
+            self.add_item(DisabledButton("⏪", 4))
+            self.add_item(DisabledButton("◀️", 4))
         if not last_index == len(episodes):
             self.add_item(ButtonNextEp(ctx, season_id, episodes, result, last_index, season, 4, "▶️"))
             max_page = get_max_page(len(episodes))
             self.add_item(ButtonNextEp(ctx, season_id, episodes, result, max_page, season, 4, "⏩"))
+        else:
+            self.add_item(DisabledButton("▶️", 4))
+            self.add_item(DisabledButton("⏩", 4))
+        self.add_item(CancelButton(ctx, 4))
 
 class ButtonNextEp(discord.ui.Button):
     def __init__(self, ctx: commands.Context, season_id: str, episodes: list, result: list, index: int, season: int, row: int, l: str):
@@ -290,6 +311,21 @@ class ButtonSelect3(discord.ui.Button):
             # url = cdn_url(iframe_link, iframe_id)
             await interaction.followup.send(f"{self.title} [S{self.season}E{self.index}]({iframe_url}&_debug=true)", ephemeral=True)
         except Exception as e: await interaction.message.edit(content=e, view=None)
+
+class DisabledButton(discord.ui.Button):
+    def __init__(self, e: str, r: int):
+        super().__init__(emoji=e, style=discord.ButtonStyle.success, disabled=True, row=r)
+
+class CancelButton(discord.ui.Button):
+    def __init__(self, ctx: commands.Context, r: int):
+        super().__init__(emoji="❌", style=discord.ButtonStyle.success, row=r)
+        self.ctx = ctx
+    
+    async def callback(self, interaction: discord.Interaction):
+        if interaction.user != self.ctx.author: 
+            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+                                                           ephemeral=True)
+        await interaction.response.edit_message(view=None, embed=None, content="the operation was cancelled")
 
 # sflix functions
 def server_id(mov_id: str) -> str:

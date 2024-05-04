@@ -276,10 +276,10 @@ def search_embed(arg: str, result: list, index: int):
     embed = discord.Embed(title=f"Search results: `{arg}`", description=f"{len(result)} found", color=0x00ff00)
     i = index
     while i < len(result):
-        char_name = f"[{i + 1}] {result[i]['participant__name']}"
+        char_name = f"[{i + 1}] `{result[i]['participant__name']}`"
         char_value = ""
         if result[i].get('title'): char_value += f"{result[i]['title']}\n"
-        char_value += f"by {result[i]['user__username']}\n{format_number(int(result[i]['participant__num_interactions']))} chats"
+        char_value += f"by `{result[i]['user__username']}`\n{format_number(int(result[i]['participant__num_interactions']))} chats"
         if (i < index+pagelimit): embed.add_field(name = char_name, value = char_value)
         i += 1
     return embed
@@ -288,11 +288,11 @@ def view_embed(ctx: commands.Context, result: list, index: int, col: int):
     i = index
     while i < len(result):
         if (i < index+pagelimit): 
-            char_title = f"[{i + 1}] {result[i]['name']}"
+            char_title = f"[{i + 1}] `{result[i]['name']}`"
             char_desc = f"{get_rate(ctx, result[i])}%"
             if result[i].get('description'): char_desc += f"\n{result[i]['description']}"
             if result[i].get('author') and result[i].get('chats'): # another fuck up
-                char_desc += f"\nby {result[i]['author']}\n{format_number(result[i]['chats'])} chats"
+                char_desc += f"\nby `{result[i]['author']}`\n{format_number(result[i]['chats'])} chats"
             embed.add_field(name = char_title, value = char_desc)
         i += 1
     return embed
@@ -485,10 +485,16 @@ class MyView4(discord.ui.View):
         if index - pagelimit > -1:
             self.add_item(nextPage(ctx, arg, result, 0, "⏪"))
             self.add_item(nextPage(ctx, arg, result, index - pagelimit, "◀️"))
+        else:
+            self.add_item(DisabledButton("⏪"))
+            self.add_item(DisabledButton("◀️"))
         if not last_index == len(result):
             self.add_item(nextPage(ctx, arg, result, last_index, "▶️"))
             max_page = get_max_page(len(result))
             self.add_item(nextPage(ctx, arg, result, max_page, "⏩"))
+        else:
+            self.add_item(DisabledButton("▶️"))
+            self.add_item(DisabledButton("⏩"))
         self.add_item(CancelButton(ctx))
 
 class nextPage(discord.ui.Button):
@@ -502,6 +508,10 @@ class nextPage(discord.ui.Button):
                                                            ephemeral=True)
         await interaction.response.edit_message(view = MyView4(self.ctx, self.arg, self.result, self.index), 
                                                 embed=search_embed(self.arg, self.result, self.index))
+
+class DisabledButton(discord.ui.Button):
+    def __init__(self, e: str):
+        super().__init__(emoji=e, style=discord.ButtonStyle.success, disabled=True)
         
 class CancelButton(discord.ui.Button):
     def __init__(self, ctx: commands.Context):
@@ -548,10 +558,16 @@ class DeleteView(discord.ui.View):
         if index - pagelimit > -1:
             self.add_item(nextPageDelete(ctx, result, 0, "⏪"))
             self.add_item(nextPageDelete(ctx, result, index - pagelimit, "◀️"))
+        else:
+            self.add_item(DisabledButton("⏪"))
+            self.add_item(DisabledButton("◀️"))
         if not last_index == len(result):
             self.add_item(nextPageDelete(ctx, result, last_index, "▶️"))
             max_page = get_max_page(len(result))
             self.add_item(nextPageDelete(ctx, result, max_page, "⏩"))
+        else:
+            self.add_item(DisabledButton("▶️"))
+            self.add_item(DisabledButton("⏩"))
         self.add_item(CancelButton(ctx))
 
 class nextPageDelete(discord.ui.Button):
@@ -573,10 +589,17 @@ class AvailView(discord.ui.View):
         if index - pagelimit > -1:
             self.add_item(nextPageAvail(ctx, result, 0, "⏪"))
             self.add_item(nextPageAvail(ctx, result, index - pagelimit, "◀️"))
+        else:
+            self.add_item(DisabledButton("⏪"))
+            self.add_item(DisabledButton("◀️"))
         if not last_index == len(result):
             self.add_item(nextPageAvail(ctx, result, last_index, "▶️"))
             max_page = get_max_page(len(result))
             self.add_item(nextPageAvail(ctx, result, max_page, "⏩"))
+        else:
+            self.add_item(DisabledButton("▶️"))
+            self.add_item(DisabledButton("⏩"))
+        self.add_item(CancelButton(ctx))
 
 class nextPageAvail(discord.ui.Button):
     def __init__(self, ctx: commands.Context, result: list, index: int, l: str):
@@ -660,10 +683,16 @@ class EditView(discord.ui.View):
         if index - pagelimit > -1:
             self.add_item(nextPageEdit(ctx, result, 0, "⏪", rate))
             self.add_item(nextPageEdit(ctx, result, index - pagelimit, "◀️", rate))
+        else:
+            self.add_item(DisabledButton("⏪"))
+            self.add_item(DisabledButton("◀️"))
         if not last_index == len(result):
             self.add_item(nextPageEdit(ctx, result, last_index, "▶️", rate))
             max_page = get_max_page(len(result))
             self.add_item(nextPageEdit(ctx, result, max_page, "⏩", rate))
+        else:
+            self.add_item(DisabledButton("▶️"))
+            self.add_item(DisabledButton("⏩"))
         self.add_item(CancelButton(ctx))
 
 class nextPageEdit(discord.ui.Button):

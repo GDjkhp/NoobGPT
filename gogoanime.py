@@ -49,7 +49,7 @@ def buildSearch(arg: str, result: list, index: int) -> discord.Embed:
     # embed.set_thumbnail(url = bot.user.avatar)
     i = index
     while i < len(result):
-        if (i < index+pagelimit): embed.add_field(name=f"[{i + 1}] {result[i][title]}", value=f"{result[i][url]}")
+        if (i < index+pagelimit): embed.add_field(name=f"[{i + 1}] `{result[i][title]}`", value=f"{result[i][url]}")
         i += 1
     return embed
 def searchAnime(q: str):
@@ -99,10 +99,17 @@ class MyView4(discord.ui.View):
         if index - pagelimit > -1:
             self.add_item(nextPage(ctx, arg, result, 0, "⏪"))
             self.add_item(nextPage(ctx, arg, result, index - pagelimit, "◀️"))
+        else:
+            self.add_item(DisabledButton("⏪", 1))
+            self.add_item(DisabledButton("◀️", 1))
         if not last_index == len(result):
             self.add_item(nextPage(ctx, arg, result, last_index, "▶️"))
             max_page = get_max_page(len(result))
             self.add_item(nextPage(ctx, arg, result, max_page, "⏩"))
+        else:
+            self.add_item(DisabledButton("▶️", 1))
+            self.add_item(DisabledButton("⏩", 1))
+        self.add_item(CancelButton(ctx, 1))
 
 class SelectChoice(discord.ui.Select):
     def __init__(self, ctx: commands.Context, index: int, result: list):
@@ -188,10 +195,17 @@ class MyView5(discord.ui.View):
         if index - pagelimit > -1:
             self.add_item(nextPageEP(ctx, details, 0, 3, "⏪"))
             self.add_item(nextPageEP(ctx, details, index - pagelimit, 3, "◀️"))
+        else:
+            self.add_item(DisabledButton("⏪", 3))
+            self.add_item(DisabledButton("◀️", 3))
         if not last_index == int(details[ep]):
             self.add_item(nextPageEP(ctx, details, last_index, 3, "▶️"))
             max_page = get_max_page(int(details[ep]))
             self.add_item(nextPageEP(ctx, details, max_page, 3, "⏩"))
+        else:
+            self.add_item(DisabledButton("▶️", 3))
+            self.add_item(DisabledButton("⏩", 3))
+        self.add_item(CancelButton(ctx, 3))
 
 class ButtonSelect5(discord.ui.Button):
     def __init__(self, ctx: commands.Context, index: int, sUrl: str, row: int):
@@ -228,3 +242,18 @@ class nextPageEP(discord.ui.Button):
         await interaction.response.defer()
         embed = buildAnime(self.details)
         await interaction.message.edit(embed = embed, view = MyView5(self.ctx, self.details, self.index))
+
+class CancelButton(discord.ui.Button):
+    def __init__(self, ctx: commands.Context, r: int):
+        super().__init__(emoji="❌", style=discord.ButtonStyle.success, row=r)
+        self.ctx = ctx
+    
+    async def callback(self, interaction: discord.Interaction):
+        if interaction.user != self.ctx.author: 
+            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+                                                           ephemeral=True)
+        await interaction.response.edit_message(view=None, embed=None, content="the operation was cancelled")
+
+class DisabledButton(discord.ui.Button):
+    def __init__(self, e: str, r: int):
+        super().__init__(emoji=e, style=discord.ButtonStyle.success, disabled=True, row=r)
