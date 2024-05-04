@@ -38,8 +38,8 @@ async def c_ai_init():
                     typing_chans.append(ctx.channel.id)
                     async with ctx.typing():
                         await send_webhook_message(ctx, x, text)
-                if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
             except Exception as e: print(f"Exception in c_ai_init: {e}")
+            if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
         await asyncio.sleep(1) # DO NOT REMOVE
 
 # the real
@@ -87,8 +87,8 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
                     typing_chans.append(ctx.channel.id)
                     async with ctx.typing():
                         data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
-            except Exception as e: print(f"Exception in c_ai: {e}")
-            if data: tasks_queue.put((ctx, x, data['replies'][0]['text']))
+                if data: tasks_queue.put((ctx, x, data['replies'][0]['text']))
+            except Exception as e: print(f"Exception in c_ai: {e}, data: {data}")
             if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
 
 async def add_char(ctx: commands.Context, text: str, list_type: str):
@@ -276,7 +276,11 @@ def search_embed(arg: str, result: list, index: int):
     embed = discord.Embed(title=f"Search results: `{arg}`", description=f"{len(result)} found", color=0x00ff00)
     i = index
     while i < len(result):
-        if (i < index+pagelimit): embed.add_field(name=f"[{i + 1}] {result[i]['participant__name']}", value=f"{result[i]['title']}")
+        char_name = f"[{i + 1}] {result[i]['participant__name']}"
+        char_value = ""
+        if result[i].get('title'): char_value += f"{result[i]['title']}\n"
+        char_value += f"by {result[i]['user__username']}\n{format_number(int(result[i]['participant__num_interactions']))} chats"
+        if (i < index+pagelimit): embed.add_field(name = char_name, value = char_value)
         i += 1
     return embed
 def view_embed(ctx: commands.Context, result: list, index: int, col: int):
@@ -284,7 +288,12 @@ def view_embed(ctx: commands.Context, result: list, index: int, col: int):
     i = index
     while i < len(result):
         if (i < index+pagelimit): 
-            embed.add_field(name=f"[{i + 1}] {result[i]['name']}", value=f"[{get_rate(ctx, result[i])}%] {result[i]['description']}")
+            char_title = f"[{i + 1}] {result[i]['name']}"
+            char_desc = f"{get_rate(ctx, result[i])}%"
+            if result[i].get('description'): char_desc += f"\n{result[i]['description']}"
+            if result[i].get('author') and result[i].get('chats'): # another fuck up
+                char_desc += f"\nby {result[i]['author']}\n{format_number(result[i]['chats'])} chats"
+            embed.add_field(name = char_title, value = char_desc)
         i += 1
     return embed
 def generate_random_bool(num):
@@ -376,6 +385,15 @@ def get_rate(ctx: commands.Context, x):
             else:
                 if wh.get("char_message_rate"): return wh["char_message_rate"]
     return 0
+def format_number(num):
+    if 1000 <= num < 1000000:
+        return f"{num / 1000:.1f}k"
+    elif 1000000 <= num < 1000000000:
+        return f"{num / 1000000:.1f}m"
+    elif 1000000000 <= num < 1000000000000:
+        return f"{num / 1000000000:.1f}b"
+    else:
+        return str(num)
 
 class SelectChoice(discord.ui.Select):
     def __init__(self, ctx: commands.Context, index: int, result: list):
@@ -437,6 +455,8 @@ class SelectChoice(discord.ui.Select):
             data = {
                 "name": selected["participant__name"],
                 "description": selected['title'],
+                "author": selected['user__username'],
+                "chats": int(selected['participant__num_interactions']),
                 "username": tgt,
                 "history_id": chat["external_id"],
                 "role_id": role.id,
@@ -760,8 +780,7 @@ async def get_webhook(ctx: commands.Context, c_data):
     return wh
 
 async def delete_webhooks(ctx: commands.Context, c_data):
-    channels = ctx.guild.channels
-    for chan in channels:
+    for chan in ctx.guild.channels:
         if not type(chan) in supported: continue
         perms = chan.permissions_for(ctx.guild.me)
         if perms.manage_webhooks:
