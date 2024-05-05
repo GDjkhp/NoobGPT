@@ -252,7 +252,7 @@ class CancelButton(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        await interaction.response.edit_message(view=None, embed=None, content="the operation was cancelled")
+        await interaction.message.delete()
 
 class DisabledButton(discord.ui.Button):
     def __init__(self, e: str, r: int):

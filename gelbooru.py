@@ -108,9 +108,10 @@ class ButtonEnd(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if self.lock and interaction.user != self.ctx.author:
-            await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can delete this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can delete this message.", 
                                                     ephemeral=True)
-        else: await interaction.response.edit_message(content="🤨", view=None, embed=None)
+        await interaction.response.edit_message(content="🤨", view=None, embed=None)
+        await interaction.message.delete(delay=5)
 
 class ButtonHeart(discord.ui.Button):
     def __init__(self, ctx: commands.Context, db: str, id: int, row: int):

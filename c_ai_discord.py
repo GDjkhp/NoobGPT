@@ -157,12 +157,8 @@ async def t_adm(ctx: commands.Context):
         return await ctx.reply("not an admin")
     
     db = await asyncio.to_thread(get_database, ctx.guild.id)
-    if db["admin_approval"]: 
-        await asyncio.to_thread(pull_ad, ctx.guild.id)
-        await ctx.reply("admin approval off")
-    else: 
-        await asyncio.to_thread(push_ad, ctx.guild.id)
-        await ctx.reply("admin approval on")
+    await asyncio.to_thread(set_admin, ctx.guild.id, not db["admin_approval"])
+    await ctx.reply(f'admin approval is now set to {not db["admin_approval"]}')
 
 async def t_mode(ctx: commands.Context):
     if not type(ctx.channel) in supported: return await ctx.reply("not supported")
@@ -175,12 +171,8 @@ async def t_mode(ctx: commands.Context):
     if db["admin_approval"] and not ctx.author.guild_permissions.administrator:
         return await ctx.reply("not an admin")
     
-    if db["channel_mode"]: 
-        await asyncio.to_thread(pull_mode, ctx.guild.id)
-        await ctx.reply("channel mode off")
-    else: 
-        await asyncio.to_thread(push_mode, ctx.guild.id)
-        await ctx.reply("channel mode on")
+    await asyncio.to_thread(set_mode, ctx.guild.id, not db["channel_mode"])
+    await ctx.reply(f'channel mode is now set to {not db["channel_mode"]}')
 
 async def set_rate(ctx: commands.Context, num):
     if not type(ctx.channel) in supported: return await ctx.reply("not supported")
@@ -198,8 +190,8 @@ async def set_rate(ctx: commands.Context, num):
     if not num: return await ctx.reply("?")
     if not num.isdigit(): return await ctx.reply("not a digit")
     num = fix_num(num)
-    await asyncio.to_thread(push_rate, ctx.guild.id, num)
-    await ctx.reply(f"message_rate set to {num}")
+    await asyncio.to_thread(set_rate, ctx.guild.id, num)
+    await ctx.reply(f"message_rate is now set to {num}")
 
 async def view_char(ctx: commands.Context):
     if not type(ctx.channel) in supported: return await ctx.reply("not supported")
@@ -321,13 +313,9 @@ def replace_mentions(message: discord.Message, bot: commands.Bot):
     content = re.sub(r'<a?:[^\s]+:([0-9]+)>', '', content) # nitro_emoji_pattern
     return content
 async def webhook_exists(webhook_url):
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.head(webhook_url) as response:
-                return response.status != 404
-    except Exception as e:
-        print("Error:", e)
-        return False
+    async with aiohttp.ClientSession() as session:
+        async with session.head(webhook_url) as response:
+            return response.status == 200
 async def send_webhook_message(ctx: commands.Context, x, text):
     wh = await get_webhook(ctx, x)
     if wh:
@@ -415,14 +403,6 @@ class SelectChoice(discord.ui.Select):
         await interaction.response.defer()
         
         db = await asyncio.to_thread(get_database, self.ctx.guild.id)
-
-        if db.get("characters"):
-            found = False
-            for x in db["characters"]:
-                if x["name"] == selected["participant__name"]: found = True
-            if found:
-                return await interaction.message.edit(content=f"{selected['participant__name']} was already in chat")
-        
         try:
             chat = await client.chat.new_chat(selected["external_id"])
         except Exception as e:
@@ -435,6 +415,14 @@ class SelectChoice(discord.ui.Select):
                 tgt = participants[0]['user']['username']
             else:
                 tgt = participants[1]['user']['username']
+
+            # proper checking
+            if db.get("characters"):
+                found = False
+                for x in db["characters"]:
+                    if x["username"] == tgt: found = True
+                if found:
+                    return await interaction.message.edit(content=f"{selected['participant__name']} was already in chat")
 
             # thread support
             parent = self.ctx.channel
@@ -522,7 +510,7 @@ class CancelButton(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        await interaction.response.edit_message(view=None, embed=None, content="the operation was cancelled")
+        await interaction.message.delete()
 
 class DeleteChoice(discord.ui.Select):
     def __init__(self, ctx: commands.Context, index: int, result: list):
@@ -644,8 +632,7 @@ class EditChoice(discord.ui.Select):
             if type(parent) == discord.Thread:
                 parent = parent.parent
             if w["channel"] == parent.id:
-                url = w["url"]
-                if await webhook_exists(url):
+                if await webhook_exists(w["url"]):
                     found = True
                     await asyncio.to_thread(pull_character, self.ctx.guild.id, selected)
                     if type(self.ctx.channel) == discord.Thread:
@@ -749,19 +736,13 @@ def toggle_chan(server_id: int, data):
     else: 
         return pull_chan(server_id, data)
     
-def push_ad(server_id: int):
-    mycol.update_one({"guild":server_id}, {"$set": {"admin_approval": True}})
+def set_admin(server_id: int, b: bool):
+    mycol.update_one({"guild":server_id}, {"$set": {"admin_approval": b}})
 
-def pull_ad(server_id: int):
-    mycol.update_one({"guild":server_id}, {"$set": {"admin_approval": False}})
+def set_mode(server_id: int, b: bool):
+    mycol.update_one({"guild":server_id}, {"$set": {"channel_mode": b}})
 
-def push_mode(server_id: int):
-    mycol.update_one({"guild":server_id}, {"$set": {"channel_mode": True}})
-
-def pull_mode(server_id: int):
-    mycol.update_one({"guild":server_id}, {"$set": {"channel_mode": False}})
-
-def push_rate(server_id: int, value: int):
+def set_rate(server_id: int, value: int):
     mycol.update_one({"guild":server_id}, {"$set": {"message_rate": value}})
 
 # webhook handling (ugly but safe)
@@ -775,14 +756,13 @@ async def get_webhook(ctx: commands.Context, c_data):
     wh, mod_webhooks, silent_delete = None, None, False
     if c_data.get("webhooks"): # malform fix
         mod_webhooks = list(c_data["webhooks"])
-        for w in list(c_data["webhooks"]):
+        for w in c_data["webhooks"]:
             parent = ctx.channel
             if type(parent) == discord.Thread:
                 parent = parent.parent
             if w["channel"] == parent.id:
-                url = w["url"]
-                if await webhook_exists(url):
-                    wh = discord.Webhook.from_url(url, client=ctx.bot)
+                if await webhook_exists(w["url"]):
+                    wh = discord.Webhook.from_url(w["url"], client=ctx.bot)
                     break
                 else: 
                     silent_delete = True
@@ -809,14 +789,11 @@ async def get_webhook(ctx: commands.Context, c_data):
     return wh
 
 async def delete_webhooks(ctx: commands.Context, c_data):
-    for chan in ctx.guild.channels:
-        if not type(chan) in supported: continue
-        perms = chan.permissions_for(ctx.guild.me)
-        if perms.manage_webhooks:
-            whs = await chan.webhooks()
-            for w in whs:
-                if w.name in c_data["name"]:
-                    await w.delete()
+    if c_data.get("webhooks"): # malform fix
+        for w in c_data["webhooks"]:
+            if await webhook_exists(w["url"]):
+                wh = discord.Webhook.from_url(w["url"], client=ctx.bot)
+                await wh.delete()
 
 # role handling
 async def create_role(ctx: commands.Context, name: str) -> discord.Role:

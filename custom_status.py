@@ -40,7 +40,6 @@ async def silly_activities(bot: commands.Bot):
                 f"gdjkhp is currently {data['data']['discord_status']}",
                 f"will return in {round(bot.latency*1000)}ms",
                 time.strftime("%B %d, %Y"),
-                "free update: character.ai (-chelp)",
                 "get started: -halp",
                 "dnd = stable, online = unstable",
                 "RADIO ONSEN EUTOPIA",

@@ -1,9 +1,15 @@
 import discord
 from discord.ext import commands
+import json
 
 # this is a deed that i should've done a long time ago
 async def HALP(ctx: commands.Context, av: discord.Asset):
     await ctx.reply(embed=create_embed(0x00ff00, av), view=HelpView(av))
+
+def read_json_file(file_path):
+    with open(file_path, 'r') as json_file:
+        data = json.load(json_file)
+    return data
 
 class HelpView(discord.ui.View):
     def __init__(self, av: discord.Asset):
@@ -99,12 +105,13 @@ async def games_embed(av: discord.Asset) -> discord.Embed:
     return emby
     
 async def media_embed(av: discord.Asset) -> discord.Embed:
+    data = read_json_file("./res/mandatory_settings_and_splashes.json")
     emby = create_embed_cat(0xff0000, "Media 💽", av)
     emby.add_field(name='`/help`', 
                    value='Show music commands help page.', 
                    inline=False)
     emby.add_field(name='`-anime [query]`', 
-                   value='Search and watch Anime using [Gogoanime](https://gogoanimehd.io).', 
+                   value=f'Search and watch Anime using [Gogoanime]({data["gogoanime"]}).', 
                    inline=False)
     emby.add_field(name='`-tv [query]`', 
                    value='Search and watch TV shows and movies using [SFlix](https://sflix.se).', 
