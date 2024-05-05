@@ -110,7 +110,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-ban [userid]` Return a user's Discord profile banner.
 <!-- * `-lex [query/image]` Search AI Generated art (Stable Diffusion) made by the prompts of the community using [Lexica](https://lexica.art) -->
 
-## Under Development
+<!-- ## Under Development
 Note: Facebook Messenger and Telegram ports are coming soon.
 * `-place (optional: x = [0-499] y = [0-499] zoom = [16x])` Play the Reddit social experiment event about placing pixels on a canvas.
 * `-ms` Play minesweeper.
@@ -121,7 +121,7 @@ Note: Facebook Messenger and Telegram ports are coming soon.
 * `-alias` Change command alias. (admin-only)
 * `-toggle` Toggle available commands. (admin-only)
 * `-plugins` Import and export custom commands. (admin-only)
-* `-buck` Play a game of Buckshot Roulette.
+* `-buck` Play a game of Buckshot Roulette. -->
 
 # Node.js Computer #2: Music Branch
 Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/tree/v5), an advanced discord music bot.
