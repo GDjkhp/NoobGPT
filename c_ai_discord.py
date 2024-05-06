@@ -21,7 +21,9 @@ tasks_queue = Queue()
 async def c_ai_init():
     while True:
         if not tasks_queue.empty():
-            ctx, x, text = tasks_queue.get()            
+            ctx, x, text = tasks_queue.get()
+            permissions: discord.Permissions = ctx.channel.permissions_for(ctx.me)
+            if not permissions.send_messages or not permissions.send_messages_in_threads: continue
             try:
                 db = await asyncio.to_thread(get_database, ctx.guild.id)
                 if db["channel_mode"] and not ctx.channel.id in db["channels"]: continue
@@ -299,7 +301,7 @@ def view_embed(ctx: commands.Context, result: list, index: int, col: int):
     while i < len(result):
         if (i < index+pagelimit): 
             char_title = f"[{i + 1}] `{result[i]['name']}`"
-            char_desc = f"{get_rate(ctx, result[i])}%"
+            char_desc = f"**{get_rate(ctx, result[i])}%**"
             if result[i].get('description'): char_desc += f"\n{result[i]['description']}"
             if result[i].get('author') and result[i].get('chats'): # another fuck up
                 char_desc += f"\nby `{result[i]['author']}`\n{format_number(result[i]['chats'])} chats"
@@ -764,7 +766,7 @@ class ResetChoice(discord.ui.Select):
         await interaction.response.defer()
 
         if not selected.get("char_id"):
-            return await interaction.message.edit(content="`char_id` not found. please re-add the character using `-cdel` and `-cadd`", 
+            return await interaction.message.edit(content=f"`char_id` not found. please re-add {selected['name']} using `-cdel` and `-cadd`", 
                                                   embed=None, view=None)
         chat = None
         try:

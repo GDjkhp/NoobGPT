@@ -22,9 +22,16 @@ async def quote_this(ctx: commands.Context):
         referenced_message = await ctx.message.channel.fetch_message(ctx.message.reference.message_id)
         content = replace_mentions(referenced_message)
         render_canvas = RenderCanvas()
-        image_data = await render_canvas.build_word(content, 
-                                                    referenced_message.attachments[0].url if referenced_message.attachments else None,
-                                                    f'- {referenced_message.author.name}', referenced_message.author.avatar.url)
+        try:
+            attach = referenced_message.attachments[0].url if referenced_message.attachments else None
+            user = f'- {referenced_message.author.name}'
+            avatar_url = "https://cdn.discordapp.com/embed/avatars/4.png"
+            if referenced_message.author.avatar:
+                avatar_url = referenced_message.author.avatar.url
+            image_data = await render_canvas.build_word(content, attach, user, avatar_url)
+        except Exception as e: 
+            print(e)
+            return await info.edit(content=f"⁉️")
         await ctx.reply(file=discord.File(image_data, 'quote.png'))
         return await info.edit(content=f"Took {round(time.time() * 1000)-old}ms")
     await ctx.reply("⁉️")
@@ -56,8 +63,7 @@ class RenderCanvas:
             if attach:
                 png = Image.open(await self.load_image(attach)) # bad
                 img.paste(png.resize((int(png.width / 2), int(png.height / 2))), (200, 25))
-        except Exception as e:
-            print(e)
+        except Exception as e: print(e)
 
         # draw circle
         # draw.ellipse((50, 50, 250, 250), fill='black', outline='black')
