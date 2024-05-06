@@ -766,7 +766,7 @@ class ResetChoice(discord.ui.Select):
         await interaction.response.defer()
 
         if not selected.get("char_id"):
-            return await interaction.message.edit(content=f"`char_id` not found. please re-add {selected['name']} using `-cdel` and `-cadd`", 
+            return await interaction.message.edit(content=f"`char_id` not found. please re-add `{selected['name']}` using `-cdel` and `-cadd`", 
                                                   embed=None, view=None)
         chat = None
         try:
