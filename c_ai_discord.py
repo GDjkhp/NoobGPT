@@ -66,7 +66,7 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
     for x in db["characters"]:
         if x in chars: continue
         if not generate_random_bool(get_rate(ctx, x)): continue
-        if smart_str_compare(clean_text, x["name"]): 
+        if smart_str_compare(clean_text, x["name"]):
             chars.append(x)
             continue
         if ref_msg and ref_msg.author.name in x["name"]: chars.append(x)
@@ -78,8 +78,9 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
             for x in db["characters"]:
                 if generate_random_bool(get_rate(ctx, x)) and not msg.author.name in x["name"]:
                     woke.append(x)
-            random.shuffle(woke)
-            chars.append(woke[0])
+            if woke:
+                random.shuffle(woke)
+                chars.append(woke[0])
     if not chars: return
 
     for x in chars:
