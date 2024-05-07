@@ -65,6 +65,7 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
     ref_msg = await msg.channel.fetch_message(msg.reference.message_id) if msg.reference else None
     for x in db["characters"]:
         if x in chars: continue
+        if not generate_random_bool(get_rate(ctx, x)): continue
         if smart_str_compare(clean_text, x["name"]): 
             chars.append(x)
             continue
@@ -73,25 +74,27 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
     if not chars:
         trigger = generate_random_bool(db["message_rate"])
         if trigger and db["characters"]:
-            random.shuffle(db["characters"])
-            if not msg.author.name in db["characters"][0]["name"]:
-                chars.append(db["characters"][0])
+            woke = []
+            for x in db["characters"]:
+                if generate_random_bool(get_rate(ctx, x)) and not msg.author.name in x["name"]:
+                    woke.append(x)
+            random.shuffle(woke)
+            chars.append(woke[0])
     if not chars: return
 
     for x in chars:
         if msg.author.name in x["name"]: continue
-        if generate_random_bool(get_rate(ctx, x)):
-            data = None
-            try:
-                if ctx.channel.id in typing_chans:
+        data = None
+        try:
+            if ctx.channel.id in typing_chans:
+                data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
+            else:
+                typing_chans.append(ctx.channel.id)
+                async with ctx.typing():
                     data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
-                else:
-                    typing_chans.append(ctx.channel.id)
-                    async with ctx.typing():
-                        data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
-                if data: tasks_queue.put((ctx, x, data['replies'][0]['text']))
-            except Exception as e: print(f"Exception in c_ai: {e}, data: {data}")
-            if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
+            if data and data.get('replies'): tasks_queue.put((ctx, x, data['replies'][0]['text']))
+        except Exception as e: print(f"Exception in c_ai: {e}, data: {data}")
+        if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
 
 async def add_char(ctx: commands.Context, text: str, list_type: str):
     if not type(ctx.channel) in supported: return await ctx.reply("not supported")
