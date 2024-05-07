@@ -80,9 +80,7 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
                 if msg.author.name in x["name"]: continue
                 if not generate_random_bool(get_rate(ctx, x)): continue
                 woke.append(x)
-            if woke:
-                random.shuffle(woke)
-                chars.append(woke[0])
+            if woke: chars.append(random.choice(woke))
     if not chars: return
 
     for x in chars:
@@ -463,7 +461,7 @@ class SelectChoice(discord.ui.Select):
             url = f"https://characterai.io/i/400/static/avatars/{selected['avatar_file_name']}"
         img = await load_image(url)
         wh = await parent.create_webhook(name=selected["participant__name"], avatar=img)
-        role = await create_role(self.ctx, selected["participant__name"])
+        role = await self.ctx.guild.create_role(name=selected["participant__name"], color=0x00ff00, mentionable=True)
         data = {
             "name": selected["participant__name"],
             "description": selected['title'],
@@ -556,8 +554,8 @@ class DeleteChoice(discord.ui.Select):
         await interaction.message.edit(view=None, content=f'deleting `{selected["name"]}`', embed=None)
         await interaction.response.defer()
 
-        role = fetch_role(self.ctx, selected["role_id"])
-        if role: await delete_role(role)
+        role = self.ctx.guild.get_role(selected["role_id"])
+        if role: await role.delete()
         await delete_webhooks(self.ctx, selected)
 
         await asyncio.to_thread(pull_character, self.ctx.guild.id, selected)
@@ -886,13 +884,3 @@ async def delete_webhooks(ctx: commands.Context, c_data):
         if await webhook_exists(w["url"]):
             wh = discord.Webhook.from_url(w["url"], client=ctx.bot)
             await wh.delete()
-
-# role handling
-async def create_role(ctx: commands.Context, name: str) -> discord.Role:
-    return await ctx.guild.create_role(name=name, color=0x00ff00, mentionable=True)
-
-async def delete_role(role: discord.Role):
-    await role.delete()
-
-def fetch_role(ctx: commands.Context, id: int) -> discord.Role:
-    return ctx.guild.get_role(id)
