@@ -192,7 +192,7 @@ async def set_rate(ctx: commands.Context, num):
     if not num: return await ctx.reply("?")
     if not num.isdigit(): return await ctx.reply("not a digit")
     num = fix_num(num)
-    await asyncio.to_thread(set_rate, ctx.guild.id, num)
+    await asyncio.to_thread(set_rate_db, ctx.guild.id, num)
     await ctx.reply(f"message_rate is now set to {num}")
 
 async def view_char(ctx: commands.Context):
@@ -829,7 +829,7 @@ def set_admin(server_id: int, b: bool):
 def set_mode(server_id: int, b: bool):
     mycol.update_one({"guild":server_id}, {"$set": {"channel_mode": b}})
 
-def set_rate(server_id: int, value: int):
+def set_rate_db(server_id: int, value: int):
     mycol.update_one({"guild":server_id}, {"$set": {"message_rate": value}})
 
 # webhook handling (ugly but safe)
