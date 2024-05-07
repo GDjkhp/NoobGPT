@@ -3,10 +3,9 @@ from discord.ext import commands
 import re
 import discord
 import random
-import pymongo
-import os
+import util_database
 
-myclient = pymongo.MongoClient(os.getenv('MONGO'))
+myclient = util_database.myclient
 
 async def R34(ctx: commands.Context, arg: str):
     if not ctx.guild or not ctx.channel.nsfw: return await ctx.reply("**No.**")

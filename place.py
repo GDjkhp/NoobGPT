@@ -1,12 +1,11 @@
 import discord
 from discord.ext import commands
-import pymongo
-import os
 from PIL import Image, ImageDraw
 import re
 import io
+import util_database
 
-myclient = pymongo.MongoClient(os.getenv('MONGO'))
+myclient = util_database.myclient
 width, height = 500, 500
 mycol = myclient["place"]["pixels"]
 

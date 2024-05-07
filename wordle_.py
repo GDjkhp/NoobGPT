@@ -4,10 +4,10 @@ import json
 import random
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
+import util_database
 import pymongo
-import os
 
-myclient = pymongo.MongoClient(os.getenv('MONGO'))
+myclient = util_database.myclient
 mycol = myclient["games"]["wordle"]
 
 font = ImageFont.truetype("./res/font/LibreFranklin-Bold.ttf", size=75)

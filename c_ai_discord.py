@@ -2,14 +2,14 @@ import discord
 from discord.ext import commands
 from character_ai import PyAsyncCAI
 import asyncio
-import os
-import pymongo
 import aiohttp
 import random
 import re
 from queue import Queue
+import util_database
+import os
 
-myclient = pymongo.MongoClient(os.getenv('MONGO'))
+myclient = util_database.myclient
 mycol = myclient["ai"]["character"]
 client = PyAsyncCAI(os.getenv('CHARACTER'))
 pagelimit=12
