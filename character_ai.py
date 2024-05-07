@@ -1,10 +1,9 @@
 from contextlib import asynccontextmanager
 import websockets
-# import tls_client
 from curl_cffi.requests import AsyncSession
-import asyncio
 import json
 import sys
+import asyncio
 
 if sys.platform == 'win32':
     asyncio.set_event_loop_policy(
@@ -35,13 +34,7 @@ class PyAsyncCAI:
         if plus: sub = 'plus'
         else: sub = 'beta'
 
-        # self.session = tls_client.Session(
-        #     client_identifier='firefox_120'
-        # )
-
-        self.session = AsyncSession(
-            impersonate='chrome120'
-        )
+        self.session = AsyncSession(impersonate='chrome120')
 
         setattr(self.session, 'url', f'https://{sub}.character.ai/')
         setattr(self.session, 'token', token)
@@ -68,17 +61,8 @@ class PyAsyncCAI:
         else:
             key = token
 
+        headers = {'Authorization': f'Token {key}'}
         link = link.replace(" ", "+")
-        # print(link)
-
-        headers = {
-            'Authorization': f'Token {key}',
-            # 'User-Agent': 'okhttp/5.0.0-SNAPSHOT',
-            # 'Accept': 'application/json, text/plain, */*',
-            # 'Accept-Language': 'en-US,en;q=0.5',
-            # 'Referer': 'https://beta.character.ai/',
-            # 'Origin': 'https://beta.character.ai',
-        }
 
         if method == 'GET':
             response = await session.get(
@@ -128,14 +112,7 @@ class PyAsyncCAI:
             try:
                 self.ws = await websockets.connect(
                     'wss://neo.character.ai/ws/',
-                    extra_headers = {
-                        'Cookie': f'HTTP_AUTHORIZATION="Token {key}"',
-                        # 'origin': 'https://neo.character.ai',
-                        # 'Upgrade': 'websocket',
-                        # 'Sec-WebSocket-Extensions': 'permessage-deflate',
-                        # 'Host': 'neo.character.ai',
-                        # 'User-Agent': 'okhttp/5.0.0-SNAPSHOT',
-                    }
+                    extra_headers = {'Cookie': f'HTTP_AUTHORIZATION="Token {key}"'}
                 )
             except websockets.exceptions.InvalidStatusCode:
                 raise AuthError('Invalid token')

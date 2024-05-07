@@ -105,6 +105,11 @@ from gogoanime import Gogoanime
 async def anime(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(Gogoanime(ctx, arg))
 
+from animepahe import pahe_search
+@bot.command()
+async def pahe(ctx: commands.Context, *, arg=None):
+    bot.loop.create_task(pahe_search(ctx, arg))
+
 from ytdlp_ import YTDLP
 @bot.command()
 async def ytdlp(ctx: commands.Context, arg1=None, arg2=None):
