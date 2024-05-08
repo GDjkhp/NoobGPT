@@ -2,7 +2,7 @@
 <div style="position: relative;" markdown="1">
 <link rel="stylesheet" href="style.css">
 
-![amogus](https://gdjkhp.github.io/NoobGPT/noob%20new.png "amogus")
+<img src="https://gdjkhp.github.io/img/tama-anim-merge.gif" width=256>
 
 A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you.
 
@@ -99,6 +99,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 
 ## Media 💽
 * `-anime [query]` Search and watch Anime using [Gogoanime](https://anitaku.so).
+* `-pahe [query]` Search and watch Anime using [animepahe](https://animepahe.ru).
 * `-tv [query]` Search and watch TV shows and movies using [SFlix](https://sflix.se).
 * `-ytdlp (optional: format = [mp3/m4a]) [link]` Download or convert a YouTube video under 25MB discord limit using [yt-dlp](https://github.com/yt-dlp/yt-dlp). See [supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md).
 * `-cob [link]` [cobalt](https://cobalt.tools) is a media downloader that doesn't piss you off. See [supported sites](https://github.com/wukko/cobalt?tab=readme-ov-file#supported-services).
@@ -167,6 +168,7 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 * <https://sflix.se>
 * <https://cobalt.tools>
 * <https://character.ai>
+* <https://animepahe.ru>
 <!-- * <https://lexica.art> -->
 
 ### Special Thanks
