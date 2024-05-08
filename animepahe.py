@@ -15,6 +15,7 @@ if sys.platform == 'win32':
 session = AsyncSession(impersonate='chrome110')
 headers = {"cookie": os.getenv('PAHE')}
 pagelimit=12
+provider="https://gdjkhp.github.io/img/apdoesnthavelogotheysaidapistooplaintheysaid.png"
 
 async def new_req(url: str, use_headers: bool):
     return await session.get(url, headers=headers if use_headers else None)
@@ -23,7 +24,7 @@ def get_max_page(length):
     return length - pagelimit
 def buildSearch(arg: str, result: list, index: int) -> discord.Embed:
     embed = discord.Embed(title=f"Search results: `{arg}`", description=f"{len(result)} found", color=0x00ff00)
-    embed.set_thumbnail(url="https://gdjkhp.github.io/img/apdoesnthavelogotheysaidapistooplaintheysaid.png")
+    embed.set_thumbnail(url=provider)
     i = index
     while i < len(result):
         value = f"**{result[i]['type']}** - {result[i]['episodes']} {'episodes' if result[i]['episodes'] > 1 else 'episode'} ({result[i]['status']})"
@@ -33,6 +34,7 @@ def buildSearch(arg: str, result: list, index: int) -> discord.Embed:
     return embed
 def buildAnime(details: dict) -> discord.Embed:
     embed = discord.Embed(title=details['title'], description=f"{details['season']} {details['year']}", color=0x00ff00)
+    embed.set_thumbnail(url=provider)
     embed.set_image(url = details['poster'])
     embed.add_field(name="Type", value=details['type'])
     embed.add_field(name="Episodes", value=details['episodes'])

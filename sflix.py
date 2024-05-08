@@ -14,6 +14,7 @@ client, client0 = HttpClient(), HttpClient()
 title, url, aid, mv_tv, poster = 0, 1, 2, 3, 4
 pagelimit = 12
 domain = "https://sflix.se"
+provider="https://gdjkhp.github.io/img/66356c25ce98cb12993249e21742b129.png"
 
 async def Sflix(ctx: commands.Context, arg: str):
     msg = await ctx.reply(f"Searching `{arg}`\nPlease wait…")
@@ -44,6 +45,7 @@ def detailed(embed: discord.Embed, details: list):
 def buildMovie(result) -> discord.Embed:
     details = detail(result)
     embed = discord.Embed(title=result[title], description=details[0], color=0x00ff00)
+    embed.set_thumbnail(url=provider)
     valid_url = p.quote(result[poster], safe=":/")
     embed.set_image(url = valid_url)
     detailed(embed, details)
@@ -52,6 +54,7 @@ def buildMovie(result) -> discord.Embed:
 def buildSeasons(season_ids, result) -> discord.Embed:
     details = detail(result)
     embed = discord.Embed(title=result[title], description=details[0], color=0x00ff00)
+    embed.set_thumbnail(url=provider)
     valid_url = p.quote(result[poster], safe=":/")
     embed.set_image(url = valid_url)
     detailed(embed, details)
@@ -59,6 +62,7 @@ def buildSeasons(season_ids, result) -> discord.Embed:
     return embed
 def buildEpisodes(episodes, season, result) -> discord.Embed:
     embed = discord.Embed(title=f"{result[title]}", description=f"Season {season}", color=0x00ff00)
+    embed.set_thumbnail(url=provider)
     valid_url = p.quote(result[poster], safe=":/")
     embed.set_image(url = valid_url)
     details = detail(result)
@@ -68,7 +72,7 @@ def buildEpisodes(episodes, season, result) -> discord.Embed:
     return embed
 def buildSearch(arg: str, result: list, index: int) -> discord.Embed:
     embed = discord.Embed(title=f"Search results: `{arg}`", description=f"{len(result)} found", color=0x00ff00)
-    embed.set_thumbnail(url="https://gdjkhp.github.io/img/66356c25ce98cb12993249e21742b129.png")
+    embed.set_thumbnail(url=provider)
     i = index
     while i < len(result):
         if (i < index+pagelimit): embed.add_field(name=f"[{i + 1}] `{result[i][title]}`", value=f"{result[i][url]}")

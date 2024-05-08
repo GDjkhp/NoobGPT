@@ -12,6 +12,7 @@ title, url, aid, mv_tv, poster = 0, 1, 2, 3, 4
 desc, ep, animetype, released, genre = 2, 3, 5, 6, 7
 pagelimit = 12
 gogoanime = "https://anitaku.so"
+provider="https://gdjkhp.github.io/img/logo.png"
 
 def read_json_file(file_path):
     with open(file_path, 'r') as json_file:
@@ -34,6 +35,7 @@ async def Gogoanime(ctx: commands.Context, arg: str):
 
 def buildAnime(details: list) -> discord.Embed:
     embed = discord.Embed(title=details[title], description=details[desc], color=0x00ff00)
+    embed.set_thumbnail(url=provider)
     valid_url = p.quote(details[poster], safe=":/")
     embed.set_image(url = valid_url)
     embed.add_field(name="Type", value=details[animetype])
@@ -43,10 +45,9 @@ def buildAnime(details: list) -> discord.Embed:
     embed.set_footer(text="Note: Use Adblockers :)")
     return embed
 
-# legacy code
 def buildSearch(arg: str, result: list, index: int) -> discord.Embed:
     embed = discord.Embed(title=f"Search results: `{arg}`", description=f"{len(result)} found", color=0x00ff00)
-    embed.set_thumbnail(url="https://gdjkhp.github.io/img/logo.png")
+    embed.set_thumbnail(url=provider)
     i = index
     while i < len(result):
         if (i < index+pagelimit): embed.add_field(name=f"[{i + 1}] `{result[i][title]}`", value=f"{result[i][url]}")
