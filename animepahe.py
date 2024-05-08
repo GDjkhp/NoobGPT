@@ -27,7 +27,7 @@ def buildSearch(arg: str, result: list, index: int) -> discord.Embed:
     embed.set_thumbnail(url=provider)
     i = index
     while i < len(result):
-        value = f"**{result[i]['type']}** - {result[i]['episodes']} {'episodes' if result[i]['episodes'] > 1 else 'episode'} ({result[i]['status']})"
+        value = f"**{result[i]['type']}** - {result[i]['episodes']} {'episodes' if result[i]['episodes'] > 1 else 'episode'}\n({result[i]['status']})"
         value+= f"\n{result[i]['season']} {result[i]['year']}"
         if (i < index+pagelimit): embed.add_field(name=f"[{i + 1}] `{result[i]['title']}`", value=value)
         i += 1
