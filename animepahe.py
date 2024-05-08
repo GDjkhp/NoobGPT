@@ -119,6 +119,7 @@ class SelectChoice(discord.ui.Select):
         selected = self.result[int(self.values[0])]
         req = await new_req(f"https://animepahe.ru/api?m=release&id={selected['session']}&sort=episode_asc&page=1", True)
         r_search = req.json()
+        if not r_search.get('data'): return await interaction.message.edit(content="no episodes found", embed=None)
         req = await new_req(f"https://animepahe.ru/play/{selected['session']}/{r_search['data'][0]['session']}", True)
         soup = BS(req.content, "lxml")
         items = soup.find("div", {"class": "clusterize-scroll"}).findAll("a")
