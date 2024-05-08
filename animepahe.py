@@ -38,8 +38,8 @@ def buildAnime(details: dict) -> discord.Embed:
     embed.set_image(url = details['poster'])
     embed.add_field(name="Type", value=details['type'])
     embed.add_field(name="Episodes", value=details['episodes'])
-    embed.add_field(name="Status", value=details['status'])
     embed.add_field(name="Score", value=details['score'])
+    embed.add_field(name="Status", value=details['status'])
     embed.set_footer(text="Note: Use Adblockers :)")
     return embed
 
