@@ -68,7 +68,7 @@ def buildEpisodes(episodes, season, result) -> discord.Embed:
     return embed
 def buildSearch(arg: str, result: list, index: int) -> discord.Embed:
     embed = discord.Embed(title=f"Search results: `{arg}`", description=f"{len(result)} found", color=0x00ff00)
-    # embed.set_thumbnail(url = bot.user.avatar)
+    embed.set_thumbnail(url="https://gdjkhp.github.io/img/66356c25ce98cb12993249e21742b129.png")
     i = index
     while i < len(result):
         if (i < index+pagelimit): embed.add_field(name=f"[{i + 1}] `{result[i][title]}`", value=f"{result[i][url]}")

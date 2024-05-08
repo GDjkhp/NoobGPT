@@ -23,7 +23,7 @@ def get_max_page(length):
     return length - pagelimit
 def buildSearch(arg: str, result: list, index: int) -> discord.Embed:
     embed = discord.Embed(title=f"Search results: `{arg}`", description=f"{len(result)} found", color=0x00ff00)
-    embed.set_thumbnail(url="https://animepahe.ru/app/images/apdoesnthavelogotheysaidapistooplaintheysaid.svg")
+    embed.set_thumbnail(url="https://gdjkhp.github.io/img/apdoesnthavelogotheysaidapistooplaintheysaid.png")
     i = index
     while i < len(result):
         value = f"**{result[i]['type']}** - {result[i]['episodes']} {'episodes' if result[i]['episodes'] > 1 else 'episode'} ({result[i]['status']})"
@@ -178,15 +178,15 @@ class ButtonEpisode(discord.ui.Button):
         items = soup.find("div", {"id": "pickDownload"}).findAll("a")
         urls = [items[i].get("href") for i in range(len(items))]
         texts = [items[i].text for i in range(len(items))]
-        msg_content = ""
+        msg_content = f"{self.details['title']}: Episode {self.index+1}"
         for x in range(len(urls)):
             msg_content += f"\n{x+1}. {texts[x]}"
         await interaction.followup.send(msg_content, view=DownloadView(self.ctx, urls, self.details, self.index, texts), ephemeral=True)
 
 class ButtonDownload(discord.ui.Button):
-    def __init__(self, ctx: commands.Context, url_fake: str, l: str, details: dict, index: int, texts: list):
+    def __init__(self, ctx: commands.Context, url_fake: str, l: str, details: dict, index: int, text: str):
         super().__init__(label=l+1)
-        self.url_fake, self.ctx, self.details, self.l, self.index, self.texts = url_fake, ctx, details, l, index, texts
+        self.url_fake, self.ctx, self.details, self.l, self.index, self.text = url_fake, ctx, details, l, index, text
 
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author:
@@ -198,11 +198,11 @@ class ButtonDownload(discord.ui.Button):
         script_tag = soup.find("script")
         match = re.search(r"https://kwik\.si/f/\w+", script_tag.string)
         if match: 
-            await interaction.followup.send(f"[{self.details['title']}: Episode {self.index+1} [{self.texts[self.l]}]]({match.group()})", 
+            await interaction.followup.send(f"[{self.details['title']}: Episode {self.index+1} [{self.text}]]({match.group()})", 
                                             ephemeral=True)
 
 class DownloadView(discord.ui.View):
     def __init__(self, ctx: commands.Context, urls: list, details: dict, index: int, texts: list):
         super().__init__(timeout=None)
         for x in range(len(urls)):
-            self.add_item(ButtonDownload(ctx, urls[x], x, details, index, texts))
+            self.add_item(ButtonDownload(ctx, urls[x], x, details, index, texts[x]))

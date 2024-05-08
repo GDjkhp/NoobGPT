@@ -46,7 +46,7 @@ def buildAnime(details: list) -> discord.Embed:
 # legacy code
 def buildSearch(arg: str, result: list, index: int) -> discord.Embed:
     embed = discord.Embed(title=f"Search results: `{arg}`", description=f"{len(result)} found", color=0x00ff00)
-    # embed.set_thumbnail(url = bot.user.avatar)
+    embed.set_thumbnail(url="https://gdjkhp.github.io/img/logo.png")
     i = index
     while i < len(result):
         if (i < index+pagelimit): embed.add_field(name=f"[{i + 1}] `{result[i][title]}`", value=f"{result[i][url]}")
