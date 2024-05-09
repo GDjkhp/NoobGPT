@@ -113,3 +113,8 @@ class TicTacToe(discord.ui.View):
             return self.Tie
 
         return None
+
+from discord.ext import commands
+async def Tic(ctx: commands.Context):
+    """Starts a tic-tac-toe game with yourself."""
+    await ctx.send('Tic Tac Toe: X goes first', view=TicTacToe())

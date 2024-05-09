@@ -8,6 +8,7 @@ import time
 async def YTDLP(ctx: commands.Context, arg1: str, arg2: str):
     async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
         old = round(time.time() * 1000)
+        if not arg1: arg1, arg2 = "mp3", "dQw4w9WgXcQ"
         formats = ['mp3', 'm4a']
         if arg2 and not arg1 in formats: return await ctx.reply(f"Unsupported format :(\nAvailable conversion formats: `{formats}`")
         elif not arg2: arg2, arg1 = arg1, None

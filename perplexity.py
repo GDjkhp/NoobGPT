@@ -34,7 +34,6 @@ models = [
     "sonar-small-online", # sso
     "sonar-medium-chat", # smc
     "sonar-medium-online", #smo
-
     # not perplex
     "claude-2.1", # cla
     "mistral-medium-latest", # mm

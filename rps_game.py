@@ -1,6 +1,9 @@
 import discord
 from discord.ext import commands
 
+async def rps(ctx: commands.Context):
+    await ctx.reply(":index_pointing_at_the_viewer:", view=RPSView(None, None))
+
 def id2e(id: str) -> str:
     if id == "ROCK": return "🪨"
     if id == "PAPER": return "🧻"

@@ -101,11 +101,12 @@ async def req_real(api):
                 if response.status == 200: return await response.json()
     except Exception as e: print(e)
 
-async def PETALS() -> str:
+async def PETALS(ctx: commands.Context) -> str:
+    msg = await ctx.reply("Pinging…")
     status = await req_real("https://health.petals.dev/api/v1/state")
     text = "# [Petals](https://petals.dev)\nRun large language models at home, BitTorrent‑style.\n\n"
     text += "Commands:\n`-beluga2`\n\nModels:```diff\n"
     for i in status["model_reports"]: 
         text += f"{'+ ' if i['state'] == 'healthy' else '- '}{i['name']}: {i['state']}\n"
     text += "```"
-    return text
+    await msg.edit(content=text)

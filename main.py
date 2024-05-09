@@ -61,38 +61,31 @@ async def kvdel(ctx: commands.Context, key=None):
 from help import HALP
 @bot.command()
 async def halp(ctx: commands.Context):
-    await HALP(ctx, bot.user.avatar)
+    bot.loop.create_task(HALP(ctx, bot.user.avatar))
+
+# discord
+from util_discord import avatar, banner, copypasta
+@bot.command()
+async def ban(ctx: commands.Context, *, arg=None):
+    bot.loop.create_task(banner(ctx, bot, arg))
+
+@bot.command()
+async def av(ctx: commands.Context, *, arg=None):
+    bot.loop.create_task(avatar(ctx, bot, arg))
 
 @bot.command()
 async def legal(ctx: commands.Context):
-    await ctx.reply(content="EVERY POST I HAVE EVER MADE ON THIS DISCORD IS SATIRE. I DO NOT CONDONE NOR SUPPORT ANY OF THE OPINIONS EXPRESSED ON THIS CHATROOM. Any post associated with this IP is satire and should be treated as such. At no point has anyone associated with this IP has condoned, encouraged, committed, or abated acts of violence or threats of violence against any persons, regardless of racial, ethnic, religious or cultural background. In case of an investigation by any federal entity or similar, I do not have any involvement with the people in it, I do not know how I am here, probably added by a third party, I do not support any actions by the member(s) of this group.")
+    bot.loop.create_task(copypasta(ctx))
 
 # arg
 from noobarg import start, end
 @bot.command()
 async def test(ctx: commands.Context, *, arg=None):
-    await start(ctx, arg)
+    bot.loop.create_task(start(ctx, arg))
 
 @bot.command()
 async def a(ctx: commands.Context, *, arg=None):
-    await end(ctx, arg)
-
-# discord
-@bot.command()
-async def ban(ctx: commands.Context, *, arg=None):
-    try:
-        user = await bot.fetch_user(int(arg) if arg else ctx.author.id)
-        if user.banner: await ctx.reply(user.banner.url)
-        else: await ctx.reply("There is no such thing.")
-    except: await ctx.reply("Must be a valid user ID.")
-
-@bot.command()
-async def av(ctx: commands.Context, *, arg=None):
-    try:
-        user = await bot.fetch_user(int(arg) if arg else ctx.author.id)
-        if user.avatar: await ctx.reply(user.avatar.url)
-        else: await ctx.reply("There is no such thing.")
-    except: await ctx.reply("Must be a valid user ID.")
+    bot.loop.create_task(end(ctx, arg))
 
 # questionable
 from sflix import Sflix
@@ -113,7 +106,6 @@ async def pahe(ctx: commands.Context, *, arg=None):
 from ytdlp_ import YTDLP
 @bot.command()
 async def ytdlp(ctx: commands.Context, arg1=None, arg2=None):
-    if not arg1: arg1, arg2 = "mp3", "dQw4w9WgXcQ"
     bot.loop.create_task(YTDLP(ctx, arg1, arg2))
 
 from cobalt import COBALT_API
@@ -136,29 +128,20 @@ async def safe(ctx: commands.Context, *, arg=None):
 from quoteport import quote_this
 @bot.command()
 async def quote(ctx: commands.Context):
-    # return await ctx.reply("under development")
     bot.loop.create_task(quote_this(ctx))
 
 from lex import LEX
 @bot.command()
 async def lex(ctx: commands.Context, *, arg=None):
-    if not arg: return await ctx.reply("Good job finding this command. Bet you've seen this from the source or caught someone using it.")
-    await LEX(ctx, arg)
-
-# from place import PLACE
-@bot.command()
-async def place(ctx: commands.Context, x: str=None, y: str=None, z: str=None):
-    return await ctx.reply("under development")
-    # bot.loop.create_task(PLACE(ctx, x, y, z))
+    bot.loop.create_task(LEX(ctx, arg))
 
 from weather import Weather
 @bot.command()
 async def weather(ctx: commands.Context, *, arg=None):
-    await Weather(ctx, arg)
+    bot.loop.create_task(Weather(ctx, arg))
 
 # AI
 from perplexity import main_perplexity, help_perplexity, main_anthropic, main_mistral
-
 @bot.command()
 async def mm(ctx: commands.Context):
     bot.loop.create_task(main_mistral(ctx, "mistral-medium-latest"))
@@ -181,7 +164,7 @@ async def c3s(ctx: commands.Context):
 
 @bot.command()
 async def perplex(ctx: commands.Context):
-    await ctx.reply(help_perplexity())
+    bot.loop.create_task(ctx.reply(help_perplexity()))
 
 @bot.command()
 async def ll(ctx: commands.Context):
@@ -228,18 +211,12 @@ async def imagine(ctx: commands.Context):
 async def gpt(ctx: commands.Context):
     bot.loop.create_task(gpt3(ctx.message))
 
-# bard (legacy)
-@bot.command()
-async def bard(ctx: commands.Context, *, arg=None):
-    await ctx.reply("This command requires cookies. Use `-halp` -> `AI` instead.")
-
 # palm (alternative to bard)
-# from googleai import PALM_LEGACY
+from googleai import GEMINI_REST
 @bot.command()
 async def palm(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(GEMINI_REST(ctx, arg, True))
 
-from googleai import GEMINI_REST
 @bot.command()
 async def ge(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(GEMINI_REST(ctx, arg, False))
@@ -247,9 +224,7 @@ async def ge(ctx: commands.Context, *, arg=None):
 from petals import PETALS, petalsWebsocket
 @bot.command()
 async def petals(ctx: commands.Context):
-    async with ctx.typing():
-        msg = await ctx.reply("Pinging…")
-        await msg.edit(content=await PETALS())
+    bot.loop.create_task(PETALS(ctx))
 
 @bot.command()
 async def beluga2(ctx: commands.Context, *, arg=None):
@@ -305,11 +280,10 @@ async def cres(ctx: commands.Context):
     bot.loop.create_task(reset_char(ctx))
 
 # the real games
-from tictactoe import TicTacToe
+from tictactoe import Tic
 @bot.command()
 async def tic(ctx: commands.Context):
-    """Starts a tic-tac-toe game with yourself."""
-    await ctx.send('Tic Tac Toe: X goes first', view=TicTacToe())
+    bot.loop.create_task(Tic(ctx))
 
 from aki import Aki
 @bot.command()
@@ -332,17 +306,14 @@ from wordle_ import wordle
 async def word(ctx: commands.Context, mode: str=None, count: str=None):
     bot.loop.create_task(wordle(ctx, mode, count))
 
-from rps_game import RPSView
+from rps_game import rps
 @bot.command()
 async def rps(ctx: commands.Context):
-    await ctx.reply(":index_pointing_at_the_viewer:", view=RPSView(None, None))
+    bot.loop.create_task(rps(ctx))
 
+from place import PLACE
 @bot.command()
-async def ms(ctx: commands.Context):
-    await ctx.reply("under development")
-
-@bot.command()
-async def chess(ctx: commands.Context):
-    await ctx.reply("under development")
+async def place(ctx: commands.Context, x: str=None, y: str=None, z: str=None):
+    bot.loop.create_task(PLACE(ctx, x, y, z))
 
 bot.run(os.getenv("TOKEN"))

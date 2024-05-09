@@ -11,6 +11,7 @@ async def req_real(api):
     except Exception as e: print(e)
 
 async def LEX(ctx: commands.Context, arg):
+    if not arg: return await ctx.reply("Good job finding this command. Bet you've seen this from the source or caught someone using it.")
     message = await ctx.reply(f"Searching images with query `{arg}`\nPlease wait…")
     req = await req_real('https://lexica.art/api/v1/search?q='+p.quote_plus(arg))
     results = req['images']
