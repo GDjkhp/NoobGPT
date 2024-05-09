@@ -15,7 +15,7 @@ async def draw_image(x: int, y: int, zoom: float) -> io.BytesIO:
     draw = ImageDraw.Draw(canvas)
     all_pixels = await asyncio.to_thread(find_all_pixels)
     for pixel in all_pixels:
-        draw.point((pixel['x'], pixel['y']), fill=rgb_string_to_tuple(pixel['color']))
+        await asyncio.to_thread(draw.point, (pixel['x'], pixel['y']), fill=rgb_string_to_tuple(pixel['color']))
     zoomed_canvas = zoom_canvas(canvas, zoom, (x, y))
     resized_canvas = resize_image(zoomed_canvas)
     image_buffer = io.BytesIO()

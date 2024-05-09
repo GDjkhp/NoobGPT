@@ -311,9 +311,9 @@ from rps_game import rps
 async def rps(ctx: commands.Context):
     bot.loop.create_task(rps(ctx))
 
-from place import PLACE
-@bot.command()
-async def place(ctx: commands.Context, x: str=None, y: str=None, z: str=None):
-    bot.loop.create_task(PLACE(ctx, x, y, z))
+# from place import PLACE
+# @bot.command()
+# async def place(ctx: commands.Context, x: str=None, y: str=None, z: str=None):
+#     bot.loop.create_task(PLACE(ctx, x, y, z))
 
 bot.run(os.getenv("TOKEN"))

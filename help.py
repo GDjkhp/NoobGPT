@@ -84,9 +84,9 @@ async def games_embed(av: discord.Asset) -> discord.Embed:
     emby.add_field(name='`-hang (optional: mode = [all/hardcore/me] count = [1-50] [type = any/word/quiz] category = [any/9-32] difficulty = [any/easy/medium/hard])`', 
                    value='Play the word puzzle game of hangman.', 
                    inline=False)
-    emby.add_field(name='`-place (optional: x = [0-499] y = [0-499] zoom = [16x])`', 
-                   value='Play the Reddit social experiment event about placing pixels on a canvas.', 
-                   inline=False)
+    # emby.add_field(name='`-place (optional: x = [0-499] y = [0-499] zoom = [16x])`', 
+    #                value='Play the Reddit social experiment event about placing pixels on a canvas.', 
+    #                inline=False)
     emby.add_field(name='`-quiz (optional: mode = [all/anon/me] version = [any/v1/v2] count = [1-50] category = [any/9-32] difficulty = [any/easy/medium/hard] type = [any/multiple/boolean])`', 
                    value='Play a game of quiz.', 
                    inline=False)
