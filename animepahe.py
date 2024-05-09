@@ -124,7 +124,8 @@ class SelectChoice(discord.ui.Select):
         soup = BS(req.content, "lxml")
         items = soup.find("div", {"class": "clusterize-scroll"}).findAll("a")
         urls = [items[i].get("href") for i in range(len(items))]
-        await interaction.message.edit(embed=buildAnime(selected), view=EpisodeView(self.ctx, selected, urls, 0))
+        ep_texts = [items[i].text for i in range(len(items))]
+        await interaction.message.edit(embed=buildAnime(selected), view=EpisodeView(self.ctx, selected, urls, ep_texts, 0))
 
 # episode
 class nextPageEP(discord.ui.Button):
@@ -141,13 +142,13 @@ class nextPageEP(discord.ui.Button):
         await interaction.message.edit(embed=buildAnime(self.details), view=EpisodeView(self.ctx, self.details, self.urls, self.index))
 
 class EpisodeView(discord.ui.View):
-    def __init__(self, ctx: commands.Context, details: dict, urls: list, index: int):
+    def __init__(self, ctx: commands.Context, details: dict, urls: list, ep_texts: list, index: int):
         super().__init__(timeout=None)
         i = index
         column, row, last_index = 0, -1, len(urls)
         while i < len(urls):
             if column % 4 == 0: row += 1
-            if (i < index+pagelimit): self.add_item(ButtonEpisode(ctx, i, urls[i], details, row))
+            if (i < index+pagelimit): self.add_item(ButtonEpisode(ctx, i, urls[i], ep_texts[i], details, row))
             if (i == index+pagelimit): last_index = i
             i += 1
             column += 1
@@ -167,9 +168,9 @@ class EpisodeView(discord.ui.View):
         self.add_item(CancelButton(ctx, 3))
 
 class ButtonEpisode(discord.ui.Button):
-    def __init__(self, ctx: commands.Context, index: int, url_session: list, details: dict, row: int):
-        super().__init__(label=index+1, style=discord.ButtonStyle.primary, row=row)
-        self.index, self.url_session, self.ctx, self.details = index, url_session, ctx, details
+    def __init__(self, ctx: commands.Context, index: int, url_session: str, ep_text: str, details: dict, row: int):
+        super().__init__(label=ep_text.replace("Episode ", ""), style=discord.ButtonStyle.primary, row=row)
+        self.index, self.url_session, self.ctx, self.details, self.ep_text = index, url_session, ctx, details, ep_text
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
@@ -181,15 +182,16 @@ class ButtonEpisode(discord.ui.Button):
         items = soup.find("div", {"id": "pickDownload"}).findAll("a")
         urls = [items[i].get("href") for i in range(len(items))]
         texts = [items[i].text for i in range(len(items))]
-        msg_content = f"{self.details['title']}: Episode {self.index+1}"
+        msg_content = f"{self.details['title']}: {self.ep_text}"
         for x in range(len(urls)):
             msg_content += f"\n{x+1}. {texts[x]}"
-        await interaction.followup.send(msg_content, view=DownloadView(self.ctx, urls, self.details, self.index, texts), ephemeral=True)
+        await interaction.followup.send(msg_content, view=DownloadView(self.ctx, urls, self.details, self.index, texts, self.ep_text), 
+                                        ephemeral=True)
 
 class ButtonDownload(discord.ui.Button):
-    def __init__(self, ctx: commands.Context, url_fake: str, l: str, details: dict, index: int, text: str):
+    def __init__(self, ctx: commands.Context, url_fake: str, l: str, details: dict, index: int, text: str, ep_text: str):
         super().__init__(label=l+1)
-        self.url_fake, self.ctx, self.details, self.l, self.index, self.text = url_fake, ctx, details, l, index, text
+        self.url_fake, self.ctx, self.details, self.index, self.text, self.ep_text = url_fake, ctx, details, index, text, ep_text
 
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author:
@@ -201,11 +203,11 @@ class ButtonDownload(discord.ui.Button):
         script_tag = soup.find("script")
         match = re.search(r"https://kwik\.si/f/\w+", script_tag.string)
         if match: 
-            await interaction.followup.send(f"[{self.details['title']}: Episode {self.index+1} [{self.text}]]({match.group()})", 
+            await interaction.followup.send(f"[{self.details['title']}: {self.ep_text} [{self.text}]]({match.group()})", 
                                             ephemeral=True)
 
 class DownloadView(discord.ui.View):
-    def __init__(self, ctx: commands.Context, urls: list, details: dict, index: int, texts: list):
+    def __init__(self, ctx: commands.Context, urls: list, details: dict, index: int, texts: list, ep_text: str):
         super().__init__(timeout=None)
         for x in range(len(urls)):
-            self.add_item(ButtonDownload(ctx, urls[x], x, details, index, texts[x]))
+            self.add_item(ButtonDownload(ctx, urls[x], x, details, index, texts[x], ep_text))
