@@ -129,9 +129,9 @@ class SelectChoice(discord.ui.Select):
 
 # episode
 class nextPageEP(discord.ui.Button):
-    def __init__(self, ctx: commands.Context, details: list, index: int, row: int, l: str, urls: list):
+    def __init__(self, ctx: commands.Context, details: list, index: int, row: int, l: str, urls: list, ep_texts: list):
         super().__init__(emoji=l, style=discord.ButtonStyle.success, row=row)
-        self.details, self.index, self.ctx, self.urls = details, index, ctx, urls
+        self.details, self.index, self.ctx, self.urls, self.ep_texts = details, index, ctx, urls, ep_texts
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
@@ -139,7 +139,8 @@ class nextPageEP(discord.ui.Button):
                                                            ephemeral=True)
         await interaction.message.edit(view=None)
         await interaction.response.defer()
-        await interaction.message.edit(embed=buildAnime(self.details), view=EpisodeView(self.ctx, self.details, self.urls, ep_texts, self.index))
+        await interaction.message.edit(embed=buildAnime(self.details), 
+                                       view=EpisodeView(self.ctx, self.details, self.urls, self.ep_texts, self.index))
 
 class EpisodeView(discord.ui.View):
     def __init__(self, ctx: commands.Context, details: dict, urls: list, ep_texts: list, index: int):
@@ -153,15 +154,15 @@ class EpisodeView(discord.ui.View):
             i += 1
             column += 1
         if index - pagelimit > -1:
-            self.add_item(nextPageEP(ctx, details, 0, 3, "⏪", urls))
-            self.add_item(nextPageEP(ctx, details, index - pagelimit, 3, "◀️", urls))
+            self.add_item(nextPageEP(ctx, details, 0, 3, "⏪", urls, ep_texts))
+            self.add_item(nextPageEP(ctx, details, index - pagelimit, 3, "◀️", urls, ep_texts))
         else:
             self.add_item(DisabledButton("⏪", 3))
             self.add_item(DisabledButton("◀️", 3))
         if not last_index == len(urls):
-            self.add_item(nextPageEP(ctx, details, last_index, 3, "▶️", urls))
+            self.add_item(nextPageEP(ctx, details, last_index, 3, "▶️", urls, ep_texts))
             max_page = get_max_page(len(urls))
-            self.add_item(nextPageEP(ctx, details, max_page, 3, "⏩", urls))
+            self.add_item(nextPageEP(ctx, details, max_page, 3, "⏩", urls, ep_texts))
         else:
             self.add_item(DisabledButton("▶️", 3))
             self.add_item(DisabledButton("⏩", 3))
