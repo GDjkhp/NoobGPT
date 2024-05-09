@@ -130,10 +130,10 @@ from quoteport import quote_this
 async def quote(ctx: commands.Context):
     bot.loop.create_task(quote_this(ctx))
 
-from lex import LEX
-@bot.command()
-async def lex(ctx: commands.Context, *, arg=None):
-    bot.loop.create_task(LEX(ctx, arg))
+# from lex import LEX
+# @bot.command()
+# async def lex(ctx: commands.Context, *, arg=None):
+#     bot.loop.create_task(LEX(ctx, arg))
 
 from weather import Weather
 @bot.command()
