@@ -139,7 +139,7 @@ class nextPageEP(discord.ui.Button):
                                                            ephemeral=True)
         await interaction.message.edit(view=None)
         await interaction.response.defer()
-        await interaction.message.edit(embed=buildAnime(self.details), view=EpisodeView(self.ctx, self.details, self.urls, self.index))
+        await interaction.message.edit(embed=buildAnime(self.details), view=EpisodeView(self.ctx, self.details, self.urls, ep_texts, self.index))
 
 class EpisodeView(discord.ui.View):
     def __init__(self, ctx: commands.Context, details: dict, urls: list, ep_texts: list, index: int):
