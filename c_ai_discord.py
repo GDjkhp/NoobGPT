@@ -803,7 +803,7 @@ async def fetch_database(server_id: int):
 async def get_database(server_id: int):
     db = await fetch_database(server_id)
     if db: return db
-    else: return await add_database(server_id)
+    return await add_database(server_id)
 
 async def push_character(server_id: int, data):
     await mycol.update_one({"guild":server_id}, {"$push": {"characters": dict(data)}})
@@ -822,7 +822,7 @@ async def pull_chan(server_id: int, chan_id):
 async def toggle_chan(server_id: int, chan_id):
     if await mycol.find_one({"guild":server_id, "channels": chan_id}):
         return await pull_chan(server_id, chan_id)
-    else: return await push_chan(server_id, chan_id)
+    return await push_chan(server_id, chan_id)
     
 async def set_admin(server_id: int, b: bool):
     await mycol.update_one({"guild":server_id}, {"$set": {"admin_approval": b}})
