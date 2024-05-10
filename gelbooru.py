@@ -25,9 +25,10 @@ async def view_collection(ctx: commands.Context, api: str):
     message = await ctx.reply(f"Retrieving collection…")
     results, errors = [], []
     mycol = myclient["gel"][api]
-    if not mycol.find_one({"user": ctx.message.author.id}): 
+    user = await mycol.find_one({"user": ctx.message.author.id})
+    if not user: 
         return await message.edit(content="**No results found**")
-    for x in mycol.find_one({"user": ctx.message.author.id})["favorites"]:
+    for x in user["favorites"]:
         try:
             if api == "safe": cached = await Gelbooru(api='https://safebooru.org/').get_post(x)
             if api == "gel": cached = await Gelbooru().get_post(x)
@@ -115,19 +116,19 @@ class ButtonEnd(discord.ui.Button):
 class ButtonHeart(discord.ui.Button):
     def __init__(self, ctx: commands.Context, db: str, id: int, row: int):
         self.mycol = myclient["gel"][db]
-        emoji = "❤️" if list(self.mycol.find({"user": ctx.message.author.id, "favorites": id})) else "💔"
-        super().__init__(style=discord.ButtonStyle.success, emoji=emoji, row=row)
+        # emoji = "❤️" if list(self.mycol.find({"user": ctx.message.author.id, "favorites": id})) else "💔"
+        super().__init__(style=discord.ButtonStyle.success, emoji="❤️", row=row)
         self.db, self.ctx, self.id = db, ctx, id
     
     async def callback(self, interaction: discord.Interaction):
-        if not list(self.mycol.find({"user": interaction.user.id})): 
-            self.mycol.insert_one({"user": interaction.user.id})
+        if not await self.mycol.find_one({"user": interaction.user.id}):
+            await self.mycol.insert_one({"user": interaction.user.id})
 
-        if not list(self.mycol.find({"user": interaction.user.id, "favorites": self.id})):
-            self.mycol.update_one({"user": interaction.user.id}, {"$push": {"favorites" : self.id}})
+        if not await self.mycol.find_one({"user": interaction.user.id, "favorites": self.id}):
+            await self.mycol.update_one({"user": interaction.user.id}, {"$push": {"favorites" : self.id}})
             await interaction.response.send_message(f"❤️ Added to favorites ❤️\nUse `-{self.db}` to view your collection.", ephemeral=True)
         else: 
-            self.mycol.update_one({"user": interaction.user.id}, {"$pull": {"favorites" : self.id}})
+            await self.mycol.update_one({"user": interaction.user.id}, {"$pull": {"favorites" : self.id}})
             await interaction.response.send_message(f"💔 Removed to favorites 💔\nUse `-{self.db}` to view your collection.", ephemeral=True)
 
 class ButtonAction(discord.ui.Button):

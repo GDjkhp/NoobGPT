@@ -25,7 +25,7 @@ def get_domain():
     gogoanime = data["gogoanime"]
 
 async def Gogoanime(ctx: commands.Context, arg: str):
-    await asyncio.to_thread(get_domain)
+    get_domain()
     if arg: msg = await ctx.reply(f"Searching `{arg}`\nPlease wait…")
     else: msg = await ctx.reply("Imagine something that doesn't exist. Must be sad. You are sad. You don't belong here.\nLet's all love lain.")
     try: result = resultsAnime(searchAnime(arg if arg else "serial experiments lain"))

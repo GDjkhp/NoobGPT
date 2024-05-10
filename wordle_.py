@@ -7,9 +7,7 @@ from io import BytesIO
 import util_database
 import pymongo
 
-myclient = util_database.myclient
-mycol = myclient["games"]["wordle"]
-
+mycol = util_database.myclient["games"]["wordle"]
 font = ImageFont.truetype("./res/font/LibreFranklin-Bold.ttf", size=75)
 colors = ["#787c7e", "#e9c342", "#77a76a"] # gray, yellow, green
 
@@ -272,17 +270,17 @@ class MyModal(discord.ui.Modal):
 
         if i == word: # you win
             # leaderboard test
-            user_data = mycol.find_one({"user": interaction.user.id})
+            user_data = await mycol.find_one({"user": interaction.user.id})
             if not user_data:
                 # If the user does not exist in the collection, insert a new document
-                mycol.insert_one({
+                await mycol.insert_one({
                     "user": interaction.user.id,
                     "servers": [interaction.guild_id],
                     "score": 6-self.settings["step"]  # Set an initial score, modify as needed
                 })
             else:
                 # If the user exists, update the existing document
-                mycol.update_one(
+                await mycol.update_one(
                     {"user": interaction.user.id},
                     {"$addToSet": {"servers": interaction.guild_id}, "$inc": {"score": 6-self.settings["step"]}}
                 )
@@ -323,8 +321,9 @@ async def brag_function(ctx: commands.Context, mode: str, optional: str):
     except: return await ctx.reply("⁉️")
     user_id = ctx.author.id if not optional else int(optional)
     if not ctx.guild: return await ctx.reply(content="this is a server-only command.")
-    server_scores = mycol.find({"servers": ctx.guild.id}).sort("score", pymongo.DESCENDING)
-    user_data = mycol.find_one({"user": user_id, "servers": ctx.guild.id})
+    cursor = mycol.find({"servers": ctx.guild.id}).sort("score", pymongo.DESCENDING)
+    server_scores = await cursor.to_list(None)
+    user_data = await mycol.find_one({"user": user_id, "servers": ctx.guild.id})
 
     if not user_data or not server_scores:
         return await ctx.reply(content="🤨")
@@ -343,7 +342,8 @@ async def brag_function(ctx: commands.Context, mode: str, optional: str):
         return await ctx.reply(embed=await brag_embed(server_scores, ctx, False))
     
     if mode == "global":
-        global_scores = mycol.find({}).sort("score", pymongo.DESCENDING)
+        cursor = mycol.find().sort("score", pymongo.DESCENDING)
+        global_scores = await cursor.to_list(None)
         return await ctx.reply(embed=await brag_embed(global_scores, ctx, True))
 
 async def wordle(ctx: commands.Context, mode: str, count: str):

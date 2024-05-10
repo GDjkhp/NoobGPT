@@ -6,14 +6,13 @@ import io
 import util_database
 import asyncio
 
-myclient = util_database.myclient
 width, height = 500, 500
-mycol = myclient["place"]["pixels"]
+mycol = util_database.myclient["place"]["pixels"]
 
 async def draw_image(x: int, y: int, zoom: float) -> io.BytesIO:
     canvas = Image.new("RGB", (width, height), color="black")
     draw = ImageDraw.Draw(canvas)
-    all_pixels = await asyncio.to_thread(find_all_pixels)
+    all_pixels = await find_all_pixels()
     for pixel in all_pixels:
         await asyncio.to_thread(draw.point, (pixel['x'], pixel['y']), fill=rgb_string_to_tuple(pixel['color']))
     zoomed_canvas = zoom_canvas(canvas, zoom, (x, y))
@@ -24,7 +23,7 @@ async def draw_image(x: int, y: int, zoom: float) -> io.BytesIO:
     return image_buffer
 
 async def PlaceEmbed(x: int, y: int, z: float, ctx: commands.Context, status: str) -> discord.Embed:
-    d = await asyncio.to_thread(find_pixel, x, y)
+    d = await find_pixel(x, y)
     e = discord.Embed(title=f"({x}, {y}) [{z}x]", description=f"{d['author']}: {d['color']}", 
                       color=rgb_tuple_to_hex(rgb_string_to_tuple(d['color'])))
     if ctx.message.author.avatar: e.set_author(name=ctx.author, icon_url=ctx.message.author.avatar.url) 
@@ -141,7 +140,7 @@ class ButtonChoice(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"{self.ctx.author.mention} is using this view. Use `-place` to create your own.", 
                                                            ephemeral=True)
-        data = await asyncio.to_thread(find_pixel, self.x, self.y)
+        data = await find_pixel(self.x, self.y)
         if self.l == "PLACE": return await interaction.response.send_modal(ModalPlace(self.x, self.y, self.z, self.ctx, data))
         if self.l == "ZOOM": return await interaction.response.send_modal(ModalZoom(self.x, self.y, self.z, self.ctx))
         if self.l == "LOCATE": return await interaction.response.send_modal(ModalLocate(self.x, self.y, self.z, self.ctx))
@@ -174,7 +173,7 @@ class ModalPlace(discord.ui.Modal):
     async def on_submit(self, interaction: discord.Interaction):
         col = rgb_string_to_tuple(self.i.value)
         if not col: return await interaction.response.send_message("Invalid color format.\nMust be `#00ff00`", ephemeral=True)
-        await asyncio.to_thread(update_pixel, self.x, self.y, interaction.user.name, self.i.value)
+        await update_pixel(self.x, self.y, interaction.user.name, self.i.value)
         await interaction.response.defer()
         await interaction.message.remove_attachments(interaction.message.attachments[0])
         await interaction.message.edit(embed=await PlaceEmbed(self.x, self.y, self.z, self.ctx, 
@@ -230,9 +229,10 @@ def locate_integer(x: str, y: str):
     return -1, -1
 
 # database handling
-def find_all_pixels():
-    return mycol.find()
-def find_pixel(x, y):
-    return mycol.find_one({'x': x, 'y': y})
-def update_pixel(x, y, name, value):
-    mycol.update_one({"x": x, "y": y}, {"$set": {"author": name, "color": value}})
+async def find_all_pixels():
+    cursor = mycol.find()
+    return await cursor.to_list(None)
+async def find_pixel(x, y):
+    return await mycol.find_one({'x': x, 'y': y})
+async def update_pixel(x, y, name, value):
+    await mycol.update_one({"x": x, "y": y}, {"$set": {"author": name, "color": value}})

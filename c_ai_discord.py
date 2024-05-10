@@ -9,8 +9,7 @@ from queue import Queue
 import util_database
 import os
 
-myclient = util_database.myclient
-mycol = myclient["ai"]["character"]
+mycol = util_database.myclient["ai"]["character"]
 client = PyAsyncCAI(os.getenv('CHARACTER'))
 pagelimit=12
 typing_chans = []
@@ -25,7 +24,7 @@ async def c_ai_init():
             permissions: discord.Permissions = ctx.channel.permissions_for(ctx.me)
             if not permissions.send_messages or not permissions.send_messages_in_threads: continue
             try:
-                db = await asyncio.to_thread(get_database, ctx.guild.id)
+                db = await get_database(ctx.guild.id)
                 if db["channel_mode"] and not ctx.channel.id in db["channels"]: continue
                 if db["message_rate"] == 0: continue
                 exist = False
@@ -55,7 +54,7 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles: return
 
-    db = await asyncio.to_thread(get_database, ctx.guild.id)
+    db = await get_database(ctx.guild.id)
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: return
     if db["message_rate"] == 0: return
 
@@ -101,7 +100,7 @@ async def add_char(ctx: commands.Context, text: str, list_type: str):
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     
-    db = await asyncio.to_thread(get_database, ctx.guild.id)
+    db = await get_database(ctx.guild.id)
     if db["admin_approval"] and not ctx.author.guild_permissions.administrator:
         return await ctx.reply("not an admin")
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
@@ -125,7 +124,7 @@ async def delete_char(ctx: commands.Context):
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     
-    db = await asyncio.to_thread(get_database, ctx.guild.id)
+    db = await get_database(ctx.guild.id)
     if db["admin_approval"] and not ctx.author.guild_permissions.administrator:
         return await ctx.reply("not an admin")
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
@@ -141,11 +140,11 @@ async def t_chan(ctx: commands.Context):
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     
-    db = await asyncio.to_thread(get_database, ctx.guild.id)
+    db = await get_database(ctx.guild.id)
     if db["admin_approval"] and not ctx.author.guild_permissions.administrator:
         return await ctx.reply("not an admin")
     
-    ok = await asyncio.to_thread(toggle_chan, ctx.guild.id, ctx.channel.id)
+    ok = await toggle_chan(ctx.guild.id, ctx.channel.id)
     if ok: await ctx.reply("channel added to the list")
     else: await ctx.reply("channel removed from the list")
 
@@ -159,8 +158,8 @@ async def t_adm(ctx: commands.Context):
     if not ctx.author.guild_permissions.administrator:
         return await ctx.reply("not an admin")
     
-    db = await asyncio.to_thread(get_database, ctx.guild.id)
-    await asyncio.to_thread(set_admin, ctx.guild.id, not db["admin_approval"])
+    db = await get_database(ctx.guild.id)
+    await set_admin(ctx.guild.id, not db["admin_approval"])
     await ctx.reply(f'admin approval is now set to {not db["admin_approval"]}')
 
 async def t_mode(ctx: commands.Context):
@@ -170,11 +169,11 @@ async def t_mode(ctx: commands.Context):
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     
-    db = await asyncio.to_thread(get_database, ctx.guild.id)
+    db = await get_database(ctx.guild.id)
     if db["admin_approval"] and not ctx.author.guild_permissions.administrator:
         return await ctx.reply("not an admin")
     
-    await asyncio.to_thread(set_mode, ctx.guild.id, not db["channel_mode"])
+    await set_mode(ctx.guild.id, not db["channel_mode"])
     await ctx.reply(f'channel mode is now set to {not db["channel_mode"]}')
 
 async def set_rate(ctx: commands.Context, num):
@@ -184,7 +183,7 @@ async def set_rate(ctx: commands.Context, num):
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     
-    db = await asyncio.to_thread(get_database, ctx.guild.id)
+    db = await get_database(ctx.guild.id)
     if db["admin_approval"] and not ctx.author.guild_permissions.administrator:
         return await ctx.reply("not an admin")
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
@@ -193,7 +192,7 @@ async def set_rate(ctx: commands.Context, num):
     if not num: return await ctx.reply("?")
     if not num.isdigit(): return await ctx.reply("not a digit")
     num = fix_num(num)
-    await asyncio.to_thread(set_rate_db, ctx.guild.id, num)
+    await set_rate_db(ctx.guild.id, num)
     await ctx.reply(f"message_rate is now set to {num}")
 
 async def view_char(ctx: commands.Context):
@@ -203,7 +202,7 @@ async def view_char(ctx: commands.Context):
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     
-    db = await asyncio.to_thread(get_database, ctx.guild.id)
+    db = await get_database(ctx.guild.id)
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
         return await ctx.reply("channel not found")
     
@@ -218,7 +217,7 @@ async def edit_char(ctx: commands.Context, rate: str):
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     
-    db = await asyncio.to_thread(get_database, ctx.guild.id)
+    db = await get_database(ctx.guild.id)
     if db["admin_approval"] and not ctx.author.guild_permissions.administrator:
         return await ctx.reply("not an admin")
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
@@ -239,7 +238,7 @@ async def reset_char(ctx: commands.Context):
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     
-    db = await asyncio.to_thread(get_database, ctx.guild.id)
+    db = await get_database(ctx.guild.id)
     if db["admin_approval"] and not ctx.author.guild_permissions.administrator:
         return await ctx.reply("not an admin")
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
@@ -429,14 +428,17 @@ class SelectChoice(discord.ui.Select):
         except Exception as e: print(e)
         if not chat: return await interaction.message.edit(content="an error occured", embed=None, view=None)
 
-        participants = chat['participants']
-        if not participants[0]['is_human']:
-            tgt = participants[0]['user']['username']
-        else:
-            tgt = participants[1]['user']['username']
+        tgt = None
+        for participant in chat['participants']:
+            if not participant['is_human']:
+                tgt = participant['user']['username']
+                break
+        if not tgt:
+            print(chat['participants'])
+            return await interaction.message.edit(content="tgt not found", embed=None, view=None)
 
         # proper checking
-        db = await asyncio.to_thread(get_database, self.ctx.guild.id)
+        db = await get_database(self.ctx.guild.id)
         if db.get("characters"):
             found = False
             for x in db["characters"]:
@@ -479,7 +481,7 @@ class SelectChoice(discord.ui.Select):
                 }
             ]
         }
-        await asyncio.to_thread(push_character, self.ctx.guild.id, data)
+        await push_character(self.ctx.guild.id, data)
         await interaction.message.edit(content=f"`{selected['participant__name']}` has been added to the server", embed=None, view=None)
         if type(self.ctx.channel) == discord.Thread:
             await wh.send(clean_gdjkhp(chat["messages"][0]["text"], self.ctx.author.name), thread=self.ctx.channel)
@@ -556,7 +558,7 @@ class DeleteChoice(discord.ui.Select):
         if role: await role.delete()
         await delete_webhooks(self.ctx, selected)
 
-        await asyncio.to_thread(pull_character, self.ctx.guild.id, selected)
+        await pull_character(self.ctx.guild.id, selected)
         await interaction.message.edit(content=f"`{selected['name']}` has been deleted from the server", embed=None, view=None)
 
 class DeleteView(discord.ui.View):
@@ -642,9 +644,9 @@ class EditChoice(discord.ui.Select):
         await interaction.response.defer()
 
         if not selected.get("webhooks"): # old
-            await asyncio.to_thread(pull_character, self.ctx.guild.id, selected)
+            await pull_character(self.ctx.guild.id, selected)
             selected["webhooks"] = []
-            await asyncio.to_thread(push_character, self.ctx.guild.id, selected)
+            await push_character(self.ctx.guild.id, selected)
 
         found = False
         mod_webhooks = list(selected["webhooks"])
@@ -655,13 +657,13 @@ class EditChoice(discord.ui.Select):
             if w["channel"] == parent.id:
                 if await webhook_exists(w["url"]):
                     found = True
-                    await asyncio.to_thread(pull_character, self.ctx.guild.id, selected)
+                    await pull_character(self.ctx.guild.id, selected)
                     if type(self.ctx.channel) == discord.Thread:
                         if not w.get("threads"): w["threads"] = []
                         w["threads"].append({"id": self.ctx.channel.id, "rate": self.rate})
                     else:
                         w["char_message_rate"] = self.rate
-                    await asyncio.to_thread(push_character, self.ctx.guild.id, selected)
+                    await push_character(self.ctx.guild.id, selected)
                     break
                 else: mod_webhooks.remove(w)
         
@@ -675,9 +677,9 @@ class EditChoice(discord.ui.Select):
             if len(whs) == 15:
                 return await interaction.message.edit(content="webhook limit reached, please delete at least one", embed=None, view=None)
             wh = await parent.create_webhook(name=selected["name"], avatar=selected["avatar"])
-            await asyncio.to_thread(pull_character, self.ctx.guild.id, selected)
+            await pull_character(self.ctx.guild.id, selected)
             selected["webhooks"] = mod_webhooks # malform fix
-            await asyncio.to_thread(push_webhook, self.ctx.guild.id, selected, {
+            await push_webhook(self.ctx.guild.id, selected, {
                 "channel": parent.id, "url": wh.url, "char_message_rate": self.rate, "threads": threads})
 
         await interaction.message.edit(content=f"`{selected['name']}` char_message_rate is now set to `{self.rate}` on this channel", 
@@ -775,70 +777,68 @@ class ResetChoice(discord.ui.Select):
         except Exception as e: print(e)
         if not chat: return await interaction.message.edit(content="an error occured", embed=None, view=None)
         
-        await asyncio.to_thread(pull_character, self.ctx.guild.id, selected)
+        await pull_character(self.ctx.guild.id, selected)
         selected["history_id"] = chat["external_id"]
-        await asyncio.to_thread(push_character, self.ctx.guild.id, selected)
+        await push_character(self.ctx.guild.id, selected)
 
         await interaction.message.edit(content=f"`{selected['name']}` has been reset", embed=None, view=None)
         tasks_queue.put((self.ctx, selected, clean_gdjkhp(chat["messages"][0]["text"], self.ctx.author.name))) # wake up
 
-# database handling: slow?
-def add_database(server_id: int):
-    mycol.insert_one(
-        {
-            "guild": server_id,
-            "admin_approval": False,
-            "message_rate": 66,
-            "channel_mode": True,
-            "channels": [],
-            "characters": [],
-        }
-    )
-    return fetch_database(server_id)
+# database handling
+async def add_database(server_id: int):
+    data = {
+        "guild": server_id,
+        "admin_approval": False,
+        "message_rate": 66,
+        "channel_mode": True,
+        "channels": [],
+        "characters": [],
+    }
+    await mycol.insert_one(data)
+    return data
 
-def fetch_database(server_id: int) -> dict:
-    return mycol.find_one({"guild":server_id})
+async def fetch_database(server_id: int):
+    return await mycol.find_one({"guild":server_id})
 
-def get_database(server_id: int):
-    entry_exists = mycol.count_documents({"guild": server_id})
-    if entry_exists > 0: return fetch_database(server_id)
-    else: return add_database(server_id)
+async def get_database(server_id: int):
+    db = await fetch_database(server_id)
+    if db: return db
+    else: return await add_database(server_id)
 
-def push_character(server_id: int, data):
-    mycol.update_one({"guild":server_id}, {"$push": {"characters": dict(data)}})
+async def push_character(server_id: int, data):
+    await mycol.update_one({"guild":server_id}, {"$push": {"characters": dict(data)}})
 
-def pull_character(server_id: int, data):
-    mycol.update_one({"guild":server_id}, {"$pull": {"characters": dict(data)}})
+async def pull_character(server_id: int, data):
+    await mycol.update_one({"guild":server_id}, {"$pull": {"characters": dict(data)}})
 
-def push_chan(server_id: int, data):
-    mycol.update_one({"guild":server_id}, {"$push": {"channels": data}})
+async def push_chan(server_id: int, chan_id):
+    await mycol.update_one({"guild":server_id}, {"$push": {"channels": chan_id}})
     return True
 
-def pull_chan(server_id: int, data):
-    mycol.update_one({"guild":server_id}, {"$pull": {"channels": data}})
+async def pull_chan(server_id: int, chan_id):
+    await mycol.update_one({"guild":server_id}, {"$pull": {"channels": chan_id}})
     return False
 
-def toggle_chan(server_id: int, data):
-    if not list(mycol.find({"guild":server_id, "channels": data})):
-        return push_chan(server_id, data)
-    else: 
-        return pull_chan(server_id, data)
+async def toggle_chan(server_id: int, chan_id):
+    if await mycol.find_one({"guild":server_id, "channels": chan_id}):
+        return await pull_chan(server_id, chan_id)
+    else: return await push_chan(server_id, chan_id)
     
-def set_admin(server_id: int, b: bool):
-    mycol.update_one({"guild":server_id}, {"$set": {"admin_approval": b}})
+async def set_admin(server_id: int, b: bool):
+    await mycol.update_one({"guild":server_id}, {"$set": {"admin_approval": b}})
 
-def set_mode(server_id: int, b: bool):
-    mycol.update_one({"guild":server_id}, {"$set": {"channel_mode": b}})
+async def set_mode(server_id: int, b: bool):
+    await mycol.update_one({"guild":server_id}, {"$set": {"channel_mode": b}})
 
-def set_rate_db(server_id: int, value: int):
-    mycol.update_one({"guild":server_id}, {"$set": {"message_rate": value}})
+async def set_rate_db(server_id: int, value: int):
+    await mycol.update_one({"guild":server_id}, {"$set": {"message_rate": value}})
 
 # webhook handling (ugly but safe)
-def push_webhook(server_id: int, c_data, w_data):
+async def push_webhook(server_id: int, c_data, w_data):
     if not c_data.get("webhooks"): 
         c_data["webhooks"] = []
     c_data["webhooks"].append(w_data)
-    push_character(server_id, c_data)
+    await push_character(server_id, c_data)
 
 async def get_webhook(ctx: commands.Context, c_data):
     wh, mod_webhooks, silent_delete = None, None, False
@@ -857,9 +857,9 @@ async def get_webhook(ctx: commands.Context, c_data):
                     mod_webhooks.remove(w)
 
     if silent_delete:
-        await asyncio.to_thread(pull_character, ctx.guild.id, c_data)
+        await pull_character(ctx.guild.id, c_data)
         c_data["webhooks"] = mod_webhooks
-        await asyncio.to_thread(push_character, ctx.guild.id, c_data)
+        await push_character(ctx.guild.id, c_data)
     if wh: return wh
 
     # create webhook?
@@ -871,8 +871,8 @@ async def get_webhook(ctx: commands.Context, c_data):
     whs = await parent.webhooks()
     if len(whs) == 15: return None
     wh = await parent.create_webhook(name=c_data["name"], avatar=c_data["avatar"])
-    await asyncio.to_thread(pull_character, ctx.guild.id, c_data)
-    await asyncio.to_thread(push_webhook, ctx.guild.id, c_data, {
+    await pull_character(ctx.guild.id, c_data)
+    await push_webhook(ctx.guild.id, c_data, {
         "channel": parent.id, "url": wh.url, "char_message_rate": 100, "threads": threads})
     return wh
 
