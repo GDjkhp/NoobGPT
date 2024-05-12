@@ -239,6 +239,6 @@ async def GEMINI_REST(ctx: commands.Context, arg: str, palm: bool):
 
 async def help_google(ctx: commands.Context):
     text  = "### Note: Doesn't support reading conversation history."
-    text += "`-ge`: gemini-1.5-pro-latest"
-    text += "`-palm`: text-bison-001"
+    text += "\n`-ge`: gemini-1.5-pro-latest"
+    text += "\n`-palm`: text-bison-001"
     await ctx.reply(text)

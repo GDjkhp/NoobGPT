@@ -53,18 +53,18 @@ async def help_perplexity(ctx: commands.Context):
     text += f"`-ssc`: {models[4]}\n"
     text += f"`-sso`: {models[5]}\n"
     text += f"`-smc`: {models[6]}\n"
-    text += f"`-smo`: {models[7]}\n"
+    text += f"`-smo`: {models[7]}"
     await ctx.reply(text)
 
 async def help_claude(ctx: commands.Context):
     text  = f"`-cla`: {models_claude[0]}\n"
     text += f"`-c3o`: {models_claude[1]}\n"
-    text += f"`-c3s`: {models_claude[2]}\n"
+    text += f"`-c3s`: {models_claude[2]}"
     await ctx.reply(text)
 
 async def help_mistral(ctx: commands.Context):
     text  = f"`-mm`: {models_mistral[0]}\n"
-    text += f"`-ml`: {models_mistral[1]}\n"
+    text += f"`-ml`: {models_mistral[1]}"
     await ctx.reply(text)
 
 async def the_real_req(url: str, payload: dict, headers: dict):

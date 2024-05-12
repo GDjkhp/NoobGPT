@@ -253,7 +253,7 @@ async def reset_char(ctx: commands.Context):
                     embed=view_embed(ctx, db["characters"], 0, 0xff00ff))
 
 async def c_help(ctx: commands.Context):
-    text  = "\n# Character commands"
+    text  = "# Character commands"
     text += "\n`-cchar` available characters"
     text += "\n`-cadd <query>` add character"
     text += "\n`-cdel` delete character"
