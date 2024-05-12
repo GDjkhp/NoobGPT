@@ -114,7 +114,10 @@ async def cob(ctx: commands.Context, *, arg:str=""):
     bot.loop.create_task(COBALT_API(ctx, arg.split()))
 
 # :|
-from gelbooru import R34, GEL, SAFE
+from gelbooru import R34, GEL, SAFE, help_booru
+@bot.command()
+async def booru(ctx: commands.Context):
+    bot.loop.create_task(help_booru(ctx))
 @bot.command()
 async def r34(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(R34(ctx, arg))
@@ -321,10 +324,10 @@ from wordle_ import wordle
 async def word(ctx: commands.Context, mode: str=None, count: str=None):
     bot.loop.create_task(wordle(ctx, mode, count))
 
-from rps_game import rps
+from rps_game import game_rps
 @bot.command()
 async def rps(ctx: commands.Context):
-    bot.loop.create_task(rps(ctx))
+    bot.loop.create_task(game_rps(ctx))
 
 # from place import PLACE
 # @bot.command()

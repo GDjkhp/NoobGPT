@@ -1,8 +1,8 @@
 import aiohttp
 from discord.ext import commands
 import time
-import asyncio
 import discord
+from util_discord import command_check
 
 async def the_real_req(payload: dict):
     headers = {
@@ -74,6 +74,7 @@ async def get_filename(url):
                 return ""
 
 async def COBALT_API(ctx: commands.Context, args: list[str]):
+    if await command_check(ctx, "cob", "media"): return
     async with ctx.typing():
         msg = await ctx.reply("…")
         old = round(time.time() * 1000)

@@ -6,6 +6,7 @@ from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 import util_database
 import pymongo
+from util_discord import command_check
 
 mycol = util_database.myclient["games"]["wordle"]
 font = ImageFont.truetype("./res/font/LibreFranklin-Bold.ttf", size=75)
@@ -347,6 +348,7 @@ async def brag_function(ctx: commands.Context, mode: str, optional: str):
         return await ctx.reply(embed=await brag_embed(global_scores, ctx, True))
 
 async def wordle(ctx: commands.Context, mode: str, count: str):
+    if await command_check(ctx, "word", "games"): return
     params = "```-word [stats: <rank/lead/global> OR mode: <all/hardcore/me> count: <1-50>]```"
 
     if mode in ["lead", "rank", "global"]:

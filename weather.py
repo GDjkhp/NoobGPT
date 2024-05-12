@@ -1,6 +1,7 @@
 from discord.ext import commands
 import aiohttp
 from urllib import parse as p
+from util_discord import command_check
 
 async def req_real(api):
     try:
@@ -10,6 +11,7 @@ async def req_real(api):
     except Exception as e: print(e)
 
 async def Weather(ctx: commands.Context, arg):
+    if await command_check(ctx, "weather", "utils"): return
     message = await ctx.reply(f"Calculating…")
     try: results = await req_real('https://goweather.herokuapp.com/weather/'+p.quote_plus(arg))
     except: return await message.edit(content="I tripped.")

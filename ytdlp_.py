@@ -4,8 +4,10 @@ import discord
 import os
 import asyncio
 import time
+from util_discord import command_check
 
 async def YTDLP(ctx: commands.Context, arg1: str, arg2: str):
+    if await command_check(ctx, "ytdlp", "media"): return
     async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
         old = round(time.time() * 1000)
         if not arg1: arg1, arg2 = "mp3", "dQw4w9WgXcQ"

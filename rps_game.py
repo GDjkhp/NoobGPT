@@ -1,7 +1,9 @@
 import discord
 from discord.ext import commands
+from util_discord import command_check
 
-async def rps(ctx: commands.Context):
+async def game_rps(ctx: commands.Context):
+    if await command_check(ctx, "rps", "games"): return
     await ctx.reply(":index_pointing_at_the_viewer:", view=RPSView(None, None))
 
 def id2e(id: str) -> str:

@@ -4,20 +4,30 @@ import re
 import discord
 import random
 import util_database
-
+from util_discord import command_check
 myclient = util_database.myclient
 
+async def help_booru(ctx: commands.Context):
+    if await command_check(ctx, "booru", "media"): return
+    text  = f"`-gel`: gelbooru\n"
+    text += f"`-safe`: safebooru\n"
+    text += f"`-r34`: rule34"
+    await ctx.reply(text)
+
 async def R34(ctx: commands.Context, arg: str):
+    if await command_check(ctx, "booru", "media"): return
     if not ctx.guild or not ctx.channel.nsfw: return await ctx.reply("**No.**")
     if arg: await search_posts(ctx, arg, "r34")
     else: await view_collection(ctx, "r34")
 
 async def GEL(ctx: commands.Context, arg: str):
+    if await command_check(ctx, "booru", "media"): return
     if not ctx.guild or not ctx.channel.nsfw: return await ctx.reply("**No.**")
     if arg: await search_posts(ctx, arg, "gel")
     else: await view_collection(ctx, "gel")
 
 async def SAFE(ctx: commands.Context, arg: str):
+    if await command_check(ctx, "booru", "media"): return
     if arg: await search_posts(ctx, arg, "safe")
     else: await view_collection(ctx, "safe")
 

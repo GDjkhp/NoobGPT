@@ -1,9 +1,11 @@
 import discord
 from discord.ext import commands
 import json
+from util_discord import command_check
 
 # this is a deed that i should've done a long time ago
 async def HALP(ctx: commands.Context, av: discord.Asset):
+    if await command_check(ctx, "halp", "utils"): return
     desc = "A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you."
     url = "https://gdjkhp.github.io/NoobGPT"
     await ctx.reply(embed=create_embed(0x00ff00, av, "NoobGPT", desc, url), view=HelpView(av))

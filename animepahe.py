@@ -6,6 +6,7 @@ import os
 import re
 import sys
 import asyncio
+from util_discord import command_check
 
 if sys.platform == 'win32':
     asyncio.set_event_loop_policy(
@@ -44,6 +45,7 @@ def buildAnime(details: dict) -> discord.Embed:
     return embed
 
 async def pahe_search(ctx: commands.Context, arg: str):
+    if await command_check(ctx, "pahe", "media"): return
     if not arg: return await ctx.reply("y r u doin this")
     response = await new_req(f"https://animepahe.ru/api?m=search&q={arg.replace(' ', '+')}", True)
     if not response: return await ctx.reply("none found")

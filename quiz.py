@@ -3,6 +3,7 @@ from urllib import parse as p
 import random
 import discord
 from discord.ext import commands
+from util_discord import command_check
 
 async def req_real(api):
     try:
@@ -12,6 +13,7 @@ async def req_real(api):
     except Exception as e: print(e)
 
 async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, diff: str, ty: str):
+    if await command_check(ctx, "quiz", "games"): return
     msg = await ctx.reply("Crunching data…")
     params = "```-quiz [mode: <all/anon/me> version: <any/v1/v2> count: <1-50> category: <any/9-32> difficulty: <any/easy/medium/hard> type: <any/multiple/boolean>```"
     if count:

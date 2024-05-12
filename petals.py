@@ -4,6 +4,7 @@ import aiohttp
 import websockets
 import json
 import re
+from util_discord import command_check
 
 # list of old models
 models = [
@@ -29,6 +30,7 @@ async def petalsWebsocket(ctx: commands.Context, arg: str, model: int):
     Returns:
         None
     """
+    if await command_check(ctx, "petals", "ai"): return
     async with ctx.typing():
         msg = await ctx.reply("**Starting session…**")
         if not arg: arg = "Explain who you are, your functions, capabilities, limitations, and purpose."
@@ -105,6 +107,7 @@ async def req_real(api):
     except Exception as e: print(e)
 
 async def PETALS(ctx: commands.Context):
+    if await command_check(ctx, "petals", "ai"): return
     status = await req_real("https://health.petals.dev/api/v1/state")
     text = "`-beluga2`: petals-team/StableBeluga2```diff\n"
     for i in status["model_reports"]: 

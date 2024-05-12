@@ -1,5 +1,6 @@
 import discord
 from typing import List
+from util_discord import command_check
 # Defines a custom button that contains the logic of the game.
 # The ['TicTacToe'] bit is for type hinting purposes to tell your IDE or linter
 # what the type of `self.view` is. It is not required.
@@ -116,5 +117,6 @@ class TicTacToe(discord.ui.View):
 
 from discord.ext import commands
 async def Tic(ctx: commands.Context):
+    if await command_check(ctx, "tic", "games"): return
     """Starts a tic-tac-toe game with yourself."""
     await ctx.send('Tic Tac Toe: X goes first', view=TicTacToe())

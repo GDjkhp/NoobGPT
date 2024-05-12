@@ -5,6 +5,7 @@ import os
 import requests
 import base64
 import json
+from util_discord import command_check
 
 # bard (legacy)
 from bard import Bard
@@ -207,6 +208,7 @@ async def req_real(url, json, headers, palm):
             else: print(await response.content.read())
 
 async def GEMINI_REST(ctx: commands.Context, arg: str, palm: bool):
+    if await command_check(ctx, "googleai", "ai"): return
     async with ctx.typing():
         msg = await ctx.reply("Generating response…")
         old = round(time.time() * 1000)
@@ -238,6 +240,7 @@ async def GEMINI_REST(ctx: commands.Context, arg: str, palm: bool):
         await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
 
 async def help_google(ctx: commands.Context):
+    if await command_check(ctx, "googleai", "ai"): return
     text  = "### Note: Doesn't support reading conversation history."
     text += "\n`-ge`: gemini-1.5-pro-latest"
     text += "\n`-palm`: text-bison-001"

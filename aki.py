@@ -3,6 +3,7 @@ import akinator.exceptions
 from discord.ext import commands
 from akinator.async_aki import Akinator
 import aiohttp
+from util_discord import command_check
 
 def w(ctx: commands.Context, aki: Akinator) -> discord.Embed:
     # {'id': '444271', 
@@ -109,6 +110,7 @@ class ButtonAction0(discord.ui.Button):
 
 # @commands.max_concurrency(1, per=BucketType.default, wait=False)
 async def Aki(ctx: commands.Context, cat: str='people', lang: str='en'):
+    if await command_check(ctx, "aki", "games"): return
     msg = await ctx.reply('Starting game…')
     categories = ['people', 'objects', 'animals']
     sfw = not ctx.channel.nsfw if ctx.guild else True

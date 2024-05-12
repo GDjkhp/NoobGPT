@@ -8,6 +8,7 @@ import re
 from queue import Queue
 import util_database
 import os
+from util_discord import command_check
 
 mycol = util_database.myclient["ai"]["character"]
 client = PyAsyncCAI(os.getenv('CHARACTER'))
@@ -49,6 +50,7 @@ async def c_ai_init():
 
 # the real
 async def c_ai(bot: commands.Bot, msg: discord.Message):
+    if await command_check(ctx, "chelp", "ai"): return
     if not type(msg.channel) in supported: return
     if msg.author.id == bot.user.id: return
     # if msg.content == "": return # you can send blank messages
@@ -98,6 +100,7 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
         if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
 
 async def add_char(ctx: commands.Context, text: str, list_type: str):
+    if await command_check(ctx, "chelp", "ai"): return
     if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
@@ -122,6 +125,7 @@ async def add_char(ctx: commands.Context, text: str, list_type: str):
         await ctx.reply("an error occured")
 
 async def delete_char(ctx: commands.Context):
+    if await command_check(ctx, "chelp", "ai"): return
     if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
@@ -138,6 +142,7 @@ async def delete_char(ctx: commands.Context):
     await ctx.reply(view=DeleteView(ctx, db["characters"], 0), embed=view_embed(ctx, db["characters"], 0, 0xff0000))
 
 async def t_chan(ctx: commands.Context):
+    if await command_check(ctx, "chelp", "ai"): return
     if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
@@ -153,6 +158,7 @@ async def t_chan(ctx: commands.Context):
     else: await ctx.reply("channel removed from the list")
 
 async def t_adm(ctx: commands.Context):
+    if await command_check(ctx, "chelp", "ai"): return
     if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
@@ -167,6 +173,7 @@ async def t_adm(ctx: commands.Context):
     await ctx.reply(f'admin approval is now set to {not db["admin_approval"]}')
 
 async def t_mode(ctx: commands.Context):
+    if await command_check(ctx, "chelp", "ai"): return
     if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
@@ -181,6 +188,7 @@ async def t_mode(ctx: commands.Context):
     await ctx.reply(f'channel mode is now set to {not db["channel_mode"]}')
 
 async def set_rate(ctx: commands.Context, num):
+    if await command_check(ctx, "chelp", "ai"): return
     if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
@@ -200,6 +208,7 @@ async def set_rate(ctx: commands.Context, num):
     await ctx.reply(f"message_rate is now set to {num}")
 
 async def view_char(ctx: commands.Context):
+    if await command_check(ctx, "chelp", "ai"): return
     if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
@@ -215,6 +224,7 @@ async def view_char(ctx: commands.Context):
     await ctx.reply(view=AvailView(ctx, db["characters"], 0), embed=view_embed(ctx, db["characters"], 0, 0x00ff00), content=text)
 
 async def edit_char(ctx: commands.Context, rate: str):
+    if await command_check(ctx, "chelp", "ai"): return
     if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
@@ -236,6 +246,7 @@ async def edit_char(ctx: commands.Context, rate: str):
                     embed=view_embed(ctx, db["characters"], 0, 0x00ffff))
 
 async def reset_char(ctx: commands.Context):
+    if await command_check(ctx, "chelp", "ai"): return
     if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
@@ -253,6 +264,7 @@ async def reset_char(ctx: commands.Context):
                     embed=view_embed(ctx, db["characters"], 0, 0xff00ff))
 
 async def c_help(ctx: commands.Context):
+    if await command_check(ctx, "chelp", "ai"): return
     text  = "# Character commands"
     text += "\n`-cchar` available characters"
     text += "\n`-cadd <query>` add character"

@@ -4,6 +4,7 @@ import time
 import aiohttp
 import io
 from discord.ext import commands
+from util_discord import command_check
 
 client = AsyncOpenAI()
 
@@ -27,12 +28,14 @@ async def discord_image(link: str, prompt: str) -> discord.File:
                 return discord.File(fp=image_data, filename=f'{prompt}.png')
             
 async def help_openai(ctx: commands.Context):
+    if await command_check(ctx, "openai", "ai"): return
     text  = "`-ask`: gpt-3.5-turbo"
     text += "\n`-gpt`: gpt-3.5-turbo-instruct"
     text += "\n`-imagine`: dall-e-2"
     await ctx.reply(text)
 
 async def chat(ctx: commands.Context):
+    if await command_check(ctx, "openai", "ai"): return
     message = ctx.message
     info = await message.reply("Generating response…")
     old = round(time.time() * 1000)
@@ -55,6 +58,7 @@ async def chat(ctx: commands.Context):
     await info.edit(content=f"Took {round(time.time() * 1000)-old}ms")
 
 async def image(ctx: commands.Context):
+    if await command_check(ctx, "openai", "ai"): return
     message = ctx.message
     info = await message.reply("Generating image…")
     old = round(time.time() * 1000)
@@ -74,6 +78,7 @@ async def image(ctx: commands.Context):
     await info.edit(content=f"Took {round(time.time() * 1000)-old}ms")
 
 async def gpt3(ctx: commands.Context):
+    if await command_check(ctx, "openai", "ai"): return
     message = ctx.message
     info = await message.reply("Generating response…")
     old = round(time.time() * 1000)

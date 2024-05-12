@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup as BS
 import re
 from urllib import parse as p
 import json
-import asyncio
+from util_discord import command_check
 
 client, client0 = HttpClient(), HttpClient()
 title, url, aid, mv_tv, poster = 0, 1, 2, 3, 4
@@ -25,6 +25,7 @@ def get_domain():
     gogoanime = data["gogoanime"]
 
 async def Gogoanime(ctx: commands.Context, arg: str):
+    if await command_check(ctx, "anime", "media"): return
     get_domain()
     if arg: msg = await ctx.reply(f"Searching `{arg}`\nPlease wait…")
     else: msg = await ctx.reply("Imagine something that doesn't exist. Must be sad. You are sad. You don't belong here.\nLet's all love lain.")

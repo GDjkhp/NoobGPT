@@ -2,6 +2,7 @@ import random
 import discord
 from discord.ext import commands
 import json
+from util_discord import command_check
 
 def read_json_file(file_path):
     with open(file_path, 'r') as json_file:
@@ -165,6 +166,7 @@ def QuizEmbed(words: list, index: int, settings: dict, players: dict, ctx: comma
     return e
     
 async def HANG(ctx: commands.Context, mode: str, count: str, gtype: str, cat: str, diff: str):
+    if await command_check(ctx, "hang", "games"): return
     msg = await ctx.reply("Writing dictionary…")
     params = "```-hang [mode: <all/hardcore/me> count: <1-50>, type: <any/word/quiz> category: <any/9-32> difficulty: <any/easy/medium/hard>```"
     if mode:

@@ -1,9 +1,9 @@
 import aiohttp
-import asyncio
 import os
 import discord
 from discord.ext import commands
 import time
+from util_discord import command_check
 
 # ugly
 def strip_dash(text: str):
@@ -46,6 +46,7 @@ models_mistral=[
 ]
 
 async def help_perplexity(ctx: commands.Context):
+    if await command_check(ctx, "perplex", "ai"): return
     text  =  f"`-ll`: {models[0]}\n"
     text += f"`-cll`: {models[1]}\n"
     text += f"`-mis`: {models[2]}\n"
@@ -57,12 +58,14 @@ async def help_perplexity(ctx: commands.Context):
     await ctx.reply(text)
 
 async def help_claude(ctx: commands.Context):
+    if await command_check(ctx, "claude", "ai"): return
     text  = f"`-cla`: {models_claude[0]}\n"
     text += f"`-c3o`: {models_claude[1]}\n"
     text += f"`-c3s`: {models_claude[2]}"
     await ctx.reply(text)
 
 async def help_mistral(ctx: commands.Context):
+    if await command_check(ctx, "mistral", "ai"): return
     text  = f"`-mm`: {models_mistral[0]}\n"
     text += f"`-ml`: {models_mistral[1]}"
     await ctx.reply(text)
@@ -123,6 +126,7 @@ async def make_request_mistral(model: str, messages: list):
     return await the_real_req(url, payload, headers)
 
 async def main_perplexity(ctx: commands.Context, model: int):
+    if await command_check(ctx, "perplex", "ai"): return
     async with ctx.typing():
         msg = await ctx.reply("Generating response…")
         old = round(time.time() * 1000)
@@ -144,6 +148,7 @@ async def main_perplexity(ctx: commands.Context, model: int):
         await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
 
 async def main_anthropic(ctx: commands.Context, model: int):
+    if await command_check(ctx, "claude", "ai"): return
     async with ctx.typing():
         msg = await ctx.reply("Generating response…")
         old = round(time.time() * 1000)
@@ -165,6 +170,7 @@ async def main_anthropic(ctx: commands.Context, model: int):
         await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
 
 async def main_mistral(ctx: commands.Context, model: int):
+    if await command_check(ctx, "mistral", "ai"): return
     async with ctx.typing():
         msg = await ctx.reply("Generating response…")
         old = round(time.time() * 1000)

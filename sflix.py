@@ -9,6 +9,7 @@ from Crypto.Cipher import AES
 import hashlib
 import json
 from Crypto.Util.Padding import unpad
+from util_discord import command_check
 
 client, client0 = HttpClient(), HttpClient()
 title, url, aid, mv_tv, poster = 0, 1, 2, 3, 4
@@ -17,6 +18,7 @@ domain = "https://sflix.se"
 provider="https://gdjkhp.github.io/img/66356c25ce98cb12993249e21742b129.png"
 
 async def Sflix(ctx: commands.Context, arg: str):
+    if await command_check(ctx, "tv", "media"): return
     msg = await ctx.reply(f"Searching `{arg}`\nPlease wait…")
     try:
         result = results(searchQuery(arg)) 

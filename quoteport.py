@@ -6,6 +6,7 @@ import aiohttp
 import time
 from imagetext_py import *
 import asyncio
+from util_discord import command_check
 
 font_reg = './res/font/AmaticSC-Regular.ttf'
 font_bold = './res/font/AmaticSC-Bold.ttf'
@@ -16,6 +17,7 @@ font_real_bold = FontDB.Query("AmaticSC-Bold NotoSansJP-Bold")
 font_real_reg = FontDB.Query("AmaticSC-Regular NotoSansJP-Regular")
 
 async def quote_this(ctx: commands.Context):
+    if await command_check(ctx, "quote", "utils"): return
     if ctx.message.reference:
         info = await ctx.reply("Quoting…")
         old = round(time.time() * 1000)
