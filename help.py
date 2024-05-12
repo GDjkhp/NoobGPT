@@ -123,13 +123,13 @@ async def media_embed(av: discord.Asset) -> discord.Embed:
 async def utils_embed(av: discord.Asset) -> discord.Embed:
     emby = create_embed(0x0000ff, av, "Utils 🔧")
     emby.add_field(name='`-channel`', 
-                   value='Toggle channel mode, where you can set specific commands per channel.', 
+                   value='Toggle channel mode, where you can set specific commands per channel. (admin-only)', 
                    inline=False)
     emby.add_field(name='`-toggle [command]`', 
-                   value='Toggle command. Requires channel mode.', 
+                   value='Toggle command. Requires channel mode. (admin-only)', 
                    inline=False)
     emby.add_field(name='`-disable [command]`', 
-                   value='Disable command server-wide.', 
+                   value='Disable command server-wide. (admin-only)', 
                    inline=False)
     emby.add_field(name='`-quote`', 
                    value='Reply to a message to make it a quote.', 
