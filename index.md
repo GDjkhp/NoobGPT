@@ -74,19 +74,12 @@ Originally developed as an XP Leveling System under the codename "LevelUpLoser".
 Collection of random and unique stuff I came up with, mostly games and useful tools. This is where I add new features regularly.
 ### Prefix: -
 ## AI 🤖
-### OpenAI (Not working)
-* `-ask [prompt]` OpenAI GPT-3.5-Turbo (ChatGPT) chat completion.
-* `-gpt [prompt]` OpenAI gpt-3.5-turbo-instruct text completion.
-* `-imagine [prompt]` OpenAI Dall-E image generation.
-
-### Google
-<!-- * `-bard [prompt]` [Google Bard](https://bard.google.com) chat completion. (Deprecated) -->
-* `-palm [prompt]` Google AI PaLM language model. (Legacy)
-* `-ge [text/image]` Google AI Gemini language model.
-
-### Uncategorized
+* `-openai` OpenAI is an AI research and deployment company. Our mission is to ensure that artificial general intelligence benefits all of humanity.
+* `-googleai` Google AI is a division of Google dedicated to artificial intelligence.
 * `-petals` Run large language models at home, BitTorrent‑style.
 * `-perplex` Perplexity AI unlocks the power of knowledge with information discovery and sharing.
+* `-mistral` Mistral AI is a French company selling artificial intelligence products.
+* `-claude` Anthropic is an AI safety and research company that's working to build reliable, interpretable, and steerable AI systems.
 * `-chelp` Character.ai is an American neural language model chatbot service that can generate human-like text responses and participate in contextual conversation.
 
 ## Games 🎲
@@ -105,6 +98,9 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-cob [link]` [cobalt](https://cobalt.tools) is a media downloader that doesn't piss you off. See [supported sites](https://github.com/wukko/cobalt?tab=readme-ov-file#supported-services).
     
 ## Utils 🔧
+* `-channel` Toggle channel mode, where you can set specific commands per channel. (admin-only)
+* `-toggle [command]` Toggle command. Requires channel mode. (admin-only)
+* `-disable [command]` Disable command server-wide. (admin-only)
 * `-quote` Reply to a message to make it a quote.
 * `-weather [query]` Check weather forecast using [weather-api](https://github.com/robertoduessmann/weather-api).
 * `-av [userid]` Return a user's Discord profile avatar.
