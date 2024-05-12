@@ -63,6 +63,7 @@ def category_to_commands(cat: str, commands: list):
 
 async def command_enable(ctx: commands.Context, com: str):
     if not type(ctx.channel) in supported: return await ctx.reply("not supported")
+    if not com: return await ctx.reply("execute `-halp` to view commands")
     if not ctx.author.guild_permissions.administrator:
         return await ctx.reply("not an admin")
     if not com in available_commands and not com in available_categories:
@@ -100,6 +101,7 @@ async def command_enable(ctx: commands.Context, com: str):
 
 async def command_disable(ctx: commands.Context, com: str):
     if not type(ctx.channel) in supported: return await ctx.reply("not supported")
+    if not com: return await ctx.reply("execute `-halp` to view commands")
     if not ctx.author.guild_permissions.administrator:
         return await ctx.reply("not an admin")
     if not com in available_commands and not com in available_categories:
