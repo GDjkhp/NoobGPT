@@ -42,6 +42,7 @@ available_commands=[
 available_categories=["ai", "games", "media", "utils"]
 
 async def command_check(ctx: commands.Context, com: str, cat: str):
+    if not type(ctx.channel) in supported: return False
     db = await get_database(ctx.guild.id)
     if com in db["disabled_commands"]: return True
     if cat in db["disabled_categories"]: return True
