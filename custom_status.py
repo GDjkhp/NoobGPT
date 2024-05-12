@@ -9,6 +9,7 @@ import json
 
 user_id = 729554186777133088
 headers = {"authorization": os.getenv("LANYARD")}
+loop_status = False
 
 async def the_real_req(url: str):
     async with aiohttp.ClientSession() as session:
@@ -31,6 +32,9 @@ def read_json_file(file_path):
     return data
 
 async def silly_activities(bot: commands.Bot):
+    global loop_status
+    if loop_status: return
+    loop_status = True
     while True:
         try:
             data = await the_real_req(f"https://api.lanyard.rest/v1/users/{user_id}")
@@ -39,7 +43,7 @@ async def silly_activities(bot: commands.Bot):
                 f"serving {len(bot.users)} users in {len(bot.guilds)} guilds",
                 f"gdjkhp is currently {data['data']['discord_status']}",
                 f"will return in {round(bot.latency*1000)}ms",
-                time.strftime("%B %d, %Y"),
+                time.strftime("%A, %B %d, %Y"),
                 "get started: -halp",
                 "dnd = stable, online = unstable",
                 "RADIO ONSEN EUTOPIA",

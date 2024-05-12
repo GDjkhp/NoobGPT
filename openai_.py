@@ -3,6 +3,7 @@ import discord
 import time
 import aiohttp
 import io
+from discord.ext import commands
 
 client = AsyncOpenAI()
 
@@ -24,9 +25,16 @@ async def discord_image(link: str, prompt: str) -> discord.File:
                 image_bytes = await response.read()
                 image_data = io.BytesIO(image_bytes)
                 return discord.File(fp=image_data, filename=f'{prompt}.png')
+            
+async def help_openai(ctx: commands.Context):
+    text  = "`-ask`: gpt-3.5-turbo"
+    text += "`-gpt`: gpt-3.5-turbo-instruct"
+    text += "`-imagine`: dall-e-2"
+    await ctx.reply(text)
 
-async def chat(message: discord.Message, info: discord.Message=None):
-    if not info: info = await message.reply("Generating response…")
+async def chat(ctx: commands.Context):
+    message = ctx.message
+    info = await message.reply("Generating response…")
     old = round(time.time() * 1000)
     messagesArray = await loopMsg(message)
     try:
@@ -46,8 +54,9 @@ async def chat(message: discord.Message, info: discord.Message=None):
         else: await message.channel.send(chunk)
     await info.edit(content=f"Took {round(time.time() * 1000)-old}ms")
 
-async def image(message: discord.Message, info: discord.Message=None):
-    if not info: info = await message.reply("Generating image…")
+async def image(ctx: commands.Context):
+    message = ctx.message
+    info = await message.reply("Generating image…")
     old = round(time.time() * 1000)
     promptMsg = message.content.replace("-imagine ", "")
     if message.reference: # reply hack
@@ -64,8 +73,9 @@ async def image(message: discord.Message, info: discord.Message=None):
     await message.reply(file=await discord_image(response.data[0].url, promptMsg))
     await info.edit(content=f"Took {round(time.time() * 1000)-old}ms")
 
-async def gpt3(message: discord.Message, info: discord.Message=None):
-    if not info: info = await message.reply("Generating response…")
+async def gpt3(ctx: commands.Context):
+    message = ctx.message
+    info = await message.reply("Generating response…")
     old = round(time.time() * 1000)
     content = message.content.replace("-gpt ", "")
     content = "Generate 'Lorem ipsum…'" if content == "" else content

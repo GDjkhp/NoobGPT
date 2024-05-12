@@ -141,30 +141,38 @@ async def weather(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(Weather(ctx, arg))
 
 # AI
-from perplexity import main_perplexity, help_perplexity, main_anthropic, main_mistral
+from perplexity import main_perplexity, help_perplexity, main_anthropic, main_mistral, help_claude, help_mistral
 @bot.command()
-async def mm(ctx: commands.Context):
-    bot.loop.create_task(main_mistral(ctx, "mistral-medium-latest"))
+async def claude(ctx: commands.Context):
+    bot.loop.create_task(help_claude(ctx))
 
 @bot.command()
-async def ml(ctx: commands.Context):
-    bot.loop.create_task(main_mistral(ctx, "mistral-large-latest"))
-
-@bot.command()
-async def cla(ctx: commands.Context):
-    bot.loop.create_task(main_anthropic(ctx, "claude-2.1"))
-
-@bot.command()
-async def c3o(ctx: commands.Context):
-    bot.loop.create_task(main_anthropic(ctx, "claude-3-opus-20240229"))
-
-@bot.command()
-async def c3s(ctx: commands.Context):
-    bot.loop.create_task(main_anthropic(ctx, "claude-3-sonnet-20240229"))
+async def mistral(ctx: commands.Context):
+    bot.loop.create_task(help_mistral(ctx))
 
 @bot.command()
 async def perplex(ctx: commands.Context):
-    bot.loop.create_task(ctx.reply(help_perplexity()))
+    bot.loop.create_task(help_perplexity(ctx))
+
+@bot.command()
+async def mm(ctx: commands.Context):
+    bot.loop.create_task(main_mistral(ctx, 0))
+
+@bot.command()
+async def ml(ctx: commands.Context):
+    bot.loop.create_task(main_mistral(ctx, 1))
+
+@bot.command()
+async def cla(ctx: commands.Context):
+    bot.loop.create_task(main_anthropic(ctx, 0))
+
+@bot.command()
+async def c3o(ctx: commands.Context):
+    bot.loop.create_task(main_anthropic(ctx, 1))
+
+@bot.command()
+async def c3s(ctx: commands.Context):
+    bot.loop.create_task(main_anthropic(ctx, 2))
 
 @bot.command()
 async def ll(ctx: commands.Context):
@@ -198,21 +206,24 @@ async def smc(ctx: commands.Context):
 async def smo(ctx: commands.Context):
     bot.loop.create_task(main_perplexity(ctx, 7))
 
-from openai_ import chat, image, gpt3
+from openai_ import chat, image, gpt3, help_openai
 @bot.command()
 async def ask(ctx: commands.Context):
-    bot.loop.create_task(chat(ctx.message))
+    bot.loop.create_task(chat(ctx))
 
 @bot.command()
 async def imagine(ctx: commands.Context):
-    bot.loop.create_task(image(ctx.message))
+    bot.loop.create_task(image(ctx))
 
 @bot.command()
 async def gpt(ctx: commands.Context):
-    bot.loop.create_task(gpt3(ctx.message))
+    bot.loop.create_task(gpt3(ctx))
 
-# palm (alternative to bard)
-from googleai import GEMINI_REST
+@bot.command()
+async def openai(ctx: commands.Context):
+    bot.loop.create_task(help_openai(ctx))
+
+from googleai import GEMINI_REST, help_google
 @bot.command()
 async def palm(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(GEMINI_REST(ctx, arg, True))
@@ -221,6 +232,10 @@ async def palm(ctx: commands.Context, *, arg=None):
 async def ge(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(GEMINI_REST(ctx, arg, False))
 
+@bot.command()
+async def googleai(ctx: commands.Context):
+    bot.loop.create_task(help_google(ctx))
+
 from petals import PETALS, petalsWebsocket
 @bot.command()
 async def petals(ctx: commands.Context):
@@ -228,7 +243,7 @@ async def petals(ctx: commands.Context):
 
 @bot.command()
 async def beluga2(ctx: commands.Context, *, arg=None):
-    bot.loop.create_task(petalsWebsocket(ctx, arg, "petals-team/StableBeluga2"))
+    bot.loop.create_task(petalsWebsocket(ctx, arg, 7))
 
 # CHARACTER AI
 @bot.command()

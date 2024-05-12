@@ -44,29 +44,23 @@ def create_embed(color: int, av: discord.Asset, title: str, desc: str=None, url:
 
 async def ai_embed(av: discord.Asset) -> discord.Embed:
     emby = create_embed(0x00ff00, av, "AI 🤖")
-    emby.add_field(name='`-ask [prompt]`', 
-                   value='OpenAI GPT-3.5-Turbo (ChatGPT) chat completion.', 
+    emby.add_field(name='`-openai`', 
+                   value='OpenAI is an AI research and deployment company. Our mission is to ensure that artificial general intelligence benefits all of humanity.', 
                    inline=False)
-    emby.add_field(name='`-gpt [prompt]`', 
-                   value='OpenAI GPT-3 text completion.', 
-                   inline=False)
-    emby.add_field(name='`-imagine [prompt]`', 
-                   value='OpenAI Dall-E image generation.', 
-                   inline=False)
-    # emby.add_field(name='`-bard [prompt]`', 
-    #                value='[Google Bard](https://bard.google.com) chat completion. (Deprecated)', 
-    #                inline=False)
-    emby.add_field(name='`-palm [prompt]`', 
-                   value='Google AI PaLM language model. (Legacy)', 
-                   inline=False)
-    emby.add_field(name='`-ge [text/image]`', 
-                   value='Google AI Gemini language model.', 
+    emby.add_field(name='`-googleai`', 
+                   value='Google AI is a division of Google dedicated to artificial intelligence.', 
                    inline=False)
     emby.add_field(name='`-petals`', 
                    value='Run large language models at home, BitTorrent‑style.', 
                    inline=False)
     emby.add_field(name='`-perplex`', 
                    value='Perplexity AI unlocks the power of knowledge with information discovery and sharing.', 
+                   inline=False)
+    emby.add_field(name='`-mistral`', 
+                   value='Mistral AI is a French company selling artificial intelligence products.', 
+                   inline=False)
+    emby.add_field(name='`-claude`', 
+                   value="Anthropic is an AI safety and research company that's working to build reliable, interpretable, and steerable AI systems.", 
                    inline=False)
     emby.add_field(name='`-chelp`', 
                    value='Character.ai is an American neural language model chatbot service that can generate human-like text responses and participate in contextual conversation.', 
@@ -119,10 +113,22 @@ async def media_embed(av: discord.Asset) -> discord.Embed:
     emby.add_field(name='`-cob [link]`', 
                    value='[cobalt](https://cobalt.tools) is a media downloader that doesn\'t piss you off. See [supported sites](https://github.com/wukko/cobalt?tab=readme-ov-file#supported-services).', 
                    inline=False)
+    emby.add_field(name='`-booru`', 
+                   value='A form of imageboard where images are categorized with tags.', 
+                   inline=False)
     return emby
 
 async def utils_embed(av: discord.Asset) -> discord.Embed:
     emby = create_embed(0x0000ff, av, "Utils 🔧")
+    emby.add_field(name='`-channel`', 
+                   value='Toggle channel mode, where you can set specific commands per channel.', 
+                   inline=False)
+    emby.add_field(name='`-toggle [command]`', 
+                   value='Toggle command. Requires channel mode.', 
+                   inline=False)
+    emby.add_field(name='`-disable [command]`', 
+                   value='Disable command server-wide.', 
+                   inline=False)
     emby.add_field(name='`-quote`', 
                    value='Reply to a message to make it a quote.', 
                    inline=False)

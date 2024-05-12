@@ -34,16 +34,19 @@ models = [
     "sonar-small-online", # sso
     "sonar-medium-chat", # smc
     "sonar-medium-online", #smo
-    # not perplex
+]
+models_claude=[
     "claude-2.1", # cla
-    "mistral-medium-latest", # mm
-    "mistral-large-latest", # ml
     "claude-3-opus-20240229", # c3o
     "claude-3-sonnet-20240229", #c3s
 ]
+models_mistral=[
+    "mistral-medium-latest", # mm
+    "mistral-large-latest", # ml
+]
 
-def help_perplexity() -> str:
-    text  = f"`-ll`: {models[0]}\n"
+async def help_perplexity(ctx: commands.Context):
+    text  =  f"`-ll`: {models[0]}\n"
     text += f"`-cll`: {models[1]}\n"
     text += f"`-mis`: {models[2]}\n"
     text += f"`-mix`: {models[3]}\n"
@@ -51,12 +54,18 @@ def help_perplexity() -> str:
     text += f"`-sso`: {models[5]}\n"
     text += f"`-smc`: {models[6]}\n"
     text += f"`-smo`: {models[7]}\n"
-    text += f"`-cla`: {models[8]}\n"
-    text += f"`-mm`: {models[9]}\n"
-    text += f"`-ml`: {models[10]}\n"
-    text += f"`-c3o`: {models[11]}\n"
-    text += f"`-c3s`: {models[12]}\n"
-    return text
+    await ctx.reply(text)
+
+async def help_claude(ctx: commands.Context):
+    text  = f"`-cla`: {models_claude[0]}\n"
+    text += f"`-c3o`: {models_claude[1]}\n"
+    text += f"`-c3s`: {models_claude[2]}\n"
+    await ctx.reply(text)
+
+async def help_mistral(ctx: commands.Context):
+    text  = f"`-mm`: {models_mistral[0]}\n"
+    text += f"`-ml`: {models_mistral[1]}\n"
+    await ctx.reply(text)
 
 async def the_real_req(url: str, payload: dict, headers: dict):
     async with aiohttp.ClientSession() as session:
@@ -134,12 +143,12 @@ async def main_perplexity(ctx: commands.Context, model: int):
             return await msg.edit(content=f"**Error! :(**")
         await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
 
-async def main_anthropic(ctx: commands.Context, model: str):
+async def main_anthropic(ctx: commands.Context, model: int):
     async with ctx.typing():
         msg = await ctx.reply("Generating response…")
         old = round(time.time() * 1000)
         try:
-            response = await make_request_claude(model, await loopMsg(ctx.message)) # spicy
+            response = await make_request_claude(models_claude[model], await loopMsg(ctx.message)) # spicy
             text = response["content"][0]["text"]
             if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
             chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
@@ -155,12 +164,12 @@ async def main_anthropic(ctx: commands.Context, model: str):
             return await msg.edit(content=f"**Error! :(**")
         await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
 
-async def main_mistral(ctx: commands.Context, model: str):
+async def main_mistral(ctx: commands.Context, model: int):
     async with ctx.typing():
         msg = await ctx.reply("Generating response…")
         old = round(time.time() * 1000)
         try: 
-            response = await make_request_mistral(model, await loopMsg(ctx.message)) # spicy
+            response = await make_request_mistral(models_mistral[model], await loopMsg(ctx.message)) # spicy
             text = response["choices"][0]["message"]["content"]
             if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
             chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]

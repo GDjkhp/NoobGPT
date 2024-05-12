@@ -6,16 +6,19 @@ import json
 import re
 
 # list of old models
-'stabilityai/StableBeluga2'
-'meta-llama/Llama-2-70b-chat-hf'
-'meta-llama/Llama-2-70b-hf'
-'timdettmers/guanaco-65b'
-'huggyllama/llama-65b'
-'bigscience/bloomz'
-'meta-llama/Meta-Llama-3-70B'
+models = [
+    'stabilityai/StableBeluga2',
+    'meta-llama/Llama-2-70b-chat-hf',
+    'meta-llama/Llama-2-70b-hf',
+    'timdettmers/guanaco-65b',
+    'huggyllama/llama-65b',
+    'bigscience/bloomz',
+    'meta-llama/Meta-Llama-3-70B',
+    'petals-team/StableBeluga2',
+]
 
 # TODO: support read replies (just supply conversation history in inputs, weird)
-async def petalsWebsocket(ctx: commands.Context, arg: str, model: str):
+async def petalsWebsocket(ctx: commands.Context, arg: str, model: int):
     """
     Connects to a WebSocket server and generates text using a specified model.
 
@@ -37,7 +40,7 @@ async def petalsWebsocket(ctx: commands.Context, arg: str, model: str):
             async with websockets.connect(uri) as ws:
                 await ws.send(json.dumps({
                     "type": "open_inference_session",
-                    "model": model,
+                    "model": models[model],
                     "max_length": 2000
                 }))
                 
@@ -101,12 +104,10 @@ async def req_real(api):
                 if response.status == 200: return await response.json()
     except Exception as e: print(e)
 
-async def PETALS(ctx: commands.Context) -> str:
-    msg = await ctx.reply("Pinging…")
+async def PETALS(ctx: commands.Context):
     status = await req_real("https://health.petals.dev/api/v1/state")
-    text = "# [Petals](https://petals.dev)\nRun large language models at home, BitTorrent‑style.\n\n"
-    text += "Commands:\n`-beluga2`\n\nModels:```diff\n"
+    text = "`-beluga2`: petals-team/StableBeluga2```diff\n"
     for i in status["model_reports"]: 
         text += f"{'+ ' if i['state'] == 'healthy' else '- '}{i['name']}: {i['state']}\n"
     text += "```"
-    await msg.edit(content=text)
+    await ctx.reply(text)

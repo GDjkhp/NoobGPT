@@ -14,10 +14,14 @@ client = PyAsyncCAI(os.getenv('CHARACTER'))
 pagelimit=12
 typing_chans = []
 supported = [discord.TextChannel, discord.VoiceChannel, discord.StageChannel, discord.ForumChannel, discord.Thread] # sussy
+loop_queue = False
 
 # queue system
 tasks_queue = Queue()
 async def c_ai_init():
+    global loop_queue
+    if loop_queue: return
+    loop_queue = True
     while True:
         if not tasks_queue.empty():
             ctx, x, text = tasks_queue.get()
@@ -169,10 +173,10 @@ async def t_mode(ctx: commands.Context):
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     
-    db = await get_database(ctx.guild.id)
-    if db["admin_approval"] and not ctx.author.guild_permissions.administrator:
+    if not ctx.author.guild_permissions.administrator:
         return await ctx.reply("not an admin")
     
+    db = await get_database(ctx.guild.id)
     await set_mode(ctx.guild.id, not db["channel_mode"])
     await ctx.reply(f'channel mode is now set to {not db["channel_mode"]}')
 
@@ -249,8 +253,7 @@ async def reset_char(ctx: commands.Context):
                     embed=view_embed(ctx, db["characters"], 0, 0xff00ff))
 
 async def c_help(ctx: commands.Context):
-    text = "Character.ai is an American neural language model chatbot service that can generate human-like text responses and participate in contextual conversation."
-    text += "\n# Character commands"
+    text  = "\n# Character commands"
     text += "\n`-cchar` available characters"
     text += "\n`-cadd <query>` add character"
     text += "\n`-cdel` delete character"

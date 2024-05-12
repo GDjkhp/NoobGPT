@@ -236,3 +236,9 @@ async def GEMINI_REST(ctx: commands.Context, arg: str, palm: bool):
                 await ctx.reply(chunk)
             else: await ctx.send(chunk)
         await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
+
+async def help_google(ctx: commands.Context):
+    text  = "### Note: Doesn't support reading conversation history."
+    text += "`-ge`: gemini-1.5-pro-latest"
+    text += "`-palm`: text-bison-001"
+    await ctx.reply(text)

@@ -66,8 +66,7 @@ async def req_real(api):
 
 async def main(client_discord: commands.Bot):
     global loop_running_gde
-    if loop_running_gde:
-        return
+    if loop_running_gde: return
     loop_running_gde = True
     print("gde bot started")
     old_data = await req_real(api)
