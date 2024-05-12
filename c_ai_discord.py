@@ -50,11 +50,11 @@ async def c_ai_init():
 
 # the real
 async def c_ai(bot: commands.Bot, msg: discord.Message):
-    if await command_check(ctx, "chelp", "ai"): return
     if not type(msg.channel) in supported: return
     if msg.author.id == bot.user.id: return
     # if msg.content == "": return # you can send blank messages
     ctx = await bot.get_context(msg) # context hack
+    if await command_check(ctx, "chelp", "ai"): return
 
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
