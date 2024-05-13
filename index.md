@@ -96,6 +96,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-tv [query]` Search and watch TV shows and movies using [SFlix](https://sflix.se).
 * `-ytdlp (optional: format = [mp3/m4a]) [link]` Download or convert a YouTube video under 25MB discord limit using [yt-dlp](https://github.com/yt-dlp/yt-dlp). See [supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md).
 * `-cob [link]` [cobalt](https://cobalt.tools) is a media downloader that doesn't piss you off. See [supported sites](https://github.com/wukko/cobalt?tab=readme-ov-file#supported-services).
+* `-booru` A form of imageboard where images are categorized with tags.
     
 ## Utils 🔧
 * `-view` View available commands.
