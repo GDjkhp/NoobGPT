@@ -98,6 +98,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-cob [link]` [cobalt](https://cobalt.tools) is a media downloader that doesn't piss you off. See [supported sites](https://github.com/wukko/cobalt?tab=readme-ov-file#supported-services).
     
 ## Utils 🔧
+* `-view` View available commands.
 * `-channel` Toggle channel mode, where you can set specific commands per channel. (admin-only)
 * `-toggle [command]` Toggle command. Requires channel mode. (admin-only)
 * `-disable [command]` Disable command server-wide. (admin-only)
