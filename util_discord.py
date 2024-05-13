@@ -33,13 +33,12 @@ async def banner(ctx: commands.Context, bot: commands.Bot, arg: str):
 # shit deed
 import discord
 supported = [discord.TextChannel, discord.VoiceChannel, discord.StageChannel, discord.ForumChannel, discord.Thread] # sussy
-available_commands=[
-    "openai", "googleai", "petals", "perplex", "mistral", "claude", "chelp", # 0 - 6
-    "aki", "tic", "hang", "quiz", "word", "rps", # 7 - 12
-    "anime", "pahe", "tv", "ytdlp", "cob", "booru", # 13 - 18
-    "quote", "weather", "av", "ban", "halp", "legal", # 19 - 24
-]
 available_categories=["ai", "games", "media", "utils"]
+ai_commands=["openai", "googleai", "petals", "perplex", "mistral", "claude", "chelp"]
+games_commands=["aki", "tic", "hang", "quiz", "word", "rps"]
+media_commands=["anime", "pahe", "tv", "ytdlp", "cob", "booru"]
+utils_commands=["quote", "weather", "av", "ban", "halp", "legal"]
+available_commands = ai_commands + games_commands + media_commands + utils_commands
 
 async def command_check(ctx: commands.Context, com: str, cat: str):
     if not type(ctx.channel) in supported: return False
@@ -54,10 +53,10 @@ async def command_check(ctx: commands.Context, com: str, cat: str):
     
 def category_to_commands(cat: str, commands: list):
     y = []
-    if cat == "ai":    y = available_commands[0:7]
-    if cat == "games": y = available_commands[7:13]
-    if cat == "media": y = available_commands[13:19]
-    if cat == "utils": y = available_commands[19:25]
+    if cat == "ai":    y = ai_commands
+    if cat == "games": y = games_commands
+    if cat == "media": y = media_commands
+    if cat == "utils": y = utils_commands
     for x in y:
         if not x in commands: commands.append(x)
 
@@ -71,7 +70,7 @@ async def command_enable(ctx: commands.Context, com: str):
     db = await get_database(ctx.guild.id)
     if not db["channel_mode"]: return await ctx.reply("channel_mode is disabled")
     if com in db["disabled_commands"] or com in db["disabled_categories"]:
-        return await ctx.reply(f"`{com}` has been disabled server-wide.")
+        return await ctx.reply(f"`{com}` was disabled server-wide (enable `{com}` first)")
     
     chan_deets = None
     for chan in db["channels"]:
@@ -111,16 +110,27 @@ async def command_disable(ctx: commands.Context, com: str):
         res = await toggle_global_command(ctx.guild.id, com)
     if com in available_categories: 
         res = await toggle_global_cat(ctx.guild.id, com)
-    await ctx.reply(f"`{com}` has been {res} server-wide.")
+    await ctx.reply(f"`{com}` has been {res} server-wide")
 
 async def command_channel_mode(ctx: commands.Context):
     if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     if not ctx.author.guild_permissions.administrator:
         return await ctx.reply("not an admin")
-    
     db = await get_database(ctx.guild.id)
     await set_mode(ctx.guild.id, not db["channel_mode"])
     await ctx.reply(f'channel mode is now set to {not db["channel_mode"]}')
+
+async def command_view(ctx: commands.Context):
+    if not type(ctx.channel) in supported: return await ctx.reply("not supported")
+    db = await get_database(ctx.guild.id)
+    text  = f"disabled_commands: {db['disabled_commands']}\n"
+    text += f"disabled_categories: {db['disabled_categories']}\n"
+    text += f"channel_mode: {db['channel_mode']}"
+    if db['channel_mode']:
+        for chan in db["channels"]:
+            if chan["id"] == ctx.channel.id:
+                text += f"\ncommands: {chan['commands']}"
+    await ctx.reply(text)
 
 # database handling
 async def add_database(server_id: int):
@@ -164,15 +174,15 @@ async def toggle_global_command(server_id: int, com):
         return await pull_com(server_id, com)
     return await push_com(server_id, com)
 
-async def push_cat(server_id: int, com: str):
-    await mycol.update_one({"guild":server_id}, {"$push": {"disabled_categories": com}})
+async def push_cat(server_id: int, cat: str):
+    await mycol.update_one({"guild":server_id}, {"$push": {"disabled_categories": cat}})
     return "disabled"
 
-async def pull_cat(server_id: int, com: str):
-    await mycol.update_one({"guild":server_id}, {"$pull": {"disabled_categories": com}})
+async def pull_cat(server_id: int, cat: str):
+    await mycol.update_one({"guild":server_id}, {"$pull": {"disabled_categories": cat}})
     return "enabled"
 
-async def toggle_global_cat(server_id: int, com):
-    if await mycol.find_one({"guild":server_id, "disabled_categories": com}):
-        return await pull_cat(server_id, com)
-    return await push_cat(server_id, com)
+async def toggle_global_cat(server_id: int, cat: str):
+    if await mycol.find_one({"guild":server_id, "disabled_categories": cat}):
+        return await pull_cat(server_id, cat)
+    return await push_cat(server_id, cat)

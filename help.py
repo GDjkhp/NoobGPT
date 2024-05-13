@@ -122,6 +122,9 @@ async def media_embed(av: discord.Asset) -> discord.Embed:
 
 async def utils_embed(av: discord.Asset) -> discord.Embed:
     emby = create_embed(0x0000ff, av, "Utils 🔧")
+    emby.add_field(name='`-view`', 
+                   value='View available commands.', 
+                   inline=False)
     emby.add_field(name='`-channel`', 
                    value='Toggle channel mode, where you can set specific commands per channel. (admin-only)', 
                    inline=False)
