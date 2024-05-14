@@ -134,21 +134,26 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 ### Code
 * <https://github.com/Rapptz/discord.py>
 * <https://github.com/discordjs/discord.js>
-* <https://github.com/openai/openai-node>
+* ~~<https://github.com/openai/openai-node>~~
+* <https://github.com/openai/openai-python>
 * <https://github.com/mov-cli/mov-cli>
 * <https://github.com/SudhanPlayz/Discord-MusicBot>
-* <https://github.com/scott-serven/Chess-Bot>
-* <https://github.com/dsdanielpark/Bard-API>
+* ~~<https://github.com/scott-serven/Chess-Bot>~~
+* ~~<https://github.com/dsdanielpark/Bard-API>~~
 * <https://github.com/rainyDayDevs/pygelbooru>
-* <https://github.com/MrAugu/discord-xp>
-* <https://github.com/neplextech/canvacord>
-* <https://github.com/JochCool/minesweeper-bot>
+* ~~<https://github.com/MrAugu/discord-xp>~~
+* ~~<https://github.com/neplextech/canvacord>~~
+* ~~<https://github.com/JochCool/minesweeper-bot>~~
 * <https://github.com/yt-dlp/yt-dlp>
 * <https://github.com/Infiniticity/akinator.py>
 * <https://github.com/mongodb/mongo-python-driver>
+* <https://github.com/mongodb/motor>
 * <https://github.com/python-pillow/Pillow>
 * <https://github.com/robertoduessmann/weather-api>
 * <https://github.com/kramcat/CharacterAI>
+* <https://github.com/yifeikong/curl_cffi>
+* <https://github.com/aio-libs/aiohttp>
+* <https://github.com/nathanielfernandes/imagetext-py>
 
 ### Sites
 * <https://openai.com>
@@ -170,7 +175,7 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 <!-- * <https://lexica.art> -->
 
 ### Special Thanks
-* `jaicraft` Perplexity, Claude, Mistral access
+* `jaicraft` ~~Perplexity~~, Claude, Mistral access
 <!-- * `aychelletroller` OpenAI access -->
 
 ### Legal
