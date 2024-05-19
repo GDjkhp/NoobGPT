@@ -52,6 +52,7 @@ async def c_ai_init():
 async def c_ai(bot: commands.Bot, msg: discord.Message):
     if not type(msg.channel) in supported: return
     if msg.author.id == bot.user.id: return
+    if msg.content and msg.content[0] == "-": return # ignore commands
     # if msg.content == "": return # you can send blank messages
     ctx = await bot.get_context(msg) # context hack
     if await command_check(ctx, "chelp", "ai"): return
@@ -328,7 +329,8 @@ def generate_random_bool(num):
     result = random.random()
     return result < chance
 def clean_gdjkhp(o: str, n: str):
-    return o.replace("GDjkhp", n)
+    o = o.replace("GDjkhp", n)
+    return o.replace("jkhp", n)
 def replace_mentions(message: discord.Message, bot: commands.Bot):
     content = message.content
     if message.mentions:
@@ -498,10 +500,7 @@ class SelectChoice(discord.ui.Select):
         }
         await push_character(self.ctx.guild.id, data)
         await interaction.message.edit(content=f"`{selected['participant__name']}` has been added to the server", embed=None, view=None)
-        if type(self.ctx.channel) == discord.Thread:
-            await wh.send(clean_gdjkhp(chat["messages"][0]["text"], self.ctx.author.name), thread=self.ctx.channel)
-        else:
-            await wh.send(clean_gdjkhp(chat["messages"][0]["text"], self.ctx.author.name))
+        tasks_queue.put((self.ctx, data, chat["messages"][0]["text"])) # wake up
 
 class MyView4(discord.ui.View):
     def __init__(self, ctx: commands.Context, arg: str, result: list, index: int):
@@ -797,7 +796,7 @@ class ResetChoice(discord.ui.Select):
         await push_character(self.ctx.guild.id, selected)
 
         await interaction.message.edit(content=f"`{selected['name']}` has been reset", embed=None, view=None)
-        tasks_queue.put((self.ctx, selected, clean_gdjkhp(chat["messages"][0]["text"], self.ctx.author.name))) # wake up
+        tasks_queue.put((self.ctx, selected, chat["messages"][0]["text"])) # wake up
 
 # database handling
 async def add_database(server_id: int):
