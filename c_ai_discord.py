@@ -24,6 +24,7 @@ async def c_ai_init():
     if loop_queue: return
     loop_queue = True
     while True:
+        await asyncio.sleep(1) # DO NOT REMOVE
         try:
             if tasks_queue.empty(): continue
             ctx, x, text = tasks_queue.get()
@@ -46,7 +47,6 @@ async def c_ai_init():
                     await send_webhook_message(ctx, x, text)
             if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
         except Exception as e: print(f"Exception in c_ai_init: {e}")
-        await asyncio.sleep(1) # DO NOT REMOVE
 
 # the real
 async def c_ai(bot: commands.Bot, msg: discord.Message):
