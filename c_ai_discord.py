@@ -24,28 +24,28 @@ async def c_ai_init():
     if loop_queue: return
     loop_queue = True
     while True:
-        if not tasks_queue.empty():
+        try:
+            if tasks_queue.empty(): continue
             ctx, x, text = tasks_queue.get()
             permissions: discord.Permissions = ctx.channel.permissions_for(ctx.me)
             if not permissions.send_messages or not permissions.send_messages_in_threads: continue
-            try:
-                db = await get_database(ctx.guild.id)
-                if db["channel_mode"] and not ctx.channel.id in db["channels"]: continue
-                if db["message_rate"] == 0: continue
-                exist = False
-                for char in db["characters"]:
-                    if x["name"] == char["name"]:
-                        if get_rate(ctx, char) == 0: continue
-                        exist = True
-                if not exist: continue
-                if ctx.channel.id in typing_chans:
+            db = await get_database(ctx.guild.id)
+            if db["channel_mode"] and not ctx.channel.id in db["channels"]: continue
+            if db["message_rate"] == 0: continue
+            exist = False
+            for char in db["characters"]:
+                if x["name"] == char["name"]:
+                    if get_rate(ctx, char) == 0: continue
+                    exist = True
+            if not exist: continue
+            if ctx.channel.id in typing_chans:
+                await send_webhook_message(ctx, x, text)
+            else:
+                typing_chans.append(ctx.channel.id)
+                async with ctx.typing():
                     await send_webhook_message(ctx, x, text)
-                else:
-                    typing_chans.append(ctx.channel.id)
-                    async with ctx.typing():
-                        await send_webhook_message(ctx, x, text)
-            except Exception as e: print(f"Exception in c_ai_init: {e}")
             if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
+        except Exception as e: print(f"Exception in c_ai_init: {e}")
         await asyncio.sleep(1) # DO NOT REMOVE
 
 # the real
