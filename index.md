@@ -7,7 +7,7 @@
 A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you.
 
 ## Usage
-### [Add to server](https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=633731823291648&scope=applications.commands%20bot), [invite music bot only](https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=3145984&scope=applications.commands%20bot), or [send a direct message](https://discord.com/channels/@me/1090974620892536832) to start using.
+### [Add to server](https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=633731823291648&scope=applications.commands%20bot), [invite music bot only](https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=4298113024&scope=applications.commands%20bot), or [send a direct message](https://discord.com/channels/@me/1090974620892536832) to start using.
 
 <details><summary><b>permissions and data collection</b></summary>
 <h2>permissions</h2>
