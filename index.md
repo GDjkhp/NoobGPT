@@ -7,7 +7,7 @@
 A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you.
 
 ## Usage
-### [Add to server](https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=633731823291648&scope=applications.commands%20bot), [invite music bot only](https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=4298113024&scope=applications.commands%20bot), or [send a direct message](https://discord.com/channels/@me/1090974620892536832) to start using.
+<h3><a href="https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=633731823291648&scope=applications.commands%20bot">Add to server</a>, <a href="https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=4298113024&scope=applications.commands%20bot">invite music bot only</a>, or <a href="https://discord.com/channels/@me/1090974620892536832⁠">send a direct message</a> to start using.</h3>
 
 <details><summary><b>permissions and data collection</b></summary>
 <h2>permissions</h2>
@@ -24,7 +24,8 @@ legend: <span style="color: red;">not accessed</span> / <span style="color: lime
 </details>
 
 ## Source Code
-### This bot now runs on <https://bot-hosting.net>
+<h3>This bot now runs on <a href="https://bot-hosting.net">https://bot-hosting.net</a></h3>
+
 [~~Look how everything works behind the scenes.~~](https://replit.com/@GDjkhp)
 * ~~<https://github.com/GDjkhp/level-up-loser>~~
 * <https://github.com/GDjkhp/level-up-loser-python-branch>
