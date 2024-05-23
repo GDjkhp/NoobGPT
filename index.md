@@ -41,15 +41,6 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 <details><summary><b>why you should invest on noobgpt</b></summary>
 <img src="https://gdjkhp.github.io/img/tenor.gif">
 </details>
-<!-- <details><summary><b>All funds raised will go directly to my friend, Riney. She has been diagnosed with lung cancer.</b></summary>
-Riney, also known as Sky47, is one of the top users of this bot. I met her in the official Geometry Dash discord server as a fellow Filipino. Ever since I added this bot to her own server, she has been really freaky and having fun with it.
-<br>
-<img src="https://i.imgur.com/3dJei65.png">
-<img src="https://i.imgur.com/A5OkIkk.png">
-<img src="https://i.imgur.com/MpkPaHC.png">
-<br>
-Note: For every successful transaction, users will get ProGPT subscription when it's released.
-</details> -->
 
 # Overview
 
@@ -108,20 +99,6 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-weather [query]` Check weather forecast using [weather-api](https://github.com/robertoduessmann/weather-api).
 * `-av [userid]` Return a user's Discord profile avatar.
 * `-ban [userid]` Return a user's Discord profile banner.
-<!-- * `-lex [query/image]` Search AI Generated art (Stable Diffusion) made by the prompts of the community using [Lexica](https://lexica.art) -->
-
-<!-- ## Under Development
-Note: Facebook Messenger and Telegram ports are coming soon.
-* `-place (optional: x = [0-499] y = [0-499] zoom = [16x])` Play the Reddit social experiment event about placing pixels on a canvas.
-* `-ms` Play minesweeper.
-* `-chess` Play chess.
-* `-levels` Reworked XP Leveling System.
-* `-mee6` <https://gdjkhp.github.io/meeseeks-leaderboard-api>
-* `-prefix` Change prefix. (admin-only)
-* `-alias` Change command alias. (admin-only)
-* `-toggle` Toggle available commands. (admin-only)
-* `-plugins` Import and export custom commands. (admin-only)
-* `-buck` Play a game of Buckshot Roulette. -->
 
 # Node.js Computer #2: Music Branch
 Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/tree/v5), an advanced discord music bot.
@@ -173,7 +150,6 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 * <https://cobalt.tools>
 * <https://character.ai>
 * <https://animepahe.ru>
-<!-- * <https://lexica.art> -->
 
 ### Special Thanks
 * `jaicraft` ~~Perplexity~~, Claude, Mistral access
