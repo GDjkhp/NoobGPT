@@ -7,21 +7,12 @@
 A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you.
 
 ## Usage
+<div align="center">
 <h3><a href="https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=633731823291648&scope=applications.commands%20bot">Add to server</a>, <a href="https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=4298113024&scope=applications.commands%20bot">invite music bot only</a>, or <a href="https://discord.com/channels/@me/1090974620892536832⁠">send a direct message</a> to start using.</h3>
-
-<details><summary><b>permissions and data collection</b></summary>
-<h2>permissions</h2>
-<li>read/send messages, attachments, files, embeds, links</li>
-<li>use custom emojis and stickers</li>
-<li>speak, join voice (music)</li>
-<li>manage webhooks, manage roles (character.ai)</li>
-
-<h2>data collection</h2>
-legend: <span style="color: red;">not accessed</span> / <span style="color: lime;">accessed</span> / <span style="color: yellow;">collected</span>
-<li>server: <span style="color: lime;">name</span>, <span style="color: yellow;">id</span>, <span style="color: yellow;">channels</span>, <span style="color: yellow;">roles</span>, <span style="color: yellow;">webhooks</span>, <span style="color: lime;">emojis</span>, <span style="color: red;">stickers</span>, <span style="color: red;">invite</span>, <span style="color: red;">audit</span>, <span style="color: red;">events</span>, <span style="color: red;">monetization</span></li>
-<li>user: <span style="color: lime;">name</span>, <span style="color: yellow;">id</span>, <span style="color: lime;">avatar</span>, <span style="color: lime;">banner</span></li>
-<li>message: <span style="color: lime;">content</span>, <span style="color: lime;">files</span>, <span style="color: lime;">embeds</span>, <span style="color: lime;">links</span></li>
-</details>
+<a href="discord://discord.com/users/1090254079609020447">
+<img src="https://discord.c99.nl/widget/theme-4/1090254079609020447.png" alt="Discord RPC isn't working!" title="Click here to visit my Discord Profile!"> </img>
+</a>
+</div>
 
 ## Source Code
 <h3>This bot now runs on <a href="https://bot-hosting.net">https://bot-hosting.net</a></h3>
@@ -156,6 +147,19 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 <!-- * `aychelletroller` OpenAI access -->
 
 ### Legal
+<details><summary><b>permissions and data collection</b></summary>
+<h2>permissions</h2>
+<li>read/send messages, attachments, files, embeds, links</li>
+<li>use custom emojis and stickers</li>
+<li>speak, join voice (music)</li>
+<li>manage webhooks, manage roles (character.ai)</li>
+
+<h2>data collection</h2>
+legend: <span style="color: red;">not accessed</span> / <span style="color: lime;">accessed</span> / <span style="color: yellow;">collected</span>
+<li>server: <span style="color: lime;">name</span>, <span style="color: yellow;">id</span>, <span style="color: yellow;">channels</span>, <span style="color: yellow;">roles</span>, <span style="color: yellow;">webhooks</span>, <span style="color: lime;">emojis</span>, <span style="color: red;">stickers</span>, <span style="color: red;">invite</span>, <span style="color: red;">audit</span>, <span style="color: red;">events</span>, <span style="color: red;">monetization</span></li>
+<li>user: <span style="color: lime;">name</span>, <span style="color: yellow;">id</span>, <span style="color: lime;">avatar</span>, <span style="color: lime;">banner</span></li>
+<li>message: <span style="color: lime;">content</span>, <span style="color: lime;">files</span>, <span style="color: lime;">embeds</span>, <span style="color: lime;">links</span></li>
+</details>
 <marquee>This bot <s>is against Discord and Replit Terms of Service and</s> violates the licenses credited above. Proceed with caution!</marquee>
 Use AI with ethics.
 <br>
