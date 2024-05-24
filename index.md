@@ -15,7 +15,7 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 </div>
 
 ## Source Code
-<h3>This bot now runs on <a href="https://bot-hosting.net">https://bot-hosting.net</a></h3>
+<h3>This bot now runs on <a href="https://bot-hosting.net/?aff=729554186777133088">https://bot-hosting.net</a></h3>
 
 [~~Look how everything works behind the scenes.~~](https://replit.com/@GDjkhp)
 * ~~<https://github.com/GDjkhp/level-up-loser>~~
