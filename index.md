@@ -10,7 +10,7 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 <div align="center">
 <h3><a href="https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=633731823291648&scope=applications.commands%20bot">Add to server</a>, <a href="https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=4298113024&scope=applications.commands%20bot">invite music bot only</a>, or <a href="https://discord.com/channels/@me/1090974620892536832⁠">send a direct message</a> to start using.</h3>
 <a href="discord://discord.com/users/1090254079609020447">
-<img src="https://discord.c99.nl/widget/theme-4/1090254079609020447.png" alt="Discord RPC isn't working!" title="Click here to visit my Discord Profile!">
+<img src="https://discord.c99.nl/widget/theme-1/1090254079609020447.png" alt="Discord RPC isn't working!" title="Click here to visit my Discord Profile!">
 </a>
 </div>
 

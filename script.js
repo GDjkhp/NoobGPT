@@ -12,7 +12,7 @@ style.innerHTML = `
     z-index: 1;
 }
 body { 
-    background-color: #181a1b; 
+    background-color: black; 
     color: white; 
 }`;
 document.head.appendChild(style);
