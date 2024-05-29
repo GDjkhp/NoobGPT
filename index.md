@@ -57,6 +57,12 @@ Originally developed as an XP Leveling System under the codename "LevelUpLoser".
 Collection of random and unique stuff I came up with, mostly games and useful tools. This is where I add new features regularly.
 ### Prefix: -
 ## AI 🤖
+<a href="https://openai.com"><img width=128 style="padding: 15px;" src="https://gdjkhp.github.io/img/openai-white-lockup.png"></a>
+<a href="https://gemini.google.com"><img width=128 style="padding: 15px;" src="https://gdjkhp.github.io/img/gemini.png"></a>
+<a href="https://mistral.ai"><img width=128 style="padding: 15px;" src="https://gdjkhp.github.io/img/mistral.png"></a>
+<a href="https://www.anthropic.com"><img width=128 style="padding: 15px;" src="https://gdjkhp.github.io/img/idGmbIn6Mx_logos.png"></a>
+<a href="http://c.ai"><img width=128 style="padding: 15px;" src="https://gdjkhp.github.io/img/Character.AI.png"></a>
+
 * `-openai` OpenAI is an AI research and deployment company. Our mission is to ensure that artificial general intelligence benefits all of humanity.
 * `-googleai` Google AI is a division of Google dedicated to artificial intelligence.
 * `-petals` Run large language models at home, BitTorrent‑style.
@@ -76,16 +82,14 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 ## Media 💽
 * `-anime [query]` Search and watch Anime using [Gogoanime](https://anitaku.so).
 * `-pahe [query]` Search and watch Anime using [animepahe](https://animepahe.ru).
+* `-manga [query]` Search and read Manga using [MangaDex](https://mangadex.org).
 * `-tv [query]` Search and watch TV shows and movies using [SFlix](https://sflix.se).
 * `-ytdlp (optional: format = [mp3/m4a]) [link]` Download or convert a YouTube video under 25MB discord limit using [yt-dlp](https://github.com/yt-dlp/yt-dlp). See [supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md).
 * `-cob [link]` [cobalt](https://cobalt.tools) is a media downloader that doesn't piss you off. See [supported sites](https://github.com/wukko/cobalt?tab=readme-ov-file#supported-services).
 * `-booru` A form of imageboard where images are categorized with tags.
     
 ## Utils 🔧
-* `-view` View available commands.
-* `-channel` Toggle channel mode, where you can set specific commands per channel. (admin-only)
-* `-toggle [command]` Toggle command. Requires channel mode. (admin-only)
-* `-disable [command]` Disable command server-wide. (admin-only)
+* `-config` Customize how the bot works.
 * `-quote` Reply to a message to make it a quote.
 * `-weather [query]` Check weather forecast using [weather-api](https://github.com/robertoduessmann/weather-api).
 * `-av [userid]` Return a user's Discord profile avatar.
@@ -141,6 +145,7 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 * <https://cobalt.tools>
 * <https://character.ai>
 * <https://animepahe.ru>
+* <https://mangadex.org>
 
 ### Special Thanks
 * `jaicraft` ~~Perplexity~~, Claude, Mistral access
