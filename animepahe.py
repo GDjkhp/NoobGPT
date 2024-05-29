@@ -5,16 +5,28 @@ from discord.ext import commands
 import os
 import re
 from util_discord import command_check
+from curl_cffi.requests import AsyncSession
+import sys
+import asyncio
 
+if sys.platform == 'win32':
+    asyncio.set_event_loop_policy(
+        asyncio.WindowsSelectorEventLoopPolicy()
+    )
+
+session = AsyncSession(impersonate='chrome110')
 headers = {"cookie": os.getenv('PAHE')}
 pagelimit=12
 provider="https://gdjkhp.github.io/img/apdoesnthavelogotheysaidapistooplaintheysaid.png"
 
-async def new_req(url: str, headers: dict, json_mode: bool):
+async def new_req_old(url: str, headers: dict, json_mode: bool):
     async with aiohttp.ClientSession() as session:
         async with session.get(url, headers=headers) as response:
             if response.status == 200: 
                 return await response.json() if json_mode else await response.read()
+async def new_req(url: str, headers: dict, json_mode: bool):            
+    req = await session.get(url, headers=headers)
+    return req.json() if json_mode else req.content
 def soupify(data): return BS(data, "lxml")
 def get_max_page(length):
     if length % pagelimit != 0: return length - (length % pagelimit)
