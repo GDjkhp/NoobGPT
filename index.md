@@ -10,7 +10,7 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 <div align="center">
 <h3><a href="https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=633736118258688&scope=applications.commands%20bot">Add to server</a>, <a href="https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=4298113024&scope=applications.commands%20bot">invite music bot only</a>, or <a href="discord://discord.com/channels/@me/1090974620892536832">send a direct message</a> to start using.</h3>
 <a href="discord://discord.com/users/1090254079609020447">
-<img src="https://discord.c99.nl/widget/theme-1/1090254079609020447.png" alt="Discord RPC isn't working!" title="Click here to visit my Discord Profile!">
+<img style="background-color: black;" src="https://discord.c99.nl/widget/theme-4/1090254079609020447.png" alt="Discord RPC isn't working!" title="Click here to visit my Discord Profile!">
 </a>
 </div>
 
@@ -57,11 +57,11 @@ Originally developed as an XP Leveling System under the codename "LevelUpLoser".
 Collection of random and unique stuff I came up with, mostly games and useful tools. This is where I add new features regularly.
 ### Prefix: -
 ## AI 🤖
-<a href="https://openai.com"><img width=128 style="padding: 15px;" src="https://gdjkhp.github.io/img/openai-white-lockup.png"></a>
-<a href="https://gemini.google.com"><img width=128 style="padding: 15px;" src="https://gdjkhp.github.io/img/gemini.png"></a>
-<a href="https://mistral.ai"><img width=128 style="padding: 15px;" src="https://gdjkhp.github.io/img/mistral.png"></a>
-<a href="https://www.anthropic.com"><img width=128 style="padding: 15px;" src="https://gdjkhp.github.io/img/idGmbIn6Mx_logos.png"></a>
-<a href="http://c.ai"><img width=128 style="padding: 15px;" src="https://gdjkhp.github.io/img/Character.AI.png"></a>
+<a href="https://openai.com"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/openai-white-lockup.png"></a>
+<a href="https://gemini.google.com"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/gemini.png"></a>
+<a href="https://mistral.ai"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/mistral.png"></a>
+<a href="https://www.anthropic.com"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/idGmbIn6Mx_logos.png"></a>
+<a href="http://c.ai"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/Character.AI.png"></a>
 
 * `-openai` OpenAI is an AI research and deployment company. Our mission is to ensure that artificial general intelligence benefits all of humanity.
 * `-googleai` Google AI is a division of Google dedicated to artificial intelligence.
