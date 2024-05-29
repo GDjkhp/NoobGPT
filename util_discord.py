@@ -60,6 +60,13 @@ def category_to_commands(cat: str, commands: list):
     for x in y:
         if not x in commands: commands.append(x)
 
+async def config_commands(ctx: commands.Context):
+    text = "`-view`: View available commands.\n"
+    text+= "`-channel`: Toggle channel mode, where you can set specific commands per channel. (admin-only)\n"
+    text+= "`-toggle [command]`: Toggle command. Requires channel mode. (admin-only)\n"
+    text+= "`-disable [command]`: Disable command server-wide. (admin-only)"
+    await ctx.reply(text)
+
 async def command_enable(ctx: commands.Context, com: str):
     if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     if not com: return await ctx.reply("execute `-halp` to view commands")

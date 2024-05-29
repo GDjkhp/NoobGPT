@@ -107,7 +107,7 @@ async def media_embed(av: discord.Asset) -> discord.Embed:
                    value=f'Search and watch Anime using [animepahe](https://animepahe.ru).', 
                    inline=False)
     emby.add_field(name='`-manga [query]`', 
-                   value=f'Search and read Manga using [Mangadex](https://mangadex.org).', 
+                   value=f'Search and read Manga using [MangaDex](https://mangadex.org).', 
                    inline=False)
     emby.add_field(name='`-tv [query]`', 
                    value='Search and watch TV shows and movies using [SFlix](https://sflix.se).', 
@@ -125,17 +125,8 @@ async def media_embed(av: discord.Asset) -> discord.Embed:
 
 async def utils_embed(av: discord.Asset) -> discord.Embed:
     emby = create_embed(0x0000ff, av, "Utils 🔧")
-    emby.add_field(name='`-view`', 
-                   value='View available commands.', 
-                   inline=False)
-    emby.add_field(name='`-channel`', 
-                   value='Toggle channel mode, where you can set specific commands per channel. (admin-only)', 
-                   inline=False)
-    emby.add_field(name='`-toggle [command]`', 
-                   value='Toggle command. Requires channel mode. (admin-only)', 
-                   inline=False)
-    emby.add_field(name='`-disable [command]`', 
-                   value='Disable command server-wide. (admin-only)', 
+    emby.add_field(name='`-config`', 
+                   value='Customize how the bot works.', 
                    inline=False)
     emby.add_field(name='`-quote`', 
                    value='Reply to a message to make it a quote.', 

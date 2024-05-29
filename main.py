@@ -64,7 +64,11 @@ async def halp(ctx: commands.Context):
     bot.loop.create_task(HALP(ctx, bot.user.avatar))
 
 # discord
-from util_discord import avatar, banner, copypasta, command_channel_mode, command_enable, command_disable, command_view
+from util_discord import avatar, banner, copypasta, command_channel_mode, command_enable, command_disable, command_view, config_commands
+@bot.command()
+async def config(ctx: commands.Context):
+    bot.loop.create_task(config_commands(ctx))
+
 @bot.command()
 async def channel(ctx: commands.Context):
     bot.loop.create_task(command_channel_mode(ctx))
