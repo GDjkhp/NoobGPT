@@ -106,6 +106,9 @@ async def media_embed(av: discord.Asset) -> discord.Embed:
     emby.add_field(name='`-pahe [query]`', 
                    value=f'Search and watch Anime using [animepahe](https://animepahe.ru).', 
                    inline=False)
+    emby.add_field(name='`-manga [query]`', 
+                   value=f'Search and read Manga using [Mangadex](https://mangadex.org).', 
+                   inline=False)
     emby.add_field(name='`-tv [query]`', 
                    value='Search and watch TV shows and movies using [SFlix](https://sflix.se).', 
                    inline=False)

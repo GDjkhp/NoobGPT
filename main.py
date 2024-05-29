@@ -119,6 +119,11 @@ from animepahe import pahe_search
 async def pahe(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(pahe_search(ctx, arg))
 
+from mangadex import dex
+@bot.command()
+async def manga(ctx: commands.Context, *, arg=None):
+    bot.loop.create_task(dex(ctx, arg))
+
 from ytdlp_ import YTDLP
 @bot.command()
 async def ytdlp(ctx: commands.Context, arg1=None, arg2=None):

@@ -1,25 +1,21 @@
 import discord
 from bs4 import BeautifulSoup as BS
-from curl_cffi.requests import AsyncSession
+import aiohttp
 from discord.ext import commands
 import os
 import re
-import sys
-import asyncio
 from util_discord import command_check
 
-if sys.platform == 'win32':
-    asyncio.set_event_loop_policy(
-        asyncio.WindowsSelectorEventLoopPolicy()
-    )
-
-session = AsyncSession(impersonate='chrome110')
 headers = {"cookie": os.getenv('PAHE')}
 pagelimit=12
 provider="https://gdjkhp.github.io/img/apdoesnthavelogotheysaidapistooplaintheysaid.png"
 
-async def new_req(url: str, use_headers: bool):
-    return await session.get(url, headers=headers if use_headers else None)
+async def new_req(url: str, headers: dict, json_mode: bool):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, headers=headers) as response:
+            if response.status == 200: 
+                return await response.json() if json_mode else await response.read()
+def soupify(data): return BS(data, "lxml")
 def get_max_page(length):
     if length % pagelimit != 0: return length - (length % pagelimit)
     return length - pagelimit
@@ -33,23 +29,33 @@ def buildSearch(arg: str, result: list, index: int) -> discord.Embed:
         if (i < index+pagelimit): embed.add_field(name=f"[{i + 1}] `{result[i]['title']}`", value=value)
         i += 1
     return embed
+def format_links(string: str, links: list):
+    items = string.split('\n', 1)[-1].split(', ')
+    result = "**External Links:**\n"
+    for i in range(len(links)):
+        result += f"[{items[i]}]({links[i]}), "
+    return result.rstrip(", ")
+def enclose_words(texts: list[str]):
+    new_list = []
+    for word in texts:
+        split = word.split(":")
+        split[0] = f"**{split[0]}:**"
+        new_list.append(" ".join(split))
+    return new_list
 def buildAnime(details: dict) -> discord.Embed:
-    embed = discord.Embed(title=details['title'], description=f"{details['season']} {details['year']}", color=0x00ff00)
+    cook_deets = "\n".join(details["details"])
+    cook_deets+= f'\n**Genres:** {", ".join(details["genres"])}'
+    embed = discord.Embed(title=details['title'], description=cook_deets, color=0x00ff00)
     embed.set_thumbnail(url=provider)
     embed.set_image(url = details['poster'])
-    embed.add_field(name="Type", value=details['type'])
-    embed.add_field(name="Episodes", value=details['episodes'])
-    embed.add_field(name="Score", value=details['score'])
-    embed.add_field(name="Status", value=details['status'])
     embed.set_footer(text="Note: Use Adblockers :)")
     return embed
 
 async def pahe_search(ctx: commands.Context, arg: str):
     if await command_check(ctx, "pahe", "media"): return
-    if not arg: return await ctx.reply("y r u doin this")
-    response = await new_req(f"https://animepahe.ru/api?m=search&q={arg.replace(' ', '+')}", True)
-    if not response: return await ctx.reply("none found")
-    results = response.json()
+    if not arg: return await ctx.reply("usage: `-pahe <query>`")
+    results = await new_req(f"https://animepahe.ru/api?m=search&q={arg.replace(' ', '+')}", headers, True)
+    if not results: return await ctx.reply("none found")
     await ctx.reply(embed=buildSearch(arg, results["data"], 0), view=SearchView(ctx, arg, results["data"], 0))
 
 class CancelButton(discord.ui.Button):
@@ -119,14 +125,24 @@ class SelectChoice(discord.ui.Select):
         await interaction.message.edit(view=None)
         await interaction.response.defer()
         selected = self.result[int(self.values[0])]
-        req = await new_req(f"https://animepahe.ru/api?m=release&id={selected['session']}&sort=episode_asc&page=1", True)
-        r_search = req.json()
+        r_search = await new_req(f"https://animepahe.ru/api?m=release&id={selected['session']}&sort=episode_asc&page=1", headers, True)
         if not r_search.get('data'): return await interaction.message.edit(content="no episodes found", embed=None)
-        req = await new_req(f"https://animepahe.ru/play/{selected['session']}/{r_search['data'][0]['session']}", True)
-        soup = BS(req.content, "lxml")
+        req = await new_req(f"https://animepahe.ru/play/{selected['session']}/{r_search['data'][0]['session']}", headers, False)
+        soup = soupify(req)
         items = soup.find("div", {"class": "clusterize-scroll"}).findAll("a")
         urls = [items[i].get("href") for i in range(len(items))]
         ep_texts = [items[i].text for i in range(len(items))]
+
+        req = await new_req(f"https://animepahe.ru/play/{selected['session']}", headers, False)
+        soup = soupify(req)
+        details = soup.find("div", {"class": "anime-info"}).findAll("p")
+        external = soup.find("p", {"class": "external-links"}).findAll("a")
+        genres = soup.find("div", {"class": "anime-genre"}).findAll("li")
+        selected["genres"] = [re.sub(r"^\s+|\s+$|\s+(?=\s)", "", genres[i].text) for i in range(len(genres))]
+        not_final = [re.sub(r"^\s+|\s+$|\s+(?=\s)", "", details[i].text) for i in range(len(details))]
+        externals = [external[i].get("href").replace("//", "https://") for i in range(len(external))]
+        selected["details"] = enclose_words(not_final)
+        selected["details"][len(selected["details"])-1] = format_links(selected["details"][len(selected["details"])-1], externals)
         await interaction.message.edit(embed=buildAnime(selected), view=EpisodeView(self.ctx, selected, urls, ep_texts, 0))
 
 # episode
@@ -180,8 +196,8 @@ class ButtonEpisode(discord.ui.Button):
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.defer()
-        req = await new_req(f"https://animepahe.ru{self.url_session}", True)
-        soup = BS(req.content, "lxml")
+        req = await new_req(f"https://animepahe.ru{self.url_session}", headers, False)
+        soup = soupify(req)
         items = soup.find("div", {"id": "pickDownload"}).findAll("a")
         urls = [items[i].get("href") for i in range(len(items))]
         texts = [items[i].text for i in range(len(items))]
@@ -201,8 +217,8 @@ class ButtonDownload(discord.ui.Button):
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.defer()
-        req = await new_req(self.url_fake, False)
-        soup = BS(req.content, "lxml")
+        req = await new_req(self.url_fake, None, False)
+        soup = soupify(req)
         script_tag = soup.find("script")
         match = re.search(r"https://kwik\.si/f/\w+", script_tag.string)
         if match: 
