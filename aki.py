@@ -42,12 +42,15 @@ class ButtonAction(discord.ui.Button):
         if self.action == 's':
             return await interaction.message.edit(content=f"Skill issue <@{interaction.user.id}>", view=None, embed=None)
         if self.action == 'b':
+            await interaction.message.edit(view=None)
+            await interaction.response.defer()
             try: await self.aki.back()
             except CantGoBackAnyFurther:
                 return await interaction.response.send_message(content=f"CantGoBackAnyFurther", ephemeral=True)
-        await interaction.message.edit(view=None)
-        await interaction.response.defer()
-        await self.aki.answer(self.action)
+        else:
+            await interaction.message.edit(view=None)
+            await interaction.response.defer()
+            await self.aki.answer(self.action)
         if not self.aki.win and self.aki.step < 79:
             await interaction.message.edit(embed=qEmbed(self.aki, self.ctx), view=QView(self.aki, self.ctx))
         else:
