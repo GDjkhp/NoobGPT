@@ -36,67 +36,70 @@ async def help_openai(ctx: commands.Context):
 
 async def chat(ctx: commands.Context):
     if await command_check(ctx, "openai", "ai"): return
-    message = ctx.message
-    info = await message.reply("Generating response…")
-    old = round(time.time() * 1000)
-    messagesArray = await loopMsg(message)
-    try:
-        completion = await client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=messagesArray
-        )
-    except Exception as e:
-        return await info.edit(content=f"**Error! :(**\n{e}")
-    text = completion.choices[0].message.content
-    chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
-    replyFirst = True
-    for chunk in chunks:
-        if replyFirst: 
-            replyFirst = False
-            await message.reply(chunk)
-        else: await message.channel.send(chunk)
-    await info.edit(content=f"Took {round(time.time() * 1000)-old}ms")
+    async with ctx.typing():
+        message = ctx.message
+        info = await message.reply("Generating response…")
+        old = round(time.time() * 1000)
+        messagesArray = await loopMsg(message)
+        try:
+            completion = await client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=messagesArray
+            )
+        except Exception as e:
+            return await info.edit(content=f"**Error! :(**\n{e}")
+        text = completion.choices[0].message.content
+        chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
+        replyFirst = True
+        for chunk in chunks:
+            if replyFirst: 
+                replyFirst = False
+                await message.reply(chunk)
+            else: await message.channel.send(chunk)
+        await info.edit(content=f"Took {round(time.time() * 1000)-old}ms")
 
 async def image(ctx: commands.Context):
     if await command_check(ctx, "openai", "ai"): return
-    message = ctx.message
-    info = await message.reply("Generating image…")
-    old = round(time.time() * 1000)
-    promptMsg = message.content.replace("-imagine ", "")
-    if message.reference: # reply hack
-        hey = await message.channel.fetch_message(message.reference.message_id)
-        promptMsg = f"{promptMsg}: {hey.content.replace('-imagine ', '')}"
-    promptMsg = "Generate something." if promptMsg == "" else promptMsg
-    try:
-        response = await client.images.generate(
-            model="dall-e-2",
-            prompt=promptMsg
-        )
-    except Exception as e:
-        return await info.edit(content=f"**Error! :(**\n{e}")
-    await message.reply(file=await discord_image(response.data[0].url, promptMsg))
-    await info.edit(content=f"Took {round(time.time() * 1000)-old}ms")
+    async with ctx.typing():
+        message = ctx.message
+        info = await message.reply("Generating image…")
+        old = round(time.time() * 1000)
+        promptMsg = message.content.replace("-imagine ", "")
+        if message.reference: # reply hack
+            hey = await message.channel.fetch_message(message.reference.message_id)
+            promptMsg = f"{promptMsg}: {hey.content.replace('-imagine ', '')}"
+        promptMsg = "Generate something." if promptMsg == "" else promptMsg
+        try:
+            response = await client.images.generate(
+                model="dall-e-2",
+                prompt=promptMsg
+            )
+        except Exception as e:
+            return await info.edit(content=f"**Error! :(**\n{e}")
+        await message.reply(file=await discord_image(response.data[0].url, promptMsg))
+        await info.edit(content=f"Took {round(time.time() * 1000)-old}ms")
 
 async def gpt3(ctx: commands.Context):
     if await command_check(ctx, "openai", "ai"): return
-    message = ctx.message
-    info = await message.reply("Generating response…")
-    old = round(time.time() * 1000)
-    content = message.content.replace("-gpt ", "")
-    content = "Generate 'Lorem ipsum…'" if content == "" else content
-    try:
-        completion = await client.completions.create(
-            model="gpt-3.5-turbo-instruct",
-            prompt=content
-        )
-    except Exception as e:
-        return await info.edit(content=f"**Error! :(**\n{e}")
-    text = completion.choices[0].text
-    chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
-    replyFirst = True
-    for chunk in chunks:
-        if replyFirst: 
-            replyFirst = False
-            await message.reply(chunk)
-        else: await message.channel.send(chunk)
-    await info.edit(content=f"Took {round(time.time() * 1000)-old}ms")
+    async with ctx.typing():
+        message = ctx.message
+        info = await message.reply("Generating response…")
+        old = round(time.time() * 1000)
+        content = message.content.replace("-gpt ", "")
+        content = "Generate 'Lorem ipsum…'" if content == "" else content
+        try:
+            completion = await client.completions.create(
+                model="gpt-3.5-turbo-instruct",
+                prompt=content
+            )
+        except Exception as e:
+            return await info.edit(content=f"**Error! :(**\n{e}")
+        text = completion.choices[0].text
+        chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
+        replyFirst = True
+        for chunk in chunks:
+            if replyFirst: 
+                replyFirst = False
+                await message.reply(chunk)
+            else: await message.channel.send(chunk)
+        await info.edit(content=f"Took {round(time.time() * 1000)-old}ms")
