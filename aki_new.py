@@ -58,6 +58,7 @@ class Akinator:
 
     async def __update(self, action: str, resp):
         if action == "answer":
+            self.win = False
             self.akitude = resp['akitude']
             self.step = int(resp['step'])
             self.progression = float(resp['progression'])
@@ -148,7 +149,7 @@ class Akinator:
             req = await async_request_handler(url=url, method='POST', data=data)
             resp = json.loads(req.text)
 
-            if re.findall(r"id_proposition", str(resp)):
+            if re.findall(r"id_proposition", str(resp)) and self.progression > 90:
                 await self.__update(action="win", resp=resp)
             else:
                 await self.__update(action="answer", resp=resp)
@@ -191,11 +192,7 @@ class Akinator:
         try:
             req = await async_request_handler(url=url, method='POST', data=data)
             resp = json.loads(req.text)
-
-            if re.findall(r"id_proposition", str(resp)):
-                await self.__update(action="win", resp=resp)
-            else:
-                await self.__update(action="answer", resp=resp)
+            await self.__update(action="answer", resp=resp)
         except Exception as e:
             raise e
         
