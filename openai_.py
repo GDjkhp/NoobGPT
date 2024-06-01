@@ -8,16 +8,25 @@ from util_discord import command_check
 
 client = AsyncOpenAI()
 
-# i really love this function
+# ugly
+def strip_dash(text: str):
+    words = text.split()
+    for i, word in enumerate(words):
+        if word.startswith("-") and i != len(words)-1:
+            words = words[:i] + words[i+1:]
+            break
+    return " ".join(words)
+
+# i really love this function, improved
 async def loopMsg(message: discord.Message):
     role = "assistant" if message.author.bot else "user"
-    content = message.content.replace("-ask ", "")
-    content = "Hello!" if content == "" else content
-    if not message.reference:
-        return [{"role": role, "content": content}]
+    content = message.content if message.author.bot else strip_dash(message.content)
+    content = "Hello!" if content and content[0] == "-" else content
+    base_data = [{"role": role, "content": content}]
+    if not message.reference: return base_data
     repliedMessage = await message.channel.fetch_message(message.reference.message_id)
     previousMessages = await loopMsg(repliedMessage)
-    return previousMessages + [{"role": role, "content": content}]
+    return previousMessages + base_data
 
 async def discord_image(link: str, prompt: str) -> discord.File:
     async with aiohttp.ClientSession() as session:

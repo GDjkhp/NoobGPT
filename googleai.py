@@ -1,4 +1,5 @@
 from discord.ext import commands
+import discord
 import aiohttp
 import time
 import os
@@ -140,18 +141,33 @@ def get_text_palm(response_data) -> str:
     else:
         return get_error_palm(response_data)
     
-def json_data(arg, base64_data=None, mime=None):
-    if not arg:
-        arg_text = "Explain who you are, your functions, capabilities, limitations, and purpose."
-        arg_image_text = 'What is this?'
-    else:
-        arg_text = arg
-        arg_image_text = arg
-    return {
-        "contents": [
+# ugly
+def strip_dash(text: str):
+    words = text.split()
+    for i, word in enumerate(words):
+        if word.startswith("-") and i != len(words)-1:
+            words = words[:i] + words[i+1:]
+            break
+    return " ".join(words)
+
+# i really love this function, improved
+async def loopMsg(message: discord.Message):
+    role = "model" if message.author.bot else "user"
+    content = message.content if message.author.bot else strip_dash(message.content)
+    content = "Hello!" if content and content[0] == "-" else content
+    base64_data, mime = None, None
+    if len(message.attachments) > 0:
+        attachment = message.attachments[0]
+        async with aiohttp.ClientSession() as session:
+            async with session.get(attachment.url) as resp:
+                image_data = await resp.read()
+                base64_data = base64.b64encode(image_data).decode('utf-8')
+                base64_data, mime = base64_data, attachment.content_type
+    base_data = [
             {
+                "role": role, 
                 "parts": [
-                    {"text": arg_text if not base64_data else arg_image_text},
+                    {"text": content},
                     {
                         "inline_data": {
                             "mime_type": mime,
@@ -161,7 +177,14 @@ def json_data(arg, base64_data=None, mime=None):
                 ]
             }
         ]
-    }
+    if not message.reference: return base_data
+    repliedMessage = await message.channel.fetch_message(message.reference.message_id)
+    previousMessages = await loopMsg(repliedMessage)
+    return previousMessages + base_data
+    
+async def json_data(msg: discord.Message):
+    messagesArray = await loopMsg(msg)
+    return {"contents": messagesArray}
 
 def json_data_palm(arg: str, safe: bool):
     return {
@@ -207,26 +230,19 @@ async def req_real(url, json, headers, palm):
                 return get_text_palm(await response.json()) if palm else get_text(await response.json())
             else: print(await response.content.read())
 
-async def GEMINI_REST(ctx: commands.Context, arg: str, palm: bool):
+async def GEMINI_REST(ctx: commands.Context, palm: bool):
     if await command_check(ctx, "googleai", "ai"): return
     async with ctx.typing():
         msg = await ctx.reply("Generating response…")
         old = round(time.time() * 1000)
         text = None
         # rewrite
-        proxy = palm_proxy("gemini-1.5-pro-latest:generateContent")
-        payload = json_data(arg)
-        if not palm:
-            if len(ctx.message.attachments) > 0:
-                attachment = ctx.message.attachments[0]
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(attachment.url) as resp:
-                        image_data = await resp.read()
-                        base64_data = base64.b64encode(image_data).decode('utf-8')
-                        payload = json_data(arg, base64_data, attachment.content_type)
-        else:
+        if palm:
             proxy = palm_proxy("text-bison-001:generateText")
-            payload = json_data_palm(arg, not ctx.channel.nsfw)
+            payload = json_data_palm(strip_dash(ctx.message.content), not ctx.channel.nsfw)
+        else:
+            proxy = palm_proxy("gemini-1.5-pro-latest:generateContent")
+            payload = await json_data(ctx.message)
         text = await req_real(proxy, payload, headers, palm)
         # silly
         if not text: return await msg.edit(content=f"**Error! :(**")
@@ -241,7 +257,6 @@ async def GEMINI_REST(ctx: commands.Context, arg: str, palm: bool):
 
 async def help_google(ctx: commands.Context):
     if await command_check(ctx, "googleai", "ai"): return
-    text  = "### Note: Doesn't support reading conversation history."
     text += "\n`-ge`: gemini-1.5-pro-latest"
     text += "\n`-palm`: text-bison-001"
     await ctx.reply(text)

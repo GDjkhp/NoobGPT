@@ -253,12 +253,12 @@ async def openai(ctx: commands.Context):
 
 from googleai import GEMINI_REST, help_google
 @bot.command()
-async def palm(ctx: commands.Context, *, arg=None):
-    bot.loop.create_task(GEMINI_REST(ctx, arg, True))
+async def palm(ctx: commands.Context):
+    bot.loop.create_task(GEMINI_REST(ctx, True))
 
 @bot.command()
-async def ge(ctx: commands.Context, *, arg=None):
-    bot.loop.create_task(GEMINI_REST(ctx, arg, False))
+async def ge(ctx: commands.Context):
+    bot.loop.create_task(GEMINI_REST(ctx, False))
 
 @bot.command()
 async def googleai(ctx: commands.Context):

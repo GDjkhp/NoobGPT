@@ -18,12 +18,12 @@ def strip_dash(text: str):
 async def loopMsg(message: discord.Message):
     role = "assistant" if message.author.bot else "user"
     content = message.content if message.author.bot else strip_dash(message.content)
-    content = "Hello!" if content == "" else content
-    if not message.reference:
-        return [{"role": role, "content": content}]
+    content = "Hello!" if content and content[0] == "-" else content
+    base_data = [{"role": role, "content": content}]
+    if not message.reference: return base_data
     repliedMessage = await message.channel.fetch_message(message.reference.message_id)
     previousMessages = await loopMsg(repliedMessage)
-    return previousMessages + [{"role": role, "content": content}]
+    return previousMessages + base_data
 
 models = [
     "llama-2-70b-chat", # ll
