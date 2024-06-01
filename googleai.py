@@ -230,7 +230,13 @@ async def req_real(url, json, headers, palm):
                 return get_text_palm(await response.json()) if palm else get_text(await response.json())
             else: print(await response.content.read())
 
-async def GEMINI_REST(ctx: commands.Context, palm: bool):
+models = [
+    "text-bison-001",
+    "gemini-1.5-pro",
+    "gemini-1.5-flash",
+]
+
+async def GEMINI_REST(ctx: commands.Context, model: int, palm: bool):
     if await command_check(ctx, "googleai", "ai"): return
     async with ctx.typing():
         msg = await ctx.reply("Generating response…")
@@ -238,10 +244,10 @@ async def GEMINI_REST(ctx: commands.Context, palm: bool):
         text = None
         # rewrite
         if palm:
-            proxy = palm_proxy("text-bison-001:generateText")
+            proxy = palm_proxy(f"{models[model]}:generateText")
             payload = json_data_palm(strip_dash(ctx.message.content), not ctx.channel.nsfw)
         else:
-            proxy = palm_proxy("gemini-1.5-pro-latest:generateContent")
+            proxy = palm_proxy(f"{models[model]}:generateContent")
             payload = await json_data(ctx.message)
         text = await req_real(proxy, payload, headers, palm)
         # silly
@@ -257,6 +263,7 @@ async def GEMINI_REST(ctx: commands.Context, palm: bool):
 
 async def help_google(ctx: commands.Context):
     if await command_check(ctx, "googleai", "ai"): return
-    text  = "\n`-ge`: gemini-1.5-pro-latest"
-    text += "\n`-palm`: text-bison-001"
+    text  = f"`-ge`: {models[1]}\n"
+    text += f"`-flash`: {models[2]}\n"
+    text += f"`-palm`: {models[0]}"
     await ctx.reply(text)
