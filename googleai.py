@@ -257,6 +257,6 @@ async def GEMINI_REST(ctx: commands.Context, palm: bool):
 
 async def help_google(ctx: commands.Context):
     if await command_check(ctx, "googleai", "ai"): return
-    text += "\n`-ge`: gemini-1.5-pro-latest"
+    text  = "\n`-ge`: gemini-1.5-pro-latest"
     text += "\n`-palm`: text-bison-001"
     await ctx.reply(text)
