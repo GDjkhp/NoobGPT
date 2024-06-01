@@ -164,19 +164,19 @@ async def loopMsg(message: discord.Message):
                 base64_data = base64.b64encode(image_data).decode('utf-8')
                 base64_data, mime = base64_data, attachment.content_type
     base_data = [
-            {
-                "role": role, 
-                "parts": [
-                    {"text": content},
-                    {
-                        "inline_data": {
-                            "mime_type": mime,
-                            "data": base64_data
-                        }
-                    } if base64_data else None
-                ]
-            }
-        ]
+        {
+            "role": role, 
+            "parts": [
+                {"text": content},
+                {
+                    "inline_data": {
+                        "mime_type": mime,
+                        "data": base64_data
+                    }
+                } if base64_data else None
+            ]
+        }
+    ]
     if not message.reference: return base_data
     repliedMessage = await message.channel.fetch_message(message.reference.message_id)
     previousMessages = await loopMsg(repliedMessage)
