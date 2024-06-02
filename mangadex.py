@@ -15,6 +15,7 @@ async def dex(ctx: commands.Context, arg: str):
     msg = await ctx.reply("please wait")
     res = await search_manga(arg)
     if not res: return await msg.edit(content="none found")
+    await get_statistics(res)
     await msg.edit(view=SearchView(ctx, arg, res, 0), embed=buildSearch(arg, res, 0), content=None)
 
 async def req_real(url: str, params: dict=None):
@@ -37,6 +38,16 @@ async def convert_to_webp(url):
 def get_max_page(length):
     if length % pagelimit != 0: return length - (length % pagelimit)
     return length - pagelimit
+
+def format_number(num):
+    if 1000 <= num < 1000000:
+        return f"{num // 1000}k"
+    elif 1000000 <= num < 1000000000:
+        return f"{num // 1000000}m"
+    elif 1000000000 <= num < 1000000000000:
+        return f"{num // 1000000000}b"
+    else:
+        return str(num)
             
 async def search_manga(query):
     search_url = f"{BASE_URL}/manga"
@@ -65,41 +76,52 @@ async def get_cover_art(manga):
     return f'https://uploads.mangadex.org/covers/{manga["id"]}/{response["data"]["attributes"]["fileName"]}'
 
 async def get_author(manga):
+    author_url = f"{BASE_URL}/author"
     author_ids = []
     for item in manga["relationships"]:
         if item["id"] in author_ids: continue
         if item["type"] == "author" or item["type"] == "artist":
             author_ids.append(item["id"])
     if not author_ids: return None
+    params = {"ids[]": author_ids}
+    response = await req_real(author_url, params)
     authors = []
-    for author_id in author_ids: 
-        response = await req_real(f"{BASE_URL}/author/{author_id}")
-        authors.append(response["data"]["attributes"]["name"])
+    for author in response["data"]:
+        authors.append(author["attributes"]["name"])
     return ", ".join(authors)
 
 async def get_scanlation(chapter):
+    group_url = f"{BASE_URL}/group"
     group_ids = []
     for item in chapter["relationships"]:
         if item["id"] in group_ids: continue
         if item["type"] == "scanlation_group":
             group_ids.append(item["id"])
     if not group_ids: return None
+    params = {"ids[]": group_ids}
+    response = await req_real(group_url, params)
     groups = []
-    for group_id in group_ids: 
-        response = await req_real(f"{BASE_URL}/group/{group_id}")
-        groups.append(response["data"]["attributes"]["name"])
+    for group in response["data"]:
+        groups.append(group["attributes"]["name"])
     return ", ".join(groups)
+
+async def get_statistics(manga):
+    stats_url = f"{BASE_URL}/statistics/manga/"
+    ids = []
+    for item in manga:
+        ids.append(item["id"])
+    params = {"manga[]": ids}
+    response = await req_real(stats_url, params)
+    for item in manga:
+        item["stats"] = response["statistics"][item["id"]]
 
 def buildSearch(arg: str, result: list, index: int) -> discord.Embed:
     embed = discord.Embed(title=f"Search results: `{arg}`", description=f"{len(result)} found", color=0x00ff00)
     embed.set_thumbnail(url=provider)
     i = index
     while i < len(result):
-        tags = []
-        for tag in result[i]['attributes']['tags']:
-            tags.append(tag['attributes']['name']['en'])
-        if (i < index+pagelimit): embed.add_field(name=f"[{i + 1}] `{result[i]['attributes']['title']['en']}`", 
-                                                  value=", ".join(tags))
+        stats = f"⭐{round(result[i]['stats']['rating']['bayesian'], 2)} 🔖{format_number(result[i]['stats']['follows'])}"
+        if (i < index+pagelimit): embed.add_field(name=f"[{i + 1}] `{result[i]['attributes']['title']['en']}`", value=stats)
         i += 1
     return embed
 
@@ -113,7 +135,7 @@ def buildManga(details: dict, count: int, total: int) -> discord.Embed:
     volumes = f"**Volumes:** {details['attributes']['lastVolume'] if details['attributes']['lastVolume'] else '⁉️'}\n"
     chapters = f"**Chapters:** {details['attributes']['lastChapter'] if details['attributes']['lastChapter'] else '⁉️'}\n"
     genres = f"**Genres:** {', '.join(tags)}\n\n"
-    desc = f"{details['attributes']['description']['en']}"
+    desc = f"{details['attributes']['description']['en'] if details['attributes']['description'] else ''}"
     desc = author+year+status+volumes+chapters+genres+desc
     embed = discord.Embed(title=details['attributes']['title']['en'], description=desc, color=0x00ff00)
     embed.set_thumbnail(url=provider)
@@ -185,11 +207,9 @@ class SelectChoice(discord.ui.Select):
         super().__init__(placeholder=f"{min(index + pagelimit, len(result))}/{len(result)} found")
         i, self.result, self.ctx = index, result, ctx
         while i < len(result):
-            tags = []
-            for tag in result[i]['attributes']['tags']:
-                tags.append(tag['attributes']['name']['en'])
+            stats = f"⭐{round(result[i]['stats']['rating']['bayesian'], 2)} 🔖{format_number(result[i]['stats']['follows'])}"
             if (i < index+pagelimit): self.add_option(label=f"[{i + 1}] {result[i]['attributes']['title']['en']}", value=i, 
-                                                      description=", ".join(tags)[:100])
+                                                      description=stats)
             if (i == index+pagelimit): break
             i += 1
 
@@ -258,9 +278,15 @@ class ChapterView(discord.ui.View):
         self.add_item(CancelButton(ctx, 3))
 
 class ButtonChapter(discord.ui.Button):
-    def __init__(self, ctx: commands.Context, index: int, chapters: dict, details: dict, row: int):
-        l = chapters[index]["attributes"]["chapter"] if chapters[index]["attributes"]["chapter"] else "⁉️"
-        super().__init__(label=l, style=discord.ButtonStyle.primary, row=row)
+    def __init__(self, ctx: commands.Context, index: int, chapters: dict, details: dict, row: int, l: str = None):
+        e = None
+        if not l: 
+            l = chapters[index]["attributes"]["chapter"] if chapters[index]["attributes"]["chapter"] else "⁉️"
+            style = discord.ButtonStyle.primary
+        else:
+            e, l = l, None
+            style = discord.ButtonStyle.success
+        super().__init__(label=l, style=style, row=row, emoji=e)
         self.index, self.chapters, self.ctx, self.details = index, chapters, ctx, details
     
     async def callback(self, interaction: discord.Interaction):
@@ -325,8 +351,12 @@ class PageView(discord.ui.View):
         else:
             self.add_item(DisabledButton("▶️", 2))
             self.add_item(DisabledButton("⏩", 2))
-        self.add_item(CancelButton(ctx, 2))
+        if index > 0: self.add_item(ButtonChapter(ctx, index-1, chapters, details, 3, "⏮️"))
+        else: self.add_item(DisabledButton("⏮️", 3))
+        self.add_item(CancelButton(ctx, 3))
         self.add_item(ButtonBack(ctx, details, 3, index, chapters))
+        if index < len(chapters): self.add_item(ButtonChapter(ctx, index+1, chapters, details, 3, "⏭️"))
+        else: self.add_item(DisabledButton("⏭️", 3))
 
 class ButtonPage(discord.ui.Button):
     def __init__(self, ctx: commands.Context, pagenumber: int, pages: list, details: dict, row: int, index: int, chapters: list, group: str):
@@ -348,7 +378,7 @@ class ButtonPage(discord.ui.Button):
 
 class ButtonBack(discord.ui.Button):
     def __init__(self, ctx: commands.Context, details: dict, row: int, index: int, chapters: list):
-        super().__init__(label="📖", style=discord.ButtonStyle.success, row=row)
+        super().__init__(emoji="📖", style=discord.ButtonStyle.success, row=row)
         self.ctx, self.details, self.index, self.chapters = ctx, details, index, chapters
 
     async def callback(self, interaction: discord.Interaction):
