@@ -208,7 +208,7 @@ class SelectChoice(discord.ui.Select):
         i, self.result, self.ctx = index, result, ctx
         while i < len(result):
             stats = f"⭐{round(result[i]['stats']['rating']['bayesian'], 2)} 🔖{format_number(result[i]['stats']['follows'])}"
-            if (i < index+pagelimit): self.add_option(label=f"[{i + 1}] {result[i]['attributes']['title']['en']}", value=i, 
+            if (i < index+pagelimit): self.add_option(label=f"[{i + 1}] {result[i]['attributes']['title']['en']}"[:100], value=i, 
                                                       description=stats)
             if (i == index+pagelimit): break
             i += 1
