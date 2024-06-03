@@ -61,7 +61,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 <a href="https://gemini.google.com"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/gemini.png"></a>
 <a href="https://mistral.ai"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/mistral.png"></a>
 <a href="https://www.anthropic.com"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/idGmbIn6Mx_logos.png"></a>
-<a href="http://c.ai"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/Character.AI.png"></a>
+<a href="https://c.ai"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/Character.AI.png"></a>
 
 * `-openai` OpenAI is an AI research and deployment company. Our mission is to ensure that artificial general intelligence benefits all of humanity.
 * `-googleai` Google AI is a division of Google dedicated to artificial intelligence.
