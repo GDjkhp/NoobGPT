@@ -137,7 +137,7 @@ class SearchResult(BaseModel):
     authors: list[str]
     rating: float
     views: int
-    updated: dt.datetime
+    # updated: dt.datetime
 
     @property
     async def story_page(self) -> "StoryPage":
@@ -157,7 +157,7 @@ class SearchResult(BaseModel):
             authors=_parse_authors_search(soup),
             rating=_parse_rating(soup),
             views=_parse_views_search(soup),
-            updated=_parse_updated_search(soup)
+            # updated=_parse_updated_search(soup)
         )
 
 def _parse_title_search(soup):
@@ -181,9 +181,9 @@ def _parse_views_search(soup):
     number_string = s.replace("View : ", "").replace(",", "")
     return parse_views(number_string)
 
-def _parse_updated_search(soup):
-    s = soup.find("span", class_="text-nowrap item-time").text
-    return parse_date(s, "Updated : %b %d,%Y - %H:%M")
+# def _parse_updated_search(soup):
+#     s = soup.find("span", class_="text-nowrap item-time").text
+#     return parse_date(s, "Updated : %b %d,%Y - %H:%M")
 
 class StoryPage(BaseModel):
     url: str
