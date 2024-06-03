@@ -36,7 +36,7 @@ supported = [discord.TextChannel, discord.VoiceChannel, discord.StageChannel, di
 available_categories=["ai", "games", "media", "utils"]
 ai_commands=["openai", "googleai", "petals", "perplex", "mistral", "claude", "chelp"]
 games_commands=["aki", "tic", "hang", "quiz", "word", "rps"]
-media_commands=["anime", "pahe", "manga", "tv", "ytdlp", "cob", "booru"]
+media_commands=["anime", "manga", "tv", "ytdlp", "cob", "booru"]
 utils_commands=["quote", "weather", "av", "ban", "halp", "legal"]
 available_commands = ai_commands + games_commands + media_commands + utils_commands
 

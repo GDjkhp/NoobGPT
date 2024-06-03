@@ -19,12 +19,18 @@ headers = {"cookie": os.getenv('PAHE')}
 pagelimit=12
 provider="https://gdjkhp.github.io/img/apdoesnthavelogotheysaidapistooplaintheysaid.png"
 
+async def help_anime(ctx: commands.Context):
+    if await command_check(ctx, "anime", "media"): return
+    sources = "`-gogo`: gogoanime"
+    sources+= "`-pahe`: animepahe"
+    await ctx.reply(sources)
+
 async def new_req_old(url: str, headers: dict, json_mode: bool):
     async with aiohttp.ClientSession() as session:
         async with session.get(url, headers=headers) as response:
             if response.status == 200: 
                 return await response.json() if json_mode else await response.read()
-async def new_req(url: str, headers: dict, json_mode: bool):            
+async def new_req(url: str, headers: dict, json_mode: bool):
     req = await session.get(url, headers=headers)
     return req.json() if json_mode else req.content
 def soupify(data): return BS(data, "lxml")
@@ -64,7 +70,7 @@ def buildAnime(details: dict) -> discord.Embed:
     return embed
 
 async def pahe_search(ctx: commands.Context, arg: str):
-    if await command_check(ctx, "pahe", "media"): return
+    if await command_check(ctx, "anime", "media"): return
     if not arg: return await ctx.reply("usage: `-pahe <query>`")
     results = await new_req(f"https://animepahe.ru/api?m=search&q={arg.replace(' ', '+')}", headers, True)
     if not results: return await ctx.reply("none found")

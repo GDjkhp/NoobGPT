@@ -123,10 +123,15 @@ from animepahe import pahe_search
 async def pahe(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(pahe_search(ctx, arg))
 
-from mangadex import dex
+from mangadex import dex_search
 @bot.command()
 async def manga(ctx: commands.Context, *, arg=None):
-    bot.loop.create_task(dex(ctx, arg))
+    bot.loop.create_task(dex_search(ctx, arg))
+
+from manganato import nato_search
+@bot.command()
+async def nato(ctx: commands.Context, *, arg=None):
+    bot.loop.create_task(nato_search(ctx, arg))
 
 from ytdlp_ import YTDLP
 @bot.command()

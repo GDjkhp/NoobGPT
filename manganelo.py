@@ -25,7 +25,7 @@ async def download_chapter(url):
 
 def _get_image_urls_from_soup(soup):
 	def valid(url: str):
-		return url.endswith((".png", ".jpg"))
+		return url.endswith((".png", ".jpg")) and not url.startswith("https://chapmanganato.to")
 	return [url for url in map(lambda ele: ele["src"], soup.find_all("img")) if valid(url)]
     
 async def request(url: str, **kwargs):
@@ -35,12 +35,7 @@ async def request(url: str, **kwargs):
 
 async def fetch_image(url):
 	headers = {
-		'Accept': 'image/png,image/svg+xml,image/*;q=0.8,video/*;q=0.8,*/*;q=0.5',
-		'Accept-Encoding': 'gzip, deflate, br',
-		'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) '
-						'Version/13.1.2 Safari/605.1.15',
 		'Host': urllib.parse.urlparse(url).netloc, 'Accept-Language': 'en-ca', 'Referer': ROOT_URL,
-		'Connection': 'keep-alive'
 	}
 	return await request(url, headers=headers)
 
@@ -91,8 +86,8 @@ class Chapter(BaseModel):
     views: int
     uploaded: dt.datetime
 
-    async def download(self, path):
-        return await download_chapter(self.url, path)
+    async def download(self):
+        return await download_chapter(self.url)
 
     @staticmethod
     def from_soup(soup):
