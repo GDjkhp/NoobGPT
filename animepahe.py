@@ -21,7 +21,7 @@ provider="https://gdjkhp.github.io/img/apdoesnthavelogotheysaidapistooplaintheys
 
 async def help_anime(ctx: commands.Context):
     if await command_check(ctx, "anime", "media"): return
-    sources = "`-gogo`: gogoanime"
+    sources = "`-gogo`: gogoanime\n"
     sources+= "`-pahe`: animepahe"
     await ctx.reply(sources)
 

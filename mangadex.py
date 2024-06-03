@@ -11,7 +11,7 @@ pagelimit=12
 
 async def help_manga(ctx: commands.Context):
     if await command_check(ctx, "manga", "media"): return
-    sources = "`-dex`: mangadex"
+    sources = "`-dex`: mangadex\n"
     sources+= "`-nato`: manganato"
     await ctx.reply(sources)
 
