@@ -115,17 +115,25 @@ async def tv(ctx: commands.Context, *, arg=None):
 
 from gogoanime import Gogoanime
 @bot.command()
-async def anime(ctx: commands.Context, *, arg=None):
+async def gogo(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(Gogoanime(ctx, arg))
 
-from animepahe import pahe_search
+from animepahe import pahe_search, help_anime
 @bot.command()
 async def pahe(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(pahe_search(ctx, arg))
 
-from mangadex import dex_search
 @bot.command()
-async def manga(ctx: commands.Context, *, arg=None):
+async def anime(ctx: commands.Context):
+    bot.loop.create_task(help_anime(ctx))
+
+from mangadex import dex_search, help_manga
+@bot.command()
+async def manga(ctx: commands.Context):
+    bot.loop.create_task(help_manga(ctx))
+
+@bot.command()
+async def dex(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(dex_search(ctx, arg))
 
 from manganato import nato_search
