@@ -193,7 +193,7 @@ class StoryPage(BaseModel):
     genres: list[str]
     views: int
     authors: list[str]
-    updated: dt.datetime
+    # updated: dt.datetime
     chapter_list: list[Chapter]
 
     @staticmethod
@@ -206,7 +206,7 @@ class StoryPage(BaseModel):
             genres=_parse_genres(soup),
             views=_parse_views(soup),
             authors=_parse_authors(soup),
-            updated=_parse_updated(soup),
+            # updated=_parse_updated(soup),
             chapter_list=_parse_chapters(soup)
         )
 
@@ -228,9 +228,9 @@ def _parse_genres(soup):
     genres = genres_row.find_all("a", class_="a-h")
     return [e.text.strip() for e in genres]
 
-def _parse_updated(soup) -> dt.datetime:
-    values = soup.find("div", class_="story-info-right-extent").find_all("span", class_="stre-value")
-    return parse_date(values[0].text.strip(), "%b %d,%Y - %H:%M %p")
+# def _parse_updated(soup) -> dt.datetime:
+#     values = soup.find("div", class_="story-info-right-extent").find_all("span", class_="stre-value")
+#     return parse_date(values[0].text.strip(), "%b %d,%Y - %H:%M %p")
 
 def _parse_views(soup) -> int:
     values = soup.find("div", class_="story-info-right-extent").find_all("span", class_="stre-value")
