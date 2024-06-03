@@ -84,7 +84,7 @@ class Chapter(BaseModel):
     url: str
     chapter: Union[int, float]
     views: int
-    uploaded: dt.datetime
+    # uploaded: dt.datetime
 
     async def download(self):
         return await download_chapter(self.url)
@@ -96,7 +96,7 @@ class Chapter(BaseModel):
             url=_parse_url_chapter(soup),
             chapter=-1,
             views=_parse_views_chapter(soup),
-            uploaded=_parse_uploaded(soup)
+            # uploaded=_parse_uploaded(soup)
         )
         obj.chapter = _parse_chapter(obj.url)
         return obj
@@ -114,9 +114,9 @@ def _parse_views_chapter(soup):
     s = soup.find_all("span", class_="chapter-view text-nowrap")[-1].text.replace(",", "")
     return parse_views(s)
 
-def _parse_uploaded(soup):
-    s = soup.find("span", class_="chapter-time text-nowrap").get("title")
-    return parse_date(s, "%b %d,%Y %H:%M")
+# def _parse_uploaded(soup):
+#     s = soup.find("span", class_="chapter-time text-nowrap").get("title")
+#     return parse_date(s, "%b %d,%Y %H:%M")
 
 class HomeStoryTooltip:
     __slots__ = ("id", "name", "other_names", "authors", "genres", "description", "update_time")
