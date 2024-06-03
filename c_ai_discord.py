@@ -115,7 +115,7 @@ async def add_char(ctx: commands.Context, text: str, list_type: str):
         return await ctx.reply("channel not found")
     
     if not list_type in ["trending", "recommended"]: 
-        if not text: return await ctx.reply("?")
+        if not text: return await ctx.reply("⁉️")
     else: text = list_type
     try:
         res = await search_char(text, list_type)
@@ -539,8 +539,8 @@ class DisabledButton(discord.ui.Button):
         super().__init__(emoji=e, style=discord.ButtonStyle.success, disabled=True)
         
 class CancelButton(discord.ui.Button):
-    def __init__(self, ctx: commands.Context):
-        super().__init__(emoji="❌", style=discord.ButtonStyle.success)
+    def __init__(self, ctx: commands.Context, row: int=None):
+        super().__init__(emoji="❌", style=discord.ButtonStyle.success, row=row)
         self.ctx = ctx
     
     async def callback(self, interaction: discord.Interaction):
@@ -567,13 +567,32 @@ class DeleteChoice(discord.ui.Select):
 
         await interaction.message.edit(view=None, content=f'deleting `{selected["name"]}`', embed=None)
         await interaction.response.defer()
-
-        role = self.ctx.guild.get_role(selected["role_id"])
-        if role: await role.delete()
-        await delete_webhooks(self.ctx, selected)
-
-        await pull_character(self.ctx.guild.id, selected)
+        await delete_method(self.ctx, selected)
         await interaction.message.edit(content=f"`{selected['name']}` has been deleted from the server", embed=None, view=None)
+
+class DeleteAllButton(discord.ui.Button):
+    def __init__(self, ctx: commands.Context, result: list, row: int=None):
+        super().__init__(emoji="💀", style=discord.ButtonStyle.success, row=row)
+        self.ctx, self.result = ctx, result
+    
+    async def callback(self, interaction: discord.Interaction):
+        if interaction.user != self.ctx.author: 
+            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+                                                           ephemeral=True)
+        await interaction.message.edit(view=None)
+        await interaction.response.defer()
+        count = 0
+        for selected in self.result:
+            count+=1
+            await interaction.message.edit(content=f'deleting `{selected["name"]}`\n{count}/{len(self.result)}', embed=None)
+            await delete_method(self.ctx, selected)
+        await interaction.message.edit(content=f"`{count}` characters has been deleted from the server", embed=None)
+
+async def delete_method(ctx: commands.Context, selected):
+    role = ctx.guild.get_role(selected["role_id"])
+    if role: await role.delete()
+    await delete_webhooks(ctx, selected)
+    await pull_character(ctx.guild.id, selected)
 
 class DeleteView(discord.ui.View):
     def __init__(self, ctx: commands.Context, result: list, index: int):
@@ -593,7 +612,8 @@ class DeleteView(discord.ui.View):
         else:
             self.add_item(DisabledButton("▶️"))
             self.add_item(DisabledButton("⏩"))
-        self.add_item(CancelButton(ctx))
+        self.add_item(DeleteAllButton(ctx, result, 2))
+        self.add_item(CancelButton(ctx, 2))
 
 class nextPageDelete(discord.ui.Button):
     def __init__(self, ctx: commands.Context, result: list, index: int, l: str):
