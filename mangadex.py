@@ -17,7 +17,7 @@ async def help_manga(ctx: commands.Context):
 
 async def dex_search(ctx: commands.Context, arg: str):
     if await command_check(ctx, "manga", "media"): return
-    if not arg: return await ctx.reply("usage: `-manga <query>`")
+    if not arg: return await ctx.reply("usage: `-dex <query>`")
     msg = await ctx.reply("please wait")
     res = await search_manga(arg)
     if not res: return await msg.edit(content="none found")
