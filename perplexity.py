@@ -122,7 +122,7 @@ async def make_request_claude(model: str, messages: list):
     return await the_real_req(url, payload, headers)
 
 async def make_request_mistral(model: str, messages: list, code: bool):
-    url = "https://api.mistral.ai/v1/chat/completions"
+    url = f"https://api.mistral.ai/v1/{'fim' if code else 'chat'}/completions"
     payload = {
         "model": model,
         "prompt" if code else "messages": messages[0]["content"] if code else messages
