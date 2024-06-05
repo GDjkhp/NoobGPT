@@ -12,6 +12,7 @@ from util_discord import command_check
 
 mycol = util_database.myclient["ai"]["character"]
 client = PyAsyncCAI(os.getenv('CHARACTER'))
+list_types = ["search", "trending", "recommended"]
 pagelimit=12
 typing_chans = []
 supported = [discord.TextChannel, discord.VoiceChannel, discord.StageChannel, discord.ForumChannel, discord.Thread] # sussy
@@ -100,7 +101,7 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
         except Exception as e: print(f"Exception in c_ai: {e}, data: {data}")
         if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
 
-async def add_char(ctx: commands.Context, text: str, list_type: str):
+async def add_char(ctx: commands.Context, text: str, search_type: int):
     if await command_check(ctx, "chelp", "ai"): return
     if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
@@ -114,8 +115,8 @@ async def add_char(ctx: commands.Context, text: str, list_type: str):
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
         return await ctx.reply("channel not found")
     
-    if not list_type in ["trending", "recommended"]: 
-        if not text: return await ctx.reply("⁉️")
+    list_type = list_types[search_type]
+    if search_type == 0 and not text: return await ctx.reply("usage: `-cchar <query>`")        
     else: text = list_type
     try:
         res = await search_char(text, list_type)
@@ -202,7 +203,7 @@ async def set_rate(ctx: commands.Context, num):
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
         return await ctx.reply("channel not found")
     
-    if not num: return await ctx.reply("?")
+    if not num: return await ctx.reply("usage: `-crate <0-100>`")
     if not num.isdigit(): return await ctx.reply("not a digit")
     num = fix_num(num)
     await set_rate_db(ctx.guild.id, num)
@@ -238,7 +239,7 @@ async def edit_char(ctx: commands.Context, rate: str):
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
         return await ctx.reply("channel not found")
     
-    if not rate: return await ctx.reply("?")
+    if not rate: return await ctx.reply("usage: `-cedit <0-100>`")
     if not rate.isdigit(): return await ctx.reply("not a digit :(")
     rate = fix_num(rate)
 
@@ -279,6 +280,8 @@ async def c_help(ctx: commands.Context):
     text += "\n`-cmode` toggle channel mode"
     text += "\n`-crate <int>` set global message_rate (0-100)"
     text += "\n`-cedit <int>` set char_message_rate per channel (0-100)"
+    text += "\n# Get started"
+    text += "\n`-cchan` -> `-cadd <query>`"
     await ctx.reply(text)
 
 # utils

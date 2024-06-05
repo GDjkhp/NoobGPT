@@ -196,12 +196,32 @@ async def perplex(ctx: commands.Context):
     bot.loop.create_task(help_perplexity(ctx))
 
 @bot.command()
-async def mm(ctx: commands.Context):
+async def m7b(ctx: commands.Context):
     bot.loop.create_task(main_mistral(ctx, 0))
 
 @bot.command()
-async def ml(ctx: commands.Context):
+async def mx7b(ctx: commands.Context):
     bot.loop.create_task(main_mistral(ctx, 1))
+
+@bot.command()
+async def mx22b(ctx: commands.Context):
+    bot.loop.create_task(main_mistral(ctx, 2))
+
+@bot.command()
+async def ms(ctx: commands.Context):
+    bot.loop.create_task(main_mistral(ctx, 3))
+
+@bot.command()
+async def mm(ctx: commands.Context):
+    bot.loop.create_task(main_mistral(ctx, 4))
+
+@bot.command()
+async def ml(ctx: commands.Context):
+    bot.loop.create_task(main_mistral(ctx, 5))
+
+@bot.command()
+async def mcode(ctx: commands.Context):
+    bot.loop.create_task(main_mistral(ctx, 6))
 
 @bot.command()
 async def cla(ctx: commands.Context):
@@ -293,15 +313,15 @@ async def beluga2(ctx: commands.Context, *, arg=None):
 # CHARACTER AI
 @bot.command()
 async def cadd(ctx: commands.Context, *, arg=None):
-    bot.loop.create_task(add_char(ctx, arg, ""))
+    bot.loop.create_task(add_char(ctx, arg, 0))
 
 @bot.command()
 async def crec(ctx: commands.Context):
-    bot.loop.create_task(add_char(ctx, "", "recommended"))
+    bot.loop.create_task(add_char(ctx, None, 2))
 
 @bot.command()
 async def ctren(ctx: commands.Context):
-    bot.loop.create_task(add_char(ctx, "", "trending"))
+    bot.loop.create_task(add_char(ctx, None, 1))
 
 @bot.command()
 async def cdel(ctx: commands.Context):

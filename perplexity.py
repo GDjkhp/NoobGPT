@@ -41,8 +41,13 @@ models_claude=[
     "claude-3-sonnet-20240229", #c3s
 ]
 models_mistral=[
+    "open-mistral-7b", # m7b
+    "open-mixtral-8x7b", # mx7b
+    "open-mixtral-8x22b", # mx22b
+    "mistral-small-latest", # ms
     "mistral-medium-latest", # mm
     "mistral-large-latest", # ml
+    "codestral-latest" # mcode
 ]
 
 async def help_perplexity(ctx: commands.Context):
@@ -66,8 +71,13 @@ async def help_claude(ctx: commands.Context):
 
 async def help_mistral(ctx: commands.Context):
     if await command_check(ctx, "mistral", "ai"): return
-    text  = f"`-mm`: {models_mistral[0]}\n"
-    text += f"`-ml`: {models_mistral[1]}"
+    text  = f"`-m7b`: {models_mistral[0]}\n"
+    text += f"`-mx7b`: {models_mistral[1]}\n"
+    text += f"`-mx22b`: {models_mistral[2]}\n"
+    text += f"`-ms`: {models_mistral[3]}\n"
+    text += f"`-mm`: {models_mistral[4]}\n"
+    text += f"`-ml`: {models_mistral[5]}\n"
+    text += f"`-mcode`: {models_mistral[6]}"
     await ctx.reply(text)
 
 async def the_real_req(url: str, payload: dict, headers: dict):
@@ -111,11 +121,11 @@ async def make_request_claude(model: str, messages: list):
 
     return await the_real_req(url, payload, headers)
 
-async def make_request_mistral(model: str, messages: list):
+async def make_request_mistral(model: str, messages: list, code: bool):
     url = "https://api.mistral.ai/v1/chat/completions"
     payload = {
         "model": model,
-        "messages": messages
+        "prompt" if code else "messages": messages[0]["content"] if code else messages
     }
     headers = {
         "accept": "application/json",
@@ -175,7 +185,7 @@ async def main_mistral(ctx: commands.Context, model: int):
         msg = await ctx.reply("Generating response…")
         old = round(time.time() * 1000)
         try: 
-            response = await make_request_mistral(models_mistral[model], await loopMsg(ctx.message)) # spicy
+            response = await make_request_mistral(models_mistral[model], await loopMsg(ctx.message), True if model == 6 else False)
             text = response["choices"][0]["message"]["content"]
             if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
             chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
