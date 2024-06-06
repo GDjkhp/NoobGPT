@@ -112,7 +112,7 @@ async def get_scanlation(chapter):
     return ", ".join(groups)
 
 async def get_statistics(manga):
-    stats_url = f"{BASE_URL}/statistics/manga/"
+    stats_url = f"{BASE_URL}/statistics/manga"
     ids = []
     for item in manga:
         ids.append(item["id"])

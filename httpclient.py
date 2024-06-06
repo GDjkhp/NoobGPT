@@ -12,12 +12,12 @@ class HttpClient:
     def __init__(self, headers: dict = None, cookies: dict = None):
         if headers is None:
             headers = default_header
-        self.session = httpx.Client(timeout=10.0, headers=headers, cookies=cookies)
+        self.session = httpx.AsyncClient(timeout=10.0, headers=headers, cookies=cookies)
 
-    def get(self, page: str, redirects: bool = False) -> httpx.Response:
+    async def get(self, page: str, redirects: bool = False) -> httpx.Response:
         print(page)
         try:
-            req = self.session.get(page, follow_redirects=redirects)
+            req = await self.session.get(page, follow_redirects=redirects)
             self.session.headers["Referer"] = page
         except Exception as e:
             print(
@@ -26,11 +26,11 @@ class HttpClient:
             )
         return req
 
-    def post(self, page: str, data: dict = None, json=None) -> httpx.Response:
+    async def post(self, page: str, data: dict = None, json=None) -> httpx.Response:
         print(page)
         if json is None:
             try:
-                req = self.session.post(page, data=data)
+                req = await self.session.post(page, data=data)
                 self.session.headers["Referer"] = page
             except Exception as e:
                 print(
@@ -40,7 +40,7 @@ class HttpClient:
             return req
         else:
             try:
-                req = self.session.post(page, json=json)
+                req = await self.session.post(page, json=json)
                 self.session.headers["Referer"] = page
             except Exception as e:
                 print(
@@ -49,10 +49,10 @@ class HttpClient:
                 )
             return req
 
-    def head(self, page: str, redirects: False) -> httpx.Response:
+    async def head(self, page: str, redirects: False) -> httpx.Response:
         print(page)
         try:
-            req = self.session.head(page, follow_redirects=redirects)
+            req = await self.session.head(page, follow_redirects=redirects)
             self.session.headers["Referer"] = page
         except Exception as e:
             print(

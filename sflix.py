@@ -11,7 +11,7 @@ import json
 from Crypto.Util.Padding import unpad
 from util_discord import command_check
 
-client, client0 = HttpClient(), HttpClient()
+client, client_cdn = HttpClient(), HttpClient()
 title, url, aid, mv_tv, poster = 0, 1, 2, 3, 4
 pagelimit = 12
 domain = "https://sflix.se"
@@ -21,14 +21,14 @@ async def Sflix(ctx: commands.Context, arg: str):
     if await command_check(ctx, "tv", "media"): return
     msg = await ctx.reply(f"Searching `{arg}`\nPlease wait…")
     try:
-        result = results(searchQuery(arg)) 
+        result = results(await searchQuery(arg)) 
         embed = buildSearch(arg, result, 0)
         await msg.edit(content=None, embed=embed, view=MyView(ctx, result, arg, 0))
     except Exception as e: return await msg.edit(content=f"**No results found**")
 
 # embed builders
-def detail(result) -> list:
-    req = client.get(f"{domain}{result[1]}")
+async def detail(result) -> list:
+    req = await client.get(f"{domain}{result[1]}")
     soup = BS(req, "lxml")
     desc = soup.find("div", {"class": "description"}).get_text()
     items = soup.find("div", {"class": "elements"}).find_all("div", {"class": "row-line"})
@@ -44,8 +44,8 @@ def detailed(embed: discord.Embed, details: list):
     embed.add_field(name="Genre", value=details[2])
     embed.add_field(name="Casts", value=details[3])
     embed.add_field(name="Production", value=details[6])
-def buildMovie(result) -> discord.Embed:
-    details = detail(result)
+async def buildMovie(result) -> discord.Embed:
+    details = await detail(result)
     embed = discord.Embed(title=result[title], description=details[0], color=0x00ff00)
     embed.set_thumbnail(url=provider)
     valid_url = p.quote(result[poster], safe=":/")
@@ -53,8 +53,8 @@ def buildMovie(result) -> discord.Embed:
     detailed(embed, details)
     embed.set_footer(text="Note: Use Adblockers :)")
     return embed
-def buildSeasons(season_ids, result) -> discord.Embed:
-    details = detail(result)
+async def buildSeasons(season_ids, result) -> discord.Embed:
+    details = await detail(result)
     embed = discord.Embed(title=result[title], description=details[0], color=0x00ff00)
     embed.set_thumbnail(url=provider)
     valid_url = p.quote(result[poster], safe=":/")
@@ -62,12 +62,12 @@ def buildSeasons(season_ids, result) -> discord.Embed:
     detailed(embed, details)
     embed.add_field(name="Seasons", value=len(season_ids))
     return embed
-def buildEpisodes(episodes, season, result) -> discord.Embed:
+async def buildEpisodes(episodes, season, result) -> discord.Embed:
     embed = discord.Embed(title=f"{result[title]}", description=f"Season {season}", color=0x00ff00)
     embed.set_thumbnail(url=provider)
     valid_url = p.quote(result[poster], safe=":/")
     embed.set_image(url = valid_url)
-    details = detail(result)
+    details = await detail(result)
     detailed(embed, details)
     embed.add_field(name="Episodes", value=len(episodes))
     embed.set_footer(text="Note: Use Adblockers :)")
@@ -87,8 +87,9 @@ def get_max_page(length):
     return length - pagelimit
 def parse(txt: str) -> str:
     return re.sub(r"\W+", "-", txt.lower())
-def searchQuery(q) -> str:
-    return client.get(f"{domain}/search/{parse(q)}").text
+async def searchQuery(q) -> str:
+    res = await client.get(f"{domain}/search/{parse(q)}")
+    return res.text
 def results(html: str) -> list:
     soup = BS(html, "lxml")
     img = [i["data-src"] for i in soup.select(".film-poster-img")]
@@ -145,17 +146,17 @@ class SelectChoice(discord.ui.Select):
         await interaction.message.edit(view=None)
         await interaction.response.defer()
         if self.result[int(self.values[0])][mv_tv] == "TV":
-            r = client.get(f"{domain}/ajax/v2/tv/seasons/{self.result[int(self.values[0])][aid]}")
+            r = await client.get(f"{domain}/ajax/v2/tv/seasons/{self.result[int(self.values[0])][aid]}")
             season_ids = [i["data-id"] for i in BS(r, "lxml").select(".dropdown-item")]
-            embed = buildSeasons(season_ids, self.result[int(self.values[0])])
+            embed = await buildSeasons(season_ids, self.result[int(self.values[0])])
             await interaction.message.edit(embed = embed, view = MyView2(self.ctx, self.result[int(self.values[0])], season_ids, 0))
         else:
-            sid = server_id(self.result[int(self.values[0])][aid])
+            sid = await server_id(self.result[int(self.values[0])][aid])
             iframe_url, tv_id = get_link(sid)
             iframe_link, iframe_id = rabbit_id(iframe_url)
             try:
                 # url = cdn_url(iframe_link, iframe_id)
-                embed = buildMovie(self.result[int(self.values[0])])
+                embed = await buildMovie(self.result[int(self.values[0])])
                 await interaction.message.edit(embed=embed, view=None)
                 await interaction.followup.send(f"[{self.result[int(self.values[0])][title]}]({iframe_url}&_debug=true)", ephemeral=True)
             except Exception as e: await interaction.message.edit(content=e, view=None)
@@ -173,17 +174,17 @@ class ButtonSelect(discord.ui.Button):
         await interaction.message.edit(view=None)
         await interaction.response.defer()
         if self.result[mv_tv] == "TV":
-            r = client.get(f"{domain}/ajax/v2/tv/seasons/{self.result[aid]}")
+            r = await client.get(f"{domain}/ajax/v2/tv/seasons/{self.result[aid]}")
             season_ids = [i["data-id"] for i in BS(r, "lxml").select(".dropdown-item")]
-            embed = buildSeasons(season_ids, self.result)
+            embed = await buildSeasons(season_ids, self.result)
             await interaction.message.edit(embed = embed, view = MyView2(self.ctx, self.result, season_ids, 0))
         else:
-            sid = server_id(self.result[aid])
+            sid = await server_id(self.result[aid])
             iframe_url, tv_id = get_link(sid)
             iframe_link, iframe_id = rabbit_id(iframe_url)
             try:
-                # url = cdn_url(iframe_link, iframe_id)
-                embed = buildMovie(self.result)
+                # url = await cdn_url(iframe_link, iframe_id)
+                embed = await buildMovie(self.result)
                 await interaction.message.edit(embed=embed, view=None, content=f"[{self.result[title]}]({iframe_url}&_debug=true)")
             except Exception as e: await interaction.message.edit(content=e, view=None)
             
@@ -240,9 +241,9 @@ class ButtonSelect2(discord.ui.Button):
         await interaction.message.edit(view=None)
         await interaction.response.defer()
         z = f"{domain}/ajax/v2/season/episodes/{self.season_id}"
-        rf = client.get(z)
+        rf = await client.get(z)
         episodes = [i["data-id"] for i in BS(rf, "lxml").select(".episode-item")]
-        embed = buildEpisodes(episodes, self.index, self.result)
+        embed = await buildEpisodes(episodes, self.index, self.result)
         await interaction.message.edit(embed = embed, view = MyView3(self.ctx, self.season_id, episodes, self.result, 0, self.index))
 
 class ButtonNextSeason(discord.ui.Button):
@@ -256,7 +257,7 @@ class ButtonNextSeason(discord.ui.Button):
                                                            ephemeral=True)
         await interaction.message.edit(view=None)
         await interaction.response.defer()
-        embed = buildSeasons(self.season_ids, self.result)
+        embed = await buildSeasons(self.season_ids, self.result)
         await interaction.message.edit(embed = embed, view = MyView2(self.ctx, self.result, self.season_ids, self.index))
 
 # episode
@@ -297,7 +298,7 @@ class ButtonNextEp(discord.ui.Button):
                                                            ephemeral=True)
         await interaction.message.edit(view=None)
         await interaction.response.defer()
-        embed = buildEpisodes(self.episodes, self.season, self.result)
+        embed = await buildEpisodes(self.episodes, self.season, self.result)
         await interaction.message.edit(embed = embed, view = MyView3(self.ctx, self.season_id, self.episodes, self.result, self.index, self.season))
 
 class ButtonSelect3(discord.ui.Button):
@@ -310,11 +311,11 @@ class ButtonSelect3(discord.ui.Button):
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.defer()
-        sid = ep_server_id(self.episode)
-        iframe_url, tv_id = get_link(sid)
+        sid = await ep_server_id(self.episode)
+        iframe_url, tv_id = await get_link(sid)
         iframe_link, iframe_id = rabbit_id(iframe_url)
         try:
-            # url = cdn_url(iframe_link, iframe_id)
+            # url = await cdn_url(iframe_link, iframe_id)
             await interaction.followup.send(f"{self.title} [S{self.season}E{self.index}]({iframe_url}&_debug=true)", ephemeral=True)
         except Exception as e: await interaction.message.edit(content=e, view=None)
 
@@ -334,16 +335,17 @@ class CancelButton(discord.ui.Button):
         await interaction.message.delete()
 
 # sflix functions
-def server_id(mov_id: str) -> str:
-    req = client.get(f"{domain}/ajax/movie/episodes/{mov_id}")
+async def server_id(mov_id: str) -> str:
+    req = await client.get(f"{domain}/ajax/movie/episodes/{mov_id}")
     soup = BS(req, "lxml")
     return [i["data-id"] for i in soup.select(".link-item")][0]    
-def ep_server_id(ep_id: str) -> str:
-    req = client.get(f"{domain}/ajax/v2/episode/servers/{ep_id}/#servers-list")
+async def ep_server_id(ep_id: str) -> str:
+    req = await client.get(f"{domain}/ajax/v2/episode/servers/{ep_id}/#servers-list")
     soup = BS(req, "lxml")
     return [i["data-id"] for i in soup.select(".link-item")][0]
-def get_link(thing_id: str) -> tuple:
-    req = client.get(f"{domain}/ajax/sources/{thing_id}").json()["link"]
+async def get_link(thing_id: str) -> tuple:
+    res = await client.get(f"{domain}/ajax/sources/{thing_id}")
+    req = res.json()["link"]
     print(req)
     return req, rabbit_id(req)
 def rabbit_id(url: str) -> tuple:
@@ -355,13 +357,14 @@ def rabbit_id(url: str) -> tuple:
     )
 
 # actvid function
-def cdn_url(final_link: str, rabb_id: str) -> str:
-    client0.set_headers({"X-Requested-With": "XMLHttpRequest"})
-    data = client0.get(f"{final_link}getSources?id={rabb_id}").json()
-    n = decryption(data["sources"])
+async def cdn_url(final_link: str, rabb_id: str) -> str:
+    client_cdn.set_headers({"X-Requested-With": "XMLHttpRequest"})
+    res = await client_cdn.get(f"{final_link}getSources?id={rabb_id}")
+    data = res.json()
+    n = await decryption(data["sources"])
     return n[0]["file"]
-def decryption(string):
-    key, new_string = key_extraction(string, gh_key())
+async def decryption(string):
+    key, new_string = key_extraction(string, await gh_key())
     decryption_key = gen_key(
         base64_decode_array(new_string)[8:16], key.encode("utf-8")
     )
@@ -379,8 +382,9 @@ def key_extraction(string, table):
             sources_array[i] = ' '
         current_index += index[1]
     return extracted_key, ''.join(sources_array)
-def gh_key():
-    response_key = client.get('https://github.com/theonlymo/keys/blob/e4/key').json()
+async def gh_key():
+    res = await client.get('https://github.com/theonlymo/keys/blob/e4/key')
+    response_key = res.json()
     key = response_key["payload"]["blob"]["rawLines"][0]
     key = json.loads(key)
     return key

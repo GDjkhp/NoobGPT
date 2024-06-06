@@ -7,7 +7,7 @@ from urllib import parse as p
 import json
 from util_discord import command_check
 
-client, client0 = HttpClient(), HttpClient()
+client, client_dood = HttpClient(), HttpClient()
 title, url, aid, mv_tv, poster = 0, 1, 2, 3, 4
 desc, ep, animetype, released, genre = 2, 3, 5, 6, 7
 pagelimit = 12
@@ -29,7 +29,7 @@ async def Gogoanime(ctx: commands.Context, arg: str):
     get_domain()
     if arg: msg = await ctx.reply(f"Searching `{arg}`\nPlease wait…")
     else: msg = await ctx.reply("Imagine something that doesn't exist. Must be sad. You are sad. You don't belong here.\nLet's all love lain.")
-    try: result = resultsAnime(searchAnime(arg if arg else "serial experiments lain"))
+    try: result = await resultsAnime(searchAnime(arg if arg else "serial experiments lain"))
     except: return await msg.edit(content="Error! Domain changed most likely.")
     try: await msg.edit(content=None, embed=buildSearch(arg, result, 0), view = MyView4(ctx, arg, result, 0))
     except Exception as e: return await msg.edit(content=f"**No results found**")
@@ -56,11 +56,11 @@ def buildSearch(arg: str, result: list, index: int) -> discord.Embed:
     return embed
 def searchAnime(q: str):
     return q.replace(" ", "-")
-def resultsAnime(data: str) -> list:
+async def resultsAnime(data: str) -> list:
     results = []
     page = 1
     while True:
-        req = client.get(f"{gogoanime}/search.html?keyword={data}&page={page}")
+        req = await client.get(f"{gogoanime}/search.html?keyword={data}&page={page}")
         soup = BS(req, "lxml")
         items = soup.find("ul", {"class": "items"}).findAll("li")
         if len(items) == 0: break
@@ -72,19 +72,21 @@ def resultsAnime(data: str) -> list:
         results.extend([list(sublist) for sublist in zip(title, urls, ids, mov_or_tv, img)])
         page += 1
     return results
-def doodstream(url):
+async def doodstream(url):
     domain = re.findall("""([^"']*)\/e""", url)[0]
-    req = client.get(url).text
+    res = await client.get(url)
+    req = res.text
     pass_md = re.findall(r"/pass_md5/[^']*", req)[0]
     token = pass_md.split("/")[-1]
-    client0.set_headers(
+    client_dood.set_headers(
         {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0",
             "Referer": f"{url}",
             "Accept-Language": "en-GB,en;q=0.5",
         }
     )
-    drylink = client0.get(f"{domain}{pass_md}").text
+    res = await client_dood.get(f"{domain}{pass_md}")
+    drylink = res.text
     streamlink = f"{drylink}zUEJeL3mUN?token={token}"
     print(streamlink)
     return streamlink
@@ -128,7 +130,7 @@ class SelectChoice(discord.ui.Select):
                                                            ephemeral=True)
         await interaction.message.edit(view=None)
         await interaction.response.defer()
-        req = client.get(f"{gogoanime}{self.result[int(self.values[0])][url]}")
+        req = await client.get(f"{gogoanime}{self.result[int(self.values[0])][url]}")
         soup = BS(req, "lxml")
 
         episodes: int = soup.find("ul", {"id": "episode_page"}).find_all("a")[-1]["ep_end"]
@@ -155,7 +157,7 @@ class ButtonSelect4(discord.ui.Button):
                                                            ephemeral=True)
         await interaction.message.edit(view=None)
         await interaction.response.defer()
-        req = client.get(f"{gogoanime}{self.result[url]}")
+        req = await client.get(f"{gogoanime}{self.result[url]}")
         soup = BS(req, "lxml")
 
         episodes: int = soup.find("ul", {"id": "episode_page"}).find_all("a")[-1]["ep_end"]
@@ -222,11 +224,11 @@ class ButtonSelect5(discord.ui.Button):
                                                            ephemeral=True)
         await interaction.response.defer()
         url = self.sUrl.split("/")[-1]
-        request = client.get(f"{gogoanime}/{url}-episode-{self.index}")
+        request = await client.get(f"{gogoanime}/{url}-episode-{self.index}")
         soup = BS(request, "lxml")
         video = soup.find("li", {"class": "doodstream"}).find("a")["data-video"]
         await interaction.followup.send(f"[{url}-episode-{self.index}]({video})", ephemeral=True)
-        # url0 = doodstream(
+        # url0 = await doodstream(
         #     soup.find("li", {"class": "doodstream"}).find("a")["data-video"]
         # )
         # await interaction.followup.send(f"{url}-episode-{self.index}: {url0}")

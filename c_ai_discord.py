@@ -98,6 +98,7 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
                 async with ctx.typing():
                     data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
             if data and data.get('replies'): tasks_queue.put((ctx, x, data['replies'][0]['text']))
+            else: print(data)
         except Exception as e: print(f"Exception in c_ai: {e}, data: {data}")
         if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
 
