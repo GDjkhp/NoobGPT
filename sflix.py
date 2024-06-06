@@ -152,10 +152,10 @@ class SelectChoice(discord.ui.Select):
             await interaction.message.edit(embed = embed, view = MyView2(self.ctx, self.result[int(self.values[0])], season_ids, 0))
         else:
             sid = await server_id(self.result[int(self.values[0])][aid])
-            iframe_url, tv_id = get_link(sid)
+            iframe_url, tv_id = await get_link(sid)
             iframe_link, iframe_id = rabbit_id(iframe_url)
             try:
-                # url = cdn_url(iframe_link, iframe_id)
+                # url = await cdn_url(iframe_link, iframe_id)
                 embed = await buildMovie(self.result[int(self.values[0])])
                 await interaction.message.edit(embed=embed, view=None)
                 await interaction.followup.send(f"[{self.result[int(self.values[0])][title]}]({iframe_url}&_debug=true)", ephemeral=True)
@@ -180,7 +180,7 @@ class ButtonSelect(discord.ui.Button):
             await interaction.message.edit(embed = embed, view = MyView2(self.ctx, self.result, season_ids, 0))
         else:
             sid = await server_id(self.result[aid])
-            iframe_url, tv_id = get_link(sid)
+            iframe_url, tv_id = await get_link(sid)
             iframe_link, iframe_id = rabbit_id(iframe_url)
             try:
                 # url = await cdn_url(iframe_link, iframe_id)
@@ -199,8 +199,7 @@ class ButtonNextSearch(discord.ui.Button):
                                                            ephemeral=True)
         await interaction.message.edit(view=None)
         await interaction.response.defer()
-        embed = buildSearch(self.arg, self.result, self.index)
-        await interaction.message.edit(embed = embed, view = MyView(self.ctx, self.result, self.arg, self.index))
+        await interaction.message.edit(view = MyView(self.ctx, self.result, self.arg, self.index))
 
 # season
 class MyView2(discord.ui.View):
@@ -257,8 +256,7 @@ class ButtonNextSeason(discord.ui.Button):
                                                            ephemeral=True)
         await interaction.message.edit(view=None)
         await interaction.response.defer()
-        embed = await buildSeasons(self.season_ids, self.result)
-        await interaction.message.edit(embed = embed, view = MyView2(self.ctx, self.result, self.season_ids, self.index))
+        await interaction.message.edit(view = MyView2(self.ctx, self.result, self.season_ids, self.index))
 
 # episode
 class MyView3(discord.ui.View):
@@ -298,8 +296,7 @@ class ButtonNextEp(discord.ui.Button):
                                                            ephemeral=True)
         await interaction.message.edit(view=None)
         await interaction.response.defer()
-        embed = await buildEpisodes(self.episodes, self.season, self.result)
-        await interaction.message.edit(embed = embed, view = MyView3(self.ctx, self.season_id, self.episodes, self.result, self.index, self.season))
+        await interaction.message.edit(view = MyView3(self.ctx, self.season_id, self.episodes, self.result, self.index, self.season))
 
 class ButtonSelect3(discord.ui.Button):
     def __init__(self, ctx: commands.Context, index: int, season_id: str, episode: str, season: int, title: str, row: int):
@@ -338,11 +335,11 @@ class CancelButton(discord.ui.Button):
 async def server_id(mov_id: str) -> str:
     req = await client.get(f"{domain}/ajax/movie/episodes/{mov_id}")
     soup = BS(req, "lxml")
-    return [i["data-id"] for i in soup.select(".link-item")][0]    
+    return [i["data-id"] for i in soup.select(".link-item")][1]    
 async def ep_server_id(ep_id: str) -> str:
     req = await client.get(f"{domain}/ajax/v2/episode/servers/{ep_id}/#servers-list")
     soup = BS(req, "lxml")
-    return [i["data-id"] for i in soup.select(".link-item")][0]
+    return [i["data-id"] for i in soup.select(".link-item")][1]
 async def get_link(thing_id: str) -> tuple:
     res = await client.get(f"{domain}/ajax/sources/{thing_id}")
     req = res.json()["link"]
