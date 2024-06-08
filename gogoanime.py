@@ -244,8 +244,7 @@ class nextPageEP(discord.ui.Button):
                                                            ephemeral=True)
         await interaction.message.edit(view=None)
         await interaction.response.defer()
-        embed = buildAnime(self.details)
-        await interaction.message.edit(embed = embed, view = MyView5(self.ctx, self.details, self.index))
+        await interaction.message.edit(view = MyView5(self.ctx, self.details, self.index))
 
 class CancelButton(discord.ui.Button):
     def __init__(self, ctx: commands.Context, r: int):

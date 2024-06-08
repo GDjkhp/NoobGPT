@@ -115,8 +115,17 @@ async def a(ctx: commands.Context, *, arg=None):
 # questionable
 from sflix import Sflix
 @bot.command()
-async def tv(ctx: commands.Context, *, arg=None):
+async def flix(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(Sflix(ctx, arg))
+
+from kissasian import kiss_search, help_tv
+@bot.command()
+async def kiss(ctx: commands.Context, *, arg=None):
+    bot.loop.create_task(kiss_search(ctx, arg))
+
+@bot.command()
+async def tv(ctx: commands.Context):
+    bot.loop.create_task(help_tv(ctx))
 
 from gogoanime import Gogoanime
 @bot.command()

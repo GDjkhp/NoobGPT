@@ -103,7 +103,6 @@ async def make_request(model: str, messages: list):
         "content-type": "application/json",
         "authorization": f"Bearer {os.getenv('PERPLEXITY')}"
     }
-
     return await the_real_req(url, payload, headers)
 
 async def make_request_claude(model: str, messages: list):
@@ -118,7 +117,6 @@ async def make_request_claude(model: str, messages: list):
         "content-type": "application/json",
         "x-api-key": os.getenv('ANTHROPIC')
     }
-
     return await the_real_req(url, payload, headers)
 
 async def make_request_mistral(model: str, messages: list, code: bool):
@@ -132,7 +130,6 @@ async def make_request_mistral(model: str, messages: list, code: bool):
         "content-type": "application/json",
         "authorization": f"Bearer {os.getenv('MISTRAL')}"
     }
-
     return await the_real_req(url, payload, headers)
 
 async def main_perplexity(ctx: commands.Context, model: int):

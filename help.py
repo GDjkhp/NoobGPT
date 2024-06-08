@@ -101,13 +101,13 @@ async def media_embed(av: discord.Asset) -> discord.Embed:
                    value='Show music commands help page.', 
                    inline=False)
     emby.add_field(name='`-anime`', 
-                   value=f'An animated work that originated in Japan.', 
+                   value=f'Watch animated works that originated in Japan.', 
                    inline=False)
     emby.add_field(name='`-manga`', 
-                   value=f'A comic originating in Japan.', 
+                   value=f'Read comics originating in Japan.', 
                    inline=False)
-    emby.add_field(name='`-tv [query]`', 
-                   value='Search and watch TV shows and movies using [SFlix](https://sflix.se).', 
+    emby.add_field(name='`-tv`', 
+                   value='Watch TV shows and movies.', 
                    inline=False)
     emby.add_field(name='`-ytdlp (optional: format = [mp3/m4a]) [link]`', 
                    value='Download or convert a YouTube video under 25MB discord limit using [yt-dlp](https://github.com/yt-dlp/yt-dlp). See [supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md).', 
