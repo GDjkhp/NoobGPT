@@ -82,7 +82,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 ## Media 💽
 * `-anime` An animated work that originated in Japan.
 * `-manga` A comic originating in Japan.
-* `-tv [query]` Search and watch TV shows and movies using [SFlix](https://sflix.se).
+* `-tv` Watch TV shows and movies.
 * `-ytdlp (optional: format = [mp3/m4a]) [link]` Download or convert a YouTube video under 25MB discord limit using [yt-dlp](https://github.com/yt-dlp/yt-dlp). See [supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md).
 * `-cob [link]` [cobalt](https://cobalt.tools) is a media downloader that doesn't piss you off. See [supported sites](https://github.com/wukko/cobalt?tab=readme-ov-file#supported-services).
 * `-booru` A form of imageboard where images are categorized with tags.
@@ -127,6 +127,7 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 * <https://github.com/aio-libs/aiohttp>
 * <https://github.com/nathanielfernandes/imagetext-py>
 * <https://github.com/nixonjoshua98/manganelo>
+* <https://github.com/amankumarsingh77/KissApi>
 
 ### Sites
 * <https://openai.com>
