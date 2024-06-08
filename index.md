@@ -128,6 +128,7 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 * <https://github.com/nathanielfernandes/imagetext-py>
 * <https://github.com/nixonjoshua98/manganelo>
 * <https://github.com/amankumarsingh77/KissApi>
+* <https://github.com/antergone/palm-netlify-proxy>
 
 ### Sites
 * <https://openai.com>
