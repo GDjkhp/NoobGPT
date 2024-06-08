@@ -117,7 +117,7 @@ async def add_char(ctx: commands.Context, text: str, search_type: int):
         return await ctx.reply("channel not found")
     
     list_type = list_types[search_type]
-    if search_type == 0 and not text: return await ctx.reply("usage: `-cchar <query>`")        
+    if search_type == 0 and not text: return await ctx.reply("usage: `-cadd <query>`")
     else: text = list_type
     try:
         res = await search_char(text, list_type)

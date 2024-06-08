@@ -40,6 +40,11 @@ async def on_message(message: discord.Message):
     bot.loop.create_task(c_ai(bot, message))
     await bot.process_commands(message)
 
+# stckovrflw
+@bot.event
+async def on_command_error(ctx, command):
+    pass
+
 # personal
 @bot.command()
 async def kvview(ctx: commands.Context):
