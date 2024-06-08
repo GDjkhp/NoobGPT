@@ -80,8 +80,8 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-rps` Play rock-paper-scissors.
 
 ## Media 💽
-* `-anime` An animated work that originated in Japan.
-* `-manga` A comic originating in Japan.
+* `-anime` Watch animated works originating in Japan.
+* `-manga` Read comics originating in Japan.
 * `-tv` Watch TV shows and movies.
 * `-ytdlp (optional: format = [mp3/m4a]) [link]` Download or convert a YouTube video under 25MB discord limit using [yt-dlp](https://github.com/yt-dlp/yt-dlp). See [supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md).
 * `-cob [link]` [cobalt](https://cobalt.tools) is a media downloader that doesn't piss you off. See [supported sites](https://github.com/wukko/cobalt?tab=readme-ov-file#supported-services).
