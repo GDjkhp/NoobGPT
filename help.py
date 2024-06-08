@@ -101,7 +101,7 @@ async def media_embed(av: discord.Asset) -> discord.Embed:
                    value='Show music commands help page.', 
                    inline=False)
     emby.add_field(name='`-anime`', 
-                   value=f'Watch animated works that originated in Japan.', 
+                   value=f'Watch animated works originating in Japan.', 
                    inline=False)
     emby.add_field(name='`-manga`', 
                    value=f'Read comics originating in Japan.', 
