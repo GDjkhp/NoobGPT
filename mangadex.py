@@ -70,6 +70,7 @@ async def get_chapters(manga_id, offset):
 async def get_pages(chapter_id):
     pages_url = f"{BASE_URL}/at-home/server/{chapter_id}"
     data = await req_real(pages_url)
+    if not data["result"] == "ok": return
     pages = []
     for image in data["chapter"]["data"]:
         pages.append(f'https://uploads.mangadex.org/data/{data["chapter"]["hash"]}/{image}')
@@ -127,23 +128,24 @@ def buildSearch(arg: str, result: list, index: int) -> discord.Embed:
     i = index
     while i < len(result):
         stats = f"⭐{round(result[i]['stats']['rating']['bayesian'], 2)} 🔖{format_number(result[i]['stats']['follows'])}"
-        if (i < index+pagelimit): embed.add_field(name=f"[{i + 1}] `{result[i]['attributes']['title']['en']}`", value=stats)
+        if (i < index+pagelimit): embed.add_field(name=f"[{i + 1}] `{next(iter(result[i]['attributes']['title'].values()))}`", value=stats)
         i += 1
     return embed
 
 def buildManga(details: dict, count: int, total: int) -> discord.Embed:
     tags = []
     for tag in details['attributes']['tags']:
-        tags.append(tag['attributes']['name']['en'])
+        tags.append(next(iter(tag['attributes']['name'].values())))
     author = f"**Author:** {details['author']}\n"
     year = f"**Year:** {details['attributes']['year']}\n"
     status = f"**Status:** {details['attributes']['status']}\n"
     volumes = f"**Volumes:** {details['attributes']['lastVolume'] if details['attributes']['lastVolume'] else '⁉️'}\n"
     chapters = f"**Chapters:** {details['attributes']['lastChapter'] if details['attributes']['lastChapter'] else '⁉️'}\n"
+    demo = f"**Demographic:** {details['attributes']['publicationDemographic'] if details['attributes']['publicationDemographic'] else '⁉️'}\n"
     genres = f"**Genres:** {', '.join(tags)}\n\n"
-    desc = f"{details['attributes']['description']['en'] if details['attributes']['description'] else ''}"
-    desc = author+year+status+volumes+chapters+genres+desc
-    embed = discord.Embed(title=details['attributes']['title']['en'], description=desc, color=0x00ff00)
+    desc = f"{next(iter(details['attributes']['description'].values())) if details['attributes']['description'] else ''}"
+    desc = author+year+status+volumes+chapters+demo+genres+desc
+    embed = discord.Embed(title=next(iter(details['attributes']['title'].values())), description=desc, color=0x00ff00)
     embed.set_thumbnail(url=provider)
     embed.set_footer(text=f"{min(count, total)}/{total}")
     return embed
@@ -153,7 +155,7 @@ def buildPage(pages, pagenumber, chapters, index, details, group) -> discord.Emb
     group = f"\n{group}" if group else ""
     ch = chapters[index]["attributes"]["chapter"] if chapters[index]["attributes"]["chapter"] else "⁉️"
     desc = f'Chapter {ch}{title}\n{group}' # {index+1}/{len(chapters)}
-    embed = discord.Embed(title=details['attributes']['title']['en'], description=desc, color=0x00ff00)
+    embed = discord.Embed(title=next(iter(details['attributes']['title'].values())), description=desc, color=0x00ff00)
     embed.set_thumbnail(url=provider)
     embed.set_footer(text=f"{pagenumber+1}/{len(pages)}")
     return embed
@@ -214,8 +216,8 @@ class SelectChoice(discord.ui.Select):
         i, self.result, self.ctx = index, result, ctx
         while i < len(result):
             stats = f"⭐{round(result[i]['stats']['rating']['bayesian'], 2)} 🔖{format_number(result[i]['stats']['follows'])}"
-            if (i < index+pagelimit): self.add_option(label=f"[{i + 1}] {result[i]['attributes']['title']['en']}"[:100], value=i, 
-                                                      description=stats)
+            if (i < index+pagelimit): self.add_option(label=f"[{i + 1}] {next(iter(result[i]['attributes']['title'].values()))}"[:100], 
+                                                      value=i, description=stats)
             if (i == index+pagelimit): break
             i += 1
 

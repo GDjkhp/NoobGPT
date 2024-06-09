@@ -45,6 +45,11 @@ async def on_message(message: discord.Message):
 async def on_command_error(ctx, command):
     pass
 
+# guthib
+@bot.tree.error
+async def on_app_command_error(interaction, error):
+    pass
+
 # personal
 @bot.command()
 async def kvview(ctx: commands.Context):
