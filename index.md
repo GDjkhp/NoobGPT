@@ -15,12 +15,7 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 </div>
 
 ## Source Code
-<h3>This bot now runs on <a href="https://bot-hosting.net/?aff=729554186777133088">https://bot-hosting.net</a></h3>
-
-[~~Look how everything works behind the scenes.~~](https://replit.com/@GDjkhp)
-* ~~<https://github.com/GDjkhp/level-up-loser>~~
 * <https://github.com/GDjkhp/level-up-loser-python-branch>
-* <https://github.com/GDjkhp/Discord-MusicBot>
 
 ## Support
 Feature requests, contributions, and improvements are welcome!
@@ -33,25 +28,8 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 <img src="https://gdjkhp.github.io/img/tenor.gif">
 </details>
 
-# Overview
-
-## Replit
-- **Date:** March 28, 2023
-- **Environment:** Node.js (Alpha)
-- **Uptime:** No longer working
-
-Originally developed as an XP Leveling System under the codename "LevelUpLoser". Runs on [Replit](https://replit.com/) free tier, with unstable uptime, utilizing [Uptime Robot](https://uptimerobot.com/) until [January 4, 2024, due to hosting changes](https://blog.replit.com/hosting-changes).
-
-## bot-hosting.net
-- **Date:** January 11, 2024
-- **Environment:** Python (Beta), Node.js (Music)
-- **Uptime:** 99%
-
-[barack obama free hosting daily captcha solving abuse](https://bot-hosting.net/?aff=729554186777133088)
-
 # Bot Commands
 * `-halp` Show prefix commands help page.
-* `/help` Show music commands help page.
 
 # Python Computer #1: Beta Branch
 Collection of random and unique stuff I came up with, mostly games and useful tools. This is where I add new features regularly.
@@ -94,30 +72,13 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-av [userid]` Return a user's Discord profile avatar.
 * `-ban [userid]` Return a user's Discord profile banner.
 
-# Node.js Computer #2: Music Branch
-Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/tree/v5), an advanced discord music bot.
-### Slash commands
-* `/play [query/link]` Play something. Supports YouTube ~~and Spotify~~.
-* `/nowplaying` Now playing.
-* `/queue` Show query.
-* `/skip` Skip track.
-
 ## Credits
 ### Code
 * <https://github.com/Rapptz/discord.py>
-* <https://github.com/discordjs/discord.js>
-* ~~<https://github.com/openai/openai-node>~~
 * <https://github.com/openai/openai-python>
 * <https://github.com/mov-cli/mov-cli>
-* <https://github.com/SudhanPlayz/Discord-MusicBot>
-* ~~<https://github.com/scott-serven/Chess-Bot>~~
-* ~~<https://github.com/dsdanielpark/Bard-API>~~
 * <https://github.com/rainyDayDevs/pygelbooru>
-* ~~<https://github.com/MrAugu/discord-xp>~~
-* ~~<https://github.com/neplextech/canvacord>~~
-* ~~<https://github.com/JochCool/minesweeper-bot>~~
 * <https://github.com/yt-dlp/yt-dlp>
-* ~~<https://github.com/Infiniticity/akinator.py>~~
 * <https://github.com/advnpzn/akipy>
 * <https://github.com/mongodb/mongo-python-driver>
 * <https://github.com/mongodb/motor>
