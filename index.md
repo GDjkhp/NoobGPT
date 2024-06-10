@@ -117,7 +117,7 @@ Based on [Discord-MusicBot v5](https://github.com/SudhanPlayz/Discord-MusicBot/t
 * ~~<https://github.com/neplextech/canvacord>~~
 * ~~<https://github.com/JochCool/minesweeper-bot>~~
 * <https://github.com/yt-dlp/yt-dlp>
-~~* <https://github.com/Infiniticity/akinator.py>~~
+* ~~<https://github.com/Infiniticity/akinator.py>~~
 * <https://github.com/advnpzn/akipy>
 * <https://github.com/mongodb/mongo-python-driver>
 * <https://github.com/mongodb/motor>
