@@ -97,9 +97,9 @@ async def games_embed(av: discord.Asset) -> discord.Embed:
 async def media_embed(av: discord.Asset) -> discord.Embed:
     data = read_json_file("./res/mandatory_settings_and_splashes.json")
     emby = create_embed(0xff0000, av, "Media 💽")
-    emby.add_field(name='`/help`', 
-                   value='Show music commands help page.', 
-                   inline=False)
+    # emby.add_field(name='`/help`', 
+    #                value='Show music commands help page.', 
+    #                inline=False)
     emby.add_field(name='`-anime`', 
                    value=f'Watch animated works originating in Japan.', 
                    inline=False)

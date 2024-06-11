@@ -61,10 +61,10 @@ def category_to_commands(cat: str, commands: list):
         if not x in commands: commands.append(x)
 
 async def config_commands(ctx: commands.Context):
-    text = "`-view`: View available commands.\n"
-    text+= "`-channel`: Toggle channel mode, where you can set specific commands per channel. (admin-only)\n"
-    text+= "`-toggle [command]`: Toggle command. Requires channel mode. (admin-only)\n"
-    text+= "`-disable [command]`: Disable command server-wide. (admin-only)"
+    text = "`-view` View available commands.\n"
+    text+= "`-channel` Toggle channel mode, where you can set specific commands per channel. (admin-only)\n"
+    text+= "`-toggle [command]` Toggle command. Requires channel mode. (admin-only)\n"
+    text+= "`-disable [command]` Disable command server-wide. (admin-only)"
     await ctx.reply(text)
 
 async def command_enable(ctx: commands.Context, com: str):
@@ -130,13 +130,13 @@ async def command_channel_mode(ctx: commands.Context):
 async def command_view(ctx: commands.Context):
     if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     db = await get_database(ctx.guild.id)
-    text  = f"disabled_commands: {db['disabled_commands']}\n"
-    text += f"disabled_categories: {db['disabled_categories']}\n"
-    text += f"channel_mode: {db['channel_mode']}"
+    text  = f"disabled_commands: `{db['disabled_commands']}`\n"
+    text += f"disabled_categories: `{db['disabled_categories']}`\n"
+    text += f"channel_mode: `{db['channel_mode']}`"
     if db['channel_mode']:
         for chan in db["channels"]:
             if chan["id"] == ctx.channel.id:
-                text += f"\ncommands: {chan['commands']}"
+                text += f"\ncommands: `{chan['commands']}`"
     await ctx.reply(text)
 
 # database handling
