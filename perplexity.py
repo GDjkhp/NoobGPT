@@ -52,32 +52,32 @@ models_mistral=[
 
 async def help_perplexity(ctx: commands.Context):
     if await command_check(ctx, "perplex", "ai"): return
-    text  =  f"`-ll`: {models[0]}\n"
-    text += f"`-cll`: {models[1]}\n"
-    text += f"`-mis`: {models[2]}\n"
-    text += f"`-mix`: {models[3]}\n"
-    text += f"`-ssc`: {models[4]}\n"
-    text += f"`-sso`: {models[5]}\n"
-    text += f"`-smc`: {models[6]}\n"
-    text += f"`-smo`: {models[7]}"
+    text  =  f"`-ll` {models[0]}\n"
+    text += f"`-cll` {models[1]}\n"
+    text += f"`-mis` {models[2]}\n"
+    text += f"`-mix` {models[3]}\n"
+    text += f"`-ssc` {models[4]}\n"
+    text += f"`-sso` {models[5]}\n"
+    text += f"`-smc` {models[6]}\n"
+    text += f"`-smo` {models[7]}"
     await ctx.reply(text)
 
 async def help_claude(ctx: commands.Context):
     if await command_check(ctx, "claude", "ai"): return
-    text  = f"`-cla`: {models_claude[0]}\n"
-    text += f"`-c3o`: {models_claude[1]}\n"
-    text += f"`-c3s`: {models_claude[2]}"
+    text  = f"`-cla` {models_claude[0]}\n"
+    text += f"`-c3o` {models_claude[1]}\n"
+    text += f"`-c3s` {models_claude[2]}"
     await ctx.reply(text)
 
 async def help_mistral(ctx: commands.Context):
     if await command_check(ctx, "mistral", "ai"): return
-    text  = f"`-m7b`: {models_mistral[0]}\n"
-    text += f"`-mx7b`: {models_mistral[1]}\n"
-    text += f"`-mx22b`: {models_mistral[2]}\n"
-    text += f"`-ms`: {models_mistral[3]}\n"
-    text += f"`-mm`: {models_mistral[4]}\n"
-    text += f"`-ml`: {models_mistral[5]}\n"
-    text += f"`-mcode`: {models_mistral[6]}"
+    text  = f"`-m7b` {models_mistral[0]}\n"
+    text += f"`-mx7b` {models_mistral[1]}\n"
+    text += f"`-mx22b` {models_mistral[2]}\n"
+    text += f"`-ms` {models_mistral[3]}\n"
+    text += f"`-mm` {models_mistral[4]}\n"
+    text += f"`-ml` {models_mistral[5]}\n"
+    text += f"`-mcode` {models_mistral[6]}"
     await ctx.reply(text)
 
 async def the_real_req(url: str, payload: dict, headers: dict):

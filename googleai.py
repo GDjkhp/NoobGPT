@@ -184,7 +184,7 @@ async def GEMINI_REST(ctx: commands.Context, model: int, palm: bool):
 
 async def help_google(ctx: commands.Context):
     if await command_check(ctx, "googleai", "ai"): return
-    text  = f"`-ge`: {models[1]}\n"
-    text += f"`-flash`: {models[2]}\n"
-    text += f"`-palm`: {models[0]}"
+    text  = f"`-ge` {models[1]}\n"
+    text += f"`-flash` {models[2]}\n"
+    text += f"`-palm` {models[0]}"
     await ctx.reply(text)
