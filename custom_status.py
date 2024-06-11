@@ -51,7 +51,7 @@ async def silly_activities(bot: commands.Bot):
                 "bot by gdjkhp",
                 "made in yokohama, japan",
                 "hosted in finland",
-                "written in python and node.js",
+                "written in python",
                 "powered by pterodactyl",
             ]
             if data["data"]["kv"]: 

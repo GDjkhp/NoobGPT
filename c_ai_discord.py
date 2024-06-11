@@ -46,8 +46,8 @@ async def c_ai_init():
                 typing_chans.append(ctx.channel.id)
                 async with ctx.typing():
                     await send_webhook_message(ctx, x, text)
-            if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
         except Exception as e: print(f"Exception in c_ai_init: {e}")
+        if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
 
 # the real
 async def c_ai(bot: commands.Bot, msg: discord.Message):
@@ -88,18 +88,21 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
             if woke: chars.append(random.choice(woke))
     if not chars: return
 
+    if ctx.channel.id in typing_chans:
+        await queue_msgs(ctx, chars, clean_text)
+    else:
+        typing_chans.append(ctx.channel.id)
+        async with ctx.typing(): await queue_msgs(ctx, chars, clean_text)
+    if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
+
+async def queue_msgs(ctx, chars, clean_text):
     for x in chars:
         data = None
         try:
-            if ctx.channel.id in typing_chans:
-                data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
-            else:
-                typing_chans.append(ctx.channel.id)
-                async with ctx.typing():
-                    data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
+            data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
             if data and data.get('replies'): tasks_queue.put((ctx, x, data['replies'][0]['text']))
             else: print(data)
-        except Exception as e: print(f"Exception in c_ai: {e}, data: {data}")
+        except Exception as e: print(f"Exception in queue_msgs: {e}, data: {data}")
 
 async def add_char(ctx: commands.Context, text: str, search_type: int):
     if await command_check(ctx, "chelp", "ai"): return
@@ -223,7 +226,7 @@ async def view_char(ctx: commands.Context):
         return await ctx.reply("channel not found")
     
     if not db["characters"]: return await ctx.reply("no entries found")
-    text = f"message_rate: {db['message_rate']}%\nchannel_mode: {db['channel_mode']}\nadmin_approval: {db['admin_approval']}"
+    text = f"message_rate: `{db['message_rate']}%`\nchannel_mode: `{db['channel_mode']}`\nadmin_approval: `{db['admin_approval']}`"
     await ctx.reply(view=AvailView(ctx, db["characters"], 0), embed=view_embed(ctx, db["characters"], 0, 0x00ff00), content=text)
 
 async def edit_char(ctx: commands.Context, rate: str):
@@ -282,7 +285,11 @@ async def c_help(ctx: commands.Context):
     text += "\n`-crate <int>` set global message_rate (0-100)"
     text += "\n`-cedit <int>` set char_message_rate per channel (0-100)"
     text += "\n# Get started"
-    text += "\n`-cchan` -> `-cadd <query>`"
+    text += "\nsetup: `-cchan` -> `-cadd <query>`"
+    text += "\ndelete all chars: `-cdel` -> `💀`"
+    text += "\nstop: `-crate 0`"
+    text += "\nchannel mode: `True` = read specific channels, `False` = read all channels"
+    text += "\nadmin approval: `True` = disables most commands, `False` = enables all commands"
     await ctx.reply(text)
 
 # utils
