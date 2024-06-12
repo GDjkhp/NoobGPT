@@ -93,7 +93,6 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
     else:
         typing_chans.append(ctx.channel.id)
         async with ctx.typing(): await queue_msgs(ctx, chars, clean_text)
-    if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
 
 async def queue_msgs(ctx, chars, clean_text):
     for x in chars:
