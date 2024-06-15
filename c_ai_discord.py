@@ -24,30 +24,34 @@ async def c_ai_init():
     global loop_queue
     if loop_queue: return
     loop_queue = True
-    while True:
-        await asyncio.sleep(1) # DO NOT REMOVE
-        try:
-            if tasks_queue.empty(): continue
-            ctx, x, text = tasks_queue.get()
-            permissions: discord.Permissions = ctx.channel.permissions_for(ctx.me)
-            if not permissions.send_messages or not permissions.send_messages_in_threads: continue
-            db = await get_database(ctx.guild.id)
-            if db["channel_mode"] and not ctx.channel.id in db["channels"]: continue
-            if db["message_rate"] == 0: continue
-            exist = False
-            for char in db["characters"]:
-                if x["name"] == char["name"]:
-                    if get_rate(ctx, char) == 0: continue
-                    exist = True
-            if not exist: continue
-            if ctx.channel.id in typing_chans:
-                await send_webhook_message(ctx, x, text)
-            else:
-                typing_chans.append(ctx.channel.id)
-                async with ctx.typing():
+    try:
+        while True:
+            await asyncio.sleep(1) # DO NOT REMOVE
+            try:
+                if tasks_queue.empty(): continue
+                ctx, x, text = tasks_queue.get()
+                permissions: discord.Permissions = ctx.channel.permissions_for(ctx.me)
+                if not permissions.send_messages or not permissions.send_messages_in_threads: continue
+                db = await get_database(ctx.guild.id)
+                if db["channel_mode"] and not ctx.channel.id in db["channels"]: continue
+                if db["message_rate"] == 0: continue
+                exist = False
+                for char in db["characters"]:
+                    if x["name"] == char["name"]:
+                        if get_rate(ctx, char) == 0: continue
+                        exist = True
+                if not exist: continue
+                if ctx.channel.id in typing_chans:
                     await send_webhook_message(ctx, x, text)
-        except Exception as e: print(f"Exception in c_ai_init: {e}")
-        if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
+                else:
+                    typing_chans.append(ctx.channel.id)
+                    async with ctx.typing():
+                        await send_webhook_message(ctx, x, text)
+            except Exception as e: print(f"Exception in c_ai_init: {e}")
+            if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
+    except Exception as e: print(f"Exception in c_ai_init: Loop Escaped the Matrix, {e}")
+    loop_queue = False
+    await c_ai_init()
 
 # the real
 async def c_ai(bot: commands.Bot, msg: discord.Message):
@@ -484,32 +488,14 @@ class SelectChoice(discord.ui.Select):
 
         whs = await parent.webhooks()
         if len(whs) == 15: return await interaction.message.edit(content="webhook limit reached, please delete at least one", 
-                                                                    embed=None, view=None)
+                                                                 embed=None, view=None)
         url = "https://cdn.discordapp.com/embed/avatars/4.png"
         if selected['avatar_file_name']:
             url = f"https://characterai.io/i/400/static/avatars/{selected['avatar_file_name']}"
         img = await load_image(url)
         wh = await parent.create_webhook(name=selected["participant__name"], avatar=img)
         role = await self.ctx.guild.create_role(name=selected["participant__name"], color=0x00ff00, mentionable=True)
-        data = {
-            "name": selected["participant__name"],
-            "description": selected['title'],
-            "author": selected['user__username'],
-            "chats": int(selected['participant__num_interactions']),
-            "username": tgt,
-            "char_id": selected['external_id'], # mistake again
-            "history_id": chat["external_id"],
-            "role_id": role.id,
-            "avatar": img,
-            "webhooks": [
-                {
-                    "channel": parent.id,
-                    "url": wh.url,
-                    "char_message_rate": 100,
-                    "threads": threads,
-                }
-            ]
-        }
+        data = character_data(selected, tgt, chat, role, img, parent, wh, threads)
         await push_character(self.ctx.guild.id, data)
         await interaction.message.edit(content=f"`{selected['participant__name']}` has been added to the server", embed=None, view=None)
         tasks_queue.put((self.ctx, data, chat["messages"][0]["text"])) # wake up
@@ -850,6 +836,27 @@ async def get_database(server_id: int):
     db = await fetch_database(server_id)
     if db: return db
     return await add_database(server_id)
+
+def character_data(selected, tgt, chat, role: discord.Role, img, parent: discord.TextChannel, wh: discord.Webhook, threads):
+    return {
+        "name": selected["participant__name"],
+        "description": selected['title'],
+        "author": selected['user__username'],
+        "chats": int(selected['participant__num_interactions']),
+        "username": tgt,
+        "char_id": selected['external_id'], # mistake again
+        "history_id": chat["external_id"],
+        "role_id": role.id,
+        "avatar": img,
+        "webhooks": [
+            {
+                "channel": parent.id,
+                "url": wh.url,
+                "char_message_rate": 100,
+                "threads": threads,
+            }
+        ]
+    }
 
 async def push_character(server_id: int, data):
     await mycol.update_one({"guild":server_id}, {"$push": {"characters": dict(data)}})
