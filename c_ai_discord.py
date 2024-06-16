@@ -126,7 +126,9 @@ async def add_char(ctx: commands.Context, text: str, search_type: int):
         if not text: return await ctx.reply("usage: `-cadd <query>`")
     else: text = list_type
     try:
-        res = await search_char(text, list_type)
+        if len(text) >= 43: # char_id test
+            res = await search_char_id(text)
+        else: res = await search_char(text, list_type)
         if not res: return await ctx.reply("no results found")
         await ctx.reply(view=MyView4(ctx, text, res, 0), embed=search_embed(text, res, 0))
     except Exception as e:
@@ -305,6 +307,18 @@ async def search_char(text: str, list_type: str):
         return res["recommended_characters"]
     res = await client.character.search(text)
     return res["characters"]
+async def search_char_id(text: str):
+    chat = await client.chat.new_chat(text)
+    return [
+        {
+            "external_id": text,
+            "title": "⁉️",
+            "avatar_file_name": chat["messages"][0]["src__character__avatar_file_name"],
+            "participant__name": chat["messages"][0]["src__name"],
+            "participant__num_interactions": -1,
+            "user__username": chat["messages"][0]["src__user__username"],
+        }
+    ]
 async def load_image(url):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
