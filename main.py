@@ -2,13 +2,15 @@ import discord
 from discord.ext import commands
 import os
 from dotenv import load_dotenv
+from level_insult import insult_user, earn_xp, toggle_insult, toggle_xp, get_prefix, set_prefix_cmd, user_rank
 
 load_dotenv()
 intents = discord.Intents.default()
 intents.message_content = True
+intents.presences = True
 intents.members = True
 mentions = discord.AllowedMentions(everyone=False, users=True, roles=True, replied_user=True)
-bot = commands.Bot(command_prefix = "-", 
+bot = commands.Bot(command_prefix = get_prefix, 
                    intents = intents, 
                    help_command = None, 
                    allowed_mentions = mentions)
@@ -27,7 +29,7 @@ async def on_ready():
     number = 0
     for guild in bot.guilds:
         number += 1
-        print(f"{number}. ", guild)
+        print(f"{number}. {guild} ({guild.id})")
     print(":)")
     bot.loop.create_task(silly_activities(bot))
     bot.loop.create_task(main(bot))
@@ -35,9 +37,19 @@ async def on_ready():
     bot.loop.create_task(c_ai_init())
 
 @bot.event
+async def on_guild_join(guild: discord.Guild):
+    print(f"Joined {guild.name} ({guild.id})")
+
+@bot.event
+async def on_guild_remove(guild: discord.Guild):
+    print(f"Left {guild.name} ({guild.id})")
+
+@bot.event
 async def on_message(message: discord.Message):
     # bot.loop.create_task(main_styx(bot, message))
     bot.loop.create_task(c_ai(bot, message))
+    bot.loop.create_task(insult_user(bot, message))
+    bot.loop.create_task(earn_xp(message))
     await bot.process_commands(message)
 
 # stckovrflw
@@ -108,14 +120,30 @@ async def legal(ctx: commands.Context):
     bot.loop.create_task(copypasta(ctx))
 
 # arg
-from noobarg import start, end
-@bot.command()
-async def test(ctx: commands.Context, *, arg=None):
-    bot.loop.create_task(start(ctx, arg))
+# from noobarg import start, end
+# @bot.command()
+# async def test(ctx: commands.Context, *, arg=None):
+#     bot.loop.create_task(start(ctx, arg))
+
+# @bot.command()
+# async def a(ctx: commands.Context, *, arg=None):
+#     bot.loop.create_task(end(ctx, arg))
 
 @bot.command()
-async def a(ctx: commands.Context, *, arg=None):
-    bot.loop.create_task(end(ctx, arg))
+async def prefix(ctx: commands.Context, arg=None):
+    bot.loop.create_task(set_prefix_cmd(ctx, arg))
+
+@bot.command()
+async def insult(ctx: commands.Context):
+    bot.loop.create_task(toggle_insult(ctx))
+
+@bot.command()
+async def level(ctx: commands.Context):
+    bot.loop.create_task(toggle_xp(ctx))
+
+@bot.command()
+async def rank(ctx: commands.Context, arg=None):
+    bot.loop.create_task(user_rank(ctx, arg))
 
 # questionable
 from sflix import Sflix

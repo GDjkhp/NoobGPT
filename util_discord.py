@@ -37,12 +37,14 @@ available_categories=["ai", "games", "media", "utils"]
 ai_commands=["openai", "googleai", "petals", "perplex", "mistral", "claude", "chelp"]
 games_commands=["aki", "tic", "hang", "quiz", "word", "rps"]
 media_commands=["anime", "manga", "tv", "ytdlp", "cob", "booru"]
-utils_commands=["quote", "weather", "av", "ban", "halp", "legal"]
+utils_commands=["quote", "weather", "av", "ban", "halp", "legal", "prefix", "level", "insult"]
 available_commands = ai_commands + games_commands + media_commands + utils_commands
 
 async def command_check(ctx: commands.Context, com: str, cat: str):
-    if not type(ctx.channel) in supported: return False
-    db = await get_database(ctx.guild.id)
+    if ctx.guild:
+        if not type(ctx.channel) in supported: return False
+        db = await get_database(ctx.guild.id)
+    else: db = await get_database(ctx.channel.id)
     if com in db["disabled_commands"]: return True
     if cat in db["disabled_categories"]: return True
     if db["channel_mode"]:
@@ -68,13 +70,12 @@ async def config_commands(ctx: commands.Context):
     await ctx.reply(text)
 
 async def command_enable(ctx: commands.Context, com: str):
-    if not type(ctx.channel) in supported: return await ctx.reply("not supported")
-    if not com: return await ctx.reply("execute `-halp` to view commands")
-    if not ctx.author.guild_permissions.administrator:
+    if ctx.guild and not ctx.author.guild_permissions.administrator:
         return await ctx.reply("not an admin")
+    if not com: return await ctx.reply("execute `-halp` to view commands")
     if not com in available_commands and not com in available_categories:
         return await ctx.reply("😩")
-    db = await get_database(ctx.guild.id)
+    db = await get_database(ctx.guild.id if ctx.guild else ctx.channel.id)
     if not db["channel_mode"]: return await ctx.reply("channel_mode is disabled")
     if com in db["disabled_commands"] or com in db["disabled_categories"]:
         return await ctx.reply(f"`{com}` was disabled server-wide (enable `{com}` first)")
@@ -106,13 +107,12 @@ async def command_enable(ctx: commands.Context, com: str):
     await ctx.reply(f"`{com}` has been {res}")
 
 async def command_disable(ctx: commands.Context, com: str):
-    if not type(ctx.channel) in supported: return await ctx.reply("not supported")
-    if not com: return await ctx.reply("execute `-halp` to view commands")
-    if not ctx.author.guild_permissions.administrator:
+    if ctx.guild and not ctx.author.guild_permissions.administrator:
         return await ctx.reply("not an admin")
+    if not com: return await ctx.reply("execute `-halp` to view commands")
     if not com in available_commands and not com in available_categories:
         return await ctx.reply("😩")
-    db = await get_database(ctx.guild.id) # nonsense
+    db = await get_database(ctx.guild.id if ctx.guild else ctx.channel.id) # nonsense
     if com in available_commands:
         res = await toggle_global_command(ctx.guild.id, com)
     if com in available_categories: 
@@ -120,16 +120,14 @@ async def command_disable(ctx: commands.Context, com: str):
     await ctx.reply(f"`{com}` has been {res} server-wide")
 
 async def command_channel_mode(ctx: commands.Context):
-    if not type(ctx.channel) in supported: return await ctx.reply("not supported")
-    if not ctx.author.guild_permissions.administrator:
+    if ctx.guild and not ctx.author.guild_permissions.administrator:
         return await ctx.reply("not an admin")
-    db = await get_database(ctx.guild.id)
+    db = await get_database(ctx.guild.id if ctx.guild else ctx.channel.id)
     await set_mode(ctx.guild.id, not db["channel_mode"])
     await ctx.reply(f'channel mode is now set to {not db["channel_mode"]}')
 
 async def command_view(ctx: commands.Context):
-    if not type(ctx.channel) in supported: return await ctx.reply("not supported")
-    db = await get_database(ctx.guild.id)
+    db = await get_database(ctx.guild.id if ctx.guild else ctx.channel.id)
     text  = f"disabled_commands: `{db['disabled_commands']}`\n"
     text += f"disabled_categories: `{db['disabled_categories']}`\n"
     text += f"channel_mode: `{db['channel_mode']}`"

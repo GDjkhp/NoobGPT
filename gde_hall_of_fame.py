@@ -60,9 +60,7 @@ async def req_real(api):
         async with aiohttp.ClientSession() as session:
             async with session.get(api) as response:
                 if response.status == 200: return await response.json()
-    except Exception as e: 
-        print(e)
-    return None
+    except Exception as e: print(e)
 
 async def main(client_discord: commands.Bot):
     global loop_running_gde
@@ -71,20 +69,16 @@ async def main(client_discord: commands.Bot):
     print("gde bot started")
     old_data = await req_real(api)
     if old_data: print("mee6 api ok")
-    try:
-        while True:
-            await asyncio.sleep(delay)
-            new_data = await req_real(api)
-            if new_data:
-                server_members = get_server_members(client_discord, gde_guild_id)
-                msgs = check_level_up(old_data, new_data, server_members)
-                if msgs:
-                    channel = client_discord.get_channel(gde_channel_id)
-                    await channel.send("\n".join(msgs))
-                old_data = new_data
-    except Exception as e: print(f"Exception in gde_main: Loop Escaped the Matrix, {e}")
-    loop_running_gde = False
-    await main(client_discord)
+    while True:
+        await asyncio.sleep(delay)
+        new_data = await req_real(api)
+        if new_data:
+            server_members = get_server_members(client_discord, gde_guild_id)
+            msgs = check_level_up(old_data, new_data, server_members)
+            if msgs:
+                channel = client_discord.get_channel(gde_channel_id)
+                await channel.send("\n".join(msgs))
+            old_data = new_data
 
 # styx bot
 loop_running_rob = False
@@ -117,22 +111,18 @@ async def main_rob(client_discord: commands.Bot):
     print("robtop bot started")
     old_data = await req_real(api2)
     if old_data: print("mee6 api2 ok")
-    try:
-        while True:
-            await asyncio.sleep(delay)
-            new_data = await req_real(api2)
-            if new_data:
-                msgs = check_robert(old_data, new_data)
-                if msgs:
-                    channel = client_discord.get_channel(styx_channel_id)
-                    await channel.send("\n".join(msgs))
-                    print("robtop in chat")
-                    await asyncio.sleep(3600) # 1 hour
-                    new_data = await req_real(api2)
-                old_data = new_data
-    except Exception as e: print(f"Exception in gde_rob: Loop Escaped the Matrix, {e}")
-    loop_running_rob = False
-    await main_rob(client_discord)
+    while True:
+        await asyncio.sleep(delay)
+        new_data = await req_real(api2)
+        if new_data:
+            msgs = check_robert(old_data, new_data)
+            if msgs:
+                channel = client_discord.get_channel(styx_channel_id)
+                await channel.send("\n".join(msgs))
+                print("robtop in chat")
+                await asyncio.sleep(3600) # 1 hour
+                new_data = await req_real(api2)
+            old_data = new_data
 
 def build_attachments(message: discord.Message) -> str:
     if message.attachments:

@@ -17,6 +17,7 @@ pagelimit=12
 typing_chans = []
 supported = [discord.TextChannel, discord.VoiceChannel, discord.StageChannel, discord.ForumChannel, discord.Thread] # sussy
 loop_queue = False
+provider="https://gdjkhp.github.io/img/Character.AI.png"
 
 # queue system
 tasks_queue = Queue()
@@ -24,34 +25,32 @@ async def c_ai_init():
     global loop_queue
     if loop_queue: return
     loop_queue = True
-    try:
-        while True:
-            await asyncio.sleep(1) # DO NOT REMOVE
-            try:
-                if tasks_queue.empty(): continue
-                ctx, x, text = tasks_queue.get()
-                permissions: discord.Permissions = ctx.channel.permissions_for(ctx.me)
-                if not permissions.send_messages or not permissions.send_messages_in_threads: continue
-                db = await get_database(ctx.guild.id)
-                if db["channel_mode"] and not ctx.channel.id in db["channels"]: continue
-                if db["message_rate"] == 0: continue
-                exist = False
-                for char in db["characters"]:
-                    if x["name"] == char["name"]:
-                        if get_rate(ctx, char) == 0: continue
-                        exist = True
-                if not exist: continue
-                if ctx.channel.id in typing_chans:
+    while True:
+        await asyncio.sleep(1) # DO NOT REMOVE
+        try:
+            if tasks_queue.empty(): continue
+            ctx, x, text = tasks_queue.get()
+            permissions: discord.Permissions = ctx.channel.permissions_for(ctx.me)
+            if not permissions.send_messages or not permissions.send_messages_in_threads: continue
+            db = await get_database(ctx.guild.id)
+            if db["channel_mode"] and not ctx.channel.id in db["channels"]: continue
+            if db["message_rate"] == 0: continue
+            exist = False
+            for char in db["characters"]:
+                if x["name"] == char["name"]:
+                    if get_rate(ctx, char) == 0: continue
+                    exist = True
+            if not exist: continue
+            if ctx.channel.id in typing_chans:
+                await send_webhook_message(ctx, x, text)
+            else:
+                typing_chans.append(ctx.channel.id)
+                async with ctx.typing():
                     await send_webhook_message(ctx, x, text)
-                else:
-                    typing_chans.append(ctx.channel.id)
-                    async with ctx.typing():
-                        await send_webhook_message(ctx, x, text)
-            except Exception as e: print(f"Exception in c_ai_init: {e}")
+        except Exception as e: print(f"Exception in c_ai_init: {e}")
+        try: 
             if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
-    except Exception as e: print(f"Exception in c_ai_init: Loop Escaped the Matrix, {e}")
-    loop_queue = False
-    await c_ai_init()
+        except: print("escaped the matrix bug triggered")
 
 # the real
 async def c_ai(bot: commands.Bot, msg: discord.Message):
@@ -330,6 +329,7 @@ def get_max_page(length):
     return length - pagelimit
 def search_embed(arg: str, result: list, index: int):
     embed = discord.Embed(title=f"Search results: `{arg}`", description=f"{len(result)} found", color=0x00ff00)
+    embed.set_thumbnail(url=provider)
     i = index
     while i < len(result):
         char_name = f"[{i + 1}] `{result[i]['participant__name']}`"
@@ -341,6 +341,7 @@ def search_embed(arg: str, result: list, index: int):
     return embed
 def view_embed(ctx: commands.Context, result: list, index: int, col: int):
     embed = discord.Embed(title=ctx.guild, description=f"{len(result)} found", color=col)
+    embed.set_thumbnail(url=provider)
     i = index
     while i < len(result):
         if (i < index+pagelimit): 
@@ -473,8 +474,10 @@ class SelectChoice(discord.ui.Select):
         try:
             chat = await client.chat.new_chat(selected["external_id"])
         except Exception as e: print(e)
-        if not chat: return await interaction.message.edit(content="an error occured", embed=None, view=None)
-
+        if not chat or not chat.get('participants'): 
+            print(chat)
+            return await interaction.message.edit(content="an error occured", embed=None, view=None)
+        
         tgt = None
         for participant in chat['participants']:
             if not participant['is_human']:
@@ -821,7 +824,9 @@ class ResetChoice(discord.ui.Select):
         try:
             chat = await client.chat.new_chat(selected["char_id"])
         except Exception as e: print(e)
-        if not chat: return await interaction.message.edit(content="an error occured", embed=None, view=None)
+        if not chat or not chat.get('participants'):
+            print(chat)
+            return await interaction.message.edit(content="an error occured", embed=None, view=None)
         
         await pull_character(self.ctx.guild.id, selected)
         selected["history_id"] = chat["external_id"]

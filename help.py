@@ -122,8 +122,17 @@ async def media_embed(av: discord.Asset) -> discord.Embed:
 
 async def utils_embed(av: discord.Asset) -> discord.Embed:
     emby = create_embed(0x0000ff, av, "Utils 🔧")
+    emby.add_field(name='`-prefix <prefix>`', 
+                   value='Change bot command prefix.', 
+                   inline=False)
     emby.add_field(name='`-config`', 
-                   value='Customize how the bot works.', 
+                   value='Control bot commands.', 
+                   inline=False)
+    emby.add_field(name='`-level`', 
+                   value='Toggle levelling system. (BETA)', 
+                   inline=False)
+    emby.add_field(name='`-insult`', 
+                   value='Toggle insults.', 
                    inline=False)
     emby.add_field(name='`-quote`', 
                    value='Reply to a message to make it a quote.', 
