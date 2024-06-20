@@ -48,7 +48,7 @@ async def on_guild_remove(guild: discord.Guild):
 async def on_message(message: discord.Message):
     # bot.loop.create_task(main_styx(bot, message))
     bot.loop.create_task(c_ai(bot, message))
-    bot.loop.create_task(insult_user(bot, message))
+    # bot.loop.create_task(insult_user(bot, message))
     bot.loop.create_task(earn_xp(message))
     await bot.process_commands(message)
 

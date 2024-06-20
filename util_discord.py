@@ -31,8 +31,6 @@ async def banner(ctx: commands.Context, bot: commands.Bot, arg: str):
     await ctx.reply("There is no such thing.")
 
 # shit deed
-import discord
-supported = [discord.TextChannel, discord.VoiceChannel, discord.StageChannel, discord.ForumChannel, discord.Thread] # sussy
 available_categories=["ai", "games", "media", "utils"]
 ai_commands=["openai", "googleai", "petals", "perplex", "mistral", "claude", "chelp"]
 games_commands=["aki", "tic", "hang", "quiz", "word", "rps"]
@@ -41,10 +39,7 @@ utils_commands=["quote", "weather", "av", "ban", "halp", "legal", "prefix", "lev
 available_commands = ai_commands + games_commands + media_commands + utils_commands
 
 async def command_check(ctx: commands.Context, com: str, cat: str):
-    if ctx.guild:
-        if not type(ctx.channel) in supported: return False
-        db = await get_database(ctx.guild.id)
-    else: db = await get_database(ctx.channel.id)
+    db = await get_database(ctx.guild.id if ctx.guild else ctx.channel.id)
     if com in db["disabled_commands"]: return True
     if cat in db["disabled_categories"]: return True
     if db["channel_mode"]:
