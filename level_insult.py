@@ -122,7 +122,7 @@ async def create_bot_master_role(ctx: commands.Context):
 
 async def add_master_user(ctx: commands.Context, arg: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
+    if not ctx.author.guild_permissions.administrator: return await ctx.reply("not an admin :(")
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_roles:
         return await ctx.reply("**manage roles is disabled :(**")
