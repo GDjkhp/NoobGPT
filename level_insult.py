@@ -359,7 +359,7 @@ def get_member_roles(member: discord.Member, roles: list):
 def get_lowest_cooldown(fake_roles: list, global_cooldown):
     lowest_cd, role_id = global_cooldown, None
     for role in fake_roles:
-        if role['role_cooldown'] < lowest_cd: 
+        if role['role_cooldown'] >= 0 and role['role_cooldown'] < lowest_cd:
             lowest_cd, role_id = role['role_cooldown'], role['role_id']
     return lowest_cd, role_id
 
