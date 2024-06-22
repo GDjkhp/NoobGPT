@@ -3,7 +3,7 @@ from discord.ext import commands
 import os
 from dotenv import load_dotenv
 load_dotenv()
-from level_insult import insult_user, earn_xp, toggle_insult, toggle_xp, get_prefix, set_prefix_cmd, user_rank, add_master_user
+from level_insult import insult_user, earn_xp, toggle_insult, toggle_xp, get_prefix, set_prefix_cmd, user_rank, add_master_user, add_xp_role, edit_xp_role, delete_xp_role
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -148,6 +148,18 @@ async def rank(ctx: commands.Context, arg=None):
 @bot.command()
 async def botmaster(ctx: commands.Context, arg=None):
     bot.loop.create_task(add_master_user(ctx, arg))
+
+@bot.command()
+async def xproleadd(ctx: commands.Context, arg=None):
+    bot.loop.create_task(add_xp_role(ctx, arg))
+
+@bot.command()
+async def xproleedit(ctx: commands.Context, role_id=None, keep=None, multiplier=None, cooldown=None):
+    bot.loop.create_task(edit_xp_role(ctx, role_id, keep, multiplier, cooldown))
+
+@bot.command()
+async def xproledel(ctx: commands.Context, arg=None):
+    bot.loop.create_task(delete_xp_role(ctx, arg))
 
 # questionable
 from sflix import Sflix

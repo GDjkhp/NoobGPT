@@ -51,6 +51,7 @@ async def earn_xp(msg: discord.Message):
             data["msgs"] += 1
             data["lastUpdated"] = now
             if loop_level(data):
+                await assign_roles_logic(msg, data["level"], db['xp_roles'])
                 json_data = read_json_file(path)
                 text: str = random.choice(json_data["level up loser"]) if db["xp_troll"] else json_data["mee6 default"]
                 user_data = {"name": f"<@{msg.author.id}>", "level": data["level"]}
@@ -111,7 +112,7 @@ async def guild_lead(ctx: commands.Context):
 
 async def create_bot_master_role(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
+    if not ctx.author.guild_permissions.administrator: return await ctx.reply("not an admin :(")
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_roles:
         return await ctx.reply("**manage roles is disabled :(**")
@@ -127,7 +128,7 @@ async def add_master_user(ctx: commands.Context, arg: str):
     if not permissions.manage_roles:
         return await ctx.reply("**manage roles is disabled :(**")
     
-    if not arg: arg = ctx.author.id
+    if not arg: arg = str(ctx.author.id)
     if ctx.message.mentions: member = ctx.message.mentions[0]
     elif arg.isdigit(): member = ctx.guild.get_member(int(arg))
     else: return await ctx.reply("not a user id")
@@ -238,6 +239,24 @@ async def delete_xp_role(ctx: commands.Context, role_id: str):
     await ctx.reply(f"role not found")
 
 # utils
+async def assign_roles_logic(message: discord.Message, level: int, db_fake_roles: list):
+    highest_level_role = None
+    for r in db_fake_roles:
+        if r["role_level"] > 0 and r["role_level"] <= level: 
+            highest_level_role = r
+    if not highest_level_role: return
+    for r in message.author.roles:
+        if highest_level_role["role_id"] == r.id: return
+
+    role_del_list = []
+    for fake in db_fake_roles:
+        for r in message.author.roles:
+            if fake["role_id"] == r.id and fake["role_level"] > 0 and not fake["role_keep"]: 
+                role_del_list.append(r)
+    if role_del_list: await message.author.remove_roles(role_del_list)
+    new_role = message.guild.get_role(highest_level_role["role_id"])
+    await message.author.add_roles(new_role)
+
 def extract_number(input_str):
     pattern = r'^(-?\d+(\.\d+)?)(x.*)?$'
     match = re.match(pattern, input_str)
