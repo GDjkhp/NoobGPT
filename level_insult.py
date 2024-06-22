@@ -3,6 +3,7 @@ from discord.ext import commands
 import json
 import time
 import random
+import re
 import util_database
 from util_discord import command_check
 
@@ -107,8 +108,9 @@ async def guild_lead(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
     db = await get_database(ctx.guild.id)
     if not db["xp_module"]: return
-    await ctx.reply("under construction")
+    await ctx.reply("under construction") # TODO: query sorting first n players from highest to lowest xp, such bs
 
+# TODO: view and delete lvlmsgs, insults (use UpdateResult)
 async def add_insult(ctx: commands.Context, arg: str):
     if not arg: return await ctx.reply("usage: `-insultadd <str>`")
     await push_insult(ctx.guild.id, arg)
@@ -119,7 +121,97 @@ async def add_lvl_msg(ctx: commands.Context, arg: str):
     await push_xp_msg(ctx.guild.id, arg)
     await ctx.reply("levelup msg added. use `-lvlmsgview` to list all levelup msgs.")
 
+async def add_xp_role(ctx: commands.Context, arg: str):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if not ctx.author.guild_permissions.administrator:
+        return await ctx.reply("not an admin")
+
+    permissions = ctx.channel.permissions_for(ctx.me)
+    if not permissions.manage_roles:
+        return await ctx.reply("**manage roles is disabled :(**")
+
+    if not arg or not arg.isdigit():
+        return await ctx.reply("usage: -xprole <level>\nparameters:\n`-1` = restricted, `0` = none, `1, 2, ...` = levels")
+    
+    role = await ctx.guild.create_role(name="Level "+arg if int(arg) > 0 else "special role", mentionable=False)
+    await push_role(ctx.guild.id, role_data(role.id, int(arg)))
+    await ctx.reply(f"<@&{role.id}> has been created. edit attributes using `-xproleedit <roleid>`, `name` and `color` in server settings.")
+
+async def edit_xp_role(ctx: commands.Context, role_id: str, keep: str, multiplier: str, cooldown: str):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if not ctx.author.guild_permissions.administrator:
+        return await ctx.reply("not an admin")
+    
+    permissions = ctx.channel.permissions_for(ctx.me)
+    if not permissions.manage_roles:
+        return await ctx.reply("**manage roles is disabled :(**")
+    
+    if not role_id or not role_id.isdigit():
+        return await ctx.reply("usage: -xproleedit <roleid>")
+    
+    db = await get_database(ctx.guild.id)
+    for role in db["xp_roles"]:
+        if role["role_id"] == role_id:
+            real_role = ctx.guild.get_role(role_id)
+            if not real_role:
+                await pull_role(ctx.guild.id, role)
+                return await ctx.reply("`real_role` not found. removed from database.")
+            if keep and keep.isdigit():
+                keep = True if int(keep) else False
+            else: return await ctx.reply("`keep` not found. please enter `0` for no or `1` for yes")
+
+            if not multiplier: multiplier = role['role_multiplier'] # maintain -1 for none
+            else:
+                mulx = extract_number(multiplier) # TODO: does this support negatives?
+                if not mulx: return await ctx.reply("`multiplier` not found. please enter in `1.75x` or `1` format.")
+                multiplier = mulx
+
+            if not cooldown: cooldown = role['role_cooldown'] # maintain -1 for none
+            else:
+                if not cooldown.isdigit(): return await ctx.reply("`cooldown` not found. please enter a valid integer.")
+                cooldown = int(cooldown)
+
+            role_update = role_data(role_id, role['level'])
+            role_update['role_keep'] = keep
+            role_update['role_multiplier'] = multiplier
+            role_update['role_cooldown'] = cooldown
+            await pull_role(ctx.guild.id, role)
+            await push_role(ctx.guild.id, role_update)
+            return await ctx.reply(f"role updated\n{role_update}")
+    await ctx.reply(f"role not found")
+
+async def delete_xp_role(ctx: commands.Context, role_id: str):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if not ctx.author.guild_permissions.administrator:
+        return await ctx.reply("not an admin")
+    
+    permissions = ctx.channel.permissions_for(ctx.me)
+    if not permissions.manage_roles:
+        return await ctx.reply("**manage roles is disabled :(**")
+    
+    if not role_id or not role_id.isdigit():
+        return await ctx.reply("usage: -xproledel <roleid>")
+
+    db = await get_database(ctx.guild.id)
+    for role in db["xp_roles"]:
+        if role["role_id"] == role_id:
+            await pull_role(ctx.guild.id, role)
+            real_role = ctx.guild.get_role(role_id)
+            if not real_role:
+                return await ctx.reply("`real_role` not found. removed from database.")
+            await real_role.delete()
+            return await ctx.reply("role removed from server and database.")
+    await ctx.reply(f"role not found")
+
 # utils
+def extract_number(input_str):
+    pattern = r'^(-?\d+(\.\d+)?)(x.*)?$'
+    match = re.match(pattern, input_str)
+    if match:
+        if match.group(1):
+            number = float(match.group(1)) if '.' in match.group(1) else int(match.group(1))
+            return 1 if number <= 0 else number
+
 def getTotalXP(n): return int((5 * (91 * n + 27 * n ** 2 + 2 * n ** 3)) / 6)
 
 def read_json_file(file_path):
@@ -187,16 +279,16 @@ def player_data(xp, id, time):
         "msgs": 1
     }
 
-def role_data(id: int, level: int, keep: bool, multiply: int, cooldown: int):
+def role_data(id: int, level: int):
     return {
         "role_id": id,
-        "role_keep": keep,
-        "role_level": level, # -1: none
-        "role_multiplier": multiply, # 0: restricted, -1: none
-        "role_cooldown": cooldown # suppresses global cooldown
+        "role_level": level,
+        "role_keep": False,
+        "role_multiplier": 0 if level < 0 else -1, # 0: restricted, -1: none
+        "role_cooldown": -1 # suppresses global cooldown, -1: none
     }
 
-def channel_data(id, cd, rate):
+def channel_data(id, cd, rate): # TODO: fuck you colon. you're making this difficult. stop raising the bar. my dad hates me now.
     return {
         "channel_id": id,
         "channel_xp_cooldown": cd,
@@ -282,16 +374,16 @@ async def set_mode(server_id: int, b: bool):
     await mycol.update_one({"guild":server_id}, {"$set": {"xp_channel_mode": b}})
 
 async def push_insult(server_id: int, data):
-    await mycol.update_one({"guild":server_id}, {"$push": {"roasts": data}})
+    return await mycol.update_one({"guild":server_id}, {"$push": {"roasts": data}})
 
 async def pull_insult(server_id: int, data):
-    await mycol.update_one({"guild":server_id}, {"$pull": {"roasts": data}})
+    return await mycol.update_one({"guild":server_id}, {"$pull": {"roasts": data}})
 
 async def push_xp_msg(server_id: int, data):
-    await mycol.update_one({"guild":server_id}, {"$push": {"xp_messages": data}})
+    return await mycol.update_one({"guild":server_id}, {"$push": {"xp_messages": data}})
 
 async def pull_xp_msg(server_id: int, data):
-    await mycol.update_one({"guild":server_id}, {"$pull": {"xp_messages": data}})
+    return await mycol.update_one({"guild":server_id}, {"$pull": {"xp_messages": data}})
 
 async def push_role(server_id: int, data):
     await mycol.update_one({"guild":server_id}, {"$push": {"xp_roles": dict(data)}})

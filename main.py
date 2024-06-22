@@ -2,9 +2,9 @@ import discord
 from discord.ext import commands
 import os
 from dotenv import load_dotenv
+load_dotenv()
 from level_insult import insult_user, earn_xp, toggle_insult, toggle_xp, get_prefix, set_prefix_cmd, user_rank
 
-load_dotenv()
 intents = discord.Intents.default()
 intents.message_content = True
 intents.presences = True
@@ -48,7 +48,7 @@ async def on_guild_remove(guild: discord.Guild):
 async def on_message(message: discord.Message):
     # bot.loop.create_task(main_styx(bot, message))
     bot.loop.create_task(c_ai(bot, message))
-    # bot.loop.create_task(insult_user(bot, message))
+    bot.loop.create_task(insult_user(bot, message))
     bot.loop.create_task(earn_xp(message))
     await bot.process_commands(message)
 
