@@ -8,14 +8,13 @@ import re
 from queue import Queue
 import util_database
 import os
-from util_discord import command_check
+from util_discord import command_check, check_if_master_or_admin as check
 
 mycol = util_database.myclient["ai"]["character"]
 client = PyAsyncCAI(os.getenv('CHARACTER'))
 list_types = ["search", "trending", "recommended"]
 pagelimit=12
 typing_chans = []
-supported = [discord.TextChannel, discord.VoiceChannel, discord.StageChannel, discord.ForumChannel, discord.Thread] # sussy
 loop_queue = False
 provider="https://gdjkhp.github.io/img/Character.AI.png"
 
@@ -54,7 +53,7 @@ async def c_ai_init():
 
 # the real
 async def c_ai(bot: commands.Bot, msg: discord.Message):
-    if not type(msg.channel) in supported: return
+    if not msg.guild: return
     if msg.author.id == bot.user.id: return
     if msg.content and msg.content[0] == "-": return # ignore commands
     # if msg.content == "": return # you can send blank messages
@@ -107,16 +106,15 @@ async def queue_msgs(ctx, chars, clean_text):
         except Exception as e: print(f"Exception in queue_msgs: {e}, data: {data}")
 
 async def add_char(ctx: commands.Context, text: str, search_type: int):
+    if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "chelp", "ai"): return
-    if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     
+    if not await check(ctx): return await ctx.reply("not a bot master or an admin")
     db = await get_database(ctx.guild.id)
-    if db["admin_approval"] and not ctx.author.guild_permissions.administrator:
-        return await ctx.reply("not an admin")
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
         return await ctx.reply("channel not found")
     
@@ -135,16 +133,15 @@ async def add_char(ctx: commands.Context, text: str, search_type: int):
         await ctx.reply("an error occured")
 
 async def delete_char(ctx: commands.Context):
+    if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "chelp", "ai"): return
-    if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     
+    if not await check(ctx): return await ctx.reply("not a bot master or an admin")
     db = await get_database(ctx.guild.id)
-    if db["admin_approval"] and not ctx.author.guild_permissions.administrator:
-        return await ctx.reply("not an admin")
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
         return await ctx.reply("channel not found")
     
@@ -152,62 +149,55 @@ async def delete_char(ctx: commands.Context):
     await ctx.reply(view=DeleteView(ctx, db["characters"], 0), embed=view_embed(ctx, db["characters"], 0, 0xff0000))
 
 async def t_chan(ctx: commands.Context):
+    if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "chelp", "ai"): return
-    if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     
-    db = await get_database(ctx.guild.id)
-    if db["admin_approval"] and not ctx.author.guild_permissions.administrator:
-        return await ctx.reply("not an admin")
-    
+    if not await check(ctx): return await ctx.reply("not a bot master or an admin")
+    db = await get_database(ctx.guild.id) # nonsense
     ok = await toggle_chan(ctx.guild.id, ctx.channel.id)
     if ok: await ctx.reply("channel added to the list")
     else: await ctx.reply("channel removed from the list")
 
-async def t_adm(ctx: commands.Context):
+async def t_adm(ctx: commands.Context): # deprecated
+    if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "chelp", "ai"): return
-    if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     
-    if not ctx.author.guild_permissions.administrator:
-        return await ctx.reply("not an admin")
-    
+    if not await check(ctx): return await ctx.reply("not a bot master or an admin")
     db = await get_database(ctx.guild.id)
     await set_admin(ctx.guild.id, not db["admin_approval"])
     await ctx.reply(f'admin approval is now set to {not db["admin_approval"]}')
 
 async def t_mode(ctx: commands.Context):
+    if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "chelp", "ai"): return
-    if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     
-    if not ctx.author.guild_permissions.administrator:
-        return await ctx.reply("not an admin")
-    
+    if not await check(ctx): return await ctx.reply("not a bot master or an admin")
     db = await get_database(ctx.guild.id)
     await set_mode(ctx.guild.id, not db["channel_mode"])
     await ctx.reply(f'channel mode is now set to {not db["channel_mode"]}')
 
 async def set_rate(ctx: commands.Context, num):
+    if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "chelp", "ai"): return
-    if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     
+    if not await check(ctx): return await ctx.reply("not a bot master or an admin")
     db = await get_database(ctx.guild.id)
-    if db["admin_approval"] and not ctx.author.guild_permissions.administrator:
-        return await ctx.reply("not an admin")
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
         return await ctx.reply("channel not found")
     
@@ -218,8 +208,8 @@ async def set_rate(ctx: commands.Context, num):
     await ctx.reply(f"message_rate is now set to {num}")
 
 async def view_char(ctx: commands.Context):
+    if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "chelp", "ai"): return
-    if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -234,16 +224,15 @@ async def view_char(ctx: commands.Context):
     await ctx.reply(view=AvailView(ctx, db["characters"], 0), embed=view_embed(ctx, db["characters"], 0, 0x00ff00), content=text)
 
 async def edit_char(ctx: commands.Context, rate: str):
+    if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "chelp", "ai"): return
-    if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     
+    if not await check(ctx): return await ctx.reply("not a bot master or an admin")
     db = await get_database(ctx.guild.id)
-    if db["admin_approval"] and not ctx.author.guild_permissions.administrator:
-        return await ctx.reply("not an admin")
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
         return await ctx.reply("channel not found")
     
@@ -256,16 +245,15 @@ async def edit_char(ctx: commands.Context, rate: str):
                     embed=view_embed(ctx, db["characters"], 0, 0x00ffff))
 
 async def reset_char(ctx: commands.Context):
+    if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "chelp", "ai"): return
-    if not type(ctx.channel) in supported: return await ctx.reply("not supported")
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
     
+    if not await check(ctx): return await ctx.reply("not a bot master or an admin")
     db = await get_database(ctx.guild.id)
-    if db["admin_approval"] and not ctx.author.guild_permissions.administrator:
-        return await ctx.reply("not an admin")
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
         return await ctx.reply("channel not found")
 
@@ -291,6 +279,7 @@ async def c_help(ctx: commands.Context):
     text += "\n# Get started"
     text += "\nsetup: `-cchan` -> `-cadd <query>`"
     text += "\ndelete all chars: `-cdel` -> `💀`"
+    text += "\nreset all chars: `-cres` -> `💀`"
     text += "\nstop: `-crate 0`"
     text += "\nchannel mode: `True` = read specific channels, `False` = read all channels"
     text += "\nadmin approval: `True` = disables most commands, `False` = enables all commands"
@@ -839,7 +828,7 @@ class ResetChoice(discord.ui.Select):
 async def add_database(server_id: int):
     data = {
         "guild": server_id,
-        "admin_approval": False,
+        "admin_approval": False, # deprecated, use nodeports -> bot master role
         "message_rate": 66,
         "channel_mode": True,
         "channels": [],

@@ -5,7 +5,7 @@ import time
 import random
 import re
 import util_database
-from util_discord import command_check
+from util_discord import command_check, check_if_master_or_admin
 
 mycol = util_database.myclient["utils"]["nodeports"]
 path="./res/mandatory_settings_and_splashes.json"
@@ -67,15 +67,14 @@ async def get_prefix(bot: commands.Bot, message: discord.Message):
 # commands
 async def set_prefix_cmd(ctx: commands.Context, arg: str):
     if await command_check(ctx, "prefix", "utils"): return
-    if ctx.guild and not ctx.author.guild_permissions.administrator:
-        return await ctx.reply("not an admin")
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     if not arg: return await ctx.reply("usage: `-prefix <prefix>`")
-    db = await get_database(ctx.guild.id if ctx.guild else ctx.channel.id) # nonsense
     await set_prefix(ctx.guild.id, arg)
     await ctx.reply(f"prefix has been set to `{arg}`")
 
 async def toggle_insult(ctx: commands.Context):
     if await command_check(ctx, "insult", "utils"): return
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     db = await get_database(ctx.guild.id if ctx.guild else ctx.channel.id)
     b = not db["insult_module"]
     await set_insult(ctx.guild.id, b)
@@ -84,8 +83,7 @@ async def toggle_insult(ctx: commands.Context):
 async def toggle_xp(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "level", "utils"): return
-    if not ctx.author.guild_permissions.administrator:
-        return await ctx.reply("not an admin")
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     db = await get_database(ctx.guild.id)
     b = not db["xp_module"]
     await set_xp(ctx.guild.id, b)
@@ -109,23 +107,58 @@ async def guild_lead(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
     db = await get_database(ctx.guild.id)
     if not db["xp_module"]: return
-    await ctx.reply("under construction") # TODO: query sorting first n players from highest to lowest xp, such bs
+    await ctx.reply("under construction") # TODO: query sorting first n players from highest to lowest xp, such bs (hint: wordle)
+
+async def create_bot_master_role(ctx: commands.Context):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
+    permissions = ctx.channel.permissions_for(ctx.me)
+    if not permissions.manage_roles:
+        return await ctx.reply("**manage roles is disabled :(**")
+    db = await get_database(ctx.guild.id) # nonsense
+    role = await ctx.guild.create_role(name="noobgpt bot master", mentionable=False)
+    await set_master_role(ctx.guild.id, role.id)
+    await ctx.reply(f"<@&{role.id}> role added")
+
+async def add_master_user(ctx: commands.Context, arg: str):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
+    permissions = ctx.channel.permissions_for(ctx.me)
+    if not permissions.manage_roles:
+        return await ctx.reply("**manage roles is disabled :(**")
+    
+    if not arg: arg = ctx.author.id
+    if ctx.message.mentions: member = ctx.message.mentions[0]
+    elif arg.isdigit(): member = ctx.guild.get_member(int(arg))
+    else: return await ctx.reply("not a user id")
+    if not member: return await ctx.reply("user not found")
+
+    db = await get_database(ctx.guild.id)
+    if not db.get("bot_master_role"):
+        await create_bot_master_role(ctx)
+        db = await get_database(ctx.guild.id) # update
+
+    role = ctx.guild.get_role(db["bot_master_role"])
+    if not role: return await ctx.reply("role not found")
+    await member.add_roles(role)
+    await ctx.reply(f"bot master role <@&{role.id}> added to <@{member.id}>")
 
 # TODO: view and delete lvlmsgs, insults (use UpdateResult)
 async def add_insult(ctx: commands.Context, arg: str):
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     if not arg: return await ctx.reply("usage: `-insultadd <str>`")
     await push_insult(ctx.guild.id, arg)
     await ctx.reply("insult added. use `-insultview` to list all insults.")
 
 async def add_lvl_msg(ctx: commands.Context, arg: str):
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     if not arg: return await ctx.reply(f"usage: `-lvlmsgadd <str>`\nformat: {read_json_file(path)['mee6 default']}")
     await push_xp_msg(ctx.guild.id, arg)
     await ctx.reply("levelup msg added. use `-lvlmsgview` to list all levelup msgs.")
 
 async def add_xp_role(ctx: commands.Context, arg: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if not ctx.author.guild_permissions.administrator:
-        return await ctx.reply("not an admin")
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
 
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_roles:
@@ -140,8 +173,7 @@ async def add_xp_role(ctx: commands.Context, arg: str):
 
 async def edit_xp_role(ctx: commands.Context, role_id: str, keep: str, multiplier: str, cooldown: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if not ctx.author.guild_permissions.administrator:
-        return await ctx.reply("not an admin")
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_roles:
@@ -156,20 +188,22 @@ async def edit_xp_role(ctx: commands.Context, role_id: str, keep: str, multiplie
             real_role = ctx.guild.get_role(role_id)
             if not real_role:
                 await pull_role(ctx.guild.id, role)
-                return await ctx.reply("`real_role` not found. removed from database.")
+                return await ctx.reply("`real_role` not found.\nremoved from database.")
             if keep and keep.isdigit():
                 keep = True if int(keep) else False
-            else: return await ctx.reply("`keep` not found. please enter `0` for no or `1` for yes")
+            else: return await ctx.reply("`keep` not found.\nplease enter `0` for no or `1` for yes")
 
             if not multiplier: multiplier = role['role_multiplier'] # maintain -1 for none
             else:
-                mulx = extract_number(multiplier) # TODO: does this support negatives?
-                if not mulx: return await ctx.reply("`multiplier` not found. please enter in `1.75x` or `1` format.")
+                mulx = extract_number(multiplier)
+                if not mulx: 
+                    m_str = "`multiplier` not found.\nplease enter in `1.75x` or `1` format. use `0` for xp restriction, `-1` for none."
+                    return await ctx.reply(m_str)
                 multiplier = mulx
 
             if not cooldown: cooldown = role['role_cooldown'] # maintain -1 for none
             else:
-                if not cooldown.isdigit(): return await ctx.reply("`cooldown` not found. please enter a valid integer.")
+                if not cooldown.isdigit(): return await ctx.reply("`cooldown` not found.\nplease enter a valid integer. use `-1` for none.")
                 cooldown = int(cooldown)
 
             role_update = role_data(role_id, role['level'])
@@ -183,8 +217,7 @@ async def edit_xp_role(ctx: commands.Context, role_id: str, keep: str, multiplie
 
 async def delete_xp_role(ctx: commands.Context, role_id: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if not ctx.author.guild_permissions.administrator:
-        return await ctx.reply("not an admin")
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_roles:
@@ -199,7 +232,7 @@ async def delete_xp_role(ctx: commands.Context, role_id: str):
             await pull_role(ctx.guild.id, role)
             real_role = ctx.guild.get_role(role_id)
             if not real_role:
-                return await ctx.reply("`real_role` not found. removed from database.")
+                return await ctx.reply("`real_role` not found.\nremoved from database.")
             await real_role.delete()
             return await ctx.reply("role removed from server and database.")
     await ctx.reply(f"role not found")
@@ -211,7 +244,7 @@ def extract_number(input_str):
     if match:
         if match.group(1):
             number = float(match.group(1)) if '.' in match.group(1) else int(match.group(1))
-            return 1 if number <= 0 else number
+            return -1 if number < 0 else number
 
 def getTotalXP(n): return int((5 * (91 * n + 27 * n ** 2 + 2 * n ** 3)) / 6)
 
@@ -326,6 +359,7 @@ async def add_database(server_id: int):
     data = {
         "guild": server_id,
         "prefix": "-",
+        "bot_master_role": 0,
         "insult_module": True,
         "insult_default": True,
         "xp_module": False,
@@ -391,3 +425,6 @@ async def push_role(server_id: int, data):
 
 async def pull_role(server_id: int, data):
     await mycol.update_one({"guild":server_id}, {"$pull": {"xp_roles": dict(data)}})
+
+async def set_master_role(server_id: int, data):
+    await mycol.update_one({"guild":server_id}, {"$set": {"bot_master_role": data}})

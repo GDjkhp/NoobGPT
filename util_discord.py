@@ -38,16 +38,6 @@ media_commands=["anime", "manga", "tv", "ytdlp", "cob", "booru"]
 utils_commands=["quote", "weather", "av", "ban", "halp", "legal", "prefix", "level", "insult"]
 available_commands = ai_commands + games_commands + media_commands + utils_commands
 
-async def command_check(ctx: commands.Context, com: str, cat: str):
-    db = await get_database(ctx.guild.id if ctx.guild else ctx.channel.id)
-    if com in db["disabled_commands"]: return True
-    if cat in db["disabled_categories"]: return True
-    if db["channel_mode"]:
-        for chan in db["channels"]:
-            if chan["id"] == ctx.channel.id:
-                if com in chan["commands"]: return False
-        return True
-    
 def category_to_commands(cat: str, commands: list):
     y = []
     if cat == "ai":    y = ai_commands
@@ -65,8 +55,7 @@ async def config_commands(ctx: commands.Context):
     await ctx.reply(text)
 
 async def command_enable(ctx: commands.Context, com: str):
-    if ctx.guild and not ctx.author.guild_permissions.administrator:
-        return await ctx.reply("not an admin")
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     if not com: return await ctx.reply("execute `-halp` to view commands")
     if not com in available_commands and not com in available_categories:
         return await ctx.reply("😩")
@@ -102,8 +91,7 @@ async def command_enable(ctx: commands.Context, com: str):
     await ctx.reply(f"`{com}` has been {res}")
 
 async def command_disable(ctx: commands.Context, com: str):
-    if ctx.guild and not ctx.author.guild_permissions.administrator:
-        return await ctx.reply("not an admin")
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     if not com: return await ctx.reply("execute `-halp` to view commands")
     if not com in available_commands and not com in available_categories:
         return await ctx.reply("😩")
@@ -115,8 +103,7 @@ async def command_disable(ctx: commands.Context, com: str):
     await ctx.reply(f"`{com}` has been {res} server-wide")
 
 async def command_channel_mode(ctx: commands.Context):
-    if ctx.guild and not ctx.author.guild_permissions.administrator:
-        return await ctx.reply("not an admin")
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     db = await get_database(ctx.guild.id if ctx.guild else ctx.channel.id)
     await set_mode(ctx.guild.id, not db["channel_mode"])
     await ctx.reply(f'channel mode is now set to {not db["channel_mode"]}')
@@ -186,3 +173,51 @@ async def toggle_global_cat(server_id: int, cat: str):
     if await mycol.find_one({"guild":server_id, "disabled_categories": cat}):
         return await pull_cat(server_id, cat)
     return await push_cat(server_id, cat)
+
+# database handling sequel
+mycol2 = util_database.myclient["utils"]["nodeports"]
+async def add_database2(server_id: int):
+    data = {
+        "guild": server_id,
+        "prefix": "-",
+        "bot_master_role": 0,
+        "insult_module": True,
+        "insult_default": True,
+        "xp_module": False,
+        "xp_troll": True,
+        "xp_channel_mode": False,
+        "xp_rate": 1,
+        "xp_cooldown": 60,
+        "channels": [],
+        "xp_roles": [],
+        "xp_messages": [],
+        "roasts": [],
+        "players": []
+    }
+    await mycol2.insert_one(data)
+    return data
+
+async def fetch_database2(server_id: int):
+    return await mycol2.find_one({"guild":server_id})
+
+async def get_database2(server_id: int):
+    db = await fetch_database2(server_id)
+    if db: return db
+    return await add_database2(server_id)
+
+# public code for everyone to share, free to use
+async def command_check(ctx: commands.Context, com: str, cat: str):
+    db = await get_database(ctx.guild.id if ctx.guild else ctx.channel.id)
+    if com in db["disabled_commands"]: return True
+    if cat in db["disabled_categories"]: return True
+    if db["channel_mode"]:
+        for chan in db["channels"]:
+            if chan["id"] == ctx.channel.id:
+                if com in chan["commands"]: return False
+        return True
+
+async def check_if_master_or_admin(ctx: commands.Context):
+    if not ctx.guild: return True # dm support, fuck you guys <3
+    db = await get_database2(ctx.guild.id)
+    check = db.get("bot_master_role") and ctx.guild.get_role(db["bot_master_role"]) in ctx.author.roles
+    if check or ctx.author.guild_permissions.administrator: return True
