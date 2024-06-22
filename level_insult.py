@@ -182,7 +182,7 @@ async def edit_xp_role(ctx: commands.Context, role_id: str, keep: str, multiplie
     
     if not role_id or not role_id.isdigit():
         return await ctx.reply("usage: -xproleedit <roleid>")
-    
+    role_id = int(role_id)
     db = await get_database(ctx.guild.id)
     for role in db["xp_roles"]:
         if role["role_id"] == role_id:
@@ -207,7 +207,7 @@ async def edit_xp_role(ctx: commands.Context, role_id: str, keep: str, multiplie
                 if not cooldown.isdigit(): return await ctx.reply("`cooldown` not found.\nplease enter a valid integer. use `-1` for none.")
                 cooldown = int(cooldown)
 
-            role_update = role_data(role_id, role['level'])
+            role_update = role_data(role_id, role['role_level'])
             role_update['role_keep'] = keep
             role_update['role_multiplier'] = multiplier
             role_update['role_cooldown'] = cooldown
@@ -226,7 +226,7 @@ async def delete_xp_role(ctx: commands.Context, role_id: str):
     
     if not role_id or not role_id.isdigit():
         return await ctx.reply("usage: -xproledel <roleid>")
-
+    role_id = int(role_id)
     db = await get_database(ctx.guild.id)
     for role in db["xp_roles"]:
         if role["role_id"] == role_id:
