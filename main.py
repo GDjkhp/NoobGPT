@@ -108,6 +108,14 @@ async def view(ctx: commands.Context):
     bot.loop.create_task(command_view(ctx))
 
 @bot.command()
+async def prefix(ctx: commands.Context, arg=None):
+    bot.loop.create_task(set_prefix_cmd(ctx, arg))
+
+@bot.command()
+async def botmaster(ctx: commands.Context, arg=None):
+    bot.loop.create_task(add_master_user(ctx, arg))
+
+@bot.command()
 async def ban(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(banner(ctx, bot, arg))
 
@@ -119,14 +127,28 @@ async def av(ctx: commands.Context, *, arg=None):
 async def legal(ctx: commands.Context):
     bot.loop.create_task(copypasta(ctx))
 
-@bot.command()
-async def prefix(ctx: commands.Context, arg=None):
-    bot.loop.create_task(set_prefix_cmd(ctx, arg))
-
+# insults
 @bot.command()
 async def insult(ctx: commands.Context):
     bot.loop.create_task(toggle_insult(ctx))
 
+@bot.command()
+async def insultview(ctx: commands.Context):
+    bot.loop.create_task(view_insults(ctx))
+
+@bot.command()
+async def insultadd(ctx: commands.Context, *, arg=None):
+    bot.loop.create_task(add_insult(ctx, arg))
+
+@bot.command()
+async def insultdel(ctx: commands.Context, *, arg=None):
+    bot.loop.create_task(del_insult(ctx, arg))
+
+@bot.command()
+async def insulthelp(ctx: commands.Context):
+    bot.loop.create_task(help_insult(ctx))
+
+# xp level system
 @bot.command()
 async def xp(ctx: commands.Context):
     bot.loop.create_task(toggle_xp(ctx))
@@ -138,10 +160,6 @@ async def rank(ctx: commands.Context, arg=None):
 @bot.command()
 async def levels(ctx: commands.Context):
     bot.loop.create_task(guild_lead(ctx))
-
-@bot.command()
-async def botmaster(ctx: commands.Context, arg=None):
-    bot.loop.create_task(add_master_user(ctx, arg))
 
 @bot.command()
 async def xproleadd(ctx: commands.Context, arg=None):
@@ -156,24 +174,12 @@ async def xproledel(ctx: commands.Context, arg=None):
     bot.loop.create_task(delete_xp_role(ctx, arg))
 
 @bot.command()
-async def insultview(ctx: commands.Context):
-    bot.loop.create_task(view_insults(ctx))
-
-@bot.command()
 async def lvlmsgview(ctx: commands.Context):
     bot.loop.create_task(view_lvlmsgs(ctx))
 
 @bot.command()
-async def insultadd(ctx: commands.Context, *, arg=None):
-    bot.loop.create_task(add_insult(ctx, arg))
-
-@bot.command()
 async def lvlmsgadd(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(add_lvl_msg(ctx, arg))
-
-@bot.command()
-async def insultdel(ctx: commands.Context, *, arg=None):
-    bot.loop.create_task(del_insult(ctx, arg))
 
 @bot.command()
 async def lvlmsgdel(ctx: commands.Context, *, arg=None):
@@ -184,12 +190,8 @@ async def lvlmsgtroll(ctx: commands.Context):
     bot.loop.create_task(toggle_troll(ctx))
 
 @bot.command()
-async def levelhelp(ctx: commands.Context):
+async def xphelp(ctx: commands.Context):
     bot.loop.create_task(help_level(ctx))
-
-@bot.command()
-async def insulthelp(ctx: commands.Context):
-    bot.loop.create_task(help_insult(ctx))
 
 # questionable
 from sflix import Sflix
@@ -244,6 +246,16 @@ from cobalt import COBALT_API
 async def cob(ctx: commands.Context, *, arg:str=""):
     bot.loop.create_task(COBALT_API(ctx, arg.split()))
 
+from quoteport import quote_this
+@bot.command()
+async def quote(ctx: commands.Context):
+    bot.loop.create_task(quote_this(ctx))
+
+from weather import Weather
+@bot.command()
+async def weather(ctx: commands.Context, *, arg=None):
+    bot.loop.create_task(Weather(ctx, arg))
+
 # :|
 from gelbooru import R34, GEL, SAFE, help_booru
 @bot.command()
@@ -258,16 +270,6 @@ async def gel(ctx: commands.Context, *, arg=None):
 @bot.command()
 async def safe(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(SAFE(ctx, arg))
-
-from quoteport import quote_this
-@bot.command()
-async def quote(ctx: commands.Context):
-    bot.loop.create_task(quote_this(ctx))
-
-from weather import Weather
-@bot.command()
-async def weather(ctx: commands.Context, *, arg=None):
-    bot.loop.create_task(Weather(ctx, arg))
 
 # AI
 from perplexity import *
