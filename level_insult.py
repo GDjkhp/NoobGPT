@@ -46,7 +46,7 @@ async def earn_xp(msg: discord.Message):
         if data["userID"] == msg.author.id:
             cooldown, role_id = get_lowest_cooldown(fake_roles, db['xp_cooldown'])
             if not now - data["lastUpdated"] >= cooldown: return
-            await pull_player(msg.guild.id, data)
+            await pull_player(msg.guild.id, data) # TODO: very bad on 0 cd
             data["xp"] += xp
             data["msgs"] += 1
             data["lastUpdated"] = now
@@ -253,7 +253,7 @@ async def assign_roles_logic(message: discord.Message, level: int, db_fake_roles
         for r in message.author.roles:
             if fake["role_id"] == r.id and fake["role_level"] > 0 and not fake["role_keep"]: 
                 role_del_list.append(r)
-    if role_del_list: await message.author.remove_roles(role_del_list)
+    if role_del_list: await message.author.remove_roles(*role_del_list)
     new_role = message.guild.get_role(highest_level_role["role_id"])
     await message.author.add_roles(new_role)
 
