@@ -49,9 +49,8 @@ def category_to_commands(cat: str, commands: list):
 
 async def config_commands(ctx: commands.Context):
     text = "`-view` View available commands.\n"
-    text = "`-botmaster <user/userid>` Adds bot master role to a user.\n"
-    text = "`-prefix <prefix>` Change bot command prefix.\n"
-    text = "`-view` View available commands.\n"
+    text+= "`-botmaster [user/userid]` Adds bot master role to a user.\n"
+    text+= "`-prefix [prefix]` Change bot command prefix.\n"
     text+= "`-channel` Toggle channel mode, where you can set specific commands per channel.\n"
     text+= "`-toggle [command]` Toggle command. Requires channel mode.\n"
     text+= "`-disable [command]` Disable command server-wide."
