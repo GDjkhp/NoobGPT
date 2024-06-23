@@ -35,7 +35,7 @@ available_categories=["ai", "games", "media", "utils"]
 ai_commands=["openai", "googleai", "petals", "perplex", "mistral", "claude", "chelp"]
 games_commands=["aki", "tic", "hang", "quiz", "word", "rps"]
 media_commands=["anime", "manga", "tv", "ytdlp", "cob", "booru"]
-utils_commands=["quote", "weather", "av", "ban", "halp", "legal", "prefix", "level", "insult"]
+utils_commands=["quote", "weather", "av", "ban", "halp", "legal", "xp", "insult"]
 available_commands = ai_commands + games_commands + media_commands + utils_commands
 
 def category_to_commands(cat: str, commands: list):
@@ -49,9 +49,12 @@ def category_to_commands(cat: str, commands: list):
 
 async def config_commands(ctx: commands.Context):
     text = "`-view` View available commands.\n"
-    text+= "`-channel` Toggle channel mode, where you can set specific commands per channel. (admin-only)\n"
-    text+= "`-toggle [command]` Toggle command. Requires channel mode. (admin-only)\n"
-    text+= "`-disable [command]` Disable command server-wide. (admin-only)"
+    text = "`-botmaster <user/userid>` Adds bot master role to a user.\n"
+    text = "`-prefix <prefix>` Change bot command prefix.\n"
+    text = "`-view` View available commands.\n"
+    text+= "`-channel` Toggle channel mode, where you can set specific commands per channel.\n"
+    text+= "`-toggle [command]` Toggle command. Requires channel mode.\n"
+    text+= "`-disable [command]` Disable command server-wide."
     await ctx.reply(text)
 
 async def command_enable(ctx: commands.Context, com: str):

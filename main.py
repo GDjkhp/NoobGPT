@@ -3,7 +3,7 @@ from discord.ext import commands
 import os
 from dotenv import load_dotenv
 load_dotenv()
-from level_insult import insult_user, earn_xp, toggle_insult, toggle_xp, get_prefix, set_prefix_cmd, user_rank, add_master_user, add_xp_role, edit_xp_role, delete_xp_role
+from level_insult import *
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -19,9 +19,9 @@ bot = commands.Bot(command_prefix = get_prefix,
 # from request_listener import keep_alive
 # keep_alive()
 
-from gde_hall_of_fame import main, main_rob, main_styx
-from c_ai_discord import add_char, delete_char, t_chan, t_adm, c_ai, set_rate, c_help, t_mode, view_char, c_ai_init, edit_char, reset_char
-from custom_status import silly_activities, view_kv, get_kv, set_kv, del_kv
+from gde_hall_of_fame import *
+from c_ai_discord import *
+from custom_status import *
 @bot.event
 async def on_ready():
     print(f"{bot.user.name} (c) 2024 The Karakters Kompany. All rights reserved.")
@@ -49,7 +49,7 @@ async def on_message(message: discord.Message):
     # bot.loop.create_task(main_styx(bot, message))
     bot.loop.create_task(c_ai(bot, message))
     bot.loop.create_task(insult_user(bot, message))
-    bot.loop.create_task(earn_xp(message))
+    bot.loop.create_task(earn_xp(bot, message))
     await bot.process_commands(message)
 
 # stckovrflw
@@ -86,7 +86,7 @@ async def halp(ctx: commands.Context):
     bot.loop.create_task(HALP(ctx, bot.user.avatar))
 
 # discord
-from util_discord import avatar, banner, copypasta, command_channel_mode, command_enable, command_disable, command_view, config_commands
+from util_discord import *
 @bot.command()
 async def config(ctx: commands.Context):
     bot.loop.create_task(config_commands(ctx))
@@ -119,16 +119,6 @@ async def av(ctx: commands.Context, *, arg=None):
 async def legal(ctx: commands.Context):
     bot.loop.create_task(copypasta(ctx))
 
-# arg
-# from noobarg import start, end
-# @bot.command()
-# async def test(ctx: commands.Context, *, arg=None):
-#     bot.loop.create_task(start(ctx, arg))
-
-# @bot.command()
-# async def a(ctx: commands.Context, *, arg=None):
-#     bot.loop.create_task(end(ctx, arg))
-
 @bot.command()
 async def prefix(ctx: commands.Context, arg=None):
     bot.loop.create_task(set_prefix_cmd(ctx, arg))
@@ -138,12 +128,16 @@ async def insult(ctx: commands.Context):
     bot.loop.create_task(toggle_insult(ctx))
 
 @bot.command()
-async def level(ctx: commands.Context):
+async def xp(ctx: commands.Context):
     bot.loop.create_task(toggle_xp(ctx))
 
 @bot.command()
 async def rank(ctx: commands.Context, arg=None):
     bot.loop.create_task(user_rank(ctx, arg))
+
+@bot.command()
+async def levels(ctx: commands.Context):
+    bot.loop.create_task(guild_lead(ctx))
 
 @bot.command()
 async def botmaster(ctx: commands.Context, arg=None):
@@ -160,6 +154,42 @@ async def xproleedit(ctx: commands.Context, role_id=None, keep=None, multiplier=
 @bot.command()
 async def xproledel(ctx: commands.Context, arg=None):
     bot.loop.create_task(delete_xp_role(ctx, arg))
+
+@bot.command()
+async def insultview(ctx: commands.Context):
+    bot.loop.create_task(view_insults(ctx))
+
+@bot.command()
+async def lvlmsgview(ctx: commands.Context):
+    bot.loop.create_task(view_lvlmsgs(ctx))
+
+@bot.command()
+async def insultadd(ctx: commands.Context, *, arg=None):
+    bot.loop.create_task(add_insult(ctx, arg))
+
+@bot.command()
+async def lvlmsgadd(ctx: commands.Context, *, arg=None):
+    bot.loop.create_task(add_lvl_msg(ctx, arg))
+
+@bot.command()
+async def insultdel(ctx: commands.Context, *, arg=None):
+    bot.loop.create_task(del_insult(ctx, arg))
+
+@bot.command()
+async def lvlmsgdel(ctx: commands.Context, *, arg=None):
+    bot.loop.create_task(del_lvl_msg(ctx, arg))
+
+@bot.command()
+async def lvlmsgtroll(ctx: commands.Context):
+    bot.loop.create_task(toggle_troll(ctx))
+
+@bot.command()
+async def levelhelp(ctx: commands.Context):
+    bot.loop.create_task(help_level(ctx))
+
+@bot.command()
+async def insulthelp(ctx: commands.Context):
+    bot.loop.create_task(help_insult(ctx))
 
 # questionable
 from sflix import Sflix
@@ -240,7 +270,7 @@ async def weather(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(Weather(ctx, arg))
 
 # AI
-from perplexity import main_perplexity, help_perplexity, main_anthropic, main_mistral, help_claude, help_mistral
+from perplexity import *
 @bot.command()
 async def claude(ctx: commands.Context):
     bot.loop.create_task(help_claude(ctx))
@@ -325,7 +355,7 @@ async def smc(ctx: commands.Context):
 async def smo(ctx: commands.Context):
     bot.loop.create_task(main_perplexity(ctx, 7))
 
-from openai_ import chat, image, gpt3, help_openai
+from openai_ import *
 @bot.command()
 async def ask(ctx: commands.Context):
     bot.loop.create_task(chat(ctx))
@@ -453,5 +483,15 @@ async def rps(ctx: commands.Context):
 # @bot.command()
 # async def place(ctx: commands.Context, x: str=None, y: str=None, z: str=None):
 #     bot.loop.create_task(PLACE(ctx, x, y, z))
+
+# arg
+# from noobarg import start, end
+# @bot.command()
+# async def test(ctx: commands.Context, *, arg=None):
+#     bot.loop.create_task(start(ctx, arg))
+
+# @bot.command()
+# async def a(ctx: commands.Context, *, arg=None):
+#     bot.loop.create_task(end(ctx, arg))
 
 bot.run(os.getenv("TOKEN"))
