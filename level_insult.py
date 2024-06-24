@@ -378,7 +378,7 @@ def embed_xp(member: discord.Member, data, fake_roles: list, cooldown, role_id, 
     if member.avatar: embed.set_author(name=member, icon_url=member.avatar.url)
     else: embed.set_author(name=member)
 
-    cd_role = f"<@&{role_id}>: " if role_id else ""
+    cd_role = f"<@&{role_id}>\n" if role_id else ""
     multiplier_strs = []
     for role in fake_roles:
         if not role['role_multiplier'] == -1:
