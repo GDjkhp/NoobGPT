@@ -157,7 +157,7 @@ async def add_xp_role(ctx: commands.Context, arg: str):
     if not permissions.manage_roles:
         return await ctx.reply("**manage roles is disabled :(**")
 
-    if not arg or not arg.isdigit():
+    if not arg or not arg.lstrip('-').isdigit():
         return await ctx.reply("usage: -xprole <level>\nparameters:\n`-1` = restricted, `0` = none, `1, 2, ...` = levels")
     
     role = await ctx.guild.create_role(name="Level "+arg if int(arg) > 0 else "special role" if int(arg) == 0 else "xp restriction", 
@@ -198,7 +198,7 @@ async def edit_xp_role(ctx: commands.Context, role_id: str, keep: str, multiplie
 
             if not cooldown: cooldown = role['role_cooldown'] # maintain -1 for none
             else:
-                if not cooldown.isdigit(): return await ctx.reply("`cooldown` not found.\nplease enter a valid integer. use `-1` for none.")
+                if not cooldown.lstrip('-').isdigit(): return await ctx.reply("`cooldown` not found.\nplease enter a valid integer. use `-1` for none.")
                 cooldown = int(cooldown)
 
             role_update = role_data(role_id, role['role_level'])

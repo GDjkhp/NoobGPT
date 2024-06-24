@@ -223,3 +223,7 @@ async def check_if_master_or_admin(ctx: commands.Context):
     db = await get_database2(ctx.guild.id)
     check = db.get("bot_master_role") and ctx.guild.get_role(db["bot_master_role"]) in ctx.author.roles
     if check or ctx.author.guild_permissions.administrator: return True
+
+async def get_guild_prefix(ctx: commands.Context):
+    db = await get_database2(ctx.guild.id if ctx.guild else ctx.channel.id)
+    return db["prefix"]
