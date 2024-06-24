@@ -106,7 +106,7 @@ async def user_rank(ctx: commands.Context, arg: str):
     for player in player_db["players"]:
         if player['userID'] == int(arg):
             fake_roles = get_member_roles(ctx.author, db['xp_roles'])
-            fake_chan = get_channel_data(ctx.guild.id, db["channels"])
+            fake_chan = get_channel_data(ctx.channel.id, db["channels"])
             cooldown, t_id, t_type = get_lowest_cooldown(fake_roles, fake_chan, db['xp_cooldown'])
             return await ctx.reply(embed=embed_xp(ctx.author, player, fake_roles, cooldown, t_id, db['xp_rate'], t_type, fake_chan))
     await ctx.reply("null player")
