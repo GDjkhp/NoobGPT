@@ -199,7 +199,7 @@ async def edit_xp_role(ctx: commands.Context, role_id: str, keep: str, multiplie
                 if not mulx: 
                     m_str = "`multiplier` not found.\nplease enter in `1.75x` or `1` format. use `0` for xp restriction, `-1` for none."
                     return await ctx.reply(m_str)
-                multiplier = mulx
+                multiplier = float(mulx)
 
             if not cooldown: cooldown = role['role_cooldown'] # maintain -1 for none
             else:
@@ -262,11 +262,11 @@ async def edit_special_channel(ctx: commands.Context, rate: str, cooldown: str):
     for chan in db["channels"]:
         if chan["channel_id"] == ctx.channel.id:
             m_str = "`rate` not found.\nplease enter in `1.75x` or `1` format. use `0` for xp restriction, `-1` for none."
-            if rate:
+            if not rate: return await ctx.reply(m_str)
+            else:
                 mulx = extract_number(rate)
                 if not mulx: return await ctx.reply(m_str)
-                rate = mulx
-            else: return await ctx.reply(m_str)
+                rate = float(mulx)
 
             if not cooldown: cooldown = chan['channel_xp_cooldown'] # maintain -1 for none
             else:
@@ -393,7 +393,7 @@ def extract_number(input_str):
     if match:
         if match.group(1):
             number = float(match.group(1)) if '.' in match.group(1) else int(match.group(1))
-            return -1 if number < 0 else number
+            return str(-1) if number < 0 else str(number)
 
 def getTotalXP(n): return int((5 * (91 * n + 27 * n ** 2 + 2 * n ** 3)) / 6)
 
