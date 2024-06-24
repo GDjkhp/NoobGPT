@@ -193,6 +193,14 @@ async def lvlmsgtroll(ctx: commands.Context):
 async def xphelp(ctx: commands.Context):
     bot.loop.create_task(help_level(ctx))
 
+@bot.command()
+async def xpchan(ctx: commands.Context):
+    bot.loop.create_task(toggle_special_channel(ctx))
+
+@bot.command()
+async def xpchanedit(ctx: commands.Context, rate=None, cd=None):
+    bot.loop.create_task(edit_special_channel(ctx, rate, cd))
+
 # questionable
 from sflix import Sflix
 @bot.command()
