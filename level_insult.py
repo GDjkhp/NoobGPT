@@ -275,8 +275,8 @@ async def edit_special_channel(ctx: commands.Context, rate: str, cooldown: str):
                 cooldown = int(cooldown)
             
             fake_chan = channel_data(ctx.channel.id, rate, cooldown)
-            await pull_channel(chan)
-            await push_channel(fake_chan)
+            await pull_channel(ctx.guild.id, chan)
+            await push_channel(ctx.guild.id, fake_chan)
             return await ctx.reply(f"channel updated\n{fake_chan}")
     await ctx.reply("channel not found")
 
