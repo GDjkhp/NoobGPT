@@ -8,6 +8,7 @@ import util_database
 from util_discord import command_check, check_if_master_or_admin
 
 mycol = util_database.myclient["utils"]["nodeports"]
+mycol_players = util_database.myclient["utils"]["xp_players"]
 path="./res/mandatory_settings_and_splashes.json"
 
 # noobgpt sucks without insults they said
@@ -36,16 +37,17 @@ async def earn_xp(bot: commands.Bot, msg: discord.Message):
     if msg.content and msg.content[0] == "-": return # TODO: ignore commands
     db = await get_database(msg.guild.id)
     if not db["xp_module"]: return
-    if db["xp_channel_mode"] and not msg.channel.id in db["channels"]: return
 
+    fake_chan = get_channel_data(msg.channel.id, db["channels"])
     fake_roles = get_member_roles(msg.author, db['xp_roles'])
-    if check_member_if_xp_restricted(fake_roles): return
-    multipliers = get_all_multipliers(fake_roles, db["xp_rate"])
+    if check_member_if_xp_restricted(fake_roles, fake_chan): return
+    multipliers = get_all_multipliers(fake_roles, fake_chan, db["xp_rate"])
     xp = int(random.randint(15, 25) * multipliers)
     now = time.time()
-    for data in db["players"]:
+    player_db = await get_player_db(msg.guild.id)
+    for data in player_db["players"]:
         if data["userID"] == msg.author.id:
-            cooldown, role_id = get_lowest_cooldown(fake_roles, db['xp_cooldown'])
+            cooldown, t_id, t_type = get_lowest_cooldown(fake_roles, fake_chan, db['xp_cooldown'])
             if not now - data["lastUpdated"] >= cooldown: return
             await pull_player(msg.guild.id, data)
             data["xp"] += xp
@@ -100,11 +102,13 @@ async def user_rank(ctx: commands.Context, arg: str):
     if not db["xp_module"]: return
     if not arg: arg = ctx.author.id
     elif not arg.isdigit(): return await ctx.reply("not a digit :(\nusage: `-rank <userid>`")
-    for player in db['players']:
+    player_db = await get_player_db(ctx.guild.id)
+    for player in player_db["players"]:
         if player['userID'] == int(arg):
             fake_roles = get_member_roles(ctx.author, db['xp_roles'])
-            cooldown, role_id = get_lowest_cooldown(fake_roles, db['xp_cooldown'])
-            return await ctx.reply(embed=embed_xp(ctx.author, player, fake_roles, cooldown, role_id, db['xp_rate']))
+            fake_chan = get_channel_data(ctx.guild.id, db["channels"])
+            cooldown, t_id, t_type = get_lowest_cooldown(fake_roles, fake_chan, db['xp_cooldown'])
+            return await ctx.reply(embed=embed_xp(ctx.author, player, fake_roles, cooldown, t_id, db['xp_rate'], t_type, fake_chan))
     await ctx.reply("null player")
 
 async def guild_lead(ctx: commands.Context):
@@ -184,6 +188,7 @@ async def edit_xp_role(ctx: commands.Context, role_id: str, keep: str, multiplie
             if not real_role:
                 await pull_role(ctx.guild.id, role)
                 return await ctx.reply("`real_role` not found.\nremoved from database.")
+            
             if keep and keep.isdigit():
                 keep = True if int(keep) else False
             else: return await ctx.reply("`keep` not found.\nplease enter `0` for no or `1` for yes")
@@ -198,7 +203,8 @@ async def edit_xp_role(ctx: commands.Context, role_id: str, keep: str, multiplie
 
             if not cooldown: cooldown = role['role_cooldown'] # maintain -1 for none
             else:
-                if not cooldown.lstrip('-').isdigit(): return await ctx.reply("`cooldown` not found.\nplease enter a valid integer. use `-1` for none.")
+                if not cooldown.lstrip('-').isdigit(): 
+                    return await ctx.reply("`cooldown` not found.\nplease enter a valid integer. use `-1` for none.")
                 cooldown = int(cooldown)
 
             role_update = role_data(role_id, role['role_level'])
@@ -232,6 +238,47 @@ async def delete_xp_role(ctx: commands.Context, role_id: str):
             await real_role.delete()
             return await ctx.reply("role removed from server and database.")
     await ctx.reply(f"role not found")
+
+async def toggle_special_channel(ctx: commands.Context):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if await command_check(ctx, "level", "utils"): return
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
+
+    db = await get_database(ctx.guild.id)
+    for chan in db["channels"]:
+        if chan["channel_id"] == ctx.channel.id:
+            await pull_channel(ctx.guild.id, chan)
+            return await ctx.reply("channel has been removed from the database")
+    
+    await push_channel(ctx.guild.id, channel_data(ctx.channel.id, 0, 0))
+    await ctx.reply("channel has been added to the database with an xp rate and cooldown of `0`. edit entry using `-xpchanedit`")
+
+async def edit_special_channel(ctx: commands.Context, rate: str, cooldown: str):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if await command_check(ctx, "level", "utils"): return
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
+
+    db = await get_database(ctx.guild.id)
+    for chan in db["channels"]:
+        if chan["channel_id"] == ctx.channel.id:
+            m_str = "`rate` not found.\nplease enter in `1.75x` or `1` format. use `0` for xp restriction, `-1` for none."
+            if rate:
+                mulx = extract_number(rate)
+                if not mulx: return await ctx.reply(m_str)
+                rate = mulx
+            else: return await ctx.reply(m_str)
+
+            if not cooldown: cooldown = chan['channel_xp_cooldown'] # maintain -1 for none
+            else:
+                if not cooldown.lstrip('-').isdigit(): 
+                    return await ctx.reply("`cooldown` not found.\nplease enter a valid integer. use `-1` for none.")
+                cooldown = int(cooldown)
+            
+            fake_chan = channel_data(ctx.channel.id, rate, cooldown)
+            await pull_channel(chan)
+            await push_channel(fake_chan)
+            return await ctx.reply(f"channel updated\n{fake_chan}")
+    await ctx.reply("channel not found")
 
 async def toggle_troll(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
@@ -373,25 +420,34 @@ def draw_bar(data):
     bar = "▓" * filled_chars + "░" * (bars - filled_chars)
     return bar[:bars] # hard limit
 
-def embed_xp(member: discord.Member, data, fake_roles: list, cooldown, role_id, global_rate):
+def embed_xp(member: discord.Member, data, fake_roles: list, cooldown, t_id, global_rate, t_type, fake_chan):
     embed = discord.Embed(color=0x00ff00)
     if member.avatar: embed.set_author(name=member, icon_url=member.avatar.url)
     else: embed.set_author(name=member)
 
-    cd_role = f"<@&{role_id}>\n" if role_id else ""
+    if t_type:
+        if t_type == "role": cd_role = f"<@&{t_id}>\n"
+        if t_type == "channel": cd_role = f"<#{t_id}>\n" 
+    else: cd_role = ""
+
+    xp_restricted = False
     multiplier_strs = []
     for role in fake_roles:
         if not role['role_multiplier'] == -1:
             multiplier_strs.append(f"<@&{role['role_id']}>: {role['role_multiplier']}x")
         if role['role_multiplier'] == 0:
+            xp_restricted = True
             multiplier_strs = [f"<@&{role['role_id']}>: {role['role_multiplier']}x"]
             break
+
+    if not xp_restricted and fake_chan: 
+        multiplier_strs.append(f"<#{fake_chan['channel_id']}>: {fake_chan['channel_xp_rate']}x")
     
     msgs = data['msgs']
     level = data['level']
     total_xp = data['xp']
-    current_xp = total_xp - getTotalXP(data['level'])
-    current_xp_limit = getTotalXP(data['level']+1)
+    current_xp = total_xp - getTotalXP(level)
+    current_xp_limit = getTotalXP(level+1)
     current_xp_remain = current_xp_limit - current_xp
     cooldown_left = max(0, int(data['lastUpdated']+cooldown-time.time()))
     xp_percent = round((current_xp / current_xp_limit) * 100, 2)
@@ -401,9 +457,9 @@ def embed_xp(member: discord.Member, data, fake_roles: list, cooldown, role_id, 
     embed.add_field(name="🕓 Cooldown", value=f"{cd_role}{cooldown}s ({cooldown_left}s left)")
     if multiplier_strs:
         value = "\n".join(multiplier_strs)
-        value+= f"\n**Total multiplier: {get_all_multipliers(fake_roles, global_rate)}x**"
+        value+= f"\n**Total multiplier: {get_all_multipliers(fake_roles, fake_chan, global_rate)}x**"
         embed.add_field(name="🌟 Multiplier", value=value)
-    embed.set_footer(text=f"{draw_bar(data)}\nRate: {global_rate}x, {current_xp} / {current_xp_limit} XP ({xp_percent}%)\nMessage count: {msgs}") # \n? messages to go!
+    embed.set_footer(text=f"{draw_bar(data)}\nRate: {global_rate}x, {current_xp} / {current_xp_limit} XP ({xp_percent}%)\nTotal XP: {total_xp}, Message count: {msgs}") # \n? messages to go!
     return embed
 
 def player_data(xp, id, time):
@@ -424,11 +480,11 @@ def role_data(id: int, level: int):
         "role_cooldown": -1 # suppresses global cooldown, -1: none
     }
 
-def channel_data(id, cd, rate): # TODO: fuck you colon. you're making this difficult. stop raising the bar. my dad hates me now.
+def channel_data(id, rate, cd): # TODO: fuck you colon. you're making this difficult. stop raising the bar. my dad hates me now.
     return {
         "channel_id": id,
-        "channel_xp_cooldown": cd,
-        "channel_xp_rate": rate
+        "channel_xp_rate": rate,
+        "channel_xp_cooldown": cd
     }
 
 def get_member_roles(member: discord.Member, roles: list):
@@ -439,22 +495,30 @@ def get_member_roles(member: discord.Member, roles: list):
                 fake_roles.append(db_role)
     return fake_roles
 
-def get_lowest_cooldown(fake_roles: list, global_cooldown):
-    lowest_cd, role_id = global_cooldown, None
+def get_lowest_cooldown(fake_roles: list, fake_chan, global_cooldown):
+    lowest_cd, t_id, t_type = global_cooldown, None, None
+    if fake_chan and fake_chan["channel_xp_cooldown"] >= 0 and fake_chan["channel_xp_cooldown"] < lowest_cd:
+            lowest_cd, t_id, t_type = fake_chan["channel_xp_cooldown"], fake_chan["channel_id"], "channel"
     for role in fake_roles:
         if role['role_cooldown'] >= 0 and role['role_cooldown'] < lowest_cd:
-            lowest_cd, role_id = role['role_cooldown'], role['role_id']
-    return lowest_cd, role_id
+            lowest_cd, t_id, t_type = role['role_cooldown'], role['role_id'], "role"
+    return lowest_cd, t_id, t_type
 
-def check_member_if_xp_restricted(fake_roles: list):
+def check_member_if_xp_restricted(fake_roles: list, fake_chan):
     for role in fake_roles:
         if role['role_multiplier'] == 0: return True
+    if fake_chan and fake_chan["channel_xp_rate"] == 0: return True
 
-def get_all_multipliers(fake_roles: list, global_rate):
+def get_all_multipliers(fake_roles: list, fake_chan, global_rate):
     total_multipliers = global_rate
     for role in fake_roles:
-        if not role['role_multiplier'] == -1: total_multipliers += role['role_multiplier']
+        if not role['role_multiplier'] < 0: total_multipliers += role['role_multiplier']
+    if fake_chan and not fake_chan["channel_xp_rate"] < 0: total_multipliers += fake_chan["channel_xp_rate"]
     return total_multipliers
+
+def get_channel_data(chan_id: int, fake_chans: list):
+    for chan in fake_chans:
+        if chan["channel_id"] == chan_id: return chan
 
 # database handling
 async def add_database(server_id: int):
@@ -462,17 +526,16 @@ async def add_database(server_id: int):
         "guild": server_id,
         "prefix": "-",
         "bot_master_role": 0,
+        "bot_rank_channel": 0,
         "insult_module": True,
         "roasts": [],
         "xp_module": False,
         "xp_troll": False,
-        "xp_channel_mode": False,
         "xp_rate": 1,
         "xp_cooldown": 60,
-        "channels": [],
         "xp_roles": [],
         "xp_messages": [],
-        "players": []
+        "channels": [],
     }
     await mycol.insert_one(data)
     return data
@@ -485,14 +548,30 @@ async def get_database(server_id: int):
     if db: return db
     return await add_database(server_id)
 
+async def add_player_db(server_id: int):
+    data = {
+        "guild": server_id,
+        "players": [],
+    }
+    await mycol_players.insert_one(data)
+    return data
+
+async def fetch_player_db(server_id: int):
+    return await mycol_players.find_one({"guild":server_id})
+
+async def get_player_db(server_id: int):
+    db = await fetch_player_db(server_id)
+    if db: return db
+    return await add_player_db(server_id)
+
 async def set_prefix(server_id: int, p):
     await mycol.update_one({"guild":server_id}, {"$set": {"prefix": p}})
 
 async def push_player(server_id: int, data):
-    await mycol.update_one({"guild":server_id}, {"$push": {"players": dict(data)}})
+    await mycol_players.update_one({"guild":server_id}, {"$push": {"players": dict(data)}})
 
 async def pull_player(server_id: int, data):
-    await mycol.update_one({"guild":server_id}, {"$pull": {"players": dict(data)}})
+    await mycol_players.update_one({"guild":server_id}, {"$pull": {"players": dict(data)}})
 
 async def set_insult(server_id: int, b: bool):
     await mycol.update_one({"guild":server_id}, {"$set": {"insult_module": b}})
@@ -505,9 +584,6 @@ async def set_cooldown(server_id: int, b):
 
 async def set_rate(server_id: int, b):
     await mycol.update_one({"guild":server_id}, {"$set": {"xp_rate": b}})
-
-async def set_mode(server_id: int, b: bool):
-    await mycol.update_one({"guild":server_id}, {"$set": {"xp_channel_mode": b}})
 
 async def set_troll_mode(server_id: int, b: bool):
     await mycol.update_one({"guild":server_id}, {"$set": {"xp_troll": b}})
@@ -532,3 +608,12 @@ async def pull_role(server_id: int, data):
 
 async def set_master_role(server_id: int, data):
     await mycol.update_one({"guild":server_id}, {"$set": {"bot_master_role": data}})
+
+async def push_channel(server_id: int, data):
+    await mycol.update_one({"guild":server_id}, {"$push": {"channels": dict(data)}})
+
+async def pull_channel(server_id: int, data):
+    await mycol.update_one({"guild":server_id}, {"$pull": {"channels": dict(data)}})
+
+async def set_rank_channel(server_id: int, data):
+    await mycol.update_one({"guild":server_id}, {"$set": {"bot_rank_channel": data}})
