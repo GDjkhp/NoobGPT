@@ -398,7 +398,7 @@ def embed_xp(member: discord.Member, data, fake_roles: list, cooldown, role_id, 
 
     embed.add_field(name="✨ XP", value=f"{current_xp} (lv. {level})")
     embed.add_field(name="⏩ Next level", value=f"{current_xp_limit} ({current_xp_remain} more)")
-    embed.add_field(name="🕓 Cooldown", value=f"{cooldown}s ({cd_role}{cooldown_left}s left)")
+    embed.add_field(name="🕓 Cooldown", value=f"{cd_role}{cooldown}s ({cooldown_left}s left)")
     if multiplier_strs:
         value = "\n".join(multiplier_strs)
         value+= f"\n**Total multiplier: {get_all_multipliers(fake_roles, global_rate)}x**"
