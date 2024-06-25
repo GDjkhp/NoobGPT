@@ -100,6 +100,7 @@ async def user_rank(ctx: commands.Context, arg: str):
     if await command_check(ctx, "level", "utils"): return
     db = await get_database(ctx.guild.id)
     if not db["xp_module"]: return
+    if db.get("bot_rank_channel") and not db["bot_rank_channel"] == ctx.channel.id: return
     if not arg: arg = ctx.author.id
     elif not arg.isdigit(): return await ctx.reply("not a digit :(\nusage: `-rank <userid>`")
     player_db = await get_player_db(ctx.guild.id)
@@ -116,6 +117,7 @@ async def guild_lead(ctx: commands.Context):
     if await command_check(ctx, "level", "utils"): return
     db = await get_database(ctx.guild.id)
     if not db["xp_module"]: return
+    if db.get("bot_rank_channel") and not db["bot_rank_channel"] == ctx.channel.id: return
     await ctx.reply("under construction") # TODO: query sorting first n players from highest to lowest xp, such bs (hint: wordle)
 
 # unused command, created automagically
@@ -362,6 +364,19 @@ async def user_set_level(ctx: commands.Context, user: str, number: str):
     if await command_check(ctx, "level", "utils"): return
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
 
+async def rank_channel(ctx: commands.Context):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if await command_check(ctx, "level", "utils"): return
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
+
+    db = await get_database(ctx.guild.id)
+    if db["bot_rank_channel"] == ctx.channel.id:
+        await set_rank_channel(ctx.guild.id, 0)
+        await ctx.reply("rank channel has been removed. everyone can use `-rank` and `-levels` everywhere.")
+    else:
+        await set_rank_channel(ctx.guild.id, ctx.channel.id)
+        await ctx.reply("rank channel has been added. everyone can use `-rank` and `-levels` only in this channel.")
+
 async def help_level(ctx: commands.Context):
     await ctx.reply("placeholder")
 
@@ -427,7 +442,7 @@ def embed_xp(member: discord.Member, data, fake_roles: list, cooldown, t_id, glo
 
     if t_type:
         if t_type == "role": cd_role = f"<@&{t_id}>\n"
-        if t_type == "channel": cd_role = f"<#{t_id}>\n" 
+        if t_type == "channel": cd_role = f"<#{t_id}>\n"
     else: cd_role = ""
 
     xp_restricted = False
@@ -480,7 +495,7 @@ def role_data(id: int, level: int):
         "role_cooldown": -1 # suppresses global cooldown, -1: none
     }
 
-def channel_data(id, rate, cd): # TODO: fuck you colon. you're making this difficult. stop raising the bar. my dad hates me now.
+def channel_data(id, rate, cd):
     return {
         "channel_id": id,
         "channel_xp_rate": rate,
@@ -512,8 +527,13 @@ def check_member_if_xp_restricted(fake_roles: list, fake_chan):
 def get_all_multipliers(fake_roles: list, fake_chan, global_rate):
     total_multipliers = global_rate
     for role in fake_roles:
-        if not role['role_multiplier'] < 0: total_multipliers += role['role_multiplier']
-    if fake_chan and not fake_chan["channel_xp_rate"] < 0: total_multipliers += fake_chan["channel_xp_rate"]
+        if role['role_multiplier'] == 0: return 0
+        if not role['role_multiplier'] < 0:
+            total_multipliers += role['role_multiplier']
+    if fake_chan:
+        if fake_chan["channel_xp_rate"] == 0: return 0
+        if not fake_chan["channel_xp_rate"] < 0:
+            total_multipliers += fake_chan["channel_xp_rate"]
     return total_multipliers
 
 def get_channel_data(chan_id: int, fake_chans: list):

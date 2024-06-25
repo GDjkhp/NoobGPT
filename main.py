@@ -201,6 +201,10 @@ async def xpchan(ctx: commands.Context):
 async def xpchanedit(ctx: commands.Context, rate=None, cd=None):
     bot.loop.create_task(edit_special_channel(ctx, rate, cd))
 
+@bot.command()
+async def xprankchan(ctx: commands.Context):
+    bot.loop.create_task(rank_channel(ctx))
+
 # questionable
 from sflix import Sflix
 @bot.command()
