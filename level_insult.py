@@ -370,7 +370,7 @@ async def rank_channel(ctx: commands.Context):
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
 
     db = await get_database(ctx.guild.id)
-    if db["bot_rank_channel"] == ctx.channel.id:
+    if db.get("bot_rank_channel") and db["bot_rank_channel"] == ctx.channel.id:
         await set_rank_channel(ctx.guild.id, 0)
         await ctx.reply("rank channel has been removed. everyone can use `-rank` and `-levels` everywhere.")
     else:
