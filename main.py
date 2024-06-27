@@ -22,6 +22,7 @@ bot = commands.Bot(command_prefix = get_prefix,
 from gde_hall_of_fame import *
 from c_ai_discord import *
 from custom_status import *
+from music import setup_hook_music
 @bot.event
 async def on_ready():
     print(f"{bot.user.name} (c) 2024 The Karakters Kompany. All rights reserved.")
@@ -30,11 +31,17 @@ async def on_ready():
     for guild in bot.guilds:
         number += 1
         print(f"{number}. {guild} ({guild.id})")
-    print(":)")
     bot.loop.create_task(silly_activities(bot))
     bot.loop.create_task(main(bot))
     bot.loop.create_task(main_rob(bot))
     bot.loop.create_task(c_ai_init())
+    await setup_hook_music(bot)
+    await bot.load_extension('spotifyplayer')
+    await bot.load_extension('youtubeplayer')
+    # dayum i can do these with cogs?
+    # await bot.unload_extension('spotifyplayer')
+    # await bot.unload_extension('youtubeplayer')
+    print(":)")
 
 @bot.event
 async def on_guild_join(guild: discord.Guild):
@@ -63,6 +70,11 @@ async def on_app_command_error(interaction, error):
     pass
 
 # personal
+@bot.command(name="rmusic")
+async def reload_music(ctx: commands.Context):
+    if not ctx.author.id == 729554186777133088: return
+    await setup_hook_music(bot)
+
 @bot.command()
 async def kvview(ctx: commands.Context):
     bot.loop.create_task(view_kv(ctx))
