@@ -37,11 +37,9 @@ async def silly_activities(bot: commands.Bot):
     loop_status = True
     while True:
         try:
-            data = await the_real_req(f"https://api.lanyard.rest/v1/users/{user_id}")
             splashes = read_json_file("./res/mandatory_settings_and_splashes.json")["some funny splashes you can modify"]
             strings = [
                 f"serving {len(bot.users)} users in {len(bot.guilds)} guilds",
-                f"gdjkhp is currently {data['data']['discord_status']}",
                 f"will return in {round(bot.latency*1000)}ms",
                 time.strftime("%A, %d %B %Y"),
                 "get started: -halp",
@@ -54,9 +52,12 @@ async def silly_activities(bot: commands.Bot):
                 "written in python",
                 "powered by pterodactyl",
             ]
-            if data["data"]["kv"]: 
-                for key in list(data["data"]["kv"]):
-                    strings.append(data["data"]["kv"][key])
+            data = await the_real_req(f"https://api.lanyard.rest/v1/users/{user_id}")
+            if data["success"]: 
+                strings.append(f"gdjkhp is currently {data['data']['discord_status']}")
+                if data["data"]["kv"]: 
+                    for key in list(data["data"]["kv"]):
+                        strings.append(data["data"]["kv"][key])
             strings.append(random.choice(splashes))
             await bot.change_presence(activity=discord.CustomActivity(name=random.choice(strings)), 
                                     status=discord.Status.dnd)
