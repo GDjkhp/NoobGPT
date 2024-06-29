@@ -14,4 +14,4 @@ Flask
 pycryptodome
 motor
 yt-dlp
-python-ffmpeg
+ffmpeg-python
