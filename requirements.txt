@@ -1,0 +1,16 @@
+discord.py
+python-dotenv
+wavelink
+httpx
+curl-cffi
+beautifulsoup4
+websockets
+pygelbooru
+pillow
+pydantic
+openai
+imagetext-py
+Flask
+pycryptodome
+motor
+yt-dlp

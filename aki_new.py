@@ -48,7 +48,7 @@ class Akinator:
         self.question = None
         self.progression = None
         self.step = None
-        self.akitude = None
+        # self.akitude = None
         self.step_last_proposition = ""
 
         self.win = False
@@ -59,12 +59,12 @@ class Akinator:
     async def __update(self, action: str, resp):
         if action == "answer":
             self.win = False
-            self.akitude = resp['akitude']
+            # self.akitude = resp['akitude']
             self.step = int(resp['step'])
             self.progression = float(resp['progression'])
             self.question = resp['question']
         elif action == "back":
-            self.akitude = resp['akitude']
+            # self.akitude = resp['akitude']
             self.step = int(resp['step'])
             self.progression = float(resp['progression'])
             self.question = resp['question']
