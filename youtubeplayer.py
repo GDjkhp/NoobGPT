@@ -8,6 +8,7 @@ class YouTubePlayer(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.queue = Queue()
+        self.queue_copy = Queue()
         self.vc = None
 
     @commands.Cog.listener()
@@ -15,6 +16,9 @@ class YouTubePlayer(commands.Cog):
         await self.play_next_track()
 
     async def play_next_track(self):
+        if self.queue.mode == wavelink.QueueMode.loop: return await self.vc.play(self.vc.current)
+        if self.queue.is_empty and self.queue.mode == wavelink.QueueMode.loop_all:
+            self.queue = self.queue_copy
         if not self.queue.is_empty:
             next_track = self.queue.get()
             await self.vc.play(next_track)
@@ -122,6 +126,8 @@ class YouTubePlayer(commands.Cog):
             text, desc = "🔂 Loop one", "wavelink.QueueMode.loop"
         elif mode == 'all':
             self.queue.mode = wavelink.QueueMode.loop_all
+            self.queue_copy = self.queue.copy()
+            await self.queue_copy.put_wait(self.vc.current)
             text, desc = "🔁 Loop all", "wavelink.QueueMode.loop_all"
         else:
             await ctx.send("Mode not found.\nUsage: `-loop <off/one/all>`")
