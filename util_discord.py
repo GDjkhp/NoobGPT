@@ -34,7 +34,7 @@ async def banner(ctx: commands.Context, bot: commands.Bot, arg: str):
 available_categories=["ai", "games", "media", "utils"]
 ai_commands=["openai", "googleai", "petals", "perplex", "mistral", "claude", "chelp"]
 games_commands=["aki", "tic", "hang", "quiz", "word", "rps"]
-media_commands=["anime", "manga", "tv", "ytdlp", "cob", "booru"]
+media_commands=["anime", "manga", "tv", "ytdlp", "cob", "booru", "music"]
 utils_commands=["quote", "weather", "av", "ban", "halp", "legal", "xp", "insult"]
 available_commands = ai_commands + games_commands + media_commands + utils_commands
 

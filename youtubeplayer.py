@@ -1,7 +1,8 @@
 import wavelink
 from discord.ext import commands
 from wavelink import Queue
-from music import music_embed
+from music import music_embed, music_now_playing_embed
+from util_discord import command_check
 
 class YouTubePlayer(commands.Cog):
     def __init__(self, bot):
@@ -17,11 +18,13 @@ class YouTubePlayer(commands.Cog):
         if not self.queue.is_empty:
             next_track = self.queue.get()
             await self.vc.play(next_track)
-            embed = music_embed(title="🎵 Playing now", description=f'`{next_track.title}` is playing now.')
+            embed = music_now_playing_embed(next_track)
             await self.music_channel.send(embed=embed)
 
     @commands.command(name="p")
-    async def play(self, ctx: commands.Context, *, search: str) -> None:
+    async def play(self, ctx: commands.Context, *, search: str):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
         if not ctx.voice_client:
             self.vc = await ctx.author.voice.channel.connect(cls=wavelink.Player)
         else:
@@ -35,63 +38,120 @@ class YouTubePlayer(commands.Cog):
         self.music_channel = ctx.message.channel
         if isinstance(tracks, wavelink.Playlist):
             added: int = await self.queue.put_wait(tracks)
-            embed = music_embed(title=f"🎵 Added the playlist **`{tracks.name}`**", description=f'Added {added} songs to the queue.')
-            await ctx.send(embed=embed)
+            text, desc = f"🎵 Added the playlist **`{tracks.name}`**", f'Added {added} songs to the queue.'
         else:
             track = tracks[0]
             await self.queue.put_wait(track)
-            embed = music_embed(title="🎵 Song added to the queue.", description=f'`{track.title}` was added to the queue.')
-            await ctx.send(embed=embed)
+            text, desc = "🎵 Song added to the queue", f'`{track.title}` has been added to the queue.'
+        
         if not self.vc.playing:
             await self.play_next_track()
 
+        embed = music_embed(text, desc)
+        await ctx.send(embed=embed)
+
     @commands.command()
-    async def stop(self, ctx: commands.Context) -> None:
+    async def stop(self, ctx: commands.Context):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
         vc: wavelink.Player = ctx.voice_client
         await vc.stop()
-        embed = music_embed(title="⏹️ Music stopped", description="The music has been stopped.")
+        embed = music_embed("⏹️ Music stopped", "The music has been stopped.")
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def pause(self, ctx: commands.Context) -> None:
+    async def pause(self, ctx: commands.Context):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
         vc: wavelink.Player = ctx.voice_client
         await vc.pause(True)
-        embed = music_embed(title="⏸️ Music paused", description="The music has been paused")
+        embed = music_embed("⏸️ Music paused", "The music has been paused")
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def resume(self, ctx: commands.Context) -> None:
+    async def resume(self, ctx: commands.Context):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
         vc: wavelink.Player = ctx.voice_client
         await vc.pause(False)
-        embed = music_embed(title="▶️ Music Resumed", description="The music has been resumed.")
+        embed = music_embed("▶️ Music Resumed", "The music has been resumed.")
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def skip(self, ctx: commands.Context) -> None:
+    async def skip(self, ctx: commands.Context):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
         vc: wavelink.Player = ctx.voice_client
         if not self.queue.is_empty:
             await vc.stop()
             next_track = self.queue.get()
             await vc.play(next_track)
-            embed = music_embed(title="⏭️ Song skipped", description=f'Playing the next song in the queue: `{next_track.title}`.')
+            embed = music_embed("⏭️ Song skipped", f'Playing the next song in the queue: `{next_track.title}`.')
             await ctx.send(embed=embed)
         else:
             await ctx.send("There are no songs in the queue to skip")
 
     @commands.command()
-    async def list(self, ctx: commands.Context) -> None:
+    async def list(self, ctx: commands.Context):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
         if not self.queue:
-            embed = music_embed(title="📜 Playlist", description="The queue is empty.")
+            embed = music_embed("📜 Playlist", "The queue is empty.")
             await ctx.send(embed=embed)
         else:
             queue_list = "\n".join([f"- {track.title}" for track in self.queue])
-            embed = music_embed(title="📜 Playlist", description=queue_list)
+            embed = music_embed("📜 Playlist", queue_list)
             await ctx.send(embed=embed)
 
-    @commands.command()
-    async def disconnect(self, ctx: commands.Context) -> None:
+    @commands.command(name="die")
+    async def disconnect(self, ctx: commands.Context):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
         vc: wavelink.Player = ctx.voice_client
-        await vc.disconnect()
+        if vc: await vc.disconnect()
+
+    @commands.command()
+    async def loop(self, ctx: commands.Context, mode: str):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
+        if mode == 'off':
+            self.queue.mode = wavelink.QueueMode.normal
+            text, desc = "❌ Loop disabled", "wavelink.QueueMode.normal"
+        elif mode == 'one':
+            self.queue.mode = wavelink.QueueMode.loop
+            text, desc = "🔂 Loop one", "wavelink.QueueMode.loop"
+        elif mode == 'all':
+            self.queue.mode = wavelink.QueueMode.loop_all
+            text, desc = "🔁 Loop all", "wavelink.QueueMode.loop_all"
+        else:
+            await ctx.send("Mode not found.\nUsage: `-loop <off/one/all>`")
+            return
+        embed = music_embed(text, desc)
+        await ctx.send(embed=embed)
+
+    @commands.command(name="np")
+    async def nowplaying(self, ctx: commands.Context):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
+        if self.vc.playing: await ctx.send(embed=music_now_playing_embed(self.vc.current))
+
+    @commands.command()
+    async def shuffle(self, ctx: commands.Context):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
+        if self.queue:
+            self.queue.shuffle()
+            embed = music_embed("🔀 Queue has been shuffled", f"{self.queue} has been randomized.")
+            await ctx.send(embed=embed)
+    
+    @commands.command()
+    async def summon(self, ctx: commands.Context):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
+        if not ctx.voice_client:
+            self.vc = await ctx.author.voice.channel.connect(cls=wavelink.Player)
+        else:
+            self.vc = ctx.voice_client
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(YouTubePlayer(bot))

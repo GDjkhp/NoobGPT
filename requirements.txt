@@ -15,3 +15,4 @@ pycryptodome
 motor
 yt-dlp
 ffmpeg-python
+lxml

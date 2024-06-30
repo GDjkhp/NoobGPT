@@ -24,7 +24,6 @@ SOFTWARE.
 """
 import json
 import re
-import asyncio
 import httpx
 
 class Akinator:
@@ -48,7 +47,7 @@ class Akinator:
         self.question = None
         self.progression = None
         self.step = None
-        # self.akitude = None
+        self.akitude = None
         self.step_last_proposition = ""
 
         self.win = False
@@ -59,12 +58,12 @@ class Akinator:
     async def __update(self, action: str, resp):
         if action == "answer":
             self.win = False
-            # self.akitude = resp['akitude']
+            self.akitude = resp['akitude']
             self.step = int(resp['step'])
             self.progression = float(resp['progression'])
             self.question = resp['question']
         elif action == "back":
-            # self.akitude = resp['akitude']
+            self.akitude = resp['akitude']
             self.step = int(resp['step'])
             self.progression = float(resp['progression'])
             self.question = resp['question']
@@ -149,7 +148,7 @@ class Akinator:
             req = await async_request_handler(url=url, method='POST', data=data)
             resp = json.loads(req.text)
 
-            if re.findall(r"id_proposition", str(resp)) and self.progression > 90:
+            if re.findall(r"id_proposition", str(resp)):
                 await self.__update(action="win", resp=resp)
             else:
                 await self.__update(action="answer", resp=resp)
