@@ -1,6 +1,5 @@
 import wavelink
 from discord.ext import commands
-from wavelink import Queue
 from music import music_embed, music_now_playing_embed
 from util_discord import command_check
 

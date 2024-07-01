@@ -31,13 +31,18 @@ async def on_ready():
     for guild in bot.guilds:
         number += 1
         print(f"{number}. {guild} ({guild.id})")
+    print(":)")
     bot.loop.create_task(silly_activities(bot))
     bot.loop.create_task(main(bot))
     bot.loop.create_task(main_rob(bot))
     bot.loop.create_task(c_ai_init())
     await setup_hook_music(bot)
     await bot.load_extension('youtubeplayer')
-    print(":)")
+
+import wavelink
+@bot.event
+async def on_wavelink_node_ready(payload: wavelink.NodeReadyEventPayload):
+    print(f"Wavelink Node connected: {payload.node} | Resumed: {payload.resumed}")
 
 @bot.event
 async def on_guild_join(guild: discord.Guild):
