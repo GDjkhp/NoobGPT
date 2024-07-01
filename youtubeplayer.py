@@ -11,10 +11,9 @@ class YouTubePlayer(commands.Cog):
 
     @commands.Cog.listener()
     async def on_wavelink_track_end(self, payload):
-        await self.play_next_track()
-
-    async def play_next_track(self):
-        return
+        if not self.vc.queue.mode == wavelink.QueueMode.loop:
+            embed = music_now_playing_embed(self.vc.queue[0])
+            await self.music_channel.send(embed=embed)
 
     @commands.command(name="p")
     async def play(self, ctx: commands.Context, *, search: str):
@@ -22,10 +21,9 @@ class YouTubePlayer(commands.Cog):
         if await command_check(ctx, "music", "media"): return
         if not ctx.voice_client:
             self.vc = await ctx.author.voice.channel.connect(cls=wavelink.Player)
-        else:
-            self.vc = ctx.voice_client
+            self.vc.autoplay = wavelink.AutoPlayMode.enabled # TODO: recommendation command
+        else: self.vc = ctx.voice_client
 
-        self.vc.autoplay = wavelink.AutoPlayMode.enabled # TODO: recommendation command
         tracks = await wavelink.Playable.search(search)
         if not tracks:
             await ctx.send(f'No results found.')
@@ -39,9 +37,7 @@ class YouTubePlayer(commands.Cog):
             track = tracks[0]
             await self.vc.queue.put_wait(track)
             text, desc = "🎵 Song added to the queue", f'`{track.title}` has been added to the queue.'
-        
-        if not self.vc.playing:
-            await self.play_next_track()
+        if not self.vc.playing: await self.play_next_track()
 
         embed = music_embed(text, desc)
         await ctx.send(embed=embed)
@@ -131,6 +127,27 @@ class YouTubePlayer(commands.Cog):
         embed = music_embed(text, desc)
         await ctx.send(embed=embed)
 
+    @commands.command()
+    async def autoplay(self, ctx: commands.Context, mode: str):
+        if not self.vc: return
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
+
+        if mode == 'partial':
+            self.vc.autoplay = wavelink.AutoPlayMode.partial
+            text, desc = "❌ Recommendations disabled", "wavelink.AutoPlayMode.partial"
+        elif mode == 'enabled':
+            self.vc.autoplay = wavelink.AutoPlayMode.enabled
+            text, desc = "✅ Recommendations enabled", "wavelink.AutoPlayMode.enabled"
+        elif mode == 'disabled':
+            self.vc.autoplay = wavelink.AutoPlayMode.disabled
+            text, desc = "❌ Autoplay disabled", "wavelink.AutoPlayMode.disabled"
+        else:
+            await ctx.send("Mode not found.\nUsage: `-autoplay <partial/enabled/disabled>`")
+            return
+        embed = music_embed(text, desc)
+        await ctx.send(embed=embed)
+
     @commands.command(name="np")
     async def nowplaying(self, ctx: commands.Context):
         if not self.vc: return
@@ -154,8 +171,7 @@ class YouTubePlayer(commands.Cog):
         if await command_check(ctx, "music", "media"): return
         if not ctx.voice_client:
             self.vc = await ctx.author.voice.channel.connect(cls=wavelink.Player)
-        else:
-            self.vc = ctx.voice_client
+        else: self.vc = ctx.voice_client
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(YouTubePlayer(bot))
