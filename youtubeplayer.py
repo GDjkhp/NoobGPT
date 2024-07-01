@@ -21,7 +21,7 @@ class YouTubePlayer(commands.Cog):
         if await command_check(ctx, "music", "media"): return
         if not ctx.voice_client:
             self.vc = await ctx.author.voice.channel.connect(cls=wavelink.Player)
-            self.vc.autoplay = wavelink.AutoPlayMode.enabled # TODO: recommendation command
+            self.vc.autoplay = wavelink.AutoPlayMode.enabled
         else: self.vc = ctx.voice_client
 
         tracks = await wavelink.Playable.search(search)
@@ -37,7 +37,7 @@ class YouTubePlayer(commands.Cog):
             track = tracks[0]
             await self.vc.queue.put_wait(track)
             text, desc = "🎵 Song added to the queue", f'`{track.title}` has been added to the queue.'
-        if not self.vc.playing: await self.play_next_track()
+        if not self.vc.playing: await self.vc.play(self.vc.queue.get())
 
         embed = music_embed(text, desc)
         await ctx.send(embed=embed)
