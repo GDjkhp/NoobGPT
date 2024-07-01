@@ -4,7 +4,8 @@ import discord
 import json
 
 async def setup_hook_music(bot: commands.Bot):
-    servers = read_json_file("./res/lavalink_server_you_can_reload_when_shit_happens.json")
+    await wavelink.Pool.close()
+    servers = read_json_file("./res/lavalink_server_you_can_reload_when_shit_happens.json") # TODO: hosting is using docker, cant edit this file real-time
     nodes = []
     for lava in servers["nodes"]:
         nodes.append(wavelink.Node(uri=f'{"https://" if lava["https"] else "http://"}{lava["host"]}:{lava["port"]}', password=lava["password"]))
