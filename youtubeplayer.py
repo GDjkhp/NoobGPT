@@ -107,13 +107,15 @@ class YouTubePlayer(commands.Cog):
 
         vc: wavelink.Player = ctx.voice_client
         if not self.vc.queue.is_empty:
-            await vc.stop()
             next_track = self.vc.queue.get()
-            await vc.play(next_track)
-            embed = music_embed("⏭️ Song skipped", f'Playing the next song in the queue: `{next_track.title}`.')
-            await ctx.send(embed=embed)
-        else:
-            await ctx.send("There are no songs in the queue to skip")
+        elif not self.vc.auto_queue.is_empty:
+            next_track = self.vc.auto_queue.get()
+        else: return await ctx.send("There are no songs in the queue to skip")
+        
+        await vc.stop()
+        await vc.play(next_track)
+        embed = music_embed("⏭️ Song skipped", f'Playing the next song in the queue: `{next_track.title}`.')
+        await ctx.send(embed=embed)
 
     @commands.command()
     async def list(self, ctx: commands.Context):
@@ -121,14 +123,17 @@ class YouTubePlayer(commands.Cog):
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
 
-        if not self.vc.queue:
-            embed = music_embed("📜 Playlist", "The queue is empty.")
-            await ctx.send(embed=embed)
-        else:
+        if not self.vc.queue.is_empty:
             queue_list = "\n".join([f"- {track.title}" for track in self.vc.queue[:5]])
             embed = music_embed("📜 Playlist", queue_list)
             embed.set_footer(text=f"Queue: {len(self.vc.queue)}")
-            await ctx.send(embed=embed)
+        elif not self.vc.auto_queue.is_empty:
+            queue_list = "\n".join([f"- {track.title}" for track in self.vc.auto_queue[:5]])
+            embed = music_embed("📜 Playlist", queue_list)
+            embed.set_footer(text=f"Queue: {len(self.vc.queue)}")
+        else:
+            embed = music_embed("📜 Playlist", "The queue is empty.")
+        await ctx.send(embed=embed)
 
     @commands.command(name="die")
     async def disconnect(self, ctx: commands.Context):
