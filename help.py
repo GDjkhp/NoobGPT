@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-import json
 from util_discord import command_check
 
 # this is a deed that i should've done a long time ago
@@ -9,11 +8,6 @@ async def HALP(ctx: commands.Context, av: discord.Asset):
     desc = "A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you."
     url = "https://gdjkhp.github.io/NoobGPT"
     await ctx.reply(embed=create_embed(0x00ff00, av, "NoobGPT", desc, url), view=HelpView(av))
-
-def read_json_file(file_path):
-    with open(file_path, 'r') as json_file:
-        data = json.load(json_file)
-    return data
 
 class HelpView(discord.ui.View):
     def __init__(self, av: discord.Asset):
@@ -95,11 +89,10 @@ async def games_embed(av: discord.Asset) -> discord.Embed:
     return emby
     
 async def media_embed(av: discord.Asset) -> discord.Embed:
-    data = read_json_file("./res/mandatory_settings_and_splashes.json")
     emby = create_embed(0xff0000, av, "Media 💽")
-    # emby.add_field(name='`/help`', 
-    #                value='Show music commands help page.', 
-    #                inline=False)
+    emby.add_field(name='`-music`', 
+                   value=f'Listen to music in a voice channel.', 
+                   inline=False)
     emby.add_field(name='`-anime`', 
                    value=f'Watch animated works originating in Japan.', 
                    inline=False)

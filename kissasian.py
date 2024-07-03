@@ -11,9 +11,8 @@ pagelimit=12
 
 async def help_tv(ctx: commands.Context):
     if await command_check(ctx, "tv", "media"): return
-    sources = "`-flix` sflix\n"
-    sources+= "`-kiss` kissasian"
-    await ctx.reply(sources)
+    sources = ["`-flix` sflix", "`-kiss` kissasian"]
+    await ctx.reply("\n".join(sources))
 
 async def kiss_search(ctx: commands.Context, arg: str):
     if await command_check(ctx, "tv", "media"): return

@@ -9,10 +9,8 @@ myclient = util_database.myclient
 
 async def help_booru(ctx: commands.Context):
     if await command_check(ctx, "booru", "media"): return
-    text  = f"`-gel` gelbooru\n"
-    text += f"`-safe` safebooru\n"
-    text += f"`-r34` rule34"
-    await ctx.reply(text)
+    text = ["`-gel` gelbooru", "`-safe` safebooru", "`-r34` rule34"]
+    await ctx.reply("\n".join(text))
 
 async def R34(ctx: commands.Context, arg: str):
     if await command_check(ctx, "booru", "media"): return

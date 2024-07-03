@@ -52,33 +52,39 @@ models_mistral=[
 
 async def help_perplexity(ctx: commands.Context):
     if await command_check(ctx, "perplex", "ai"): return
-    text  =  f"`-ll` {models[0]}\n"
-    text += f"`-cll` {models[1]}\n"
-    text += f"`-mis` {models[2]}\n"
-    text += f"`-mix` {models[3]}\n"
-    text += f"`-ssc` {models[4]}\n"
-    text += f"`-sso` {models[5]}\n"
-    text += f"`-smc` {models[6]}\n"
-    text += f"`-smo` {models[7]}"
-    await ctx.reply(text)
+    text = [
+         f"`-ll` {models[0]}",
+        f"`-cll` {models[1]}",
+        f"`-mis` {models[2]}",
+        f"`-mix` {models[3]}",
+        f"`-ssc` {models[4]}",
+        f"`-sso` {models[5]}",
+        f"`-smc` {models[6]}",
+        f"`-smo` {models[7]}"
+    ]
+    await ctx.reply("\n".join(text))
 
 async def help_claude(ctx: commands.Context):
     if await command_check(ctx, "claude", "ai"): return
-    text  = f"`-cla` {models_claude[0]}\n"
-    text += f"`-c3o` {models_claude[1]}\n"
-    text += f"`-c3s` {models_claude[2]}"
-    await ctx.reply(text)
+    text = [
+        f"`-cla` {models_claude[0]}",
+        f"`-c3o` {models_claude[1]}",
+        f"`-c3s` {models_claude[2]}"
+    ]
+    await ctx.reply("\n".join(text))
 
 async def help_mistral(ctx: commands.Context):
     if await command_check(ctx, "mistral", "ai"): return
-    text  = f"`-m7b` {models_mistral[0]}\n"
-    text += f"`-mx7b` {models_mistral[1]}\n"
-    text += f"`-mx22b` {models_mistral[2]}\n"
-    text += f"`-ms` {models_mistral[3]}\n"
-    text += f"`-mm` {models_mistral[4]}\n"
-    text += f"`-ml` {models_mistral[5]}\n"
-    text += f"`-mcode` {models_mistral[6]}"
-    await ctx.reply(text)
+    text = [
+        f"`-m7b` {models_mistral[0]}",
+        f"`-mx7b` {models_mistral[1]}",
+        f"`-mx22b` {models_mistral[2]}",
+        f"`-ms` {models_mistral[3]}",
+        f"`-mm` {models_mistral[4]}",
+        f"`-ml` {models_mistral[5]}",
+        f"`-mcode` {models_mistral[6]}"
+    ]
+    await ctx.reply("\n".join(text))
 
 async def the_real_req(url: str, payload: dict, headers: dict):
     async with aiohttp.ClientSession() as session:

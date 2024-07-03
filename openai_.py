@@ -38,10 +38,12 @@ async def discord_image(link: str, prompt: str) -> discord.File:
             
 async def help_openai(ctx: commands.Context):
     if await command_check(ctx, "openai", "ai"): return
-    text  = "`-ask` gpt-3.5-turbo\n"
-    text += "`-gpt` gpt-3.5-turbo-instruct\n"
-    text += "`-imagine` dall-e-2"
-    await ctx.reply(text)
+    text = [
+        "`-ask` gpt-3.5-turbo",
+        "`-gpt` gpt-3.5-turbo-instruct",
+        "`-imagine` dall-e-2"
+    ]
+    await ctx.reply("\n".join(text))
 
 async def chat(ctx: commands.Context):
     if await command_check(ctx, "openai", "ai"): return

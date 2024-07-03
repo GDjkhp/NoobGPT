@@ -263,27 +263,29 @@ async def reset_char(ctx: commands.Context):
 
 async def c_help(ctx: commands.Context):
     if await command_check(ctx, "chelp", "ai"): return
-    text  = "# Character commands"
-    text += "\n`-cchar` available characters"
-    text += "\n`-cadd <query>` add character"
-    text += "\n`-cdel` delete character"
-    text += "\n`-cres` reset character"
-    text += "\n`-ctren` trending characters"
-    text += "\n`-crec` recommended characters"
-    text += "\n# Server commands"
-    text += "\n`-cchan` add/remove channel"
-    text += "\n`-cadm` toggle admin approval"
-    text += "\n`-cmode` toggle channel mode"
-    text += "\n`-crate <int>` set global message_rate (0-100)"
-    text += "\n`-cedit <int>` set char_message_rate per channel (0-100)"
-    text += "\n# Get started"
-    text += "\nsetup: `-cchan` -> `-cadd <query>`"
-    text += "\ndelete all chars: `-cdel` -> `💀`"
-    text += "\nreset all chars: `-cres` -> `💀`"
-    text += "\nstop: `-crate 0`"
-    text += "\nchannel mode: `True` = read specific channels, `False` = read all channels"
-    text += "\nadmin approval: `True` = disables most commands, `False` = enables all commands"
-    await ctx.reply(text)
+    text  = [
+        "# Character commands",
+        "`-cchar` available characters",
+        "`-cadd <query>` add character",
+        "`-cdel` delete character",
+        "`-cres` reset character"
+        "`-ctren` trending characters",
+        "`-crec` recommended characters",
+        "# Server commands",
+        "`-cchan` add/remove channel",
+        "`-cadm` toggle admin approval",
+        "`-cmode` toggle channel mode",
+        "`-crate <int>` set global message_rate (0-100)",
+        "`-cedit <int>` set char_message_rate per channel (0-100)",
+        "# Get started",
+        "setup: `-cchan` -> `-cadd <query>`",
+        "delete all chars: `-cdel` -> `💀`",
+        "reset all chars: `-cres` -> `💀`",
+        "stop: `-crate 0`",
+        "channel mode: `True` = read specific channels, `False` = read all channels",
+        "admin approval: `True` = disables most commands, `False` = enables all commands"
+    ]
+    await ctx.reply("\n".join(text))
 
 # utils
 async def search_char(text: str, list_type: str):

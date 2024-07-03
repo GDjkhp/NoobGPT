@@ -9,10 +9,29 @@ class YouTubePlayer(commands.Cog):
         self.vc = None
 
     @commands.Cog.listener()
-    async def on_wavelink_track_end(self, payload):
-        if not self.vc.queue.mode == wavelink.QueueMode.loop and self.vc.queue:
-            embed = music_now_playing_embed(self.vc.queue[0])
+    async def on_wavelink_track_start(self, payload):
+        if not self.vc.queue.mode == wavelink.QueueMode.loop:
+            embed = music_now_playing_embed(self.vc.current)
             await self.music_channel.send(embed=embed)
+
+    @commands.command()
+    async def music(self, ctx: commands.Context):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
+        texts = [
+            "`-p <query>` Play music. Supports YouTube and Spotify.",
+            "`-np` Now playing.",
+            "`-pause` Pause music.",
+            "`-resume` Resume music.",
+            "`-skip` Skip music.",
+            "`-list` Show queue.",
+            "`-shuffle` Shuffles the queue.",
+            "`-loop <off/one/all>` Loop music modes.",
+            "`-autoplay <partial/enabled/disabled>` Autoplay and recommended music modes.",
+            "`-summon` Join voice channel.",
+            "`-die` Disconnect voice channel."
+        ]
+        await ctx.reply("\n".join(texts))
 
     @commands.command(name="p")
     async def play(self, ctx: commands.Context, *, search: str):

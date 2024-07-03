@@ -21,9 +21,8 @@ provider="https://gdjkhp.github.io/img/apdoesnthavelogotheysaidapistooplaintheys
 
 async def help_anime(ctx: commands.Context):
     if await command_check(ctx, "anime", "media"): return
-    sources = "`-gogo` gogoanime\n"
-    sources+= "`-pahe` animepahe"
-    await ctx.reply(sources)
+    sources = ["`-gogo` gogoanime", "`-pahe` animepahe"]
+    await ctx.reply("\n".join(sources))
 
 async def new_req_old(url: str, headers: dict, json_mode: bool):
     async with aiohttp.ClientSession() as session:
