@@ -130,7 +130,7 @@ class YouTubePlayer(commands.Cog):
         elif not self.vc.auto_queue.is_empty:
             queue_list = "\n".join([f"- {track.title}" for track in self.vc.auto_queue[:5]])
             embed = music_embed("📜 Playlist", queue_list)
-            embed.set_footer(text=f"Queue: {len(self.vc.queue)}")
+            embed.set_footer(text=f"Queue: {len(self.vc.auto_queue)}")
         else:
             embed = music_embed("📜 Playlist", "The queue is empty.")
         await ctx.send(embed=embed)
