@@ -15,7 +15,7 @@ pagelimit = 12
 gogoanime = "https://anitaku.pe"
 provider="https://gdjkhp.github.io/img/logo.png"
 
-def get_domain():
+async def get_domain():
     global gogoanime
     cursor = mycol.find()
     data = await cursor.to_list(None)
@@ -23,7 +23,7 @@ def get_domain():
 
 async def Gogoanime(ctx: commands.Context, arg: str):
     if await command_check(ctx, "anime", "media"): return
-    get_domain()
+    await get_domain()
     if arg: msg = await ctx.reply(f"Searching `{arg}`\nPlease wait…")
     else: msg = await ctx.reply("Imagine something that doesn't exist. Must be sad. You are sad. You don't belong here.\nLet's all love lain.")
     try: result = await resultsAnime(searchAnime(arg if arg else "serial experiments lain"))
