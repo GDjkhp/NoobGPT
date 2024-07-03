@@ -18,7 +18,8 @@ def music_embed(title: str, description: str):
     return discord.Embed(title=title, description=description, color=0x00ff00)
 
 def music_now_playing_embed(track: wavelink.Playable):
-    embed = discord.Embed(title="🎵 Now playing", description=track.title, color=0x00ff00)
+    embed = discord.Embed(title="🎵 Now playing", color=0x00ff00,
+                          description=f"[{track.title}]({track.uri})" if track.uri else track.title)
     embed.add_field(name="Author", value=track.author)
     if track.album.name: embed.add_field(name="Album", value=track.album.name)
     embed.add_field(name="Duration", value=format_mil(track.length))
