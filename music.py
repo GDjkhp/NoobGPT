@@ -45,8 +45,6 @@ def format_mil(milliseconds: int):
         formatted_time.append(f"{days:02}")
     if hours or formatted_time:
         formatted_time.append(f"{hours:02}")
-    if minutes or formatted_time:
-        formatted_time.append(f"{minutes:02}")
-    formatted_time.append(f"{seconds:02}")
+    formatted_time.append(f"{minutes:02}:{seconds:02}")
 
     return ":".join(formatted_time)
