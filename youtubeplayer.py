@@ -10,7 +10,7 @@ class YouTubePlayer(commands.Cog):
 
     @commands.Cog.listener()
     async def on_wavelink_track_end(self, payload):
-        if not self.vc.queue.mode == wavelink.QueueMode.loop:
+        if not self.vc.queue.mode == wavelink.QueueMode.loop and self.vc.queue:
             embed = music_now_playing_embed(self.vc.queue[0])
             await self.music_channel.send(embed=embed)
 
@@ -18,6 +18,8 @@ class YouTubePlayer(commands.Cog):
     async def play(self, ctx: commands.Context, *, search: str):
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice: await ctx.send(f'Join a voice channel first.')
+
         if not ctx.voice_client:
             self.vc = await ctx.author.voice.channel.connect(cls=wavelink.Player)
             self.vc.autoplay = wavelink.AutoPlayMode.enabled
@@ -46,6 +48,8 @@ class YouTubePlayer(commands.Cog):
         if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice: await ctx.send(f'Join a voice channel first.')
+
         vc: wavelink.Player = ctx.voice_client
         await vc.stop()
         embed = music_embed("⏹️ Music stopped", "The music has been stopped.")
@@ -56,6 +60,8 @@ class YouTubePlayer(commands.Cog):
         if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice: await ctx.send(f'Join a voice channel first.')
+
         vc: wavelink.Player = ctx.voice_client
         await vc.pause(True)
         embed = music_embed("⏸️ Music paused", "The music has been paused")
@@ -66,6 +72,8 @@ class YouTubePlayer(commands.Cog):
         if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice: await ctx.send(f'Join a voice channel first.')
+
         vc: wavelink.Player = ctx.voice_client
         await vc.pause(False)
         embed = music_embed("▶️ Music Resumed", "The music has been resumed.")
@@ -76,6 +84,8 @@ class YouTubePlayer(commands.Cog):
         if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice: await ctx.send(f'Join a voice channel first.')
+
         vc: wavelink.Player = ctx.voice_client
         if not self.vc.queue.is_empty:
             await vc.stop()
@@ -91,6 +101,7 @@ class YouTubePlayer(commands.Cog):
         if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
+
         if not self.vc.queue:
             embed = music_embed("📜 Playlist", "The queue is empty.")
             await ctx.send(embed=embed)
@@ -103,6 +114,8 @@ class YouTubePlayer(commands.Cog):
     async def disconnect(self, ctx: commands.Context):
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice: await ctx.send(f'Join a voice channel first.')
+
         vc: wavelink.Player = ctx.voice_client
         if vc: await vc.disconnect()
 
@@ -111,6 +124,8 @@ class YouTubePlayer(commands.Cog):
         if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice: await ctx.send(f'Join a voice channel first.')
+
         if mode == 'off':
             self.vc.queue.mode = wavelink.QueueMode.normal
             text, desc = "❌ Loop disabled", "wavelink.QueueMode.normal"
@@ -131,6 +146,7 @@ class YouTubePlayer(commands.Cog):
         if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice: await ctx.send(f'Join a voice channel first.')
 
         if mode == 'partial':
             self.vc.autoplay = wavelink.AutoPlayMode.partial
@@ -159,18 +175,23 @@ class YouTubePlayer(commands.Cog):
         if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice: await ctx.send(f'Join a voice channel first.')
+        
         if self.vc.queue:
             self.vc.queue.shuffle()
-            embed = music_embed("🔀 Queue has been shuffled", f"{self.vc.queue} has been randomized.")
+            embed = music_embed("🔀 Queue has been shuffled", f"{len(self.vc.queue)} songs has been randomized.")
             await ctx.send(embed=embed)
     
     @commands.command()
     async def summon(self, ctx: commands.Context):
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice: await ctx.send(f'Join a voice channel first.')
         if not ctx.voice_client:
             self.vc = await ctx.author.voice.channel.connect(cls=wavelink.Player)
         else: self.vc = ctx.voice_client
+
+    # TODO: dj role, filters, queue ops (move, delete, remove, swap, put at, peek)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(YouTubePlayer(bot))

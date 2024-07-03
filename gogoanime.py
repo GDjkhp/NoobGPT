@@ -4,25 +4,22 @@ from httpclient import HttpClient
 from bs4 import BeautifulSoup as BS
 import re
 from urllib import parse as p
-import json
 from util_discord import command_check
+from util_database import myclient
+mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 
 client, client_dood = HttpClient(), HttpClient()
 title, url, aid, mv_tv, poster = 0, 1, 2, 3, 4
 desc, ep, animetype, released, genre = 2, 3, 5, 6, 7
 pagelimit = 12
-gogoanime = "https://anitaku.so"
+gogoanime = "https://anitaku.pe"
 provider="https://gdjkhp.github.io/img/logo.png"
-
-def read_json_file(file_path):
-    with open(file_path, 'r') as json_file:
-        data = json.load(json_file)
-    return data
 
 def get_domain():
     global gogoanime
-    data = read_json_file("./res/mandatory_settings_and_splashes.json")
-    gogoanime = data["gogoanime"]
+    cursor = mycol.find()
+    data = await cursor.to_list(None)
+    gogoanime = data[0]["gogo"]
 
 async def Gogoanime(ctx: commands.Context, arg: str):
     if await command_check(ctx, "anime", "media"): return

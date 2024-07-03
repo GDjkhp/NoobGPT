@@ -1,13 +1,15 @@
 import wavelink
 from discord.ext import commands
 import discord
-import json
+from util_database import myclient
+mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 
 async def setup_hook_music(bot: commands.Bot):
     await wavelink.Pool.close()
-    servers = read_json_file("./res/lavalink_server_you_can_reload_when_shit_happens.json") # TODO: hosting is using docker, cant edit this file real-time
+    cursor = mycol.find()
+    data = await cursor.to_list(None)
     nodes = []
-    for lava in servers["nodes"]:
+    for lava in data[0]["nodes"]:
         nodes.append(wavelink.Node(uri=f'{"https://" if lava["https"] else "http://"}{lava["host"]}:{lava["port"]}', 
                                    password=lava["password"], retries=1))
     await wavelink.Pool.connect(client=bot, nodes=nodes)
@@ -32,14 +34,19 @@ def music_now_playing_embed(track: wavelink.Playable):
     else: print(track.source)
     return embed
 
-def read_json_file(file_path):
-    with open(file_path, 'r') as json_file:
-        data = json.load(json_file)
-    return data
-
 def format_mil(milliseconds: int):
     seconds, milliseconds = divmod(milliseconds, 1000)
     minutes, seconds = divmod(seconds, 60)
     hours, minutes = divmod(minutes, 60)
     days, hours = divmod(hours, 24)
-    return f"{days:02}:{hours:02}:{minutes:02}:{seconds:02}"
+
+    formatted_time = []
+    if days:
+        formatted_time.append(f"{days:02}")
+    if hours or formatted_time:
+        formatted_time.append(f"{hours:02}")
+    if minutes or formatted_time:
+        formatted_time.append(f"{minutes:02}")
+    formatted_time.append(f"{seconds:02}")
+
+    return ":".join(formatted_time)
