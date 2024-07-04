@@ -1,6 +1,7 @@
 import wavelink
 from discord.ext import commands
 import discord
+from util_discord import command_check, get_database2, set_dj_role_db, check_if_master_or_admin
 from util_database import myclient
 mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 
@@ -13,7 +14,33 @@ async def setup_hook_music(bot: commands.Bot):
         nodes.append(wavelink.Node(uri=f'{"https://" if lava["https"] else "http://"}{lava["host"]}:{lava["port"]}', 
                                    password=lava["password"], retries=1))
     await wavelink.Pool.connect(client=bot, nodes=nodes)
+
+async def set_dj_role(ctx: commands.Context):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if await command_check(ctx, "music", "media"): return
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
+    permissions = ctx.channel.permissions_for(ctx.me)
+    if not permissions.manage_roles:
+        return await ctx.reply("**manage roles permission is disabled :(**")
     
+    db = await get_database2(ctx.guild.id)
+    if not db.get("bot_dj_role") or not db["bot_dj_role"]:
+        role = await ctx.guild.create_role(name="noobgpt disc jockey", mentionable=False)
+        await set_dj_role_db(ctx.guild.id, role.id)
+        await ctx.reply(f"dj role <@&{role.id}> has been created")
+    else:
+        role = ctx.guild.get_role(db["bot_dj_role"])
+        await role.delete()
+        await set_dj_role_db(ctx.guild.id, 0)
+        await ctx.reply("dj role has been removed")
+
+async def check_if_dj(ctx: commands.Context):
+    db = await get_database2(ctx.guild.id)
+    if db.get("bot_dj_role"):
+        if db["bot_dj_role"]:
+            return ctx.guild.get_role(db["bot_dj_role"]) in ctx.author.roles
+    return True
+
 def music_embed(title: str, description: str):
     return discord.Embed(title=title, description=description, color=0x00ff00)
 

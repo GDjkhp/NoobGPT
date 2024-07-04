@@ -3,11 +3,11 @@ from discord.ext import commands
 from PIL import Image, ImageDraw
 import re
 import io
-import util_database
+from util_database import myclient
 import asyncio
 
 width, height = 500, 500
-mycol = util_database.myclient["place"]["pixels"]
+mycol = myclient["place"]["pixels"]
 
 async def draw_image(x: int, y: int, zoom: float) -> io.BytesIO:
     canvas = Image.new("RGB", (width, height), color="black")

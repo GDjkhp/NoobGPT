@@ -4,11 +4,11 @@ import json
 import random
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
-import util_database
+from util_database import myclient
 import pymongo
 from util_discord import command_check
 
-mycol = util_database.myclient["games"]["wordle"]
+mycol = myclient["games"]["wordle"]
 font = ImageFont.truetype("./res/font/LibreFranklin-Bold.ttf", size=75)
 colors = ["#787c7e", "#e9c342", "#77a76a"] # gray, yellow, green
 

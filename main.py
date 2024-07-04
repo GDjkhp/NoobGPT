@@ -22,7 +22,7 @@ bot = commands.Bot(command_prefix = get_prefix,
 from gde_hall_of_fame import *
 from c_ai_discord import *
 from custom_status import *
-from music import setup_hook_music
+from music import setup_hook_music, set_dj_role
 @bot.event
 async def on_ready():
     print(f"{bot.user.name} (c) 2024 The Karakters Kompany. All rights reserved.")
@@ -71,6 +71,10 @@ async def on_command_error(ctx, command):
 #     pass
 
 # personal
+@bot.command()
+async def dj(ctx: commands.Context):
+    bot.loop.create_task(set_dj_role(ctx))
+
 @bot.command(name="rmusic")
 async def reload_music(ctx: commands.Context):
     if not ctx.author.id == 729554186777133088: return

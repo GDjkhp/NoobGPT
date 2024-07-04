@@ -1,7 +1,7 @@
 from discord.ext import commands
 import json
-import util_database
-mycol = util_database.myclient["utils"]["commands"]
+from util_database import myclient
+mycol = myclient["utils"]["commands"]
 
 def read_json_file(file_path):
     with open(file_path, 'r') as json_file:
@@ -48,13 +48,15 @@ def category_to_commands(cat: str, commands: list):
         if not x in commands: commands.append(x)
 
 async def config_commands(ctx: commands.Context):
-    text = "`-view` View available commands.\n"
-    text+= "`-botmaster [user/userid]` Adds bot master role to a user.\n"
-    text+= "`-prefix [prefix]` Change bot command prefix.\n"
-    text+= "`-channel` Toggle channel mode, where you can set specific commands per channel.\n"
-    text+= "`-toggle [command]` Toggle command. Requires channel mode.\n"
-    text+= "`-disable [command]` Disable command server-wide."
-    await ctx.reply(text)
+    text = [
+        "`-view` View available commands.",
+        "`-botmaster [user/userid]` Adds bot master role to a user.",
+        "`-prefix [prefix]` Change bot command prefix.",
+        "`-channel` Toggle channel mode, where you can set specific commands per channel.",
+        "`-toggle [command]` Toggle command. Requires channel mode.",
+        "`-disable [command]` Disable command server-wide."
+    ]
+    await ctx.reply("\n".join(text))
 
 async def command_enable(ctx: commands.Context, com: str):
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
@@ -177,7 +179,7 @@ async def toggle_global_cat(server_id: int, cat: str):
     return await push_cat(server_id, cat)
 
 # database handling sequel
-mycol2 = util_database.myclient["utils"]["nodeports"]
+mycol2 = myclient["utils"]["nodeports"]
 async def add_database2(server_id: int):
     data = {
         "guild": server_id,
@@ -208,6 +210,9 @@ async def get_database2(server_id: int):
     if db: return db
     return await add_database2(server_id)
 
+async def set_dj_role_db(server_id: int, role_id):
+    await mycol2.update_one({"guild":server_id}, {"$set": {"bot_dj_role": role_id}})
+
 # public code for everyone to share, free to use
 async def command_check(ctx: commands.Context, com: str, cat: str):
     db = await get_database(ctx.guild.id if ctx.guild else ctx.channel.id)
@@ -225,10 +230,7 @@ async def check_if_master_or_admin(ctx: commands.Context):
     check = db.get("bot_master_role") and ctx.guild.get_role(db["bot_master_role"]) in ctx.author.roles
     if check or ctx.author.guild_permissions.administrator: return True
 
+# unused (for prefix help commands)
 async def get_guild_prefix(ctx: commands.Context):
     db = await get_database2(ctx.guild.id if ctx.guild else ctx.channel.id)
     return db["prefix"]
-
-# TODO: self explanatory
-async def get_dj_role(ctx: commands.Context):
-    db = await get_database2(ctx.guild.id)

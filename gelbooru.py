@@ -3,9 +3,8 @@ from discord.ext import commands
 import re
 import discord
 import random
-import util_database
+from util_database import myclient
 from util_discord import command_check
-myclient = util_database.myclient
 
 async def help_booru(ctx: commands.Context):
     if await command_check(ctx, "booru", "media"): return

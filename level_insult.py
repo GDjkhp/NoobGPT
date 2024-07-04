@@ -4,11 +4,11 @@ import json
 import time
 import random
 import re
-import util_database
+from util_database import myclient
 from util_discord import command_check, check_if_master_or_admin
 
-mycol = util_database.myclient["utils"]["nodeports"]
-mycol_players = util_database.myclient["utils"]["xp_players"]
+mycol = myclient["utils"]["nodeports"]
+mycol_players = myclient["utils"]["xp_players"]
 path="./res/mandatory_settings_and_splashes.json"
 
 # noobgpt sucks without insults they said
@@ -126,7 +126,7 @@ async def create_bot_master_role(ctx: commands.Context):
     if not ctx.author.guild_permissions.administrator: return await ctx.reply("not an admin :(")
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_roles:
-        return await ctx.reply("**manage roles is disabled :(**")
+        return await ctx.reply("**manage roles permission is disabled :(**")
     db = await get_database(ctx.guild.id) # nonsense
     role = await ctx.guild.create_role(name="noobgpt bot master", mentionable=False)
     await set_master_role(ctx.guild.id, role.id)
