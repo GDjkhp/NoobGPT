@@ -38,7 +38,7 @@ class YouTubePlayer(commands.Cog):
     async def play(self, ctx: commands.Context, *, search: str):
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
-        if not check_if_dj(ctx): return await ctx.reply("not a disc jockey")
+        if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
         if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
 
         if not ctx.voice_client:
@@ -69,7 +69,7 @@ class YouTubePlayer(commands.Cog):
         if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
-        if not check_if_dj(ctx): return await ctx.reply("not a disc jockey")
+        if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
         if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
 
         vc: wavelink.Player = ctx.voice_client
@@ -82,7 +82,7 @@ class YouTubePlayer(commands.Cog):
         if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
-        if not check_if_dj(ctx): return await ctx.reply("not a disc jockey")
+        if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
         if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
 
         vc: wavelink.Player = ctx.voice_client
@@ -95,7 +95,7 @@ class YouTubePlayer(commands.Cog):
         if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
-        if not check_if_dj(ctx): return await ctx.reply("not a disc jockey")
+        if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
         if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
 
         vc: wavelink.Player = ctx.voice_client
@@ -108,7 +108,7 @@ class YouTubePlayer(commands.Cog):
         if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
-        if not check_if_dj(ctx): return await ctx.reply("not a disc jockey")
+        if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
         if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
 
         vc: wavelink.Player = ctx.voice_client
@@ -125,7 +125,7 @@ class YouTubePlayer(commands.Cog):
     async def list(self, ctx: commands.Context):
         if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
-        if not check_if_dj(ctx): return await ctx.reply("not a disc jockey")
+        if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
         if await command_check(ctx, "music", "media"): return
 
         if not self.vc.queue.is_empty:
@@ -145,7 +145,7 @@ class YouTubePlayer(commands.Cog):
         if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
-        if not check_if_dj(ctx): return await ctx.reply("not a disc jockey")
+        if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
         if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
 
         if mode == 'off':
@@ -168,7 +168,7 @@ class YouTubePlayer(commands.Cog):
         if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
-        if not check_if_dj(ctx): return await ctx.reply("not a disc jockey")
+        if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
         if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
 
         if mode == 'partial':
@@ -198,7 +198,7 @@ class YouTubePlayer(commands.Cog):
         if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
-        if not check_if_dj(ctx): return await ctx.reply("not a disc jockey")
+        if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
         if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
         
         if self.vc.queue:
