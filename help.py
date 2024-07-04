@@ -58,7 +58,7 @@ async def ai_embed(av: discord.Asset) -> discord.Embed:
     emby.add_field(name='`-claude`', 
                    value="Anthropic is an AI safety and research company that's working to build reliable, interpretable, and steerable AI systems.", 
                    inline=False)
-    emby.add_field(name='`-chelp`', 
+    emby.add_field(name='`-c.ai`', 
                    value='Character.ai is an American neural language model chatbot service that can generate human-like text responses and participate in contextual conversation.', 
                    inline=False)
     return emby
@@ -122,7 +122,7 @@ async def utils_embed(av: discord.Asset) -> discord.Embed:
                    value='Toggle insults.', 
                    inline=False)
     emby.add_field(name='`-xp`', 
-                   value='Toggle XP levelling system. (BETA)', 
+                   value='Toggle XP levelling system.', 
                    inline=False)
     emby.add_field(name='`-quote`', 
                    value='Reply to a message to make it a quote.', 

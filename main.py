@@ -65,10 +65,10 @@ async def on_message(message: discord.Message):
 async def on_command_error(ctx, command):
     pass
 
-# guthib
-@bot.tree.error
-async def on_app_command_error(interaction, error):
-    pass
+# guthib (no longer needed)
+# @bot.tree.error
+# async def on_app_command_error(interaction, error):
+#     pass
 
 # personal
 @bot.command(name="rmusic")
@@ -454,7 +454,7 @@ async def cchan(ctx: commands.Context):
 async def crate(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(set_rate(ctx, arg))
 
-@bot.command()
+@bot.command(aliases=['c.ai'])
 async def chelp(ctx: commands.Context):
     bot.loop.create_task(c_help(ctx))
 
@@ -473,6 +473,10 @@ async def cedit(ctx: commands.Context, rate=None):
 @bot.command()
 async def cres(ctx: commands.Context):
     bot.loop.create_task(reset_char(ctx))
+
+@bot.command()
+async def cping(ctx: commands.Context, *, arg=None):
+    bot.loop.create_task(set_mention_mode(ctx, arg))
 
 # the real games
 from tictactoe import Tic

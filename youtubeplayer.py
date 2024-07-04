@@ -14,26 +14,26 @@ class YouTubePlayer(commands.Cog):
             embed = music_now_playing_embed(self.vc.current)
             await self.music_channel.send(embed=embed)
 
-    @commands.command()
+    @commands.command(aliases=['mhelp'])
     async def music(self, ctx: commands.Context):
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
         texts = [
-            "`-p <query>` Play music. Supports YouTube and Spotify.",
-            "`-np` Now playing.",
+            "`-play <query>` Play music. Supports YouTube, Spotify, SoundCloud, Apple Music.",
+            "`-nowplaying` Now playing.",
             "`-pause` Pause music.",
             "`-resume` Resume music.",
             "`-skip` Skip music.",
+            "`-stop` Stop music and disconnect from voice channel.",
             "`-list` Show queue.",
-            "`-shuffle` Shuffles the queue.",
+            "`-shuffle` Shuffle the queue.",
             "`-loop <off/one/all>` Loop music modes.",
             "`-autoplay <partial/enabled/disabled>` Autoplay and recommended music modes.",
-            "`-summon` Join voice channel.",
-            "`-die` Disconnect voice channel."
+            "`-summon` Join voice channel."
         ]
         await ctx.reply("\n".join(texts))
 
-    @commands.command(name="p")
+    @commands.command(aliases=['p'])
     async def play(self, ctx: commands.Context, *, search: str):
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
@@ -62,7 +62,7 @@ class YouTubePlayer(commands.Cog):
         embed = music_embed(text, desc)
         await ctx.send(embed=embed)
 
-    @commands.command()
+    @commands.command(aliases=['die'])
     async def stop(self, ctx: commands.Context):
         if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
@@ -70,7 +70,7 @@ class YouTubePlayer(commands.Cog):
         if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
 
         vc: wavelink.Player = ctx.voice_client
-        await vc.disconnect()
+        if vc: await vc.disconnect()
         embed = music_embed("⏹️ Music stopped", "The music has been stopped.")
         await ctx.send(embed=embed)
 
@@ -98,7 +98,7 @@ class YouTubePlayer(commands.Cog):
         embed = music_embed("▶️ Music Resumed", "The music has been resumed.")
         await ctx.send(embed=embed)
 
-    @commands.command()
+    @commands.command(aliases=['s'])
     async def skip(self, ctx: commands.Context):
         if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
@@ -115,7 +115,7 @@ class YouTubePlayer(commands.Cog):
         await vc.skip()
         await vc.play(next_track)
 
-    @commands.command()
+    @commands.command(aliases=['queue'])
     async def list(self, ctx: commands.Context):
         if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
@@ -132,15 +132,6 @@ class YouTubePlayer(commands.Cog):
         else:
             embed = music_embed("📜 Playlist", "The queue is empty.")
         await ctx.send(embed=embed)
-
-    @commands.command(name="die")
-    async def disconnect(self, ctx: commands.Context):
-        if not ctx.guild: return await ctx.reply("not supported")
-        if await command_check(ctx, "music", "media"): return
-        if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
-        await ctx.send("👋")
-        vc: wavelink.Player = ctx.voice_client
-        if vc: await vc.disconnect()
 
     @commands.command()
     async def loop(self, ctx: commands.Context, mode: str):
@@ -186,7 +177,7 @@ class YouTubePlayer(commands.Cog):
         embed = music_embed(text, desc)
         await ctx.send(embed=embed)
 
-    @commands.command(name="np")
+    @commands.command(aliases=['np'])
     async def nowplaying(self, ctx: commands.Context):
         if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")

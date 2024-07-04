@@ -58,7 +58,7 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
     if msg.content and msg.content[0] == "-": return # ignore commands
     # if msg.content == "": return # you can send blank messages
     ctx = await bot.get_context(msg) # context hack
-    if await command_check(ctx, "chelp", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return
 
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
@@ -114,7 +114,7 @@ async def queue_msgs(ctx, chars, clean_text):
 
 async def add_char(ctx: commands.Context, text: str, search_type: int):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "chelp", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -141,7 +141,7 @@ async def add_char(ctx: commands.Context, text: str, search_type: int):
 
 async def delete_char(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "chelp", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -157,7 +157,7 @@ async def delete_char(ctx: commands.Context):
 
 async def t_chan(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "chelp", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -171,7 +171,7 @@ async def t_chan(ctx: commands.Context):
 
 async def t_adm(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "chelp", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -180,11 +180,11 @@ async def t_adm(ctx: commands.Context):
     db = await get_database(ctx.guild.id)
     if db["admin_approval"] and not await check(ctx): return await ctx.reply("not a bot master or an admin")
     await set_admin(ctx.guild.id, not db["admin_approval"])
-    await ctx.reply(f'admin approval is now set to {not db["admin_approval"]}')
+    await ctx.reply(f'`admin approval` is now set to `{not db["admin_approval"]}`')
 
 async def t_mode(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "chelp", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -193,11 +193,11 @@ async def t_mode(ctx: commands.Context):
     db = await get_database(ctx.guild.id)
     if db["admin_approval"] and not await check(ctx): return await ctx.reply("not a bot master or an admin")
     await set_mode(ctx.guild.id, not db["channel_mode"])
-    await ctx.reply(f'channel mode is now set to {not db["channel_mode"]}')
+    await ctx.reply(f'`channel mode` is now set to `{not db["channel_mode"]}`')
 
 async def set_rate(ctx: commands.Context, num):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "chelp", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -212,11 +212,11 @@ async def set_rate(ctx: commands.Context, num):
     if not num.isdigit(): return await ctx.reply("not a digit")
     num = fix_num(num)
     await set_rate_db(ctx.guild.id, num)
-    await ctx.reply(f"message_rate is now set to {num}")
+    await ctx.reply(f"`message_rate` is now set to `{num}`")
 
 async def view_char(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "chelp", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -232,7 +232,7 @@ async def view_char(ctx: commands.Context):
 
 async def edit_char(ctx: commands.Context, rate: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "chelp", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -253,7 +253,7 @@ async def edit_char(ctx: commands.Context, rate: str):
 
 async def reset_char(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "chelp", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -268,8 +268,33 @@ async def reset_char(ctx: commands.Context):
     await ctx.reply(view=ResetView(ctx, db["characters"], 0), 
                     embed=view_embed(ctx, db["characters"], 0, 0xff00ff))
 
+async def set_mention_mode(ctx: commands.Context, modes: str):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if await command_check(ctx, "c.ai", "ai"): return
+    # fucked up the perms again
+    permissions = ctx.channel.permissions_for(ctx.me)
+    if not permissions.manage_webhooks or not permissions.manage_roles:
+        return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
+    
+    db = await get_database(ctx.guild.id)
+    if db["admin_approval"] and not await check(ctx): return await ctx.reply("not a bot master or an admin")
+    if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
+        return await ctx.reply("channel not found")
+    
+    if not modes: return await ctx.reply("usage: `-cping <basic/nospace/split/snake>`")
+    modes = modes.split()
+    real_modes = ["basic", "nospace", "split", "snake"]
+    for mode in list(modes):
+        if mode in real_modes:
+            if not mode in db["mention_modes"]: 
+                await push_mention(ctx.guild.id, mode)
+            else: await pull_mention(ctx.guild.id, mode)
+        else: modes.remove(mode)
+    db = await get_database(ctx.guild.id)
+    await ctx.reply(f"`mention_modes` is now set to `{db['mention_modes']}`")
+
 async def c_help(ctx: commands.Context):
-    if await command_check(ctx, "chelp", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return
     text  = [
         "# Character commands",
         "`-cchar` available characters",
@@ -282,15 +307,18 @@ async def c_help(ctx: commands.Context):
         "`-cchan` add/remove channel",
         "`-cadm` toggle admin approval",
         "`-cmode` toggle channel mode",
+        "`-cping <basic/nospace/split/snake>` set mention mode",
         "`-crate <int>` set global message_rate (0-100)",
         "`-cedit <int>` set char_message_rate per channel (0-100)",
         "# Get started",
         "setup: `-cchan` -> `-cadd <query>`",
+        "stop: `-crate 0`",
         "delete all chars: `-cdel` -> `💀`",
         "reset all chars: `-cres` -> `💀`",
-        "stop: `-crate 0`",
+        "set all char_message_rate: `-cedit <int>` -> `💀`",
         "channel mode: `True` = read specific channels, `False` = read all channels",
-        "admin approval: `True` = disables most commands, `False` = enables all commands"
+        "admin approval: `True` = disables most commands, `False` = enables all commands",
+        "you can also setup forums and threads per character with `-cchan` -> `-cedit 100`"
     ]
     await ctx.reply("\n".join(text))
 
@@ -402,30 +430,24 @@ def snake(text: str):
     if current_word:
         words.append(current_word)
     return words
-
 def smart_str_compare(text: str, char: str, modes: list):
     text_lower, char_lower = text.lower(), char.lower()
-
     if "basic" in modes:
         if char_lower in text_lower: return True # yoko littner -> yoko littner
-
     if "nospace" in modes:
         no_space_char = re.sub(r'[^a-zA-Z0-9]', '', char_lower)
         if no_space_char in text_lower: return True # hu tao -> hutao
-
     if "split" in modes:
         remove_symbols_text = re.sub(r'[^a-zA-Z0-9\s]', '', text_lower)
         char_splits = char_lower.split()
         for x in char_splits:
             for y in remove_symbols_text.split():
-                if x == y: return True #  hatsune miku -> hatsune, miku
-
+                if x == y: return True # hatsune miku -> hatsune, miku
     if "snake" in modes:
         snake_splits = snake(char)
         for x in snake_splits:
             for y in remove_symbols_text.split():
                 if x == y: return True # [EricVanWilderman -> eric, van, wilderman] [Kizuna AI -> kizuna, a, i]
-
 def fix_num(num):
     num = int(num)
     if num < 0: num = 0
