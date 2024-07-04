@@ -425,7 +425,7 @@ def smart_str_compare(text: str, char: str, modes: list):
         for x in snake_splits:
             for y in remove_symbols_text.split():
                 if x == y: return True # [EricVanWilderman -> eric, van, wilderman] [Kizuna AI -> kizuna, a, i]
-    return False
+
 def fix_num(num):
     num = int(num)
     if num < 0: num = 0
