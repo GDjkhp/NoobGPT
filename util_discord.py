@@ -183,6 +183,7 @@ async def add_database2(server_id: int):
         "guild": server_id,
         "prefix": "-",
         "bot_master_role": 0,
+        "bot_dj_role": 0,
         "insult_module": True,
         "insult_default": True,
         "xp_module": False,
@@ -227,3 +228,7 @@ async def check_if_master_or_admin(ctx: commands.Context):
 async def get_guild_prefix(ctx: commands.Context):
     db = await get_database2(ctx.guild.id if ctx.guild else ctx.channel.id)
     return db["prefix"]
+
+# TODO: self explanatory
+async def get_dj_role(ctx: commands.Context):
+    db = await get_database2(ctx.guild.id)

@@ -70,7 +70,7 @@ class YouTubePlayer(commands.Cog):
         if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
 
         vc: wavelink.Player = ctx.voice_client
-        await vc.stop()
+        await vc.disconnect()
         embed = music_embed("⏹️ Music stopped", "The music has been stopped.")
         await ctx.send(embed=embed)
 
@@ -112,7 +112,7 @@ class YouTubePlayer(commands.Cog):
             next_track = self.vc.auto_queue.get()
         else: return await ctx.send("There are no songs in the queue to skip")
         
-        await vc.stop()
+        await vc.skip()
         await vc.play(next_track)
 
     @commands.command()
@@ -138,7 +138,7 @@ class YouTubePlayer(commands.Cog):
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
         if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
-
+        await ctx.send("👋")
         vc: wavelink.Player = ctx.voice_client
         if vc: await vc.disconnect()
 

@@ -11,7 +11,7 @@ async def setup_hook_music(bot: commands.Bot):
     nodes = []
     for lava in data[0]["nodes"]:
         nodes.append(wavelink.Node(uri=f'{"https://" if lava["https"] else "http://"}{lava["host"]}:{lava["port"]}', 
-                                   password=lava["password"], retries=1))
+                                   password=lava["password"], identifier="NoobGPT", retries=1))
     await wavelink.Pool.connect(client=bot, nodes=nodes)
     
 def music_embed(title: str, description: str):
@@ -28,10 +28,16 @@ def music_now_playing_embed(track: wavelink.Playable):
     elif track.album.url: embed.set_thumbnail(url=track.album.url)
     elif track.artist.url: embed.set_thumbnail(url=track.artist.url)
 
-    if track.source == "spotify": 
+    if track.source == "spotify":
         embed.set_author(name="Spotify", icon_url="https://gdjkhp.github.io/img/Spotify_App_Logo.svg.png")
-    elif track.source == "youtube": 
+    elif track.source == "youtube":
         embed.set_author(name="YouTube", icon_url="https://gdjkhp.github.io/img/771384-512.png")
+    elif track.source == "soundcloud":
+        embed.set_author(name="SoundCloud", icon_url="https://gdjkhp.github.io/img/soundcloud-icon.png")
+    elif track.source == "bandcamp":
+        embed.set_author(name="Bandcamp", icon_url="https://gdjkhp.github.io/img/bandcamp-button-circle-aqua-512.png")
+    elif track.source == "applemusic":
+        embed.set_author(name="Apple Music", icon_url="https://gdjkhp.github.io/img/applemoosic.png")
     else: print(track.source)
     return embed
 

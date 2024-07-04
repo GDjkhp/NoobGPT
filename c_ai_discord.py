@@ -72,11 +72,18 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
     chars = []
     clean_text = replace_mentions(msg, bot)
     ref_msg = await msg.channel.fetch_message(msg.reference.message_id) if msg.reference else None
+
+    # feat: character mentions
+    if not db.get("mention_modes"):
+        await push_mention(ctx.guild.id, "basic")
+        await push_mention(ctx.guild.id, "nospace")
+        db = await get_database(ctx.guild.id)
+
     for x in db["characters"]:
         if x in chars: continue
         if msg.author.name in x["name"]: continue
         if not generate_random_bool(get_rate(ctx, x)): continue
-        if smart_str_compare(clean_text, x["name"]) or (ref_msg and ref_msg.author.name in x["name"]):
+        if smart_str_compare(clean_text, x["name"], db["mention_modes"]) or (ref_msg and ref_msg.author.name in x["name"]):
             chars.append(x)
 
     if not chars:
@@ -395,22 +402,29 @@ def snake(text: str):
     if current_word:
         words.append(current_word)
     return words
-def smart_str_compare(text: str, char: str):
-    snake_splits = snake(char)
-    text, char = text.lower(), char.lower()
-    char_splits = char.split()
-    no_space_char = re.sub(r'[^a-zA-Z0-9]', '', char)
-    remove_symbols_text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
-    if char in text: return True # old
-    if no_space_char in text: return True
-    for x in char_splits:
-        for y in remove_symbols_text.split():
-            if x == y: return True
-    # weird, do not use for now 
-    # (EricVanWilderman -> eric, van, wilderman) (Kizuna AI -> kizuna, a, i)
-    # for x in snake_splits:
-    #     for y in remove_symbols_text.split():
-    #         if x == y: return True
+
+def smart_str_compare(text: str, char: str, modes: list):
+    text_lower, char_lower = text.lower(), char.lower()
+
+    if "basic" in modes:
+        if char_lower in text_lower: return True # yoko littner -> yoko littner
+
+    if "nospace" in modes:
+        no_space_char = re.sub(r'[^a-zA-Z0-9]', '', char_lower)
+        if no_space_char in text_lower: return True # hu tao -> hutao
+
+    if "split" in modes:
+        remove_symbols_text = re.sub(r'[^a-zA-Z0-9\s]', '', text_lower)
+        char_splits = char_lower.split()
+        for x in char_splits:
+            for y in remove_symbols_text.split():
+                if x == y: return True #  hatsune miku -> hatsune, miku
+
+    if "snake" in modes:
+        snake_splits = snake(char)
+        for x in snake_splits:
+            for y in remove_symbols_text.split():
+                if x == y: return True # [EricVanWilderman -> eric, van, wilderman] [Kizuna AI -> kizuna, a, i]
     return False
 def fix_num(num):
     num = int(num)
@@ -833,6 +847,7 @@ async def add_database(server_id: int):
         "admin_approval": False,
         "message_rate": 66,
         "channel_mode": True,
+        "mention_modes": [],
         "channels": [],
         "characters": [],
     }
@@ -895,6 +910,12 @@ async def set_mode(server_id: int, b: bool):
 
 async def set_rate_db(server_id: int, value: int):
     await mycol.update_one({"guild":server_id}, {"$set": {"message_rate": value}})
+
+async def push_mention(server_id: int, data):
+    await mycol.update_one({"guild":server_id}, {"$push": {"mention_modes": data}})
+
+async def pull_mention(server_id: int, data):
+    await mycol.update_one({"guild":server_id}, {"$pull": {"mention_modes": data}})
 
 # webhook handling (ugly but safe)
 async def push_webhook(server_id: int, c_data, w_data):
