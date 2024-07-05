@@ -30,7 +30,7 @@ async def set_dj_role(ctx: commands.Context):
         await ctx.reply(f"dj role <@&{role.id}> has been created")
     else:
         role = ctx.guild.get_role(db["bot_dj_role"])
-        await role.delete()
+        if role: await role.delete()
         await set_dj_role_db(ctx.guild.id, 0)
         await ctx.reply("dj role has been removed")
 
