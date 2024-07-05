@@ -9,7 +9,7 @@ from util_discord import command_check
 
 headers = {'Content-Type': 'application/json'}
 def palm_proxy(model: str) -> str:
-    return f"{os.getenv('PROXY')}v1beta/models/{model}?key={os.getenv('PALM')}"
+    return f"{os.getenv('PROXY')}/v1beta/models/{model}?key={os.getenv('PALM')}"
 
 def check_response(response_data) -> bool:
     return response_data.get("candidates", []) and \
