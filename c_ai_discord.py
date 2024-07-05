@@ -227,8 +227,13 @@ async def view_char(ctx: commands.Context):
         return await ctx.reply("channel not found")
     
     if not db["characters"]: return await ctx.reply("no entries found")
-    text = f"message_rate: `{db['message_rate']}%`\nchannel_mode: `{db['channel_mode']}`\nadmin_approval: `{db['admin_approval']}`"
-    await ctx.reply(view=AvailView(ctx, db["characters"], 0), embed=view_embed(ctx, db["characters"], 0, 0x00ff00), content=text)
+    text = [
+        f"message_rate: `{db['message_rate']}%`",
+        f"channel_mode: `{db['channel_mode']}`",
+        f"admin_approval: `{db['admin_approval']}`",
+        f"mention_modes: `{db['mention_modes']}`" if db.get("mention_modes") else ""
+    ]
+    await ctx.reply(view=AvailView(ctx, db["characters"], 0), embed=view_embed(ctx, db["characters"], 0, 0x00ff00), content="\n".join(text))
 
 async def edit_char(ctx: commands.Context, rate: str):
     if not ctx.guild: return await ctx.reply("not supported")
@@ -281,7 +286,16 @@ async def set_mention_mode(ctx: commands.Context, modes: str):
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
         return await ctx.reply("channel not found")
     
-    if not modes: return await ctx.reply("usage: `-cping <basic/nospace/split/snake>`")
+    if not modes:
+        text = [
+            "usage: `-cping <basic/nospace/split/snake>`",
+            "basic: `yoko littner` -> `yoko littner`",
+            "nospace: `hu tao` -> `hutao`",
+            "split: `hatsune miku` -> `hatsune`, `miku`",
+            "snake: `EricVanWilderman` -> `eric`, `van`, `wilderman`"
+        ]
+        return await ctx.reply("\n".join(text))
+
     modes = modes.split()
     real_modes = ["basic", "nospace", "split", "snake"]
     for mode in list(modes):
@@ -289,7 +303,6 @@ async def set_mention_mode(ctx: commands.Context, modes: str):
             if not mode in db["mention_modes"]: 
                 await push_mention(ctx.guild.id, mode)
             else: await pull_mention(ctx.guild.id, mode)
-        else: modes.remove(mode)
     db = await get_database(ctx.guild.id)
     await ctx.reply(f"`mention_modes` is now set to `{db['mention_modes']}`")
 
