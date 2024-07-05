@@ -15,16 +15,18 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 </div>
 
 ## Source Code
+Requires `Python 3.10+` and `requirements.txt` packages.
 * <https://github.com/GDjkhp/level-up-loser-python-branch>
 
+Host your bots here: [Bot-Hosting.net](https://bot-hosting.net/?aff=729554186777133088)
 ## Support
 Feature requests, contributions, and improvements are welcome!
 <br>
 Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) or reach out [GDjkhp](discord://discord.com/users/729554186777133088)
 
 ## Donate
-[Paypal](https://paypal.me/GDjkhp)
-<details><summary><b>why you should invest on noobgpt</b></summary>
+[Paypal](https://paypal.me/GDjkhp) • [Patreon](https://www.patreon.com/GDjkhp) • [Fiverr](https://www.fiverr.com/gdjkhp/develop-host-and-maintain-your-discord-bot) • [Top.gg](https://top.gg/bot/1090254079609020447)
+<details><summary><b>Why you should invest on NoobGPT?</b></summary>
 <img src="https://gdjkhp.github.io/img/tenor.gif">
 </details>
 
@@ -47,7 +49,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-perplex` Perplexity AI unlocks the power of knowledge with information discovery and sharing.
 * `-mistral` Mistral AI is a French company selling artificial intelligence products.
 * `-claude` Anthropic is an AI safety and research company that's working to build reliable, interpretable, and steerable AI systems.
-* `-chelp` Character.ai is an American neural language model chatbot service that can generate human-like text responses and participate in contextual conversation.
+* `-c.ai` Character.ai is an American neural language model chatbot service that can generate human-like text responses and participate in contextual conversation.
 
 ## Games 🎲
 * `-aki (optional: category = [people/animals/objects] [language])` Play a guessing game of [Akinator](https://akinator.com).
@@ -58,6 +60,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-rps` Play rock-paper-scissors.
 
 ## Media 💽
+* `-music` Listen to music in a voice channel.
 * `-anime` Watch animated works originating in Japan.
 * `-manga` Read comics originating in Japan.
 * `-tv` Watch TV shows and movies.
@@ -67,6 +70,8 @@ Collection of random and unique stuff I came up with, mostly games and useful to
     
 ## Utils 🔧
 * `-config` Customize how the bot works.
+* `-insult` Toggle insults.
+* `-xp` Toggle XP levelling system.
 * `-quote` Reply to a message to make it a quote.
 * `-weather [query]` Check weather forecast using [weather-api](https://github.com/robertoduessmann/weather-api).
 * `-av [userid]` Return a user's Discord profile avatar.
@@ -91,6 +96,14 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * <https://github.com/nixonjoshua98/manganelo>
 * <https://github.com/amankumarsingh77/KissApi>
 * <https://github.com/antergone/palm-netlify-proxy>
+* <https://github.com/PythonistaGuild/Wavelink>
+* <https://github.com/lxml/lxml>
+* <https://github.com/python-websockets/websockets>
+* <https://github.com/theskumar/python-dotenv>
+* <https://github.com/encode/httpx>
+* <https://github.com/pydantic/pydantic>
+* <https://github.com/Legrandin/pycryptodome>
+* <https://github.com/kkroening/ffmpeg-python>
 
 ### Sites
 * <https://openai.com>
@@ -111,9 +124,10 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * <https://animepahe.ru>
 * <https://mangadex.org>
 * <https://manganato.com>
+* <https://www.crummy.com/software/BeautifulSoup>
 
 ### Special Thanks
-* `jaicraft` ~~Perplexity~~, Claude, Mistral access
+* `jaicraft` ~~Perplexity, Claude~~, Mistral access
 <!-- * `aychelletroller` OpenAI access -->
 
 ### Legal
