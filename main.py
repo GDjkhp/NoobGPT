@@ -62,8 +62,10 @@ async def on_message(message: discord.Message):
 
 # stckovrflw
 @bot.event
-async def on_command_error(ctx, command):
-    pass
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandNotFound):
+        return
+    print(error)
 
 # guthib (no longer needed)
 # @bot.tree.error
