@@ -1,6 +1,6 @@
 import wavelink
 from discord.ext import commands
-from music import music_embed, music_now_playing_embed, check_if_dj
+from music import music_embed, music_now_playing_embed, check_if_dj, format_mil
 from util_discord import command_check
 
 class YouTubePlayer(commands.Cog):
@@ -27,6 +27,12 @@ class YouTubePlayer(commands.Cog):
             "`-stop` Stop music and disconnect from voice channel.",
             "`-list` Show queue.",
             "`-shuffle` Shuffle queue.",
+            "`-reset` Reset queue.",
+            "`-peek` Peek track.",
+            "`-remove <index>` Remove a track from the queue.",
+            "`-replace <index> <query>` Replace track.",
+            "`-swap <index1> <index2>` Swap tracks.",
+            "`-move <index1> <index2>` Move track.",
             "`-loop <off/one/all>` Loop music modes.",
             "`-autoplay <partial/enabled/disabled>` Autoplay and recommended music modes.",
             "`-summon` Join voice channel.",
@@ -46,19 +52,17 @@ class YouTubePlayer(commands.Cog):
             self.vc.autoplay = wavelink.AutoPlayMode.enabled
         else: self.vc = ctx.voice_client
 
-        tracks = await wavelink.Playable.search(search)
-        if not tracks:
-            await ctx.send(f'No results found.')
-            return
+        try: tracks = await wavelink.Playable.search(search)
+        except Exception as e: return await ctx.send(f'Error :(\n{e}')
+        if not tracks: return await ctx.send('No results found.')
 
         self.music_channel = ctx.message.channel
         if isinstance(tracks, wavelink.Playlist):
             added: int = await self.vc.queue.put_wait(tracks)
             text, desc = f"🎵 Added the playlist **`{tracks.name}`**", f'Added {added} songs to the queue.'
         else:
-            track = tracks[0]
-            await self.vc.queue.put_wait(track)
-            text, desc = "🎵 Song added to the queue", f'`{track.title}` has been added to the queue.'
+            await self.vc.queue.put_wait(tracks[0])
+            text, desc = "🎵 Song added to the queue", f'`{tracks[0].title}` has been added to the queue.'
         if not self.vc.playing: await self.vc.play(self.vc.queue.get())
 
         embed = music_embed(text, desc)
@@ -112,14 +116,10 @@ class YouTubePlayer(commands.Cog):
         if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
 
         vc: wavelink.Player = ctx.voice_client
-        if not self.vc.queue.is_empty:
-            next_track = self.vc.queue.get()
-        elif self.vc.autoplay == wavelink.AutoPlayMode.enabled and not self.vc.auto_queue.is_empty:
-            next_track = self.vc.auto_queue.get()
+        if self.vc.queue.is_empty and self.vc.autoplay == wavelink.AutoPlayMode.enabled and not self.vc.auto_queue.is_empty:
+            self.vc.queue = self.vc.auto_queue.copy()
         else: return await ctx.send("There are no songs in the queue to skip")
-        
         await vc.skip()
-        await vc.play(next_track)
 
     @commands.command(aliases=['queue'])
     async def list(self, ctx: commands.Context):
@@ -128,16 +128,15 @@ class YouTubePlayer(commands.Cog):
         if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
         if await command_check(ctx, "music", "media"): return
 
-        if not self.vc.queue.is_empty:
-            queue_list = "\n".join([f"- {track.title}" for track in self.vc.queue[:5]])
-            embed = music_embed("📜 Playlist", queue_list)
-            embed.set_footer(text=f"Queue: {len(self.vc.queue)}")
-        elif self.vc.autoplay == wavelink.AutoPlayMode.enabled and not self.vc.auto_queue.is_empty:
-            queue_list = "\n".join([f"- {track.title}" for track in self.vc.auto_queue[:5]])
-            embed = music_embed("📜 Playlist", queue_list)
-            embed.set_footer(text=f"Queue: {len(self.vc.auto_queue)}")
-        else:
-            embed = music_embed("📜 Playlist", "The queue is empty.")
+        current_queue = self.vc.queue
+        if current_queue.is_empty and self.vc.autoplay == wavelink.AutoPlayMode.enabled and not self.vc.auto_queue.is_empty:
+            current_queue = self.vc.auto_queue
+        else: return await ctx.send(embed=music_embed("📜 Playlist", "The queue is empty."))
+        total = 0
+        for t in current_queue: total += t.length
+        queue_list = "\n".join([f"- {track.title} ({format_mil(track.length)})" for track in current_queue[:5]]) # TODO: queue paging
+        embed = music_embed("📜 Playlist", queue_list)
+        embed.set_footer(text=f"Queue: {len(current_queue)} ({format_mil(total)})")
         await ctx.send(embed=embed)
 
     @commands.command()
@@ -215,7 +214,68 @@ class YouTubePlayer(commands.Cog):
             self.vc = await ctx.author.voice.channel.connect(cls=wavelink.Player)
         else: self.vc = ctx.voice_client
 
-    # TODO: dj role, filters, queue ops (move, delete, remove, swap, put at, peek)
+    @commands.command()
+    async def reset(self, ctx: commands.Context):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
+        await self.vc.queue.reset()
+
+    @commands.command()
+    async def remove(self, ctx: commands.Context, index: str):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
+        if not index.isdigit() or not int(index): return await ctx.reply("not a digit :(")
+        if not self.vc.queue.is_empty:
+            track = self.vc.queue.peek(min(int(index)-1, len(self.vc.queue)-1))
+            self.vc.queue.remove(track)
+
+    @commands.command()
+    async def replace(self, ctx: commands.Context, index: str, *, query: str):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
+        if not index.isdigit() or not int(index): return await ctx.reply("not a digit :(")
+        if not self.vc.queue.is_empty:
+            try: tracks = await wavelink.Playable.search(query)
+            except Exception as e: return await ctx.send(f'Error :(\n{e}')
+            if not tracks: return await ctx.send('No results found.')
+            track = self.vc.queue.peek(min(int(index)-1, len(self.vc.queue)-1))
+            self.vc.queue[min(int(index)-1, len(self.vc.queue)-1)] = tracks[0]
+
+    @commands.command()
+    async def swap(self, ctx: commands.Context, init: str, dest: str):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
+        if not init.isdigit() or not dest.isdigit() or not int(init) or not int(dest): return await ctx.reply("not a digit :(")
+        if not self.vc.queue.is_empty:
+            first = self.vc.queue.peek(min(int(init)-1, len(self.vc.queue)-1))
+            second = self.vc.queue.peek(min(int(dest)-1, len(self.vc.queue)-1))
+            self.vc.queue.swap(min(int(init)-1, len(self.vc.queue)-1), min(int(dest)-1, len(self.vc.queue)-1))
+
+    @commands.command()
+    async def peek(self, ctx: commands.Context, index: str):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
+        if not index.isdigit() or not int(index): return await ctx.reply("not a digit :(")
+        if not self.vc.queue.is_empty:
+            track = self.vc.queue.peek(min(int(index)-1, len(self.vc.queue)-1))
+
+    @commands.command()
+    async def move(self, ctx: commands.Context, init: str, dest: str):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
+        if not init.isdigit() or not dest.isdigit() or not int(init) or not int(dest): return await ctx.reply("not a digit :(")
+        if not self.vc.queue.is_empty:
+            track = self.vc.queue.peek(min(int(init-1), len(self.vc.queue)-1))
+            self.vc.queue.remove(track)
+            self.vc.queue.put_at(int(dest)-1, track)
+
+    # TODO: filters
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(YouTubePlayer(bot))
