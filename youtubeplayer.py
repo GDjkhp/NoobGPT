@@ -221,7 +221,8 @@ class YouTubePlayer(commands.Cog):
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
         if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
-        await self.vc.queue.reset()
+        self.vc.queue.reset()
+        await ctx.send(embed=music_embed("🗑️ Queue reset", "Queue has been reset."))
 
     @commands.command()
     async def remove(self, ctx: commands.Context, index: str):
