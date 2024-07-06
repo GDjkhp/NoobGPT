@@ -308,12 +308,12 @@ async def set_mention_mode(ctx: commands.Context, modes: str):
 
 async def c_help(ctx: commands.Context):
     if await command_check(ctx, "c.ai", "ai"): return
-    text  = [
+    text = [
         "# Character commands",
         "`-cchar` available characters",
         "`-cadd <query>` add character",
         "`-cdel` delete character",
-        "`-cres` reset character"
+        "`-cres` reset character",
         "`-ctren` trending characters",
         "`-crec` recommended characters",
         "# Server commands",
@@ -398,7 +398,7 @@ def generate_random_bool(num):
     return result < chance
 def clean_gdjkhp(o: str, n: str):
     o = o.replace("gdjkhp", n)
-    o = o.replace("GDJKHP", n)
+    o = o.replace("GDJKHP", n.upper())
     return o
 def replace_mentions(message: discord.Message, bot: commands.Bot):
     content = message.content
