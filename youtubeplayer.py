@@ -116,9 +116,10 @@ class YouTubePlayer(commands.Cog):
         if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
 
         vc: wavelink.Player = ctx.voice_client
-        if self.vc.queue.is_empty and self.vc.autoplay == wavelink.AutoPlayMode.enabled and not self.vc.auto_queue.is_empty:
-            self.vc.queue = self.vc.auto_queue.copy()
-        else: return await ctx.send("There are no songs in the queue to skip")
+        if self.vc.queue.is_empty:
+            if self.vc.autoplay == wavelink.AutoPlayMode.enabled and not self.vc.auto_queue.is_empty:
+                self.vc.queue = self.vc.auto_queue.copy()
+            else: return await ctx.send("There are no songs in the queue to skip")
         await vc.skip()
 
     @commands.command(aliases=['queue'])
@@ -129,9 +130,10 @@ class YouTubePlayer(commands.Cog):
         if await command_check(ctx, "music", "media"): return
 
         current_queue = self.vc.queue
-        if current_queue.is_empty and self.vc.autoplay == wavelink.AutoPlayMode.enabled and not self.vc.auto_queue.is_empty:
-            current_queue = self.vc.auto_queue
-        else: return await ctx.send(embed=music_embed("📜 Playlist", "The queue is empty."))
+        if current_queue.is_empty:
+            if self.vc.autoplay == wavelink.AutoPlayMode.enabled and not self.vc.auto_queue.is_empty:
+                current_queue = self.vc.auto_queue
+            else: return await ctx.send(embed=music_embed("📜 Playlist", "The queue is empty."))
         total = 0
         for t in current_queue: total += t.length
         queue_list = "\n".join([f"- {track.title} ({format_mil(track.length)})" for track in current_queue[:5]]) # TODO: queue paging
