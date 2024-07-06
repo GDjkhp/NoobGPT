@@ -230,6 +230,7 @@ class YouTubePlayer(commands.Cog):
         if not self.vc.queue.is_empty:
             track = self.vc.queue.peek(min(int(index)-1, len(self.vc.queue)-1))
             self.vc.queue.remove(track)
+            await ctx.send(embed=music_embed("🗑️ Track removed", f"`{track.title}` has been removed."))
 
     @commands.command()
     async def replace(self, ctx: commands.Context, index: str, *, query: str):
@@ -241,8 +242,11 @@ class YouTubePlayer(commands.Cog):
             try: tracks = await wavelink.Playable.search(query)
             except Exception as e: return await ctx.send(f'Error :(\n{e}')
             if not tracks: return await ctx.send('No results found.')
-            track = self.vc.queue.peek(min(int(index)-1, len(self.vc.queue)-1))
-            self.vc.queue[min(int(index)-1, len(self.vc.queue)-1)] = tracks[0]
+            real_index = min(int(index)-1, len(self.vc.queue)-1)
+            track = self.vc.queue.peek(real_index)
+            self.vc.queue[real_index] = tracks[0]
+            await ctx.send(embed=music_embed("🔄 Track replaced", 
+                                             f"`{track.title}` has been removed and `{tracks[0].title}` has been replaced."))
 
     @commands.command()
     async def swap(self, ctx: commands.Context, init: str, dest: str):
@@ -251,9 +255,13 @@ class YouTubePlayer(commands.Cog):
         if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
         if not init.isdigit() or not dest.isdigit() or not int(init) or not int(dest): return await ctx.reply("not a digit :(")
         if not self.vc.queue.is_empty:
-            first = self.vc.queue.peek(min(int(init)-1, len(self.vc.queue)-1))
-            second = self.vc.queue.peek(min(int(dest)-1, len(self.vc.queue)-1))
-            self.vc.queue.swap(min(int(init)-1, len(self.vc.queue)-1), min(int(dest)-1, len(self.vc.queue)-1))
+            index1 = min(int(init)-1, len(self.vc.queue)-1)
+            index2 = min(int(dest)-1, len(self.vc.queue)-1)
+            first = self.vc.queue.peek(index1)
+            second = self.vc.queue.peek(index2)
+            self.vc.queue.swap(index1, index2)
+            await ctx.send(embed=music_embed("🔄 Tracks swapped", 
+                                             f"`{first.title}` is at position `{index2}` and `{second.title}` is at position `{index1}`."))
 
     @commands.command()
     async def peek(self, ctx: commands.Context, index: str):
@@ -262,7 +270,9 @@ class YouTubePlayer(commands.Cog):
         if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
         if not index.isdigit() or not int(index): return await ctx.reply("not a digit :(")
         if not self.vc.queue.is_empty:
-            track = self.vc.queue.peek(min(int(index)-1, len(self.vc.queue)-1))
+            real_index = min(int(index)-1, len(self.vc.queue)-1)
+            track = self.vc.queue.peek(real_index)
+            await ctx.send(embed=music_embed("🎵 Track index", f"{real_index+1}.{track.title} ({format_mil(track.length)})"))
 
     @commands.command()
     async def move(self, ctx: commands.Context, init: str, dest: str):
