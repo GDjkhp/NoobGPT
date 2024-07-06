@@ -233,7 +233,7 @@ class YouTubePlayer(commands.Cog):
         if not self.vc.queue.is_empty:
             track = self.vc.queue.peek(min(int(index)-1, len(self.vc.queue)-1))
             self.vc.queue.remove(track)
-            await ctx.send(embed=music_embed("🗑️ Track removed", f"`{track.title}` has been removed."))
+            await ctx.send(embed=music_embed("🗑️ Remove track", f"`{track.title}` has been removed."))
 
     @commands.command()
     async def replace(self, ctx: commands.Context, index: str, *, query: str):
@@ -248,7 +248,7 @@ class YouTubePlayer(commands.Cog):
             real_index = min(int(index)-1, len(self.vc.queue)-1)
             track = self.vc.queue.peek(real_index)
             self.vc.queue[real_index] = tracks[0]
-            await ctx.send(embed=music_embed("🔄 Track replaced", 
+            await ctx.send(embed=music_embed("➡️ Replace track", 
                                              f"`{track.title}` has been removed and `{tracks[0].title}` has been replaced."))
 
     @commands.command()
@@ -263,8 +263,8 @@ class YouTubePlayer(commands.Cog):
             first = self.vc.queue.peek(index1)
             second = self.vc.queue.peek(index2)
             self.vc.queue.swap(index1, index2)
-            await ctx.send(embed=music_embed("🔄 Tracks swapped", 
-                                             f"`{first.title}` is at position `{index2}` and `{second.title}` is at position `{index1}`."))
+            await ctx.send(embed=music_embed("🔄 Swap tracks", 
+                                             f"`{first.title}` is at position `{index2+1}` and `{second.title}` is at position `{index1+1}`."))
 
     @commands.command()
     async def peek(self, ctx: commands.Context, index: str):
@@ -284,9 +284,12 @@ class YouTubePlayer(commands.Cog):
         if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
         if not init.isdigit() or not dest.isdigit() or not int(init) or not int(dest): return await ctx.reply("not a digit :(")
         if not self.vc.queue.is_empty:
-            track = self.vc.queue.peek(min(int(init-1), len(self.vc.queue)-1))
+            index1 = min(int(init)-1, len(self.vc.queue)-1)
+            index2 = min(int(dest)-1, len(self.vc.queue)-1)
+            track = self.vc.queue.peek(index1)
             self.vc.queue.remove(track)
-            self.vc.queue.put_at(int(dest)-1, track)
+            self.vc.queue.put_at(index2, track)
+            await ctx.send(embed=music_embed("↕️ Move track", f"`{track.title}` is now at position `{index2+1}`."))
 
     # TODO: filters
 
