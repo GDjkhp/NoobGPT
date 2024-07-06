@@ -275,7 +275,7 @@ class YouTubePlayer(commands.Cog):
         if not self.vc.queue.is_empty:
             real_index = min(int(index)-1, len(self.vc.queue)-1)
             track = self.vc.queue.peek(real_index)
-            await ctx.send(embed=music_embed("🎵 Track index", f"{real_index+1}.{track.title} ({format_mil(track.length)})"))
+            await ctx.send(embed=music_embed("🎵 Track index", f"{real_index+1}. {track.title} ({format_mil(track.length)})"))
 
     @commands.command()
     async def move(self, ctx: commands.Context, init: str, dest: str):
