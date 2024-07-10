@@ -65,11 +65,14 @@ async def add_task_to_queue(ctx: commands.Context, x, text):
     if ctx.channel.id not in channel_tasks or channel_queues[ctx.channel.id].task_done():
         channel_tasks[ctx.channel.id] = ctx.bot.loop.create_task(c_ai_init(ctx))
 
-def c_ai_guild_remove(guild: discord.Guild):
-    for channel in guild.channels:
-        if channel.id in channel_tasks:
-            channel_tasks[channel.id].cancel()
-            del channel_tasks[channel.id]
+async def queue_msgs(ctx, chars, clean_text):
+    for x in chars:
+        data = None
+        try:
+            data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
+            if data and data.get('replies'): await add_task_to_queue(ctx, x, data['replies'][0]['text'])
+            else: print(data)
+        except Exception as e: print(f"Exception in queue_msgs: {e}, data: {data}")
 
 # the real
 async def c_ai(bot: commands.Bot, msg: discord.Message):
@@ -122,15 +125,6 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
     else:
         typing_chans.append(ctx.channel.id)
         async with ctx.typing(): await queue_msgs(ctx, chars, clean_text)
-
-async def queue_msgs(ctx, chars, clean_text):
-    for x in chars:
-        data = None
-        try:
-            data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
-            if data and data.get('replies'): await add_task_to_queue(ctx, x, data['replies'][0]['text'])
-            else: print(data)
-        except Exception as e: print(f"Exception in queue_msgs: {e}, data: {data}")
 
 async def add_char(ctx: commands.Context, text: str, search_type: int):
     if not ctx.guild: return await ctx.reply("not supported")
