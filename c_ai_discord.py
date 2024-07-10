@@ -8,7 +8,6 @@ import re
 from collections import defaultdict
 from typing import Dict
 import time
-from queue import Queue
 import util_database
 import os
 from util_discord import command_check, check_if_master_or_admin as check
@@ -21,7 +20,7 @@ typing_chans = []
 provider="https://gdjkhp.github.io/img/Character.AI.png"
 
 # queue system
-channel_queues: Dict[int, asyncio.Queue] = defaultdict(Queue)
+channel_queues: Dict[int, asyncio.Queue] = defaultdict(asyncio.Queue)
 last_webhook_times: Dict[int, float] = defaultdict(float)
 channel_tasks: Dict[int, asyncio.Task] = {}
 async def c_ai_init(ctx: commands.Context):
