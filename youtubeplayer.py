@@ -214,6 +214,7 @@ class YouTubePlayer(commands.Cog):
         if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
         if not ctx.voice_client:
             self.vc = await ctx.author.voice.channel.connect(cls=wavelink.Player)
+            self.vc.autoplay = wavelink.AutoPlayMode.enabled
         else: self.vc = ctx.voice_client
 
     @commands.command()
