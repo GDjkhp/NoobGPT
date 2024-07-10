@@ -5,6 +5,9 @@ import asyncio
 import aiohttp
 import random
 import re
+from collections import defaultdict
+from typing import Dict
+import time
 from queue import Queue
 import util_database
 import os
@@ -15,41 +18,59 @@ client = PyAsyncCAI(os.getenv('CHARACTER'))
 list_types = ["search", "trending", "recommended"]
 pagelimit=12
 typing_chans = []
-loop_queue = False
 provider="https://gdjkhp.github.io/img/Character.AI.png"
 
 # queue system
-tasks_queue = Queue()
-async def c_ai_init():
-    global loop_queue
-    if loop_queue: return
-    loop_queue = True
+channel_queues: Dict[int, asyncio.Queue] = defaultdict(Queue)
+last_webhook_times: Dict[int, float] = defaultdict(float)
+channel_tasks: Dict[int, asyncio.Task] = {}
+async def c_ai_init(ctx: commands.Context):
     while True:
-        await asyncio.sleep(1) # DO NOT REMOVE
         try:
-            if tasks_queue.empty(): continue
-            ctx, x, text = tasks_queue.get()
+            if channel_queues[ctx.channel.id].empty():
+                await asyncio.sleep(0.1)
+                continue
+            ctx, x, text = await channel_queues[ctx.channel.id].get() # updated ctx is required for message author
             permissions: discord.Permissions = ctx.channel.permissions_for(ctx.me)
             if not permissions.send_messages or not permissions.send_messages_in_threads: continue
             db = await get_database(ctx.guild.id)
             if db["channel_mode"] and not ctx.channel.id in db["channels"]: continue
             if db["message_rate"] == 0: continue
+            # still alive?
             exist = False
             for char in db["characters"]:
                 if x["name"] == char["name"]:
                     if get_rate(ctx, char) == 0: continue
                     exist = True
             if not exist: continue
+            # webhook rate limiting
+            current_time = time.time()
+            time_since_last_webhook = current_time - last_webhook_times[ctx.channel.id]
+            if time_since_last_webhook < 0.5:
+                await asyncio.sleep(0.5 - time_since_last_webhook)
+            # send the fucking message
             if ctx.channel.id in typing_chans:
                 await send_webhook_message(ctx, x, text)
             else:
                 typing_chans.append(ctx.channel.id)
                 async with ctx.typing():
                     await send_webhook_message(ctx, x, text)
+            last_webhook_times[ctx.channel.id] = time.time()
         except Exception as e: print(f"Exception in c_ai_init: {e}")
         try: 
             if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
         except: print("escaped the matrix bug triggered")
+
+async def add_task_to_queue(ctx: commands.Context, x, text):
+    await channel_queues[ctx.channel.id].put((ctx, x, text))
+    if ctx.channel.id not in channel_tasks or channel_queues[ctx.channel.id].task_done():
+        channel_tasks[ctx.channel.id] = ctx.bot.loop.create_task(c_ai_init(ctx))
+
+def c_ai_guild_remove(guild: discord.Guild):
+    for channel in guild.channels:
+        if channel.id in channel_tasks:
+            channel_tasks[channel.id].cancel()
+            del channel_tasks[channel.id]
 
 # the real
 async def c_ai(bot: commands.Bot, msg: discord.Message):
@@ -108,7 +129,7 @@ async def queue_msgs(ctx, chars, clean_text):
         data = None
         try:
             data = await client.chat.send_message(x["history_id"], x["username"], clean_text)
-            if data and data.get('replies'): tasks_queue.put((ctx, x, data['replies'][0]['text']))
+            if data and data.get('replies'): await add_task_to_queue(ctx, x, data['replies'][0]['text'])
             else: print(data)
         except Exception as e: print(f"Exception in queue_msgs: {e}, data: {data}")
 
@@ -554,7 +575,7 @@ class SelectChoice(discord.ui.Select):
         data = character_data(selected, tgt, chat, role, img, parent, wh, threads)
         await push_character(self.ctx.guild.id, data)
         await interaction.message.edit(content=f"`{selected['participant__name']}` has been added to the server", embed=None, view=None)
-        tasks_queue.put((self.ctx, data, chat["messages"][0]["text"])) # wake up
+        await add_task_to_queue(self.ctx, data, chat["messages"][0]["text"]) # wake up
 
 class MyView4(discord.ui.View):
     def __init__(self, ctx: commands.Context, arg: str, result: list, index: int):
@@ -872,7 +893,7 @@ class ResetChoice(discord.ui.Select):
         await push_character(self.ctx.guild.id, selected)
 
         await interaction.message.edit(content=f"`{selected['name']}` has been reset", embed=None, view=None)
-        tasks_queue.put((self.ctx, selected, chat["messages"][0]["text"])) # wake up
+        await add_task_to_queue(self.ctx, selected, chat["messages"][0]["text"]) # wake up
 
 # database handling
 async def add_database(server_id: int):
