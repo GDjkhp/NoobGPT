@@ -1,6 +1,6 @@
 import wavelink
 from discord.ext import commands
-from music import music_embed, music_now_playing_embed, check_if_dj, format_mil
+from music import music_embed, music_now_playing_embed, filter_embed, check_if_dj, format_mil
 from util_discord import command_check
 
 class YouTubePlayer(commands.Cog):
@@ -35,6 +35,8 @@ class YouTubePlayer(commands.Cog):
             "`-move <index1> <index2>` Move track.",
             "`-loop <off/one/all>` Loop music modes.",
             "`-autoplay <partial/enabled/disabled>` Autoplay and recommended music modes.",
+            "`-volume <value>` Set volume.",
+            "`-filters` Show available filters.",
             "`-summon` Join voice channel.",
             "`-dj` Create DJ role."
         ]
@@ -45,7 +47,8 @@ class YouTubePlayer(commands.Cog):
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
         if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
-        if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
+        if self.vc and (not ctx.author.voice or not ctx.author.voice.channel == self.vc.channel):
+            return await ctx.send(f'Join the voice channel with the bot first.')
 
         if not ctx.voice_client:
             self.vc = await ctx.author.voice.channel.connect(cls=wavelink.Player)
@@ -68,13 +71,14 @@ class YouTubePlayer(commands.Cog):
         embed = music_embed(text, desc)
         await ctx.send(embed=embed)
 
-    @commands.command(aliases=['die'])
+    @commands.command(aliases=['die', 'dc'])
     async def stop(self, ctx: commands.Context):
         if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
         if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
-        if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
+        if not ctx.author.voice or not ctx.author.voice.channel == self.vc.channel:
+            return await ctx.send(f'Join the voice channel with the bot first.')
 
         vc: wavelink.Player = ctx.voice_client
         if vc: await vc.disconnect()
@@ -87,7 +91,8 @@ class YouTubePlayer(commands.Cog):
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
         if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
-        if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
+        if not ctx.author.voice or not ctx.author.voice.channel == self.vc.channel:
+            return await ctx.send(f'Join the voice channel with the bot first.')
 
         vc: wavelink.Player = ctx.voice_client
         await vc.pause(True)
@@ -100,7 +105,8 @@ class YouTubePlayer(commands.Cog):
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
         if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
-        if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
+        if not ctx.author.voice or not ctx.author.voice.channel == self.vc.channel:
+            return await ctx.send(f'Join the voice channel with the bot first.')
 
         vc: wavelink.Player = ctx.voice_client
         await vc.pause(False)
@@ -113,7 +119,8 @@ class YouTubePlayer(commands.Cog):
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
         if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
-        if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
+        if not ctx.author.voice or not ctx.author.voice.channel == self.vc.channel:
+            return await ctx.send(f'Join the voice channel with the bot first.')
 
         vc: wavelink.Player = ctx.voice_client
         if self.vc.queue.is_empty:
@@ -147,7 +154,8 @@ class YouTubePlayer(commands.Cog):
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
         if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
-        if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
+        if not ctx.author.voice or not ctx.author.voice.channel == self.vc.channel:
+            return await ctx.send(f'Join the voice channel with the bot first.')
 
         if mode == 'off':
             self.vc.queue.mode = wavelink.QueueMode.normal
@@ -159,8 +167,7 @@ class YouTubePlayer(commands.Cog):
             self.vc.queue.mode = wavelink.QueueMode.loop_all
             text, desc = "🔁 Loop all", "wavelink.QueueMode.loop_all"
         else:
-            await ctx.send("Mode not found.\nUsage: `-loop <off/one/all>`")
-            return
+            return await ctx.send("Mode not found.\nUsage: `-loop <off/one/all>`")
         embed = music_embed(text, desc)
         await ctx.send(embed=embed)
 
@@ -170,7 +177,8 @@ class YouTubePlayer(commands.Cog):
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
         if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
-        if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
+        if not ctx.author.voice or not ctx.author.voice.channel == self.vc.channel:
+            return await ctx.send(f'Join the voice channel with the bot first.')
 
         if mode == 'partial':
             self.vc.autoplay = wavelink.AutoPlayMode.partial
@@ -182,8 +190,7 @@ class YouTubePlayer(commands.Cog):
             self.vc.autoplay = wavelink.AutoPlayMode.disabled
             text, desc = "❌ Autoplay disabled", "wavelink.AutoPlayMode.disabled"
         else:
-            await ctx.send("Mode not found.\nUsage: `-autoplay <partial/enabled/disabled>`")
-            return
+            return await ctx.send("Mode not found.\nUsage: `-autoplay <partial/enabled/disabled>`")
         embed = music_embed(text, desc)
         await ctx.send(embed=embed)
 
@@ -200,7 +207,8 @@ class YouTubePlayer(commands.Cog):
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
         if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
-        if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
+        if not ctx.author.voice or not ctx.author.voice.channel == self.vc.channel:
+            return await ctx.send(f'Join the voice channel with the bot first.')
         
         if self.vc.queue:
             self.vc.queue.shuffle()
@@ -211,7 +219,8 @@ class YouTubePlayer(commands.Cog):
     async def summon(self, ctx: commands.Context):
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
-        if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
+        if not ctx.author.voice or not ctx.author.voice.channel == self.vc.channel:
+            return await ctx.send(f'Join the voice channel with the bot first.')
         if not ctx.voice_client:
             self.vc = await ctx.author.voice.channel.connect(cls=wavelink.Player)
             self.vc.autoplay = wavelink.AutoPlayMode.enabled
@@ -219,17 +228,21 @@ class YouTubePlayer(commands.Cog):
 
     @commands.command()
     async def reset(self, ctx: commands.Context):
+        if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
-        if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
+        if not ctx.author.voice or not ctx.author.voice.channel == self.vc.channel:
+            return await ctx.send(f'Join the voice channel with the bot first.')
         self.vc.queue.reset()
         await ctx.send(embed=music_embed("🗑️ Reset queue", "Queue has been reset."))
 
     @commands.command()
     async def remove(self, ctx: commands.Context, index: str):
+        if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
-        if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
+        if not ctx.author.voice or not ctx.author.voice.channel == self.vc.channel:
+            return await ctx.send(f'Join the voice channel with the bot first.')
         if not index.isdigit() or not int(index): return await ctx.reply("not a digit :(")
         if not self.vc.queue.is_empty:
             track = self.vc.queue.peek(min(int(index)-1, len(self.vc.queue)-1))
@@ -238,9 +251,11 @@ class YouTubePlayer(commands.Cog):
 
     @commands.command()
     async def replace(self, ctx: commands.Context, index: str, *, query: str):
+        if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
-        if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
+        if not ctx.author.voice or not ctx.author.voice.channel == self.vc.channel:
+            return await ctx.send(f'Join the voice channel with the bot first.')
         if not index.isdigit() or not int(index): return await ctx.reply("not a digit :(")
         if not self.vc.queue.is_empty:
             try: tracks = await wavelink.Playable.search(query)
@@ -254,9 +269,11 @@ class YouTubePlayer(commands.Cog):
 
     @commands.command()
     async def swap(self, ctx: commands.Context, init: str, dest: str):
+        if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
-        if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
+        if not ctx.author.voice or not ctx.author.voice.channel == self.vc.channel:
+            return await ctx.send(f'Join the voice channel with the bot first.')
         if not init.isdigit() or not dest.isdigit() or not int(init) or not int(dest): return await ctx.reply("not a digit :(")
         if not self.vc.queue.is_empty:
             index1 = min(int(init)-1, len(self.vc.queue)-1)
@@ -269,9 +286,11 @@ class YouTubePlayer(commands.Cog):
 
     @commands.command()
     async def peek(self, ctx: commands.Context, index: str):
+        if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
-        if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
+        if not ctx.author.voice or not ctx.author.voice.channel == self.vc.channel:
+            return await ctx.send(f'Join the voice channel with the bot first.')
         if not index.isdigit() or not int(index): return await ctx.reply("not a digit :(")
         if not self.vc.queue.is_empty:
             real_index = min(int(index)-1, len(self.vc.queue)-1)
@@ -280,9 +299,11 @@ class YouTubePlayer(commands.Cog):
 
     @commands.command()
     async def move(self, ctx: commands.Context, init: str, dest: str):
+        if not self.vc: return
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
-        if not ctx.author.voice: return await ctx.send(f'Join a voice channel first.')
+        if not ctx.author.voice or not ctx.author.voice.channel == self.vc.channel:
+            return await ctx.send(f'Join the voice channel with the bot first.')
         if not init.isdigit() or not dest.isdigit() or not int(init) or not int(dest): return await ctx.reply("not a digit :(")
         if not self.vc.queue.is_empty:
             index1 = min(int(init)-1, len(self.vc.queue)-1)
@@ -292,7 +313,165 @@ class YouTubePlayer(commands.Cog):
             self.vc.queue.put_at(index2, track)
             await ctx.send(embed=music_embed("↕️ Move track", f"`{track.title}` is now at position `{index2+1}`."))
 
-    # TODO: filters
+    @commands.command()
+    async def volume(self, ctx: commands.Context, value:int=100):
+        if not self.vc: return
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice or not ctx.author.voice.channel == self.vc.channel:
+            return await ctx.send(f'Join the voice channel with the bot first.')
+        self.vc.set_volume(value)
+
+    @commands.command()
+    async def filters(self, ctx: commands.Context, reset: str=None, filter: str=None):
+        if not self.vc: return
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
+        if reset and reset == "reset":
+            filters: wavelink.Filters = self.vc.filters
+            if filter and filter in ["karaoke", "timescale", "lowpass", "rotation", "distortion", "channelmix", "tremolo", "vibrato"]:
+                if filter == "karaoke":
+                    filters.karaoke.reset()
+                if filter == "timescale":
+                    filters.timescale.reset()
+                if filter == "lowpass":
+                    filters.low_pass.reset()
+                if filter == "rotation":
+                    filters.rotation.reset()
+                if filter == "distortion":
+                    filters.distortion.reset()
+                if filter == "channelmix":
+                    filters.channel_mix.reset()
+                if filter == "tremolo":
+                    filters.tremolo.reset()
+                if filter == "vibrato":
+                    filters.vibrato.reset()
+            else: filters.reset()
+            await self.vc.set_filters(filters)
+            return await ctx.reply("all filters have been reset")
+
+        texts = [
+            "`-karaoke <level> <mono_level> <filter_band> <filter_width>`",
+            "`-timescale <pitch> <speed> <rate>`",
+            "`-lowpass <smoothing>`",
+            "`-rotation <rotation_hz>`",
+            "`-distortion <sin_offset> <sin_scale> <cos_offset> <cos_scale> <tan_offset> <tan_scale> <offset> <scale>`",
+            "`-channelmix <left_to_left> <left_to_right> <right_to_left> <right_to_right>`",
+            "`-tremolo <frequency> <depth>`",
+            "`-vibrato <frequency> <depth>`",
+            "`-filters reset` will reset all filters",
+            "`-filters reset <filter>` will reset specific filter"
+        ]
+        await ctx.reply("\n".join(texts))
+    
+    @commands.command()
+    async def timescale(self, ctx: commands.Context, pitch:float=None, speed:float=None, rate:float=None):
+        if not self.vc: return
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice or not ctx.author.voice.channel == self.vc.channel:
+            return await ctx.send(f'Join the voice channel with the bot first.')
+
+        filters: wavelink.Filters = self.vc.filters
+        filters.timescale.set(pitch=pitch, speed=speed, rate=rate)
+        await self.vc.set_filters(filters)
+        await ctx.send(embed=filter_embed("🎚️ Filter", "Timescale", filters.timescale.payload))
+
+    @commands.command()
+    async def karaoke(self, ctx: commands.Context, level:float=None, mono_level:float=None, filter_band:float=None, filter_width:float=None):
+        if not self.vc: return
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice or not ctx.author.voice.channel == self.vc.channel:
+            return await ctx.send(f'Join the voice channel with the bot first.')
+
+        filters: wavelink.Filters = self.vc.filters
+        filters.karaoke.set(level=level, mono_level=mono_level, filter_band=filter_band, filter_width=filter_width)
+        await self.vc.set_filters(filters)
+        await ctx.send(embed=filter_embed("🎚️ Filter", "Karaoke", filters.karaoke.payload))
+
+    @commands.command()
+    async def lowpass(self, ctx: commands.Context, smoothing:float=None):
+        if not self.vc: return
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice or not ctx.author.voice.channel == self.vc.channel:
+            return await ctx.send(f'Join the voice channel with the bot first.')
+
+        filters: wavelink.Filters = self.vc.filters
+        filters.low_pass.set(smoothing=smoothing)
+        await self.vc.set_filters(filters)
+        await ctx.send(embed=filter_embed("🎚️ Filter", "Low Pass", filters.low_pass.payload))
+
+    @commands.command()
+    async def distortion(self, ctx: commands.Context, 
+                         sin_offset:float=None, sin_scale:float=None, cos_offset:float=None, cos_scale:float=None, 
+                         tan_offset:float=None, tan_scale:float=None, offset:float=None, scale:float=None):
+        if not self.vc: return
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice or not ctx.author.voice.channel == self.vc.channel:
+            return await ctx.send(f'Join the voice channel with the bot first.')
+
+        filters: wavelink.Filters = self.vc.filters
+        filters.distortion.set(sin_offset=sin_offset, sin_scale=sin_scale, cos_offset=cos_offset, cos_scale=cos_scale, 
+                               tan_offset=tan_offset, tan_scale=tan_scale, offset=offset, scale=scale)
+        await self.vc.set_filters(filters)
+        await ctx.send(embed=filter_embed("🎚️ Filter", "Distortion", filters.distortion.payload))
+
+    @commands.command()
+    async def rotation(self, ctx: commands.Context, rotation_hz:float=None):
+        if not self.vc: return
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice or not ctx.author.voice.channel == self.vc.channel:
+            return await ctx.send(f'Join the voice channel with the bot first.')
+
+        filters: wavelink.Filters = self.vc.filters
+        filters.rotation.set(rotation_hz=rotation_hz)
+        await self.vc.set_filters(filters)
+        await ctx.send(embed=filter_embed("🎚️ Filter", "Rotation", filters.rotation.payload))
+
+    @commands.command()
+    async def channelmix(self, ctx: commands.Context, left_to_left:float=None, left_to_right:float=None, 
+                         right_to_left:float=None, right_to_right:float=None):
+        if not self.vc: return
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice or not ctx.author.voice.channel == self.vc.channel:
+            return await ctx.send(f'Join the voice channel with the bot first.')
+
+        filters: wavelink.Filters = self.vc.filters
+        filters.channel_mix.set(left_to_left=left_to_left, left_to_right=left_to_right, 
+                                right_to_left=right_to_left, right_to_right=right_to_right)
+        await self.vc.set_filters(filters)
+        await ctx.send(embed=filter_embed("🎚️ Filter", "Channel Mix", filters.channel_mix.payload))
+
+    @commands.command()
+    async def tremolo(self, ctx: commands.Context, frequency:float=None, depth:float=None):
+        if not self.vc: return
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice or not ctx.author.voice.channel == self.vc.channel:
+            return await ctx.send(f'Join the voice channel with the bot first.')
+
+        filters: wavelink.Filters = self.vc.filters
+        filters.tremolo.set(frequency=frequency, depth=depth)
+        await self.vc.set_filters(filters)
+        await ctx.send(embed=filter_embed("🎚️ Filter", "Tremolo", filters.tremolo.payload))
+
+    @commands.command()
+    async def vibrato(self, ctx: commands.Context, frequency:float=None, depth:float=None):
+        if not self.vc: return
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
+        if not ctx.author.voice or not ctx.author.voice.channel == self.vc.channel:
+            return await ctx.send(f'Join the voice channel with the bot first.')
+
+        filters: wavelink.Filters = self.vc.filters
+        filters.vibrato.set(frequency=frequency, depth=depth)
+        await self.vc.set_filters(filters)
+        await ctx.send(embed=filter_embed("🎚️ Filter", "Vibrato", filters.vibrato.payload))
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(YouTubePlayer(bot))

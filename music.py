@@ -12,7 +12,7 @@ async def setup_hook_music(bot: commands.Bot):
     nodes = []
     for lava in data[0]["nodes"]:
         nodes.append(wavelink.Node(uri=f'{"https://" if lava["https"] else "http://"}{lava["host"]}:{lava["port"]}', 
-                                   password=lava["password"], retries=1))
+                                   password=lava["password"], identifier=lava["identifier"], retries=1))
     await wavelink.Pool.connect(client=bot, nodes=nodes)
 
 async def set_dj_role(ctx: commands.Context):
@@ -47,9 +47,9 @@ def music_embed(title: str, description: str):
 def music_now_playing_embed(track: wavelink.Playable):
     embed = discord.Embed(title="🎵 Now playing", color=0x00ff00,
                           description=f"[{track.title}]({track.uri})" if track.uri else track.title)
-    embed.add_field(name="Author", value=track.author)
-    if track.album.name: embed.add_field(name="Album", value=track.album.name)
-    embed.add_field(name="Duration", value=format_mil(track.length))
+    embed.add_field(name="Author", value=track.author, inline=False)
+    if track.album.name: embed.add_field(name="Album", value=track.album.name, inline=False)
+    embed.add_field(name="Duration", value=format_mil(track.length), inline=False)
 
     if track.artwork: embed.set_thumbnail(url=track.artwork)
     elif track.album.url: embed.set_thumbnail(url=track.album.url)
@@ -67,6 +67,11 @@ def music_now_playing_embed(track: wavelink.Playable):
         embed.set_author(name="Apple Music", icon_url="https://gdjkhp.github.io/img/applemoosic.png")
     else: print(track.source)
     return embed
+
+def filter_embed(title: str, description: str, filter: dict):
+    e = discord.Embed(title=title, description=description, color=0x00ff00)
+    for key, value in filter.items(): e.add_field(name=key, value=value)
+    return e
 
 def format_mil(milliseconds: int):
     seconds, milliseconds = divmod(milliseconds, 1000)
