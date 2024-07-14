@@ -26,7 +26,7 @@ class YouTubePlayer(commands.Cog):
             "`-resume` Resume music.",
             "`-skip` Skip music.",
             "`-stop` Stop music and disconnect from voice channel.",
-            "`-list` Show queue.",
+            "`-list <page>` Show queue.",
             "`-shuffle` Shuffle queue.",
             "`-reset` Reset queue.",
             "`-peek` Peek track.",
@@ -162,7 +162,7 @@ class YouTubePlayer(commands.Cog):
         index = page - 1  # page 1 = index 0
         items_per_page = 5
         queue_context = current_queue[index * items_per_page:(index + 1) * items_per_page]
-        queue_list = "\n".join([f"{i + 1 + (items_per_page * index)} {track.title} ({format_mil(track.length)})" for i, track in enumerate(queue_context)])
+        queue_list = "\n".join([f"{i + 1 + (items_per_page * index)}. `{track.title}` ({format_mil(track.length)})" for i, track in enumerate(queue_context)])
         embed = music_embed("📜 Playlist", queue_list)
         total_pages = (len(current_queue) + items_per_page - 1) // items_per_page
         embed.set_footer(text=f"Page {page}/{total_pages}, Queue: {len(current_queue)} ({format_mil(total)})")
