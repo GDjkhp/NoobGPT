@@ -1,6 +1,6 @@
 import wavelink
 from discord.ext import commands
-from music import music_embed, music_now_playing_embed, filter_embed, check_if_dj, format_mil
+from music import music_embed, music_now_playing_embed, filter_embed, check_if_dj, format_mil, set_dj_role
 from util_discord import command_check
 
 class YouTubePlayer(commands.Cog):
@@ -42,6 +42,10 @@ class YouTubePlayer(commands.Cog):
             "`-dj` Create DJ role."
         ]
         await ctx.reply("\n".join(texts))
+
+    @commands.command()
+    async def dj(self, ctx: commands.Context):
+        await set_dj_role(ctx)
 
     @commands.command()
     async def summon(self, ctx: commands.Context):
@@ -142,7 +146,7 @@ class YouTubePlayer(commands.Cog):
         await vc.skip()
 
     @commands.command(aliases=['queue'])
-    async def list(self, ctx: commands.Context):
+    async def list(self, ctx: commands.Context, page: int=1):
         if not ctx.guild: return await ctx.reply("not supported")
         if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
         if await command_check(ctx, "music", "media"): return
@@ -155,9 +159,13 @@ class YouTubePlayer(commands.Cog):
             else: return await ctx.send(embed=music_embed("📜 Playlist", "The queue is empty."))
         total = 0
         for t in current_queue: total += t.length
-        queue_list = "\n".join([f"- {track.title} ({format_mil(track.length)})" for track in current_queue[:5]]) # TODO: queue paging
+        index = page - 1  # page 1 = index 0
+        items_per_page = 5
+        queue_context = current_queue[index * items_per_page:(index + 1) * items_per_page]
+        queue_list = "\n".join([f"{i + 1 + (items_per_page * index)} {track.title} ({format_mil(track.length)})" for i, track in enumerate(queue_context)])
         embed = music_embed("📜 Playlist", queue_list)
-        embed.set_footer(text=f"Queue: {len(current_queue)} ({format_mil(total)})")
+        total_pages = (len(current_queue) + items_per_page - 1) // items_per_page
+        embed.set_footer(text=f"Page {page}/{total_pages}, Queue: {len(current_queue)} ({format_mil(total)})")
         await ctx.send(embed=embed)
 
     @commands.command()

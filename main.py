@@ -22,7 +22,7 @@ bot = commands.Bot(command_prefix = get_prefix,
 from gde_hall_of_fame import *
 from c_ai_discord import *
 from custom_status import *
-from music import setup_hook_music, set_dj_role
+from music import setup_hook_music, add_node, delete_node, view_nodes
 @bot.event
 async def on_ready():
     print(f"{bot.user.name} (c) 2024 The Karakters Kompany. All rights reserved.")
@@ -72,32 +72,46 @@ async def on_command_error(ctx, error):
 #     pass
 
 # personal
+user_id = 729554186777133088
 @bot.command()
-async def dj(ctx: commands.Context):
-    bot.loop.create_task(set_dj_role(ctx))
+async def nodeadd(ctx: commands.Context, host: str, password: str):
+    if not ctx.author.id == user_id: return
+    await add_node(ctx, host, password)
+
+@bot.command()
+async def nodedel(ctx: commands.Context, index: int):
+    if not ctx.author.id == user_id: return
+    await delete_node(ctx, index)
+
+@bot.command()
+async def nodeview(ctx: commands.Context):
+    if not ctx.author.id == user_id: return
+    await view_nodes(ctx)
 
 @bot.command(name="rmusic")
 async def reload_music(ctx: commands.Context):
-    if not ctx.author.id == 729554186777133088: return
+    if not ctx.author.id == user_id: return
     await setup_hook_music(bot)
 
 @bot.command()
 async def kvview(ctx: commands.Context):
-    bot.loop.create_task(view_kv(ctx))
+    if not ctx.author.id == user_id: return
+    await view_kv(ctx)
 
 @bot.command()
 async def kvget(ctx: commands.Context, key=None):
-    bot.loop.create_task(get_kv(ctx, key))
+    if not ctx.author.id == user_id: return
+    await get_kv(ctx, key)
 
 @bot.command()
 async def kvset(ctx: commands.Context, *, arg=None):
-    bot.loop.create_task(set_kv(ctx, arg))
+    if not ctx.author.id == user_id: return
+    await set_kv(ctx, arg)
 
 @bot.command()
 async def kvdel(ctx: commands.Context, key=None):
-    bot.loop.create_task(del_kv(ctx, key))
+    await del_kv(ctx, key)
 
-# TODO: store the strings in a json file that syncs with the website
 from help import HALP
 @bot.command()
 async def halp(ctx: commands.Context):
@@ -238,7 +252,11 @@ async def kiss(ctx: commands.Context, *, arg=None):
 async def tv(ctx: commands.Context):
     bot.loop.create_task(help_tv(ctx))
 
-from gogoanime import Gogoanime
+from gogoanime import Gogoanime, set_domain
+@bot.command()
+async def rgogo(ctx: commands.Context, arg=None):
+    await set_domain(ctx, arg)
+
 @bot.command()
 async def gogo(ctx: commands.Context, *, arg=None):
     bot.loop.create_task(Gogoanime(ctx, arg))

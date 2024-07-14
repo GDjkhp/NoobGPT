@@ -21,6 +21,11 @@ async def get_domain():
     data = await cursor.to_list(None)
     gogoanime = data[0]["gogo"]
 
+async def set_domain(ctx: commands.Context, arg: str):
+    await mycol.update_one({}, {"$set": {"gogo": arg}})
+    await get_domain()
+    await ctx.reply(gogoanime)
+
 async def Gogoanime(ctx: commands.Context, arg: str):
     if await command_check(ctx, "anime", "media"): return
     await get_domain()

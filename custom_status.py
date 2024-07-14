@@ -64,31 +64,31 @@ async def silly_activities(bot: commands.Bot):
         except Exception as e: print(e)
         await asyncio.sleep(10)
 
-# so ugly with dicts
+def kv_embed(kv: dict):
+    e = discord.Embed(title="📝 Lanyard", description=f"{len(kv)} found", color=0x00ff00)
+    for key, value in kv.items(): e.add_field(name=key, value=value, inline=False)
+    return e
+
 async def view_kv(ctx: commands.Context):
-    if not ctx.author.id == user_id: return await ctx.reply("i know who you are")
     data = await the_real_req(f"https://api.lanyard.rest/v1/users/{user_id}")
-    await ctx.reply(data["data"]["kv"])
+    await ctx.reply(embed=kv_embed(data["data"]["kv"]))
 
 async def get_kv(ctx: commands.Context, key: str):
-    if not ctx.author.id == user_id: return await ctx.reply("i know who you are")
     if not key: return await ctx.reply("no key provided")
     data = await the_real_req(f"https://api.lanyard.rest/v1/users/{user_id}")
     if not data["data"]["kv"] or not data["data"]["kv"].get(key): return await ctx.reply("no results found")
-    await ctx.reply(data["data"]["kv"][key])
+    await ctx.reply(embed=kv_embed(data["data"]["kv"][key]))
 
 async def set_kv(ctx: commands.Context, arg: str):
-    if not ctx.author.id == user_id: return await ctx.reply("i know who you are")
     key = arg.split()[0]
     value = " ".join(arg.split()[1:])
     if not key or not value: return await ctx.reply("no key/value provided")
     await the_real_put(f"https://api.lanyard.rest/v1/users/{user_id}/kv/{key}", value)
     data = await the_real_req(f"https://api.lanyard.rest/v1/users/{user_id}")
-    await ctx.reply(data["data"]["kv"])
+    await ctx.reply(embed=kv_embed(data["data"]["kv"]))
 
 async def del_kv(ctx: commands.Context, key: str):
-    if not ctx.author.id == user_id: return await ctx.reply("i know who you are")
     if not key: return await ctx.reply("no key provided")
     await the_real_delete(f"https://api.lanyard.rest/v1/users/{user_id}/kv/{key}")
     data = await the_real_req(f"https://api.lanyard.rest/v1/users/{user_id}")
-    await ctx.reply(data["data"]["kv"])
+    await ctx.reply(embed=kv_embed(data["data"]["kv"]))

@@ -7,13 +7,33 @@ mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 
 async def setup_hook_music(bot: commands.Bot):
     await wavelink.Pool.close()
+    data = await node_list()
+    nodes = []
+    for lava in data:
+        nodes.append(wavelink.Node(uri=lava["host"], password=lava["password"], retries=1))
+    await wavelink.Pool.connect(client=bot, nodes=nodes)
+
+async def view_nodes(ctx: commands.Context):
+    data = await node_list()
+    if not data: return await ctx.reply("nodes not found")
+    await ctx.reply(embed=nodes_embed(data))
+
+async def add_node(ctx: commands.Context, host: str, password: str):
+    await mycol.update_one({}, {"$push": {"nodes": {"host": host, "password": password}}})
+    data = await node_list()
+    await ctx.reply(embed=nodes_embed(data))
+
+async def delete_node(ctx: commands.Context, index: int):
+    data = await node_list()
+    if not data: return await ctx.reply("nodes not found")
+    await mycol.update_one({}, {"$pull": {"nodes": dict(data[min(index, len(data)-1)])}})
+    data = await node_list()
+    await ctx.reply(embed=nodes_embed(data))
+
+async def node_list():
     cursor = mycol.find()
     data = await cursor.to_list(None)
-    nodes = []
-    for lava in data[0]["nodes"]:
-        nodes.append(wavelink.Node(uri=f'{"https://" if lava["https"] else "http://"}{lava["host"]}:{lava["port"]}', 
-                                   password=lava["password"], identifier=lava["identifier"], retries=1))
-    await wavelink.Pool.connect(client=bot, nodes=nodes)
+    return data[0]["nodes"]
 
 async def set_dj_role(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
@@ -71,6 +91,12 @@ def music_now_playing_embed(track: wavelink.Playable):
 def filter_embed(title: str, description: str, filter: dict):
     e = discord.Embed(title=title, description=description, color=0x00ff00)
     for key, value in filter.items(): e.add_field(name=key, value=value)
+    return e
+
+def nodes_embed(nodes: list[dict]):
+    e = discord.Embed(title="🌏 Nodes", description=f"{len(nodes)} found", color=0x00ff00)
+    for lava in nodes:
+        e.add_field(name=lava["host"], value=lava["password"], inline=False)
     return e
 
 def format_mil(milliseconds: int):
