@@ -670,7 +670,8 @@ class ResetAllButton(discord.ui.Button):
         count = 0
         for selected in self.result:
             count+=1
-            await interaction.message.edit(content=f'resetting `{selected["name"]}`\n{count}/{len(self.result)}\n{"\n".join(errors)}')
+            e_strs = "\n".join(errors)
+            await interaction.message.edit(content=f'resetting `{selected["name"]}`\n{count}/{len(self.result)}\n{e_strs}')
             if not selected.get("char_id"):
                 count -= 1
                 errors.append(f"`char_id` not found. please re-add `{selected['name']}` with `-cdel` and `-cadd`")
@@ -687,7 +688,8 @@ class ResetAllButton(discord.ui.Button):
                 continue
 
             await reset_method(self.ctx, selected, chat)
-        await interaction.message.edit(content=f'`{count}/{len(self.result)}` characters have been reset from the server\n{"\n".join(errors)}')
+        e_strs = "\n".join(errors)
+        await interaction.message.edit(content=f'`{count}/{len(self.result)}` characters have been reset from the server\n{e_strs}')
 
 class EditAllButton(discord.ui.Button):
     def __init__(self, ctx: commands.Context, result: list, rate: int, row: int=None):
@@ -704,7 +706,8 @@ class EditAllButton(discord.ui.Button):
         count = 0
         for selected in self.result:
             count+=1
-            await interaction.message.edit(content=f'setting `{selected["name"]}` char_message_rate to `{self.rate}`\n{count}/{len(self.result)}\n{"\n".join(errors)}')
+            e_strs = "\n".join(errors)
+            await interaction.message.edit(content=f'setting `{selected["name"]}` char_message_rate to `{self.rate}`\n{count}/{len(self.result)}\n{e_strs}')
 
             if not selected.get("webhooks"): # old
                 await pull_character(self.ctx.guild.id, selected)
@@ -724,8 +727,8 @@ class EditAllButton(discord.ui.Button):
             if not found:
                 count -= 1
                 errors.append(f"`{selected['name']}` webhook not found")
-
-        await interaction.message.edit(content=f'`{count}/{len(self.result)}` characters have been edited from the server\n{"\n".join(errors)}')
+        e_strs = "\n".join(errors)
+        await interaction.message.edit(content=f'`{count}/{len(self.result)}` characters have been edited from the server\n{e_strs}')
 
 async def delete_method(ctx: commands.Context, selected):
     role = ctx.guild.get_role(selected["role_id"])
