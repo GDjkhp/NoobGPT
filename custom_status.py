@@ -77,7 +77,7 @@ async def get_kv(ctx: commands.Context, key: str):
     if not key: return await ctx.reply("no key provided")
     data = await the_real_req(f"https://api.lanyard.rest/v1/users/{user_id}")
     if not data["data"]["kv"] or not data["data"]["kv"].get(key): return await ctx.reply("no results found")
-    await ctx.reply(embed=kv_embed(data["data"]["kv"][key]))
+    await ctx.reply(data["data"]["kv"][key])
 
 async def set_kv(ctx: commands.Context, arg: str):
     key = arg.split()[0]
