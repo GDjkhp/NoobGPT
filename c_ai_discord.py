@@ -646,7 +646,7 @@ class DeleteAllButton(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        await interaction.message.edit(view=None, embed=None)
+        await interaction.message.edit(content='deleting', view=None, embed=None)
         await interaction.response.defer()
         count = 0
         for selected in self.result:
@@ -664,7 +664,7 @@ class ResetAllButton(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        await interaction.message.edit(view=None, embed=None)
+        await interaction.message.edit(content='resetting', view=None, embed=None)
         await interaction.response.defer()
         errors = []
         count = 0
@@ -700,7 +700,7 @@ class EditAllButton(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        await interaction.message.edit(view=None, embed=None)
+        await interaction.message.edit(content='setting', view=None, embed=None)
         await interaction.response.defer()
         errors = []
         count = 0
