@@ -48,9 +48,10 @@ async def silly_activities(bot: commands.Bot):
                 "feat. tama and sadako",
                 "bot by gdjkhp",
                 "made in yokohama, japan",
-                "hosted in finland",
+                "hosted in germany",
                 "written in python",
                 "powered by pterodactyl",
+                "don't make me popular >_<",
             ]
             data = await the_real_req(f"https://api.lanyard.rest/v1/users/{user_id}")
             if data["success"]: 
