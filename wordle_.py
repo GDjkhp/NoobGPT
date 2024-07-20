@@ -273,17 +273,20 @@ class MyModal(discord.ui.Modal):
             # leaderboard test
             user_data = await mycol.find_one({"user": interaction.user.id})
             if not user_data:
-                # If the user does not exist in the collection, insert a new document
                 await mycol.insert_one({
                     "user": interaction.user.id,
                     "servers": [interaction.guild_id],
-                    "score": 6-self.settings["step"]  # Set an initial score, modify as needed
+                    "score": 6-self.settings["step"],
+                    "plays": 1
                 })
             else:
-                # If the user exists, update the existing document
                 await mycol.update_one(
                     {"user": interaction.user.id},
-                    {"$addToSet": {"servers": interaction.guild_id}, "$inc": {"score": 6-self.settings["step"]}}
+                    {
+                        "$addToSet": {"servers": interaction.guild_id},
+                        "$inc": {"score": 6-self.settings["step"]},
+                        "$inc": {"plays": 1}
+                    }
                 )
             
             self.settings["result"] = 1
@@ -309,10 +312,12 @@ async def brag_embed(server_scores, ctx: commands.Context, global_lead: bool) ->
     index, limit = 0, 10
     for user_data in server_scores:
         index+=1
-        try: member = await ctx.guild.fetch_member(user_data['user'])
-        except discord.NotFound: member = None
-        member_name = member.name if member else "???"
-        e.add_field(name=f"{index}. {member_name}", value=f"Score: {user_data['score']}", inline=False)
+        bot: commands.Bot = ctx.bot
+        user = bot.get_user(user_data['user'])
+        user_name = user.name if user else "???"
+        e.add_field(name=f"{index}. {user_name}", 
+                    value=f"Score: {user_data['score']} ({user_data['plays'] if user_data.get('plays') else '?'} plays)", 
+                    inline=False)
         if index == limit: break
     return e
 

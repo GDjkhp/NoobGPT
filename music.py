@@ -96,7 +96,7 @@ def filter_embed(title: str, description: str, filter: dict):
 def nodes_embed(nodes: list[dict]):
     e = discord.Embed(title="🌏 Nodes", description=f"{len(nodes)} found", color=0x00ff00)
     for lava in nodes:
-        e.add_field(name=f'`{lava["host"]}`', value=f'{lava["password"]}', inline=False)
+        e.add_field(name=f'`{lava["host"]}`', value=f'`{lava["password"]}`', inline=False)
     return e
 
 def format_mil(milliseconds: int):
