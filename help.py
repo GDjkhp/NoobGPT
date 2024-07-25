@@ -52,6 +52,9 @@ async def ai_embed(av: discord.Asset) -> discord.Embed:
     emby.add_field(name='`-perplex`', 
                    value='Perplexity AI unlocks the power of knowledge with information discovery and sharing.', 
                    inline=False)
+    emby.add_field(name='`-groq`', 
+                   value='The LPU™ Inference Engine by Groq is a hardware and software platform that delivers exceptional compute speed, quality, and energy efficiency.', 
+                   inline=False)
     emby.add_field(name='`-mistral`', 
                    value='Mistral AI is a French company selling artificial intelligence products.', 
                    inline=False)

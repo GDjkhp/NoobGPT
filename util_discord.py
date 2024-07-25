@@ -32,7 +32,7 @@ async def banner(ctx: commands.Context, bot: commands.Bot, arg: str):
 
 # shit deed
 available_categories=["ai", "games", "media", "utils"]
-ai_commands=["openai", "googleai", "petals", "perplex", "mistral", "claude", "c.ai"]
+ai_commands=["openai", "googleai", "petals", "perplex", "groq", "mistral", "claude", "c.ai"]
 games_commands=["aki", "tic", "hang", "quiz", "word", "rps"]
 media_commands=["anime", "manga", "tv", "ytdlp", "cob", "booru", "music"]
 utils_commands=["quote", "weather", "av", "ban", "halp", "legal", "xp", "insult"]

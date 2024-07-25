@@ -334,6 +334,10 @@ async def perplex(ctx: commands.Context):
     bot.loop.create_task(help_perplexity(ctx))
 
 @bot.command()
+async def groq(ctx: commands.Context):
+    bot.loop.create_task(help_groq(ctx))
+
+@bot.command()
 async def m7b(ctx: commands.Context):
     bot.loop.create_task(main_mistral(ctx, 0))
 
@@ -404,6 +408,38 @@ async def smc(ctx: commands.Context):
 @bot.command()
 async def smo(ctx: commands.Context):
     bot.loop.create_task(main_perplexity(ctx, 7))
+
+@bot.command()
+async def l31405(ctx: commands.Context):
+    bot.loop.create_task(main_groq(ctx, 0))
+
+@bot.command()
+async def l3170(ctx: commands.Context):
+    bot.loop.create_task(main_groq(ctx, 1))
+
+@bot.command()
+async def l318(ctx: commands.Context):
+    bot.loop.create_task(main_groq(ctx, 2))
+
+@bot.command()
+async def l370(ctx: commands.Context):
+    bot.loop.create_task(main_groq(ctx, 3))
+
+@bot.command()
+async def l38(ctx: commands.Context):
+    bot.loop.create_task(main_groq(ctx, 4))
+
+@bot.command()
+async def mix7b(ctx: commands.Context):
+    bot.loop.create_task(main_groq(ctx, 5))
+
+@bot.command()
+async def g7b(ctx: commands.Context):
+    bot.loop.create_task(main_groq(ctx, 6))
+
+@bot.command()
+async def g29b(ctx: commands.Context):
+    bot.loop.create_task(main_groq(ctx, 7))
 
 from openai_ import *
 @bot.command()

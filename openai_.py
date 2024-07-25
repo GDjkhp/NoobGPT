@@ -4,9 +4,10 @@ import time
 import aiohttp
 import io
 from discord.ext import commands
+import os
 from util_discord import command_check
 
-client = AsyncOpenAI()
+client = AsyncOpenAI(api_key=os.getenv('OPENAI'))
 
 # ugly
 def strip_dash(text: str):

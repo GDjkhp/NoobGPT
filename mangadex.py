@@ -362,7 +362,7 @@ class PageView(discord.ui.View):
         else: self.add_item(DisabledButton("⏮️", 3))
         self.add_item(CancelButton(ctx, 3))
         self.add_item(ButtonBack(ctx, details, 3, index, chapters))
-        if index < len(chapters): self.add_item(ButtonChapter(ctx, index+1, chapters, details, 3, "⏭️"))
+        if index+1 < len(chapters): self.add_item(ButtonChapter(ctx, index+1, chapters, details, 3, "⏭️"))
         else: self.add_item(DisabledButton("⏭️", 3))
 
 class ButtonPage(discord.ui.Button):

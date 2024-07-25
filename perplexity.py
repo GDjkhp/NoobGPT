@@ -49,6 +49,16 @@ models_mistral=[
     "mistral-large-latest", # ml
     "codestral-latest" # mcode
 ]
+models_groq=[
+    "llama-3.1-405b-reasoning", # l31405
+    "llama-3.1-70b-versatile", # l3170
+    "llama-3.1-8b-instant", # l318
+    "llama3-70b-8192", # l370
+    "llama3-8b-8192", # l38
+    "mixtral-8x7b-32768", # mix7b
+    "gemma-7b-it", # g7b
+    "gemma2-9b-it" # g29b
+]
 
 async def help_perplexity(ctx: commands.Context):
     if await command_check(ctx, "perplex", "ai"): return
@@ -86,6 +96,20 @@ async def help_mistral(ctx: commands.Context):
     ]
     await ctx.reply("\n".join(text))
 
+async def help_groq(ctx: commands.Context):
+    if await command_check(ctx, "groq", "ai"): return
+    text = [
+        f"`-l31405` {models_groq[0]}",
+        f"`-l3170` {models_groq[1]}",
+        f"`-l318` {models_groq[2]}",
+        f"`-l370` {models_groq[3]}",
+        f"`-l38` {models_groq[4]}",
+        f"`-mix7b` {models_groq[5]}",
+        f"`-g7b` {models_groq[6]}",
+        f"`-g29b` {models_groq[7]}"
+    ]
+    await ctx.reply("\n".join(text))
+
 async def the_real_req(url: str, payload: dict, headers: dict):
     async with aiohttp.ClientSession() as session:
         async with session.post(url, json=payload, headers=headers) as response:
@@ -93,8 +117,7 @@ async def the_real_req(url: str, payload: dict, headers: dict):
                 return await response.json()
             else: print(await response.content.read())
 
-async def make_request(model: str, messages: list):
-    url = "https://api.perplexity.ai/chat/completions"
+async def make_request(model: str, messages: list, url: str, key: str):
     payload = {
         "model": model,
         "messages": [
@@ -107,7 +130,7 @@ async def make_request(model: str, messages: list):
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "authorization": f"Bearer {os.getenv('PERPLEXITY')}"
+        "authorization": f"Bearer {key}"
     }
     return await the_real_req(url, payload, headers)
 
@@ -143,8 +166,34 @@ async def main_perplexity(ctx: commands.Context, model: int):
     async with ctx.typing():
         msg = await ctx.reply("Generating response…")
         old = round(time.time() * 1000)
-        try: 
-            response = await make_request(models[model], await loopMsg(ctx.message)) # spicy
+        try:
+            url = "https://api.perplexity.ai/chat/completions"
+            key = os.getenv('PERPLEXITY')
+            response = await make_request(models[model], await loopMsg(ctx.message), url, key) # spicy
+            text = response["choices"][0]["message"]["content"]
+            if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
+            chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
+            replyFirst = True
+            for chunk in chunks:
+                if replyFirst: 
+                    replyFirst = False
+                    await ctx.reply(chunk)
+                else: await ctx.send(chunk)
+        except Exception as e:
+            # bruh = response["detail"][0]["msg"] if response and response.get("detail") else e
+            print(e)
+            return await msg.edit(content=f"**Error! :(**")
+        await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
+
+async def main_groq(ctx: commands.Context, model: int):
+    if await command_check(ctx, "groq", "ai"): return
+    async with ctx.typing():
+        msg = await ctx.reply("Generating response…")
+        old = round(time.time() * 1000)
+        try:
+            url = "https://api.groq.com/openai/v1/chat/completions"
+            key = os.getenv('GROQ')
+            response = await make_request(models_groq[model], await loopMsg(ctx.message), url, key) # spicy
             text = response["choices"][0]["message"]["content"]
             if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
             chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
