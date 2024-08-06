@@ -77,7 +77,7 @@ class YouTubePlayer(commands.Cog):
             vc = await ctx.author.voice.channel.connect(cls=wavelink.Player)
             vc.autoplay = wavelink.AutoPlayMode.enabled
         vc.music_channel = ctx.message.channel
-        
+
         if isinstance(tracks, wavelink.Playlist):
             added: int = await vc.queue.put_wait(tracks)
             text, desc = f"🎵 Added the playlist **`{tracks.name}`**", f'Added {added} songs to the queue.'
@@ -101,7 +101,7 @@ class YouTubePlayer(commands.Cog):
         try: tracks = await wavelink.Playable.search(search)
         except Exception as e: return await ctx.send(f'Error :(\n{e}')
         if not tracks: return await ctx.send('No results found.')
-        await ctx.send(embed=search_embed(search_embed, tracks, 0), view=SearchView(ctx, search, tracks, 0))
+        await ctx.send(embed=search_embed(search, tracks, 0), view=SearchView(ctx, search, tracks, 0))
 
     @commands.command(aliases=['die', 'dc'])
     async def stop(self, ctx: commands.Context):
