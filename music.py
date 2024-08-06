@@ -119,7 +119,6 @@ pagelimit=12
 def search_embed(arg: str, result: wavelink.Search, index: int) -> discord.Embed:
     embed = discord.Embed(title=f"🔍 Search results: `{result if isinstance(result, wavelink.Playlist) else arg}`",
                           description=f"{len(result)} found", color=0x00ff00)
-    embed.set_thumbnail(url="https://gdjkhp.github.io/img/771384-512.png")
     i = index
     while i < len(result):
         if (i < index+pagelimit): embed.add_field(name=f"[{i + 1}] `{result[i].title}`", value=result[i].author)
