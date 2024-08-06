@@ -113,3 +113,94 @@ def format_mil(milliseconds: int):
     formatted_time.append(f"{minutes:02}:{seconds:02}")
 
     return ":".join(formatted_time)
+
+# music search functions
+pagelimit=12
+def search_embed(arg: str, result: wavelink.Search, index: int) -> discord.Embed:
+    embed = discord.Embed(title=f"🔍 Search results: `{result if isinstance(result, wavelink.Playlist) else arg}`",
+                          description=f"{len(result)} found", color=0x00ff00)
+    embed.set_thumbnail(url="https://gdjkhp.github.io/img/771384-512.png")
+    i = index
+    while i < len(result):
+        if (i < index+pagelimit): embed.add_field(name=f"[{i + 1}] `{result[i].title}`", value=result[i].author)
+        i += 1
+    return embed
+
+def get_max_page(length):
+    if length % pagelimit != 0: return length - (length % pagelimit)
+    return length - pagelimit
+
+class CancelButton(discord.ui.Button):
+    def __init__(self, ctx: commands.Context, r: int):
+        super().__init__(emoji="❌", style=discord.ButtonStyle.success, row=r)
+        self.ctx = ctx
+    
+    async def callback(self, interaction: discord.Interaction):
+        if interaction.user != self.ctx.author: 
+            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+                                                           ephemeral=True)
+        await interaction.message.delete()
+
+class DisabledButton(discord.ui.Button):
+    def __init__(self, e: str, r: int):
+        super().__init__(emoji=e, style=discord.ButtonStyle.success, disabled=True, row=r)
+
+class SearchView(discord.ui.View):
+    def __init__(self, ctx: commands.Context, arg: str, result: wavelink.Search, index: int):
+        super().__init__(timeout=None)
+        last_index = min(index + pagelimit, len(result))
+        self.add_item(SelectChoice(ctx, index, result))
+        if index - pagelimit > -1:
+            self.add_item(nextPage(ctx, arg, result, 0, "⏪"))
+            self.add_item(nextPage(ctx, arg, result, index - pagelimit, "◀️"))
+        else:
+            self.add_item(DisabledButton("⏪", 1))
+            self.add_item(DisabledButton("◀️", 1))
+        if not last_index == len(result):
+            self.add_item(nextPage(ctx, arg, result, last_index, "▶️"))
+            max_page = get_max_page(len(result))
+            self.add_item(nextPage(ctx, arg, result, max_page, "⏩"))
+        else:
+            self.add_item(DisabledButton("▶️", 1))
+            self.add_item(DisabledButton("⏩", 1))
+        self.add_item(CancelButton(ctx, 1))
+
+class nextPage(discord.ui.Button):
+    def __init__(self, ctx: commands.Context, arg: str, result: wavelink.Search, index: int, l: str):
+        super().__init__(emoji=l, style=discord.ButtonStyle.success)
+        self.result, self.index, self.arg, self.ctx = result, index, arg, ctx
+    
+    async def callback(self, interaction: discord.Interaction):
+        if interaction.user != self.ctx.author: 
+            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+                                                           ephemeral=True)
+        await interaction.message.edit(view=None)
+        await interaction.response.defer()
+        await interaction.message.edit(embed=search_embed(self.arg, self.result, self.index), 
+                                       view=SearchView(self.ctx, self.arg, self.result, self.index))
+
+class SelectChoice(discord.ui.Select):
+    def __init__(self, ctx: commands.Context, index: int, result: wavelink.Search):
+        super().__init__(placeholder=f"{min(index + pagelimit, len(result))}/{len(result)} found")
+        i, self.result, self.ctx = index, result, ctx
+        while i < len(result):
+            if (i < index+pagelimit): self.add_option(label=f"[{i + 1}] {result[i].title}"[:100], 
+                                                      value=i, description=result[i].author[:100])
+            if (i == index+pagelimit): break
+            i += 1
+
+    async def callback(self, interaction: discord.Interaction):
+        if interaction.user != self.ctx.author: 
+            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+                                                           ephemeral=True)
+        if not self.ctx.voice_client:
+            vc = await self.ctx.author.voice.channel.connect(cls=wavelink.Player)
+            vc.autoplay = wavelink.AutoPlayMode.enabled
+        else: vc: wavelink.Player = self.ctx.voice_client
+        vc.music_channel = self.ctx.message.channel
+
+        selected = self.result[int(self.values[0])]
+        await vc.queue.put_wait(selected)
+        text, desc = "🎵 Song added to the queue", f'`{selected.title}` has been added to the queue.'
+        await interaction.message.edit(embed=music_embed(text, desc), view=None)
+        if not vc.playing: await vc.play(vc.queue.get())

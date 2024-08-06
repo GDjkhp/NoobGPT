@@ -1,6 +1,6 @@
 import wavelink
 from discord.ext import commands
-from music import music_embed, music_now_playing_embed, filter_embed, check_if_dj, format_mil, set_dj_role
+from music import *
 from util_discord import command_check
 
 class YouTubePlayer(commands.Cog):
@@ -21,6 +21,7 @@ class YouTubePlayer(commands.Cog):
         if await command_check(ctx, "music", "media"): return
         texts = [
             "`-play <query>` Play music. Supports YouTube, Spotify, SoundCloud, Apple Music.",
+            "`-search <query>` Search music. Defaults to YouTube.",
             "`-nowplaying` Now playing.",
             "`-pause` Pause music.",
             "`-resume` Resume music.",
@@ -59,7 +60,7 @@ class YouTubePlayer(commands.Cog):
             vc.autoplay = wavelink.AutoPlayMode.enabled
 
     @commands.command(aliases=['p'])
-    async def play(self, ctx: commands.Context, *, search: str):
+    async def play(self, ctx: commands.Context, *, search: str=None):
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return
         if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
@@ -67,25 +68,40 @@ class YouTubePlayer(commands.Cog):
         if not ctx.author.voice or (vc and not ctx.author.voice.channel == vc.channel):
             return await ctx.send(f'Join the voice channel with the bot first.')
 
-        if not ctx.voice_client:
-            vc = await ctx.author.voice.channel.connect(cls=wavelink.Player)
-            vc.autoplay = wavelink.AutoPlayMode.enabled
-
+        if not search: return await ctx.reply("usage: `-play <query>`")
         try: tracks = await wavelink.Playable.search(search)
         except Exception as e: return await ctx.send(f'Error :(\n{e}')
         if not tracks: return await ctx.send('No results found.')
 
+        if not ctx.voice_client:
+            vc = await ctx.author.voice.channel.connect(cls=wavelink.Player)
+            vc.autoplay = wavelink.AutoPlayMode.enabled
         vc.music_channel = ctx.message.channel
+        
         if isinstance(tracks, wavelink.Playlist):
             added: int = await vc.queue.put_wait(tracks)
             text, desc = f"🎵 Added the playlist **`{tracks.name}`**", f'Added {added} songs to the queue.'
         else:
             await vc.queue.put_wait(tracks[0])
             text, desc = "🎵 Song added to the queue", f'`{tracks[0].title}` has been added to the queue.'
-        if not vc.playing: await vc.play(vc.queue.get())
-
         embed = music_embed(text, desc)
         await ctx.send(embed=embed)
+        if not vc.playing: await vc.play(vc.queue.get())
+
+    @commands.command()
+    async def search(self, ctx: commands.Context, *, search: str=None):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return
+        if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
+        vc = ctx.voice_client
+        if not ctx.author.voice or (vc and not ctx.author.voice.channel == vc.channel):
+            return await ctx.send(f'Join the voice channel with the bot first.')
+
+        if not search: return await ctx.reply("usage: `-search <query>`")
+        try: tracks = await wavelink.Playable.search(search)
+        except Exception as e: return await ctx.send(f'Error :(\n{e}')
+        if not tracks: return await ctx.send('No results found.')
+        await ctx.send(embed=search_embed(search_embed, tracks, 0), view=SearchView(ctx, search, tracks, 0))
 
     @commands.command(aliases=['die', 'dc'])
     async def stop(self, ctx: commands.Context):

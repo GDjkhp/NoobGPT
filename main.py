@@ -1,8 +1,9 @@
-import discord
-from discord.ext import commands
-import os
+# TODO: slash context, user apps, convert to cogs
 from dotenv import load_dotenv
 load_dotenv()
+import os
+import discord
+from discord.ext import commands
 from level_insult import *
 
 intents = discord.Intents.default()
@@ -10,10 +11,8 @@ intents.message_content = True
 intents.presences = True
 intents.members = True
 mentions = discord.AllowedMentions(everyone=False, users=True, roles=True, replied_user=True)
-bot = commands.Bot(command_prefix = get_prefix, 
-                   intents = intents, 
-                   help_command = None, 
-                   allowed_mentions = mentions)
+bot = commands.Bot(command_prefix = get_prefix, intents = intents, 
+                   help_command = None, allowed_mentions = mentions)
 
 # open server (replit legacy hack)
 # from request_listener import keep_alive
@@ -23,15 +22,17 @@ from gde_hall_of_fame import *
 from c_ai_discord import *
 from custom_status import *
 from music import setup_hook_music, add_node, delete_node, view_nodes
+
 @bot.event
 async def on_ready():
     print(f"{bot.user.name} (c) 2024 The Karakters Kompany. All rights reserved.")
     print("Running for the following servers:")
-    number = 0
-    for guild in bot.guilds:
-        number += 1
+    for number, guild in enumerate(bot.guilds, 1):
         print(f"{number}. {guild} ({guild.id})")
     print(":)")
+
+@bot.event
+async def setup_hook():
     bot.loop.create_task(silly_activities(bot))
     bot.loop.create_task(main(bot))
     bot.loop.create_task(main_rob(bot))
@@ -41,7 +42,7 @@ async def on_ready():
 import wavelink
 @bot.event
 async def on_wavelink_node_ready(payload: wavelink.NodeReadyEventPayload):
-    print(f"Wavelink Node connected: {payload.node} | Resumed: {payload.resumed}")
+    print(f"{payload.node} | Resumed: {payload.resumed}")
 
 @bot.event
 async def on_guild_join(guild: discord.Guild):
@@ -113,7 +114,7 @@ async def kvdel(ctx: commands.Context, key=None):
     await del_kv(ctx, key)
 
 from help import HALP
-@bot.command()
+@bot.command(aliases=['help'])
 async def halp(ctx: commands.Context):
     bot.loop.create_task(HALP(ctx, bot.user.avatar))
 
@@ -560,7 +561,7 @@ async def quiz(ctx: commands.Context, mode: str=None, v: str=None, count: str=No
     bot.loop.create_task(QUIZ(ctx, mode, v, count, cat, diff, ty))
 
 from wordle_ import wordle
-@bot.command()
+@bot.command(aliases=['wordle'])
 async def word(ctx: commands.Context, mode: str=None, count: str=None):
     bot.loop.create_task(wordle(ctx, mode, count))
 
