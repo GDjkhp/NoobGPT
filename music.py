@@ -193,7 +193,11 @@ class SelectChoice(discord.ui.Select):
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         if not self.ctx.voice_client:
-            vc = await self.ctx.author.voice.channel.connect(cls=wavelink.Player)
+            try: vc = await self.ctx.author.voice.channel.connect(cls=wavelink.Player)
+            except:
+                print("ChannelTimeoutException")
+                await setup_hook_music(self.ctx.bot)
+                return
             vc.autoplay = wavelink.AutoPlayMode.enabled
         else: vc: wavelink.Player = self.ctx.voice_client
         vc.music_channel = self.ctx.message.channel

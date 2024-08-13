@@ -56,7 +56,11 @@ class YouTubePlayer(commands.Cog):
             return await ctx.send(f'Join a voice channel first.')
         
         if not ctx.voice_client:
-            vc = await ctx.author.voice.channel.connect(cls=wavelink.Player)
+            try: vc = await ctx.author.voice.channel.connect(cls=wavelink.Player)
+            except: 
+                print("ChannelTimeoutException")
+                await setup_hook_music(ctx.bot)
+                return
             vc.autoplay = wavelink.AutoPlayMode.enabled
 
     @commands.command(aliases=['p'])
@@ -74,7 +78,11 @@ class YouTubePlayer(commands.Cog):
         if not tracks: return await ctx.send('No results found.')
 
         if not ctx.voice_client:
-            vc = await ctx.author.voice.channel.connect(cls=wavelink.Player)
+            try: vc = await ctx.author.voice.channel.connect(cls=wavelink.Player)
+            except: 
+                print("ChannelTimeoutException")
+                await setup_hook_music(ctx.bot)
+                return
             vc.autoplay = wavelink.AutoPlayMode.enabled
         vc.music_channel = ctx.message.channel
 
