@@ -174,7 +174,7 @@ class CogCob(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def cob(ctx: commands.Context, *, arg:str=""):
+    async def cob(self, ctx: commands.Context, *, arg:str=""):
         await COBALT_API(ctx, arg.split())
 
 async def setup(bot: commands.Bot):

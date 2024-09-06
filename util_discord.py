@@ -240,35 +240,35 @@ class DiscordUtil(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def config(ctx: commands.Context):
+    async def config(self, ctx: commands.Context):
         await config_commands(ctx)
 
     @commands.command()
-    async def channel(ctx: commands.Context):
+    async def channel(self, ctx: commands.Context):
         await command_channel_mode(ctx)
 
     @commands.command()
-    async def enable(ctx: commands.Context, arg=None):
+    async def enable(self, ctx: commands.Context, arg=None):
         await command_enable(ctx, arg)
 
     @commands.command()
-    async def disable(ctx: commands.Context, arg=None):
+    async def disable(self, ctx: commands.Context, arg=None):
         await command_disable(ctx, arg)
 
     @commands.command()
-    async def view(ctx: commands.Context):
+    async def view(self, ctx: commands.Context):
         await command_view(ctx)
 
     @commands.command()
-    async def ban(ctx: commands.Context, *, arg=None):
+    async def ban(self, ctx: commands.Context, *, arg=None):
         await banner(ctx, ctx.bot, arg)
 
     @commands.command()
-    async def av(ctx: commands.Context, *, arg=None):
+    async def av(self, ctx: commands.Context, *, arg=None):
         await avatar(ctx, ctx.bot, arg)
 
     @commands.command()
-    async def legal(ctx: commands.Context):
+    async def legal(self, ctx: commands.Context):
         await copypasta(ctx)
 
 async def setup(bot: commands.Bot):

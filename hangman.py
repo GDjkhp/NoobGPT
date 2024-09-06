@@ -197,7 +197,7 @@ class CogHang(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def hang(ctx: commands.Context, mode: str=None, count: str=None, type: str=None):
+    async def hang(self, ctx: commands.Context, mode: str=None, count: str=None, type: str=None):
         await HANG(ctx, mode, count, type, None, None)
 
 async def setup(bot: commands.Bot):

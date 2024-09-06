@@ -412,7 +412,7 @@ class CogSflix(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def flix(ctx: commands.Context, *, arg=None):
+    async def flix(self, ctx: commands.Context, *, arg=None):
         await Sflix(ctx, arg)
 
 async def setup(bot: commands.Bot):

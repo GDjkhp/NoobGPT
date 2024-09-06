@@ -334,148 +334,148 @@ class CogPerplex(commands.Cog):
 
     # HELP
     @commands.command()
-    async def claude(ctx: commands.Context):
+    async def claude(self, ctx: commands.Context):
         await help_claude(ctx)
 
     @commands.command()
-    async def mistral(ctx: commands.Context):
+    async def mistral(self, ctx: commands.Context):
         await help_mistral(ctx)
 
     @commands.command()
-    async def perplex(ctx: commands.Context):
+    async def perplex(self, ctx: commands.Context):
         await help_perplexity(ctx)
 
     @commands.command()
-    async def groq(ctx: commands.Context):
+    async def groq(self, ctx: commands.Context):
         await help_groq(ctx)
 
     # MISTRAL
     @commands.command()
-    async def m7b(ctx: commands.Context):
+    async def m7b(self, ctx: commands.Context):
         await main_mistral(ctx, 0)
 
     @commands.command()
-    async def mx7b(ctx: commands.Context):
+    async def mx7b(self, ctx: commands.Context):
         await main_mistral(ctx, 1)
 
     @commands.command()
-    async def mx22b(ctx: commands.Context):
+    async def mx22b(self, ctx: commands.Context):
         await main_mistral(ctx, 2)
 
     @commands.command()
-    async def ms(ctx: commands.Context):
+    async def ms(self, ctx: commands.Context):
         await main_mistral(ctx, 3)
 
     @commands.command()
-    async def mm(ctx: commands.Context):
+    async def mm(self, ctx: commands.Context):
         await main_mistral(ctx, 4)
 
     @commands.command()
-    async def ml(ctx: commands.Context):
+    async def ml(self, ctx: commands.Context):
         await main_mistral(ctx, 5)
 
     @commands.command()
-    async def mcode(ctx: commands.Context):
+    async def mcode(self, ctx: commands.Context):
         await main_mistral(ctx, 6)
 
     # CLAUDE (DEAD AS FUCK)
     @commands.command()
-    async def cla(ctx: commands.Context):
+    async def cla(self, ctx: commands.Context):
         await main_anthropic(ctx, 0)
 
     @commands.command()
-    async def c3o(ctx: commands.Context):
+    async def c3o(self, ctx: commands.Context):
         await main_anthropic(ctx, 1)
 
     @commands.command()
-    async def c3s(ctx: commands.Context):
+    async def c3s(self, ctx: commands.Context):
         await main_anthropic(ctx, 2)
 
     # PERPLEXITY (DEAD AS FUCK)
     @commands.command()
-    async def ll(ctx: commands.Context):
+    async def ll(self, ctx: commands.Context):
         await main_perplexity(ctx, 0)
 
     @commands.command()
-    async def cll(ctx: commands.Context):
+    async def cll(self, ctx: commands.Context):
         await main_perplexity(ctx, 1)
 
     @commands.command()
-    async def mis(ctx: commands.Context):
+    async def mis(self, ctx: commands.Context):
         await main_perplexity(ctx, 2)
 
     @commands.command()
-    async def mix(ctx: commands.Context):
+    async def mix(self, ctx: commands.Context):
         await main_perplexity(ctx, 3)
 
     @commands.command()
-    async def ssc(ctx: commands.Context):
+    async def ssc(self, ctx: commands.Context):
         await main_perplexity(ctx, 4)
 
     @commands.command()
-    async def sso(ctx: commands.Context):
+    async def sso(self, ctx: commands.Context):
         await main_perplexity(ctx, 5)
 
     @commands.command()
-    async def smc(ctx: commands.Context):
+    async def smc(self, ctx: commands.Context):
         await main_perplexity(ctx, 6)
 
     @commands.command()
-    async def smo(ctx: commands.Context):
+    async def smo(self, ctx: commands.Context):
         await main_perplexity(ctx, 7)
 
     # GROQ
     @commands.command()
-    async def l31405(ctx: commands.Context):
+    async def l31405(self, ctx: commands.Context):
         await main_groq(ctx, 0)
 
     @commands.command()
-    async def l3170(ctx: commands.Context):
+    async def l3170(self, ctx: commands.Context):
         await main_groq(ctx, 1)
 
     @commands.command()
-    async def l318(ctx: commands.Context):
+    async def l318(self, ctx: commands.Context):
         await main_groq(ctx, 2)
 
     @commands.command()
-    async def l370(ctx: commands.Context):
+    async def l370(self, ctx: commands.Context):
         await main_groq(ctx, 3)
 
     @commands.command()
-    async def l38(ctx: commands.Context):
+    async def l38(self, ctx: commands.Context):
         await main_groq(ctx, 4)
 
     @commands.command()
-    async def mix7b(ctx: commands.Context):
+    async def mix7b(self, ctx: commands.Context):
         await main_groq(ctx, 5)
 
     @commands.command()
-    async def g7b(ctx: commands.Context):
+    async def g7b(self, ctx: commands.Context):
         await main_groq(ctx, 6)
 
     @commands.command()
-    async def g29b(ctx: commands.Context):
+    async def g29b(self, ctx: commands.Context):
         await main_groq(ctx, 7)
 
     # GITHUB BETA (WIP)
     @commands.command()
-    async def gpt4o(ctx: commands.Context):
+    async def gpt4o(self, ctx: commands.Context):
         await main_github(ctx, 0)
 
     @commands.command()
-    async def gpt4om(ctx: commands.Context):
+    async def gpt4om(self, ctx: commands.Context):
         await main_github(ctx, 1)
 
     @commands.command()
-    async def ai21(ctx: commands.Context):
+    async def ai21(self, ctx: commands.Context):
         await main_github(ctx, 7)
 
     @commands.command()
-    async def ccr(ctx: commands.Context):
+    async def ccr(self, ctx: commands.Context):
         await main_github(ctx, 8)
 
     @commands.command()
-    async def ccrp(ctx: commands.Context):
+    async def ccrp(self, ctx: commands.Context):
         await main_github(ctx, 9)
 
 async def setup(bot: commands.Bot):

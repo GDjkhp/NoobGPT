@@ -196,19 +196,19 @@ class CogGoogle(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def palm(ctx: commands.Context):
+    async def palm(self, ctx: commands.Context):
         await GEMINI_REST(ctx, 0, True)
 
     @commands.command()
-    async def ge(ctx: commands.Context):
+    async def ge(self, ctx: commands.Context):
         await GEMINI_REST(ctx, 1, False)
 
     @commands.command()
-    async def flash(ctx: commands.Context):
+    async def flash(self, ctx: commands.Context):
         await GEMINI_REST(ctx, 2, False)
 
     @commands.command()
-    async def googleai(ctx: commands.Context):
+    async def googleai(self, ctx: commands.Context):
         await help_google(ctx)
 
 async def setup(bot: commands.Bot):

@@ -116,7 +116,7 @@ class CogAki(commands.Cog):
 
     @commands.command()
     # @commands.max_concurrency(1, per=BucketType.default, wait=False)
-    async def aki(ctx: commands.Context, arg1='people', arg2='en'):
+    async def aki(self, ctx: commands.Context, arg1='people', arg2='en'):
         await Aki(ctx, arg1, arg2)
 
 async def setup(bot: commands.Bot):

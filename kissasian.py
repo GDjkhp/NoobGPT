@@ -345,11 +345,11 @@ class CogKiss(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def kiss(ctx: commands.Context, *, arg=None):
+    async def kiss(self, ctx: commands.Context, *, arg=None):
         await kiss_search(ctx, arg)
 
     @commands.command()
-    async def tv(ctx: commands.Context):
+    async def tv(self, ctx: commands.Context):
         await help_tv(ctx)
 
 async def setup(bot: commands.Bot):

@@ -269,12 +269,12 @@ class CogGogo(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def rgogo(ctx: commands.Context, arg=None):
+    async def rgogo(self, ctx: commands.Context, arg=None):
         if not ctx.author.id == user_id: return
         await set_domain(ctx, arg)
 
     @commands.command()
-    async def gogo(ctx: commands.Context, *, arg=None):
+    async def gogo(self, ctx: commands.Context, *, arg=None):
         await Gogoanime(ctx, arg)
 
 async def setup(bot: commands.Bot):

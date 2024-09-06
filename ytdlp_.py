@@ -74,7 +74,7 @@ class CogYT(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def ytdlp(ctx: commands.Context, arg1=None, arg2=None):
+    async def ytdlp(self, ctx: commands.Context, arg1=None, arg2=None):
         await YTDLP(ctx, arg1, arg2)
 
 async def setup(bot: commands.Bot):

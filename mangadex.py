@@ -405,11 +405,11 @@ class CogDex(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def manga(ctx: commands.Context):
+    async def manga(self, ctx: commands.Context):
         await help_manga(ctx)
 
     @commands.command()
-    async def dex(ctx: commands.Context, *, arg=None):
+    async def dex(self, ctx: commands.Context, *, arg=None):
         await dex_search(ctx, arg)
 
 async def setup(bot: commands.Bot):

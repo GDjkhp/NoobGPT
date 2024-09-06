@@ -183,7 +183,7 @@ class CogQuote(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def quote(ctx: commands.Context):
+    async def quote(self, ctx: commands.Context):
         await quote_this(ctx)
 
 async def setup(bot: commands.Bot):

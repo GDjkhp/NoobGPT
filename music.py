@@ -214,22 +214,22 @@ class MusicUtil(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def nodeadd(ctx: commands.Context, host: str, password: str):
+    async def nodeadd(self, ctx: commands.Context, host: str, password: str):
         if not ctx.author.id == user_id: return
         await add_node(ctx, host, password)
 
     @commands.command()
-    async def nodedel(ctx: commands.Context, index: int):
+    async def nodedel(self, ctx: commands.Context, index: int):
         if not ctx.author.id == user_id: return
         await delete_node(ctx, index)
 
     @commands.command()
-    async def nodeview(ctx: commands.Context):
+    async def nodeview(self, ctx: commands.Context):
         if not ctx.author.id == user_id: return
         await view_nodes(ctx)
 
     @commands.command(name="rmusic")
-    async def reload_music(ctx: commands.Context):
+    async def reload_music(self, ctx: commands.Context):
         if not ctx.author.id == user_id: return
         await setup_hook_music(ctx.bot)
 

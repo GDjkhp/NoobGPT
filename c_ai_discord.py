@@ -1099,55 +1099,55 @@ class CogCAI(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def cadd(ctx: commands.Context, *, arg=None):
+    async def cadd(self, ctx: commands.Context, *, arg=None):
         await add_char(ctx, arg, 0)
 
     @commands.command()
-    async def crec(ctx: commands.Context):
+    async def crec(self, ctx: commands.Context):
         await add_char(ctx, None, 2)
 
     @commands.command()
-    async def ctren(ctx: commands.Context):
+    async def ctren(self, ctx: commands.Context):
         await add_char(ctx, None, 1)
 
     @commands.command()
-    async def cdel(ctx: commands.Context):
+    async def cdel(self, ctx: commands.Context):
         await delete_char(ctx)
 
     @commands.command()
-    async def cadm(ctx: commands.Context):
+    async def cadm(self, ctx: commands.Context):
         await t_adm(ctx)
 
     @commands.command()
-    async def cchan(ctx: commands.Context):
+    async def cchan(self, ctx: commands.Context):
         await t_chan(ctx)
 
     @commands.command()
-    async def crate(ctx: commands.Context, *, arg=None):
+    async def crate(self, ctx: commands.Context, *, arg=None):
         await set_rate(ctx, arg)
 
     @commands.command(aliases=['c.ai'])
-    async def chelp(ctx: commands.Context):
+    async def chelp(self, ctx: commands.Context):
         await c_help(ctx)
 
     @commands.command()
-    async def cmode(ctx: commands.Context):
+    async def cmode(self, ctx: commands.Context):
         await t_mode(ctx)
 
     @commands.command()
-    async def cchar(ctx: commands.Context):
+    async def cchar(self, ctx: commands.Context):
         await view_char(ctx)
 
     @commands.command()
-    async def cedit(ctx: commands.Context, rate=None):
+    async def cedit(self, ctx: commands.Context, rate=None):
         await edit_char(ctx, rate)
 
     @commands.command()
-    async def cres(ctx: commands.Context):
+    async def cres(self, ctx: commands.Context):
         await reset_char(ctx)
 
     @commands.command()
-    async def cping(ctx: commands.Context, *, arg=None):
+    async def cping(self, ctx: commands.Context, *, arg=None):
         await set_mention_mode(ctx, arg)
 
 async def setup(bot: commands.Bot):

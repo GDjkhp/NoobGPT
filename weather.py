@@ -26,7 +26,7 @@ class CogWeather(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def weather(ctx: commands.Context, *, arg=None):
+    async def weather(self, ctx: commands.Context, *, arg=None):
         await Weather(ctx, arg)
 
 async def setup(bot: commands.Bot):

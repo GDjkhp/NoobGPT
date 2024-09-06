@@ -307,7 +307,7 @@ class CogNato(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def nato(ctx: commands.Context, *, arg=None):
+    async def nato(self, ctx: commands.Context, *, arg=None):
         await nato_search(ctx, arg)
 
 async def setup(bot: commands.Bot):

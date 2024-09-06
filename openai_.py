@@ -121,19 +121,19 @@ class CogOpenAI(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def ask(ctx: commands.Context):
+    async def ask(self, ctx: commands.Context):
         await chat(ctx)
 
     @commands.command()
-    async def imagine(ctx: commands.Context):
+    async def imagine(self, ctx: commands.Context):
         await image(ctx)
 
     @commands.command()
-    async def gpt(ctx: commands.Context):
+    async def gpt(self, ctx: commands.Context):
         await gpt3(ctx)
 
     @commands.command()
-    async def openai(ctx: commands.Context):
+    async def openai(self, ctx: commands.Context):
         await help_openai(ctx)
 
 async def setup(bot: commands.Bot):

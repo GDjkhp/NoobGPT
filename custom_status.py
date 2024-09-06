@@ -99,22 +99,22 @@ class LanyardUtil(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def kvview(ctx: commands.Context):
+    async def kvview(self, ctx: commands.Context):
         if not ctx.author.id == user_id: return
         await view_kv(ctx)
 
     @commands.command()
-    async def kvget(ctx: commands.Context, key=None):
+    async def kvget(self, ctx: commands.Context, key=None):
         if not ctx.author.id == user_id: return
         await get_kv(ctx, key)
 
     @commands.command()
-    async def kvset(ctx: commands.Context, *, arg=None):
+    async def kvset(self, ctx: commands.Context, *, arg=None):
         if not ctx.author.id == user_id: return
         await set_kv(ctx, arg)
 
     @commands.command()
-    async def kvdel(ctx: commands.Context, key=None):
+    async def kvdel(self, ctx: commands.Context, key=None):
         await del_kv(ctx, key)
 
 async def setup(bot: commands.Bot):

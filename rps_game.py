@@ -54,7 +54,7 @@ class CogRPS(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def rps(ctx: commands.Context):
+    async def rps(self, ctx: commands.Context):
         await game_rps(ctx)
 
 async def setup(bot: commands.Bot):

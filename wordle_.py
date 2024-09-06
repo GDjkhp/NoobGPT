@@ -389,7 +389,7 @@ class CogWord(commands.Cog):
         self.bot = bot
 
     @commands.command(aliases=['wordle'])
-    async def word(ctx: commands.Context, mode: str=None, count: str=None):
+    async def word(self, ctx: commands.Context, mode: str=None, count: str=None):
         await wordle(ctx, mode, count)
 
 async def setup(bot: commands.Bot):

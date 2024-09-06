@@ -120,11 +120,11 @@ class CogPetals(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def petals(ctx: commands.Context):
+    async def petals(self, ctx: commands.Context):
         await PETALS(ctx)
 
     @commands.command()
-    async def beluga2(ctx: commands.Context, *, arg=None):
+    async def beluga2(self, ctx: commands.Context, *, arg=None):
         await petalsWebsocket(ctx, arg, 7)
 
 async def setup(bot: commands.Bot):

@@ -159,16 +159,16 @@ class CogSus(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def booru(ctx: commands.Context):
+    async def booru(self, ctx: commands.Context):
         await help_booru(ctx)
     @commands.command()
-    async def r34(ctx: commands.Context, *, arg=None):
+    async def r34(self, ctx: commands.Context, *, arg=None):
         await R34(ctx, arg)
     @commands.command()
-    async def gel(ctx: commands.Context, *, arg=None):
+    async def gel(self, ctx: commands.Context, *, arg=None):
         await GEL(ctx, arg)
     @commands.command()
-    async def safe(ctx: commands.Context, *, arg=None):
+    async def safe(self, ctx: commands.Context, *, arg=None):
         await SAFE(ctx, arg)
 
 async def setup(bot: commands.Bot):

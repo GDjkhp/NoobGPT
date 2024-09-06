@@ -301,7 +301,7 @@ class CogQuiz(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def quiz(ctx: commands.Context, mode: str=None, v: str=None, count: str=None, cat: str=None, diff: str=None, ty: str=None):
+    async def quiz(self, ctx: commands.Context, mode: str=None, v: str=None, count: str=None, cat: str=None, diff: str=None, ty: str=None):
         await QUIZ(ctx, mode, v, count, cat, diff, ty)
 
 async def setup(bot: commands.Bot):

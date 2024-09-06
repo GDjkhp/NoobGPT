@@ -126,7 +126,7 @@ class CogTic(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def tic(ctx: commands.Context):
+    async def tic(self, ctx: commands.Context):
         await Tic(ctx)
 
 async def setup(bot: commands.Bot):

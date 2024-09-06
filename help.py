@@ -149,7 +149,7 @@ class CogHelp(commands.Cog):
         self.bot = bot
 
     @commands.command(aliases=['help'])
-    async def halp(ctx: commands.Context):
+    async def halp(self, ctx: commands.Context):
         await HALP(ctx, ctx.bot.user.avatar)
 
 async def setup(bot: commands.Bot):

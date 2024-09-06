@@ -252,11 +252,11 @@ class CogPahe(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def pahe(ctx: commands.Context, *, arg=None):
+    async def pahe(self, ctx: commands.Context, *, arg=None):
         await pahe_search(ctx, arg)
 
     @commands.command()
-    async def anime(ctx: commands.Context):
+    async def anime(self, ctx: commands.Context):
         await help_anime(ctx)
 
 async def setup(bot: commands.Bot):
