@@ -78,6 +78,7 @@ async def setup_hook():
     await bot.load_extension('sflix')
     await bot.load_extension('kissasian')
     await bot.load_extension('gogoanime')
+    await bot.load_extension('animepahe')
     await bot.load_extension('manganato')
     await bot.load_extension('mangadex')
     await bot.load_extension('ytdlp_')
