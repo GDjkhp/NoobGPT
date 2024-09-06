@@ -75,7 +75,7 @@ models_mistral=[
     "mistral-small-latest", # ms
     "mistral-medium-latest", # mm
     "mistral-large-latest", # ml
-    "codestral-latest" # mcode
+    "codestral-latest", # mcode
 ]
 models_groq=[
     "llama-3.1-405b-reasoning", # l31405
@@ -85,7 +85,7 @@ models_groq=[
     "llama3-8b-8192", # l38
     "mixtral-8x7b-32768", # mix7b
     "gemma-7b-it", # g7b
-    "gemma2-9b-it" # g29b
+    "gemma2-9b-it", # g29b
 ]
 models_github=[
     "gpt-4o",
@@ -108,7 +108,7 @@ models_github=[
     "Phi-3-mini-4k-instruct",
     "Phi-3-small-128k-instruct",
     "Phi-3-small-8k-instruct",
-    "Phi-3.5-mini-instruct"
+    "Phi-3.5-mini-instruct",
 ]
 
 async def help_perplexity(ctx: commands.Context):
@@ -121,7 +121,7 @@ async def help_perplexity(ctx: commands.Context):
         f"`-ssc` {models[4]}",
         f"`-sso` {models[5]}",
         f"`-smc` {models[6]}",
-        f"`-smo` {models[7]}"
+        f"`-smo` {models[7]}",
     ]
     await ctx.reply("\n".join(text))
 
@@ -130,7 +130,7 @@ async def help_claude(ctx: commands.Context):
     text = [
         f"`-cla` {models_claude[0]}",
         f"`-c3o` {models_claude[1]}",
-        f"`-c3s` {models_claude[2]}"
+        f"`-c3s` {models_claude[2]}",
     ]
     await ctx.reply("\n".join(text))
 
@@ -143,7 +143,7 @@ async def help_mistral(ctx: commands.Context):
         f"`-ms` {models_mistral[3]}",
         f"`-mm` {models_mistral[4]}",
         f"`-ml` {models_mistral[5]}",
-        f"`-mcode` {models_mistral[6]}"
+        f"`-mcode` {models_mistral[6]}",
     ]
     await ctx.reply("\n".join(text))
 
@@ -157,7 +157,18 @@ async def help_groq(ctx: commands.Context):
         f"`-l38` {models_groq[4]}",
         f"`-mix7b` {models_groq[5]}",
         f"`-g7b` {models_groq[6]}",
-        f"`-g29b` {models_groq[7]}"
+        f"`-g29b` {models_groq[7]}",
+    ]
+    await ctx.reply("\n".join(text))
+
+async def help_github(ctx: commands.Context):
+    if await command_check(ctx, "github", "ai"): return
+    text = [
+        f"`-gpt4o` {models_groq[0]}",
+        f"`-gpt4om` {models_groq[1]}",
+        f"`-ai21` {models_groq[7]}",
+        f"`-ccr` {models_groq[8]}",
+        f"`-ccrp` {models_groq[9]}",
     ]
     await ctx.reply("\n".join(text))
 
@@ -234,7 +245,7 @@ async def main_perplexity(ctx: commands.Context, model: int):
             # bruh = response["detail"][0]["msg"] if response and response.get("detail") else e
             print(e)
             return await msg.edit(content=f"**Error! :(**")
-        await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
+        await msg.edit(content=f"{models[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
 async def main_github(ctx: commands.Context, model: int):
     if await command_check(ctx, "github", "ai"): return
@@ -258,7 +269,7 @@ async def main_github(ctx: commands.Context, model: int):
             # bruh = response["detail"][0]["msg"] if response and response.get("detail") else e
             print(e)
             return await msg.edit(content=f"**Error! :(**")
-        await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
+        await msg.edit(content=f"{models_github[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
 async def main_groq(ctx: commands.Context, model: int):
     if await command_check(ctx, "groq", "ai"): return
@@ -282,7 +293,7 @@ async def main_groq(ctx: commands.Context, model: int):
             # bruh = response["detail"][0]["msg"] if response and response.get("detail") else e
             print(e)
             return await msg.edit(content=f"**Error! :(**")
-        await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
+        await msg.edit(content=f"{models_groq[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
 async def main_anthropic(ctx: commands.Context, model: int):
     if await command_check(ctx, "claude", "ai"): return
@@ -304,7 +315,7 @@ async def main_anthropic(ctx: commands.Context, model: int):
             # bruh = response["error"]["message"] if response and response.get("error") else e
             print(e)
             return await msg.edit(content=f"**Error! :(**")
-        await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
+        await msg.edit(content=f"{models_claude[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
 async def main_mistral(ctx: commands.Context, model: int):
     if await command_check(ctx, "mistral", "ai"): return
@@ -325,7 +336,7 @@ async def main_mistral(ctx: commands.Context, model: int):
         except Exception as e:
             print(e)
             return await msg.edit(content=f"**Error! :(**") # i can't assume here
-        await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
+        await msg.edit(content=f"{models_mistral[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
 class CogPerplex(commands.Cog):
     def __init__(self, bot):
@@ -347,6 +358,10 @@ class CogPerplex(commands.Cog):
     @commands.command()
     async def groq(self, ctx: commands.Context):
         await help_groq(ctx)
+
+    @commands.command()
+    async def github(self, ctx: commands.Context):
+        await help_github(ctx)
 
     # MISTRAL
     @commands.command()

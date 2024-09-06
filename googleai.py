@@ -180,7 +180,7 @@ async def GEMINI_REST(ctx: commands.Context, model: int, palm: bool):
                 replyFirst = False
                 await ctx.reply(chunk)
             else: await ctx.send(chunk)
-        await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
+        await msg.edit(content=f"{models[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
 async def help_google(ctx: commands.Context):
     if await command_check(ctx, "googleai", "ai"): return

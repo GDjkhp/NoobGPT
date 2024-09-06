@@ -55,6 +55,9 @@ async def ai_embed(av: discord.Asset) -> discord.Embed:
     emby.add_field(name='`-groq`', 
                    value='The LPU™ Inference Engine by Groq is a hardware and software platform that delivers exceptional compute speed, quality, and energy efficiency.', 
                    inline=False)
+    emby.add_field(name='`-github`', 
+                   value='If you want to develop a generative AI application, you can use GitHub Models to find and experiment with AI models for free.', 
+                   inline=False)
     emby.add_field(name='`-mistral`', 
                    value='Mistral AI is a French company selling artificial intelligence products.', 
                    inline=False)
