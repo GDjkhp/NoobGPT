@@ -153,15 +153,15 @@ async def utils_embed(av: discord.Asset) -> discord.Embed:
 
 class CogHelp(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: commands.Bot = bot
 
     @commands.command(aliases=['help'])
     async def halp(self, ctx: commands.Context):
-        await HALP(ctx, ctx.bot.user.avatar)
+        await HALP(ctx, self.bot.user.avatar)
 
-    @app_commands.command()
+    @app_commands.command(name="halp", description="how to use")
     async def halp(self, ctx: discord.Interaction):
-        await HALP(ctx, ctx.bot.user.avatar)
+        await HALP(ctx, self.bot.user.avatar)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogHelp(bot))
