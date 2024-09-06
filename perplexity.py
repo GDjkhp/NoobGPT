@@ -43,11 +43,10 @@ async def loopMsgGH(message: discord.Message):
 
     base_data = [{
         "role": role, 
-        "content": [
-            {"type": "text", "text": content},
-            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_data}"}} if base64_data else None
-        ]
+        "content": [{"type": "text", "text": content}]
     }]
+    if base64_data:
+        base_data[0]["content"]+=[{"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_data}"}}]
 
     if not message.reference: return base_data
     repliedMessage = await message.channel.fetch_message(message.reference.message_id)
