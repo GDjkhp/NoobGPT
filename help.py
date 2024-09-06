@@ -1,13 +1,17 @@
 import discord
 from discord.ext import commands
+from discord import app_commands
 from util_discord import command_check
 
 # this is a deed that i should've done a long time ago
-async def HALP(ctx: commands.Context, av: discord.Asset):
+async def HALP(ctx, av: discord.Asset):
     if await command_check(ctx, "halp", "utils"): return
     desc = "A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you."
     url = "https://gdjkhp.github.io/NoobGPT"
-    await ctx.reply(embed=create_embed(0x00ff00, av, "NoobGPT", desc, url), view=HelpView(av))
+    if type(ctx)==commands.Context: 
+        await ctx.reply(embed=create_embed(0x00ff00, av, "NoobGPT", desc, url), view=HelpView(av))
+    if type(ctx)==discord.Interaction:
+        await ctx.response.send_message(embed=create_embed(0x00ff00, av, "NoobGPT", desc, url), view=HelpView(av)) 
 
 class HelpView(discord.ui.View):
     def __init__(self, av: discord.Asset):
@@ -153,6 +157,10 @@ class CogHelp(commands.Cog):
 
     @commands.command(aliases=['help'])
     async def halp(self, ctx: commands.Context):
+        await HALP(ctx, ctx.bot.user.avatar)
+
+    @app_commands.command()
+    async def halp(self, ctx: discord.Interaction):
         await HALP(ctx, ctx.bot.user.avatar)
 
 async def setup(bot: commands.Bot):

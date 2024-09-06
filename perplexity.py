@@ -164,11 +164,11 @@ async def help_groq(ctx: commands.Context):
 async def help_github(ctx: commands.Context):
     if await command_check(ctx, "github", "ai"): return
     text = [
-        f"`-gpt4o` {models_groq[0]}",
-        f"`-gpt4om` {models_groq[1]}",
-        f"`-ai21` {models_groq[7]}",
-        f"`-ccr` {models_groq[8]}",
-        f"`-ccrp` {models_groq[9]}",
+        f"`-gpt4o` {models_github[0]}",
+        f"`-gpt4om` {models_github[1]}",
+        f"`-ai21` {models_github[7]}",
+        f"`-ccr` {models_github[8]}",
+        f"`-ccrp` {models_github[9]}",
     ]
     await ctx.reply("\n".join(text))
 
