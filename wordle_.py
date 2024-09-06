@@ -383,3 +383,14 @@ async def wordle(ctx: commands.Context, mode: str, count: str):
     history = []
     await ctx.reply(file=wordle_image(history, words[0]["word"].upper()),
                     embed=QuizEmbed(settings, 0, words, players), view=QuizView(ctx, words, 0, dead, settings, players, history))
+
+class CogWord(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command(aliases=['wordle'])
+    async def word(ctx: commands.Context, mode: str=None, count: str=None):
+        await wordle(ctx, mode, count)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(CogWord(bot))

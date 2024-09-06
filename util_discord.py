@@ -32,7 +32,7 @@ async def banner(ctx: commands.Context, bot: commands.Bot, arg: str):
 
 # shit deed
 available_categories=["ai", "games", "media", "utils"]
-ai_commands=["openai", "googleai", "petals", "perplex", "groq", "mistral", "claude", "c.ai"]
+ai_commands=["openai", "googleai", "petals", "perplex", "groq", "github", "mistral", "claude", "c.ai"]
 games_commands=["aki", "tic", "hang", "quiz", "word", "rps"]
 media_commands=["anime", "manga", "tv", "ytdlp", "cob", "booru", "music"]
 utils_commands=["quote", "weather", "av", "ban", "halp", "legal", "xp", "insult"]
@@ -234,3 +234,42 @@ async def check_if_master_or_admin(ctx: commands.Context):
 async def get_guild_prefix(ctx: commands.Context):
     db = await get_database2(ctx.guild.id if ctx.guild else ctx.channel.id)
     return db["prefix"]
+
+class DiscordUtil(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    async def config(ctx: commands.Context):
+        await config_commands(ctx)
+
+    @commands.command()
+    async def channel(ctx: commands.Context):
+        await command_channel_mode(ctx)
+
+    @commands.command()
+    async def enable(ctx: commands.Context, arg=None):
+        await command_enable(ctx, arg)
+
+    @commands.command()
+    async def disable(ctx: commands.Context, arg=None):
+        await command_disable(ctx, arg)
+
+    @commands.command()
+    async def view(ctx: commands.Context):
+        await command_view(ctx)
+
+    @commands.command()
+    async def ban(ctx: commands.Context, *, arg=None):
+        await banner(ctx, ctx.bot, arg)
+
+    @commands.command()
+    async def av(ctx: commands.Context, *, arg=None):
+        await avatar(ctx, ctx.bot, arg)
+
+    @commands.command()
+    async def legal(ctx: commands.Context):
+        await copypasta(ctx)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(DiscordUtil(bot))

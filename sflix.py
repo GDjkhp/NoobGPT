@@ -406,3 +406,14 @@ def aes_decrypt(decryption_key, source_url):
         AES_CBC.decrypt(encrypted), AES.block_size
     )
     return decrypted_data.decode("utf-8")
+
+class CogSflix(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    async def flix(ctx: commands.Context, *, arg=None):
+        await Sflix(ctx, arg)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(CogSflix(bot))

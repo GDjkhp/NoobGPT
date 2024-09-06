@@ -153,3 +153,23 @@ class ButtonAction(discord.ui.Button):
             return await interaction.response.send_message(f"<@{self.ctx.message.author.id}> locked this message.", ephemeral=True)
         await interaction.response.edit_message(embed = await BuildEmbed(self.tags, self.results, self.index, self.safe, self.lock, self.ctx), 
                                                 view = ImageView(self.tags, self.results, self.index, self.safe, self.lock, self.ctx, self.db))
+        
+class CogSus(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    async def booru(ctx: commands.Context):
+        await help_booru(ctx)
+    @commands.command()
+    async def r34(ctx: commands.Context, *, arg=None):
+        await R34(ctx, arg)
+    @commands.command()
+    async def gel(ctx: commands.Context, *, arg=None):
+        await GEL(ctx, arg)
+    @commands.command()
+    async def safe(ctx: commands.Context, *, arg=None):
+        await SAFE(ctx, arg)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(CogSus(bot))

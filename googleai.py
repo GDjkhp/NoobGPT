@@ -83,7 +83,7 @@ async def loopMsg(message: discord.Message):
             async with session.get(attachment.url) as resp:
                 image_data = await resp.read()
                 base64_data = base64.b64encode(image_data).decode('utf-8')
-                base64_data, mime = base64_data, attachment.content_type
+                mime = attachment.content_type
     base_data = [
         {
             "role": role, 
@@ -160,7 +160,7 @@ models = [
 async def GEMINI_REST(ctx: commands.Context, model: int, palm: bool):
     if await command_check(ctx, "googleai", "ai"): return
     async with ctx.typing():
-        msg = await ctx.reply("Generating response…")
+        msg = await ctx.reply(f"{models[model]}\nGenerating response…")
         old = round(time.time() * 1000)
         text = None
         # rewrite
@@ -190,3 +190,26 @@ async def help_google(ctx: commands.Context):
         f"`-palm` {models[0]}"
     ]
     await ctx.reply("\n".join(text))
+
+class CogGoogle(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    async def palm(ctx: commands.Context):
+        await GEMINI_REST(ctx, 0, True)
+
+    @commands.command()
+    async def ge(ctx: commands.Context):
+        await GEMINI_REST(ctx, 1, False)
+
+    @commands.command()
+    async def flash(ctx: commands.Context):
+        await GEMINI_REST(ctx, 2, False)
+
+    @commands.command()
+    async def googleai(ctx: commands.Context):
+        await help_google(ctx)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(CogGoogle(bot))

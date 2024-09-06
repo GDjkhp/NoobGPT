@@ -48,3 +48,14 @@ class ButtonChoice(discord.ui.Button):
             winner: discord.User = None if result == "DRAW" else self.player if result == self.w else interaction.user
             await interaction.response.edit_message(
                 content=f"{id2e(self.w)}:vs:{id2e(self.id)}\n{'DRAW' if not winner else f'{winner.mention} won'}", view=None)
+
+class CogRPS(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    async def rps(ctx: commands.Context):
+        await game_rps(ctx)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(CogRPS(bot))

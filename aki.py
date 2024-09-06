@@ -82,7 +82,7 @@ class ButtonAction0(discord.ui.Button):
             else: embed_win.set_author(name=self.ctx.author)
             await interaction.message.edit(embed=embed_win, view=None)
         else:
-            if self.aki.step < 79:
+            if self.aki.step < 79: # FIXME: problematic, might remove
                 try: await self.aki.exclude()
                 except: pass
                 return await interaction.message.edit(embed=qEmbed(self.aki, self.ctx), view=QView(self.aki, self.ctx))
@@ -109,3 +109,15 @@ async def Aki(ctx: commands.Context, cat: str='people', lang: str='en'):
         await aki.start_game(language=f'{lang}' if cat == 'people' else f'{lang}_{cat}', child_mode=sfw)
         await msg.edit(content=None, embed=qEmbed(aki, ctx), view=QView(aki, ctx))
     except Exception as e: await msg.edit(content=f"Error! :(\n{e}")
+
+class CogAki(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    # @commands.max_concurrency(1, per=BucketType.default, wait=False)
+    async def aki(ctx: commands.Context, arg1='people', arg2='en'):
+        await Aki(ctx, arg1, arg2)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(CogAki(bot))

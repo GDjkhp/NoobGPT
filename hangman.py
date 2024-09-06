@@ -191,3 +191,14 @@ async def HANG(ctx: commands.Context, mode: str, count: str, gtype: str, cat: st
     players[ctx.author.id]["host"] = True
     await msg.edit(content=c2e(box), embed=QuizEmbed(words, index, settings, players, ctx), 
                    view=QuizView(ctx, words, index, box, dead, settings, players))
+
+class CogHang(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    async def hang(ctx: commands.Context, mode: str=None, count: str=None, type: str=None):
+        await HANG(ctx, mode, count, type, None, None)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(CogHang(bot))

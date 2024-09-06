@@ -295,3 +295,14 @@ class ButtonChoice(discord.ui.Button):
                                                         embed=BuildQuestion(self.results, self.index+1, self.ctx, self.players, self.settings), 
                                                         view=QuizView(self.results, self.index+1, self.ctx, self.players, self.settings))
             else: await interaction.response.edit_message(content=text+"\nTest ended.", embed=None, view=None)
+
+class CogQuiz(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    async def quiz(ctx: commands.Context, mode: str=None, v: str=None, count: str=None, cat: str=None, diff: str=None, ty: str=None):
+        await QUIZ(ctx, mode, v, count, cat, diff, ty)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(CogQuiz(bot))

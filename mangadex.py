@@ -399,3 +399,18 @@ class ButtonBack(discord.ui.Button):
         await interaction.followup.send(view=ChapterView(self.ctx, self.details, self.chapters, (self.index//pagelimit)*pagelimit), 
                                         embed=buildManga(self.details, (self.index//pagelimit)*pagelimit+pagelimit, len(self.chapters)),
                                         file=discord.File(io.BytesIO(self.details["cover"]), filename='image.webp'))
+
+class CogDex(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    async def manga(ctx: commands.Context):
+        await help_manga(ctx)
+
+    @commands.command()
+    async def dex(ctx: commands.Context, *, arg=None):
+        await dex_search(ctx, arg)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(CogDex(bot))

@@ -120,3 +120,14 @@ async def Tic(ctx: commands.Context):
     if await command_check(ctx, "tic", "games"): return
     """Starts a tic-tac-toe game with yourself."""
     await ctx.send('Tic Tac Toe: X goes first', view=TicTacToe())
+
+class CogTic(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    async def tic(ctx: commands.Context):
+        await Tic(ctx)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(CogTic(bot))

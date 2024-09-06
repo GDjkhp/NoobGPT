@@ -68,3 +68,14 @@ def get_ydl_opts(arg):
             'match_filter': checkSize,
             'noplaylist': True,
         }
+
+class CogYT(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    async def ytdlp(ctx: commands.Context, arg1=None, arg2=None):
+        await YTDLP(ctx, arg1, arg2)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(CogYT(bot))

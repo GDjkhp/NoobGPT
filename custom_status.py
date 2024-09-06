@@ -93,3 +93,29 @@ async def del_kv(ctx: commands.Context, key: str):
     await the_real_delete(f"https://api.lanyard.rest/v1/users/{user_id}/kv/{key}")
     data = await the_real_req(f"https://api.lanyard.rest/v1/users/{user_id}")
     await ctx.reply(embed=kv_embed(data["data"]["kv"]))
+
+class LanyardUtil(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    async def kvview(ctx: commands.Context):
+        if not ctx.author.id == user_id: return
+        await view_kv(ctx)
+
+    @commands.command()
+    async def kvget(ctx: commands.Context, key=None):
+        if not ctx.author.id == user_id: return
+        await get_kv(ctx, key)
+
+    @commands.command()
+    async def kvset(ctx: commands.Context, *, arg=None):
+        if not ctx.author.id == user_id: return
+        await set_kv(ctx, arg)
+
+    @commands.command()
+    async def kvdel(ctx: commands.Context, key=None):
+        await del_kv(ctx, key)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(LanyardUtil(bot))

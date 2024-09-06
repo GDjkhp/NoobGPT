@@ -14,6 +14,7 @@ desc, ep, animetype, released, genre = 2, 3, 5, 6, 7
 pagelimit = 12
 gogoanime = "https://anitaku.pe"
 provider="https://gdjkhp.github.io/img/logo.png"
+user_id = 729554186777133088
 
 async def get_domain():
     global gogoanime
@@ -262,3 +263,19 @@ class CancelButton(discord.ui.Button):
 class DisabledButton(discord.ui.Button):
     def __init__(self, e: str, r: int):
         super().__init__(emoji=e, style=discord.ButtonStyle.success, disabled=True, row=r)
+
+class CogGogo(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    async def rgogo(ctx: commands.Context, arg=None):
+        if not ctx.author.id == user_id: return
+        await set_domain(ctx, arg)
+
+    @commands.command()
+    async def gogo(ctx: commands.Context, *, arg=None):
+        await Gogoanime(ctx, arg)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(CogGogo(bot))

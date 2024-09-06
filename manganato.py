@@ -301,3 +301,14 @@ class ButtonBack(discord.ui.Button):
         await interaction.followup.send(view=ChapterView(self.ctx, self.details, self.chapters, (self.index//pagelimit)*pagelimit), 
                                         embed=buildManga(self.details, (self.index//pagelimit)*pagelimit+pagelimit, len(self.chapters)),
                                         file=discord.File(io.BytesIO(file), filename='image.webp'))
+        
+class CogNato(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    async def nato(ctx: commands.Context, *, arg=None):
+        await nato_search(ctx, arg)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(CogNato(bot))

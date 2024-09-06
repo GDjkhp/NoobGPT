@@ -114,3 +114,18 @@ async def PETALS(ctx: commands.Context):
         text += f"{'+ ' if i['state'] == 'healthy' else '- '}{i['name']}: {i['state']}\n"
     text += "```"
     await ctx.reply(text)
+
+class CogPetals(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    async def petals(ctx: commands.Context):
+        await PETALS(ctx)
+
+    @commands.command()
+    async def beluga2(ctx: commands.Context, *, arg=None):
+        await petalsWebsocket(ctx, arg, 7)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(CogPetals(bot))

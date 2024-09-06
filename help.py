@@ -143,3 +143,14 @@ async def utils_embed(av: discord.Asset) -> discord.Embed:
     #                value='Search AI Generated art (Stable Diffusion) made by the prompts of the community using Lexica', 
     #                inline=False)
     return emby
+
+class CogHelp(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command(aliases=['help'])
+    async def halp(ctx: commands.Context):
+        await HALP(ctx, ctx.bot.user.avatar)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(CogHelp(bot))

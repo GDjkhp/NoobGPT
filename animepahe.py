@@ -246,3 +246,18 @@ class DownloadView(discord.ui.View):
         super().__init__(timeout=None)
         for x in range(len(urls)):
             self.add_item(ButtonDownload(ctx, urls[x], x, details, index, texts[x], ep_text))
+
+class CogPahe(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    async def pahe(ctx: commands.Context, *, arg=None):
+        await pahe_search(ctx, arg)
+
+    @commands.command()
+    async def anime(ctx: commands.Context):
+        await help_anime(ctx)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(CogPahe(bot))

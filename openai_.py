@@ -115,3 +115,26 @@ async def gpt3(ctx: commands.Context):
                 await message.reply(chunk)
             else: await message.channel.send(chunk)
         await info.edit(content=f"Took {round(time.time() * 1000)-old}ms")
+
+class CogOpenAI(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    async def ask(ctx: commands.Context):
+        await chat(ctx)
+
+    @commands.command()
+    async def imagine(ctx: commands.Context):
+        await image(ctx)
+
+    @commands.command()
+    async def gpt(ctx: commands.Context):
+        await gpt3(ctx)
+
+    @commands.command()
+    async def openai(ctx: commands.Context):
+        await help_openai(ctx)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(CogOpenAI(bot))

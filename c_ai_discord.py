@@ -1093,3 +1093,62 @@ async def delete_webhooks(ctx: commands.Context, c_data):
         if await webhook_exists(w["url"]):
             wh = discord.Webhook.from_url(w["url"], client=ctx.bot)
             await wh.delete()
+
+class CogCAI(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    async def cadd(ctx: commands.Context, *, arg=None):
+        await add_char(ctx, arg, 0)
+
+    @commands.command()
+    async def crec(ctx: commands.Context):
+        await add_char(ctx, None, 2)
+
+    @commands.command()
+    async def ctren(ctx: commands.Context):
+        await add_char(ctx, None, 1)
+
+    @commands.command()
+    async def cdel(ctx: commands.Context):
+        await delete_char(ctx)
+
+    @commands.command()
+    async def cadm(ctx: commands.Context):
+        await t_adm(ctx)
+
+    @commands.command()
+    async def cchan(ctx: commands.Context):
+        await t_chan(ctx)
+
+    @commands.command()
+    async def crate(ctx: commands.Context, *, arg=None):
+        await set_rate(ctx, arg)
+
+    @commands.command(aliases=['c.ai'])
+    async def chelp(ctx: commands.Context):
+        await c_help(ctx)
+
+    @commands.command()
+    async def cmode(ctx: commands.Context):
+        await t_mode(ctx)
+
+    @commands.command()
+    async def cchar(ctx: commands.Context):
+        await view_char(ctx)
+
+    @commands.command()
+    async def cedit(ctx: commands.Context, rate=None):
+        await edit_char(ctx, rate)
+
+    @commands.command()
+    async def cres(ctx: commands.Context):
+        await reset_char(ctx)
+
+    @commands.command()
+    async def cping(ctx: commands.Context, *, arg=None):
+        await set_mention_mode(ctx, arg)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(CogCAI(bot))

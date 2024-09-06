@@ -177,3 +177,14 @@ class RenderCanvas:
             draw_emojis=True
         )
         return cv.to_image()
+    
+class CogQuote(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    async def quote(ctx: commands.Context):
+        await quote_this(ctx)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(CogQuote(bot))

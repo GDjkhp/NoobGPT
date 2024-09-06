@@ -637,3 +637,96 @@ async def pull_channel(server_id: int, data):
 
 async def set_rank_channel(server_id: int, data):
     await mycol.update_one({"guild":server_id}, {"$set": {"bot_rank_channel": data}})
+
+class LevelInsult(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    async def prefix(ctx: commands.Context, arg=None):
+        await set_prefix_cmd(ctx, arg)
+
+    @commands.command()
+    async def botmaster(ctx: commands.Context, arg=None):
+        await add_master_user(ctx, arg)
+
+    # insults
+    @commands.command()
+    async def insult(ctx: commands.Context):
+        await toggle_insult(ctx)
+
+    @commands.command()
+    async def insultview(ctx: commands.Context):
+        await view_insults(ctx)
+
+    @commands.command()
+    async def insultadd(ctx: commands.Context, *, arg=None):
+        await add_insult(ctx, arg)
+
+    @commands.command()
+    async def insultdel(ctx: commands.Context, *, arg=None):
+        await del_insult(ctx, arg)
+
+    @commands.command()
+    async def insulthelp(ctx: commands.Context):
+        await help_insult(ctx)
+
+    # xp level system
+    @commands.command()
+    async def xp(ctx: commands.Context):
+        await toggle_xp(ctx)
+
+    @commands.command()
+    async def rank(ctx: commands.Context, arg=None):
+        await user_rank(ctx, arg)
+
+    @commands.command()
+    async def levels(ctx: commands.Context):
+        await guild_lead(ctx)
+
+    @commands.command()
+    async def xproleadd(ctx: commands.Context, arg=None):
+        await add_xp_role(ctx, arg)
+
+    @commands.command()
+    async def xproleedit(ctx: commands.Context, role_id=None, keep=None, multiplier=None, cooldown=None):
+        await edit_xp_role(ctx, role_id, keep, multiplier, cooldown)
+
+    @commands.command()
+    async def xproledel(ctx: commands.Context, arg=None):
+        await delete_xp_role(ctx, arg)
+
+    @commands.command()
+    async def lvlmsgview(ctx: commands.Context):
+        await view_lvlmsgs(ctx)
+
+    @commands.command()
+    async def lvlmsgadd(ctx: commands.Context, *, arg=None):
+        await add_lvl_msg(ctx, arg)
+
+    @commands.command()
+    async def lvlmsgdel(ctx: commands.Context, *, arg=None):
+        await del_lvl_msg(ctx, arg)
+
+    @commands.command()
+    async def lvlmsgtroll(ctx: commands.Context):
+        await toggle_troll(ctx)
+
+    @commands.command()
+    async def xphelp(ctx: commands.Context):
+        await help_level(ctx)
+
+    @commands.command()
+    async def xpchan(ctx: commands.Context):
+        await toggle_special_channel(ctx)
+
+    @commands.command()
+    async def xpchanedit(ctx: commands.Context, rate=None, cd=None):
+        await edit_special_channel(ctx, rate, cd)
+
+    @commands.command()
+    async def xprankchan(ctx: commands.Context):
+        await rank_channel(ctx)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(LevelInsult(bot))

@@ -128,14 +128,16 @@ async def COBALT_API(ctx: commands.Context, args: list[str]):
                 vimeoDash = True
                 args.remove(x)
 
-        help_text = '-cob [link]\n\noptional:'
-        help_text+= '\nvCodec = ["h264", "av1", "vp9"]'
-        help_text+= '\nvQuality = ["max", "4320", "2160", "1440", "1080", "720", "480", "360", "240", "144"]'
-        help_text+= '\naFormat = ["best", "mp3", "ogg", "wav", "opus"]'
-        help_text+= '\nfilenamePattern = ["classic", "pretty", "basic", "nerdy"]'
-        help_text+= '\nisAudioOnly, isTTFullAudio, isAudioMuted, dubLang, disableMetadata, twitterGif, vimeoDash'
+        help_text = [
+            '-cob [link]\n\noptional:',
+            'vCodec = ["h264", "av1", "vp9"]',
+            'vQuality = ["max", "4320", "2160", "1440", "1080", "720", "480", "360", "240", "144"]',
+            'aFormat = ["best", "mp3", "ogg", "wav", "opus"]',
+            'filenamePattern = ["classic", "pretty", "basic", "nerdy"]',
+            'isAudioOnly, isTTFullAudio, isAudioMuted, dubLang, disableMetadata, twitterGif, vimeoDash'
+        ]
 
-        if not args: return await msg.edit(content=help_text)
+        if not args: return await msg.edit(content="\n".join(help_text))
         url = args[0]
         response = await payload_cooker(url, vCodec, vQuality, aFormat, filenamePattern, 
                                         isAudioOnly, isTTFullAudio, isAudioMuted, dubLang, disableMetadata, twitterGif, vimeoDash)
@@ -166,3 +168,14 @@ class DownloadView(discord.ui.View):
 #     print(resp)
 
 # asyncio.run(test())
+            
+class CogCob(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    async def cob(ctx: commands.Context, *, arg:str=""):
+        await COBALT_API(ctx, arg.split())
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(CogCob(bot))

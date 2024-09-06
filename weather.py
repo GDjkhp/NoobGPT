@@ -20,3 +20,14 @@ async def Weather(ctx: commands.Context, arg):
     for i in results['forecast']:
         c += f"({i['temperature']}, {i['wind']}) "
     await message.edit(content=c)
+
+class CogWeather(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    async def weather(ctx: commands.Context, *, arg=None):
+        await Weather(ctx, arg)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(CogWeather(bot))
