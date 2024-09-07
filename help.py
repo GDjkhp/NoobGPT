@@ -160,7 +160,7 @@ class CogHelp(commands.Cog):
         await HALP(ctx, self.bot.user.avatar)
 
     @app_commands.command(name="halp", description="how to use")
-    async def halp(self, ctx: discord.Interaction):
+    async def halp_slash(self, ctx: discord.Interaction):
         await HALP(ctx, self.bot.user.avatar)
 
 async def setup(bot: commands.Bot):
