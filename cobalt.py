@@ -3,6 +3,14 @@ from discord.ext import commands
 import time
 import discord
 from util_discord import command_check
+import asyncio
+from curl_cffi.requests import AsyncSession
+import sys
+if sys.platform == 'win32':
+    asyncio.set_event_loop_policy(
+        asyncio.WindowsSelectorEventLoopPolicy()
+    )
+session = AsyncSession(impersonate='chrome110')
 
 async def the_real_req(payload: dict):
     headers = {
@@ -10,9 +18,14 @@ async def the_real_req(payload: dict):
         "content-type": "application/json"
     }
 
-    async with aiohttp.ClientSession() as session:
-        async with session.post("https://api.cobalt.tools/api/json", json=payload, headers=headers) as response:
-            return await response.json()
+    req = await session.post("https://api.cobalt.tools/api/json", json=payload, headers=headers)
+    return req.json()
+
+    # async with aiohttp.ClientSession() as session:
+    #     async with session.post("https://api.cobalt.tools/api/json", json=payload, headers=headers) as response:
+    #         # text = await response.read()
+    #         # print(text)
+    #         return await response.json()
 
 async def payload_cooker(
         url:str,
@@ -164,7 +177,57 @@ class DownloadView(discord.ui.View):
             self.add_item(discord.ui.Button(style=discord.ButtonStyle.link, url=x, label=f"Download", emoji="⬇️"))
         
 # async def test():
-#     resp = await payload_cooker("https://www.youtube.com/watch?v=dQw4w9WgXcQ", "mp3")
+#     args = ["mp3"]
+#     url:str = None
+#     vCodec:str = None
+#     vQuality:str = None
+#     aFormat:str = None
+#     filenamePattern:str = "nerdy" # default
+#     isAudioOnly:bool = False
+#     isTTFullAudio:bool = False
+#     isAudioMuted:bool = False
+#     dubLang:bool = False
+#     disableMetadata:bool = False
+#     twitterGif:bool = False
+#     vimeoDash:bool = False
+
+#     for x in list(args):
+#         if x in ["h264", "av1", "vp9"]:
+#             vCodec = x
+#             args.remove(x)
+#         if x in ["max", "4320", "2160", "1440", "1080", "720", "480", "360", "240", "144"]:
+#             vQuality = x
+#             args.remove(x)
+#         if x in ["best", "mp3", "ogg", "wav", "opus"]:
+#             aFormat = x
+#             isAudioOnly = True
+#             args.remove(x)
+#         if x in ["classic", "pretty", "basic", "nerdy"]:
+#             filenamePattern = x
+#             args.remove(x)
+#         if x == "isAudioOnly":
+#             isAudioOnly = True
+#             args.remove(x)
+#         if x == "isTTFullAudio":
+#             isTTFullAudio = True
+#             args.remove(x)
+#         if x == "isAudioMuted":
+#             isAudioMuted = True
+#             args.remove(x)
+#         if x == "dubLang":
+#             dubLang = True
+#             args.remove(x)
+#         if x == "disableMetadata":
+#             disableMetadata = True
+#             args.remove(x)
+#         if x == "twitterGif":
+#             twitterGif = True
+#             args.remove(x)
+#         if x == "vimeoDash":
+#             vimeoDash = True
+#             args.remove(x)
+#     resp = await payload_cooker("https://www.youtube.com/watch?v=dQw4w9WgXcQ", vCodec, vQuality, aFormat, filenamePattern, 
+#                                 isAudioOnly, isTTFullAudio, isAudioMuted, dubLang, disableMetadata, twitterGif, vimeoDash)
 #     print(resp)
 
 # asyncio.run(test())
