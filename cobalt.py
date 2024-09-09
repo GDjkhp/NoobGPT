@@ -11,7 +11,7 @@ async def the_real_req(payload: dict):
     }
 
     async with aiohttp.ClientSession() as session:
-        async with session.post("https://co.wuk.sh/api/json", json=payload, headers=headers) as response:
+        async with session.post("https://api.cobalt.tools/api/json", json=payload, headers=headers) as response:
             return await response.json()
 
 async def payload_cooker(
