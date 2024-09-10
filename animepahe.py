@@ -150,7 +150,7 @@ class SelectChoice(discord.ui.Select):
         urls = [items[i].get("href") for i in range(len(items))]
         ep_texts = [items[i].text for i in range(len(items))]
 
-        req = await new_req(f"https://animepahe.ru/play/{selected['session']}", headers, False)
+        req = await new_req(f"https://animepahe.ru/anime/{selected['session']}", headers, False)
         soup = soupify(req)
         details = soup.find("div", {"class": "anime-info"}).findAll("p")
         external = soup.find("p", {"class": "external-links"}).findAll("a")
