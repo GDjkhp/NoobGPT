@@ -258,7 +258,7 @@ class CogPahe(commands.Cog):
     async def pahe(self, ctx: commands.Context, *, query:str=None):
         await pahe_search(ctx, query)
 
-    @commands.hybrid_command(description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["pahe"]}')
+    @commands.hybrid_command(description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["anime"]}')
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def anime(self, ctx: commands.Context):

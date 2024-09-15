@@ -1137,7 +1137,7 @@ class CogCAI(commands.Cog):
     async def chelp(self, ctx: commands.Context):
         await c_help(ctx)
 
-    @commands.hybrid_command(description=f'{description_helper["emojis"]["ai"]} {description_helper["ai"]["cai"]}')
+    @commands.hybrid_command(description=f'{description_helper["emojis"]["ai"]} {description_helper["ai"]["cai"]}'[:100])
     async def cai(self, ctx: commands.Context):
         await c_help(ctx)
 
