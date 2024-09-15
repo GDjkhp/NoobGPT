@@ -25,11 +25,11 @@ async def insult_user(bot: commands.Bot, msg: discord.Message):
     if not db["insult_module"]: return
 
     if await detect_mentions(msg, bot):
-        ctx = await bot.get_context(msg) # context hack
-        async with ctx.typing():
-            the_list = db["roasts"] if db["roasts"] else read_json_file(path)["insults from thoughtcatalog.com"]
-            text = random.choice(the_list)
-            await msg.reply(text)
+        # ctx = await bot.get_context(msg) # context hack
+        # async with ctx.typing():
+        the_list = db["roasts"] if db["roasts"] else read_json_file(path)["insults from thoughtcatalog.com"]
+        text = random.choice(the_list)
+        await msg.reply(text)
 
 # noobgpt sucks without leveling system they said
 async def earn_xp(bot: commands.Bot, msg: discord.Message):

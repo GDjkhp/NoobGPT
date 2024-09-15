@@ -230,124 +230,124 @@ async def make_request_mistral(model: str, messages: list, code: bool):
 
 async def main_perplexity(ctx: commands.Context, model: int):
     if await command_check(ctx, "perplex", "ai"): return
-    async with ctx.typing():
-        msg = await ctx.reply(f"{models[model]}\nGenerating response…")
-        old = round(time.time() * 1000)
-        try:
-            url = "https://api.perplexity.ai/chat/completions"
-            key = os.getenv('PERPLEXITY')
-            response = await make_request(models[model], await loopMsg(ctx.message), url, key) # spicy
-            text = response["choices"][0]["message"]["content"]
-            if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
-            chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
-            replyFirst = True
-            for chunk in chunks:
-                if replyFirst: 
-                    replyFirst = False
-                    await ctx.reply(chunk)
-                else: await ctx.send(chunk)
-        except Exception as e:
-            # bruh = response["detail"][0]["msg"] if response and response.get("detail") else e
-            print(e)
-            return await msg.edit(content=f"**Error! :(**")
-        await msg.edit(content=f"{models[model]}\n**Took {round(time.time() * 1000)-old}ms**")
+    # async with ctx.typing():
+    msg = await ctx.reply(f"{models[model]}\nGenerating response…")
+    old = round(time.time() * 1000)
+    try:
+        url = "https://api.perplexity.ai/chat/completions"
+        key = os.getenv('PERPLEXITY')
+        response = await make_request(models[model], await loopMsg(ctx.message), url, key) # spicy
+        text = response["choices"][0]["message"]["content"]
+        if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
+        chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
+        replyFirst = True
+        for chunk in chunks:
+            if replyFirst: 
+                replyFirst = False
+                await ctx.reply(chunk)
+            else: await ctx.send(chunk)
+    except Exception as e:
+        # bruh = response["detail"][0]["msg"] if response and response.get("detail") else e
+        print(e)
+        return await msg.edit(content=f"**Error! :(**")
+    await msg.edit(content=f"{models[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
 async def main_github(ctx: commands.Context, model: int, prompt: str=None):
     if await command_check(ctx, "github", "ai"): return
-    async with ctx.typing():
-        msg = await ctx.reply(f"{models_github[model]}\nGenerating response…")
-        old = round(time.time() * 1000)
-        try:
-            url = "https://models.inference.ai.azure.com/chat/completions"
-            key = os.getenv('GITHUB')
-            response = await make_request(models_github[model], 
-                                          await loopMsgGH(ctx.message) if not prompt else loopMsgSlash(prompt), 
-                                          url, key) # spicy
-            text = response["choices"][0]["message"]["content"]
-            if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
-            chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
-            replyFirst = True
-            for chunk in chunks:
-                if replyFirst: 
-                    replyFirst = False
-                    await ctx.reply(chunk)
-                else: await ctx.send(chunk)
-        except Exception as e:
-            # bruh = response["detail"][0]["msg"] if response and response.get("detail") else e
-            print(e)
-            return await msg.edit(content=f"**Error! :(**")
-        await msg.edit(content=f"{models_github[model]}\n**Took {round(time.time() * 1000)-old}ms**")
+    # async with ctx.typing():
+    msg = await ctx.reply(f"{models_github[model]}\nGenerating response…")
+    old = round(time.time() * 1000)
+    try:
+        url = "https://models.inference.ai.azure.com/chat/completions"
+        key = os.getenv('GITHUB')
+        response = await make_request(models_github[model], 
+                                        await loopMsgGH(ctx.message) if not prompt else loopMsgSlash(prompt), 
+                                        url, key) # spicy
+        text = response["choices"][0]["message"]["content"]
+        if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
+        chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
+        replyFirst = True
+        for chunk in chunks:
+            if replyFirst: 
+                replyFirst = False
+                await ctx.reply(chunk)
+            else: await ctx.send(chunk)
+    except Exception as e:
+        # bruh = response["detail"][0]["msg"] if response and response.get("detail") else e
+        print(e)
+        return await msg.edit(content=f"**Error! :(**")
+    await msg.edit(content=f"{models_github[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
 async def main_groq(ctx: commands.Context, model: int, prompt: str=None):
     if await command_check(ctx, "groq", "ai"): return
-    async with ctx.typing():
-        msg = await ctx.reply(f"{models_groq[model]}\nGenerating response…")
-        old = round(time.time() * 1000)
-        try:
-            url = "https://api.groq.com/openai/v1/chat/completions"
-            key = os.getenv('GROQ')
-            response = await make_request(models_groq[model], 
-                                          await loopMsg(ctx.message) if not prompt else loopMsgSlash(prompt), 
-                                          url, key) # spicy
-            text = response["choices"][0]["message"]["content"]
-            if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
-            chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
-            replyFirst = True
-            for chunk in chunks:
-                if replyFirst: 
-                    replyFirst = False
-                    await ctx.reply(chunk)
-                else: await ctx.send(chunk)
-        except Exception as e:
-            # bruh = response["detail"][0]["msg"] if response and response.get("detail") else e
-            print(e)
-            return await msg.edit(content=f"**Error! :(**")
-        await msg.edit(content=f"{models_groq[model]}\n**Took {round(time.time() * 1000)-old}ms**")
+    # async with ctx.typing():
+    msg = await ctx.reply(f"{models_groq[model]}\nGenerating response…")
+    old = round(time.time() * 1000)
+    try:
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        key = os.getenv('GROQ')
+        response = await make_request(models_groq[model], 
+                                        await loopMsg(ctx.message) if not prompt else loopMsgSlash(prompt), 
+                                        url, key) # spicy
+        text = response["choices"][0]["message"]["content"]
+        if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
+        chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
+        replyFirst = True
+        for chunk in chunks:
+            if replyFirst: 
+                replyFirst = False
+                await ctx.reply(chunk)
+            else: await ctx.send(chunk)
+    except Exception as e:
+        # bruh = response["detail"][0]["msg"] if response and response.get("detail") else e
+        print(e)
+        return await msg.edit(content=f"**Error! :(**")
+    await msg.edit(content=f"{models_groq[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
 async def main_anthropic(ctx: commands.Context, model: int):
     if await command_check(ctx, "claude", "ai"): return
-    async with ctx.typing():
-        msg = await ctx.reply(f"{models_claude[model]}\nGenerating response…")
-        old = round(time.time() * 1000)
-        try:
-            response = await make_request_claude(models_claude[model], await loopMsg(ctx.message)) # spicy
-            text = response["content"][0]["text"]
-            if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
-            chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
-            replyFirst = True
-            for chunk in chunks:
-                if replyFirst: 
-                    replyFirst = False
-                    await ctx.reply(chunk)
-                else: await ctx.send(chunk)
-        except Exception as e:
-            # bruh = response["error"]["message"] if response and response.get("error") else e
-            print(e)
-            return await msg.edit(content=f"**Error! :(**")
-        await msg.edit(content=f"{models_claude[model]}\n**Took {round(time.time() * 1000)-old}ms**")
+    # async with ctx.typing():
+    msg = await ctx.reply(f"{models_claude[model]}\nGenerating response…")
+    old = round(time.time() * 1000)
+    try:
+        response = await make_request_claude(models_claude[model], await loopMsg(ctx.message)) # spicy
+        text = response["content"][0]["text"]
+        if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
+        chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
+        replyFirst = True
+        for chunk in chunks:
+            if replyFirst: 
+                replyFirst = False
+                await ctx.reply(chunk)
+            else: await ctx.send(chunk)
+    except Exception as e:
+        # bruh = response["error"]["message"] if response and response.get("error") else e
+        print(e)
+        return await msg.edit(content=f"**Error! :(**")
+    await msg.edit(content=f"{models_claude[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
 async def main_mistral(ctx: commands.Context, model: int, prompt: str=None):
     if await command_check(ctx, "mistral", "ai"): return
-    async with ctx.typing():
-        msg = await ctx.reply(f"{models_mistral[model]}\nGenerating response…")
-        old = round(time.time() * 1000)
-        try: 
-            response = await make_request_mistral(models_mistral[model], 
-                                                  await loopMsg(ctx.message) if not prompt else loopMsgSlash(prompt), 
-                                                  True if model == 6 else False)
-            text = response["choices"][0]["message"]["content"]
-            if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
-            chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
-            replyFirst = True
-            for chunk in chunks:
-                if replyFirst: 
-                    replyFirst = False
-                    await ctx.reply(chunk)
-                else: await ctx.send(chunk)
-        except Exception as e:
-            print(e)
-            return await msg.edit(content=f"**Error! :(**") # i can't assume here
-        await msg.edit(content=f"{models_mistral[model]}\n**Took {round(time.time() * 1000)-old}ms**")
+    # async with ctx.typing():
+    msg = await ctx.reply(f"{models_mistral[model]}\nGenerating response…")
+    old = round(time.time() * 1000)
+    try: 
+        response = await make_request_mistral(models_mistral[model], 
+                                                await loopMsg(ctx.message) if not prompt else loopMsgSlash(prompt), 
+                                                True if model == 6 else False)
+        text = response["choices"][0]["message"]["content"]
+        if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
+        chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
+        replyFirst = True
+        for chunk in chunks:
+            if replyFirst: 
+                replyFirst = False
+                await ctx.reply(chunk)
+            else: await ctx.send(chunk)
+    except Exception as e:
+        print(e)
+        return await msg.edit(content=f"**Error! :(**") # i can't assume here
+    await msg.edit(content=f"{models_mistral[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
 class CogPerplex(commands.Cog):
     def __init__(self, bot):

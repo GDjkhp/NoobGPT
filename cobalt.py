@@ -89,90 +89,90 @@ async def get_filename(url):
 
 async def COBALT_API(ctx: commands.Context, args: str):
     if await command_check(ctx, "cob", "media"): return
-    async with ctx.typing():
-        msg = await ctx.reply("…")
-        old = round(time.time() * 1000)
+    # async with ctx.typing():
+    msg = await ctx.reply("…")
+    old = round(time.time() * 1000)
 
-        help_text = [
-            '-cob [link]\n\noptional:',
-            'vCodec = ["h264", "av1", "vp9"]',
-            'vQuality = ["max", "4320", "2160", "1440", "1080", "720", "480", "360", "240", "144"]',
-            'aFormat = ["best", "mp3", "ogg", "wav", "opus"]',
-            'filenamePattern = ["classic", "pretty", "basic", "nerdy"]',
-            'isAudioOnly, isTTFullAudio, isAudioMuted, dubLang, disableMetadata, twitterGif, vimeoDash'
-        ]
+    help_text = [
+        '-cob [link]\n\noptional:',
+        'vCodec = ["h264", "av1", "vp9"]',
+        'vQuality = ["max", "4320", "2160", "1440", "1080", "720", "480", "360", "240", "144"]',
+        'aFormat = ["best", "mp3", "ogg", "wav", "opus"]',
+        'filenamePattern = ["classic", "pretty", "basic", "nerdy"]',
+        'isAudioOnly, isTTFullAudio, isAudioMuted, dubLang, disableMetadata, twitterGif, vimeoDash'
+    ]
 
-        if not args: return await msg.edit(content="\n".join(help_text))
-        args: list[str] = args.split()
+    if not args: return await msg.edit(content="\n".join(help_text))
+    args: list[str] = args.split()
 
-        url:str = None
-        vCodec:str = None
-        vQuality:str = None
-        aFormat:str = None
-        filenamePattern:str = "nerdy" # default
-        isAudioOnly:bool = False
-        isTTFullAudio:bool = False
-        isAudioMuted:bool = False
-        dubLang:bool = False
-        disableMetadata:bool = False
-        twitterGif:bool = False
-        vimeoDash:bool = False
+    url:str = None
+    vCodec:str = None
+    vQuality:str = None
+    aFormat:str = None
+    filenamePattern:str = "nerdy" # default
+    isAudioOnly:bool = False
+    isTTFullAudio:bool = False
+    isAudioMuted:bool = False
+    dubLang:bool = False
+    disableMetadata:bool = False
+    twitterGif:bool = False
+    vimeoDash:bool = False
 
-        for x in list(args):
-            if x in ["h264", "av1", "vp9"]:
-                vCodec = x
-                args.remove(x)
-            if x in ["max", "4320", "2160", "1440", "1080", "720", "480", "360", "240", "144"]:
-                vQuality = x
-                args.remove(x)
-            if x in ["best", "mp3", "ogg", "wav", "opus"]:
-                aFormat = x
-                isAudioOnly = True
-                args.remove(x)
-            if x in ["classic", "pretty", "basic", "nerdy"]:
-                filenamePattern = x
-                args.remove(x)
-            if x == "isAudioOnly":
-                isAudioOnly = True
-                args.remove(x)
-            if x == "isTTFullAudio":
-                isTTFullAudio = True
-                args.remove(x)
-            if x == "isAudioMuted":
-                isAudioMuted = True
-                args.remove(x)
-            if x == "dubLang":
-                dubLang = True
-                args.remove(x)
-            if x == "disableMetadata":
-                disableMetadata = True
-                args.remove(x)
-            if x == "twitterGif":
-                twitterGif = True
-                args.remove(x)
-            if x == "vimeoDash":
-                vimeoDash = True
-                args.remove(x)
+    for x in list(args):
+        if x in ["h264", "av1", "vp9"]:
+            vCodec = x
+            args.remove(x)
+        if x in ["max", "4320", "2160", "1440", "1080", "720", "480", "360", "240", "144"]:
+            vQuality = x
+            args.remove(x)
+        if x in ["best", "mp3", "ogg", "wav", "opus"]:
+            aFormat = x
+            isAudioOnly = True
+            args.remove(x)
+        if x in ["classic", "pretty", "basic", "nerdy"]:
+            filenamePattern = x
+            args.remove(x)
+        if x == "isAudioOnly":
+            isAudioOnly = True
+            args.remove(x)
+        if x == "isTTFullAudio":
+            isTTFullAudio = True
+            args.remove(x)
+        if x == "isAudioMuted":
+            isAudioMuted = True
+            args.remove(x)
+        if x == "dubLang":
+            dubLang = True
+            args.remove(x)
+        if x == "disableMetadata":
+            disableMetadata = True
+            args.remove(x)
+        if x == "twitterGif":
+            twitterGif = True
+            args.remove(x)
+        if x == "vimeoDash":
+            vimeoDash = True
+            args.remove(x)
 
-        if not args: return await msg.edit(content="\n".join(help_text))
-        url = args[0]
-        response = await payload_cooker(url, vCodec, vQuality, aFormat, filenamePattern, 
-                                        isAudioOnly, isTTFullAudio, isAudioMuted, dubLang, disableMetadata, twitterGif, vimeoDash)
-        filename = ""
-        links = []
-        bad = ["error", "rate-limit"]
-        if response["status"] in bad:
-            filename = response["text"]
-        else:
-            if response["status"] == "picker":
-                for link in response["picker"]:
-                    links.append(link["url"])
-            else: 
-                filename = await get_filename(response["url"])
-                links.append(response["url"])
-        
-        await msg.edit(content=f"{filename}\nstatus: {response['status']}\n{round(time.time() * 1000)-old}ms", 
-                       view=None if response["status"] in bad else DownloadView(links))
+    if not args: return await msg.edit(content="\n".join(help_text))
+    url = args[0]
+    response = await payload_cooker(url, vCodec, vQuality, aFormat, filenamePattern, 
+                                    isAudioOnly, isTTFullAudio, isAudioMuted, dubLang, disableMetadata, twitterGif, vimeoDash)
+    filename = ""
+    links = []
+    bad = ["error", "rate-limit"]
+    if response["status"] in bad:
+        filename = response["text"]
+    else:
+        if response["status"] == "picker":
+            for link in response["picker"]:
+                links.append(link["url"])
+        else: 
+            filename = await get_filename(response["url"])
+            links.append(response["url"])
+    
+    await msg.edit(content=f"{filename}\nstatus: {response['status']}\n{round(time.time() * 1000)-old}ms", 
+                    view=None if response["status"] in bad else DownloadView(links))
         
 class DownloadView(discord.ui.View):
     def __init__(self, links: list):
