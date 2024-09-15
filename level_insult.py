@@ -1,11 +1,12 @@
 import discord
+from discord import app_commands
 from discord.ext import commands
 import json
 import time
 import random
 import re
 from util_database import myclient
-from util_discord import command_check, check_if_master_or_admin
+from util_discord import command_check, check_if_master_or_admin, description_helper
 
 mycol = myclient["utils"]["nodeports"]
 mycol_players = myclient["utils"]["xp_players"]
@@ -102,7 +103,7 @@ async def user_rank(ctx: commands.Context, arg: str):
     if not db["xp_module"]: return
     if db.get("bot_rank_channel") and not db["bot_rank_channel"] == ctx.channel.id: return
     if not arg: arg = ctx.author.id
-    elif not arg.isdigit(): return await ctx.reply("not a digit :(\nusage: `-rank <userid>`")
+    elif not arg.isdigit(): return await ctx.reply("not a digit :(\nusage: `-rank <user_id>`")
     player_db = await get_player_db(ctx.guild.id)
     for player in player_db["players"]:
         if player['userID'] == int(arg):
@@ -164,12 +165,37 @@ async def add_xp_role(ctx: commands.Context, arg: str):
         return await ctx.reply("**manage roles is disabled :(**")
 
     if not arg or not arg.lstrip('-').isdigit():
-        return await ctx.reply("usage: -xprole <level>\nparameters:\n`-1` = restricted, `0` = none, `1, 2, ...` = levels")
+        return await ctx.reply("usage: `-xprole <level>`\nparameters:\n`-1` = restricted, `0` = none, `1, 2, ...` = levels")
     
     role = await ctx.guild.create_role(name="Level "+arg if int(arg) > 0 else "special role" if int(arg) == 0 else "xp restriction", 
                                        mentionable=False)
     await push_role(ctx.guild.id, role_data(role.id, int(arg)))
     await ctx.reply(f"<@&{role.id}> has been created. edit attributes using `-xproleedit <roleid>`, `name` and `color` in server settings.")
+
+async def view_xp_roles(ctx: commands.Context):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if await command_check(ctx, "level", "utils"): return
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
+    
+    permissions = ctx.channel.permissions_for(ctx.me)
+    if not permissions.manage_roles:
+        return await ctx.reply("**manage roles is disabled :(**")
+    
+    db = await get_database(ctx.guild.id)
+    text_list = []
+    for role in db["xp_roles"]:
+        text_list.append(f'<@&{role["role_id"]}>')
+        text_list.append(f'Level: {role["role_level"]}, Multiplier: {role["role_multiplier"]}, Cooldown: {role["role_cooldown"]}, Keep: {role["role_keep"]}')
+
+    if not text_list: return await ctx.reply("`xp_roles` not found 😳")
+    text = "\n".join(text_list)
+    chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
+    replyFirst = True
+    for chunk in chunks:
+        if replyFirst: 
+            replyFirst = False
+            await ctx.reply(chunk)
+        else: await ctx.send(chunk)
 
 async def edit_xp_role(ctx: commands.Context, role_id: str, keep: str, multiplier: str, cooldown: str):
     if not ctx.guild: return await ctx.reply("not supported")
@@ -181,7 +207,7 @@ async def edit_xp_role(ctx: commands.Context, role_id: str, keep: str, multiplie
         return await ctx.reply("**manage roles is disabled :(**")
     
     if not role_id or not role_id.isdigit():
-        return await ctx.reply("usage: -xproleedit <roleid>")
+        return await ctx.reply("usage: `-xproleedit <roleid>`")
     role_id = int(role_id)
     db = await get_database(ctx.guild.id)
     for role in db["xp_roles"]:
@@ -193,7 +219,7 @@ async def edit_xp_role(ctx: commands.Context, role_id: str, keep: str, multiplie
             
             if keep and keep.isdigit():
                 keep = True if int(keep) else False
-            else: return await ctx.reply("`keep` not found.\nplease enter `0` for no or `1` for yes")
+            else: return await ctx.reply("`keep` not found.\nplease enter `0` for no or `1` for yes.")
 
             if not multiplier: multiplier = role['role_multiplier'] # maintain -1 for none
             else:
@@ -228,7 +254,7 @@ async def delete_xp_role(ctx: commands.Context, role_id: str):
         return await ctx.reply("**manage roles is disabled :(**")
     
     if not role_id or not role_id.isdigit():
-        return await ctx.reply("usage: -xproledel <roleid>")
+        return await ctx.reply("usage: `-xproledel <roleid>`")
     role_id = int(role_id)
     db = await get_database(ctx.guild.id)
     for role in db["xp_roles"]:
@@ -354,11 +380,13 @@ async def del_lvl_msg(ctx: commands.Context, arg: str):
     await pull_xp_msg(ctx.guild.id, arg)
     await ctx.reply("levelup msg removed. use `-lvlmsgview` to list all levelup msgs.")
 
+# TODO: add xp
 async def user_set_xp(ctx: commands.Context, user: str, number: str):
     if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "level", "utils"): return
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
 
+# TODO: set level
 async def user_set_level(ctx: commands.Context, user: str, number: str):
     if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "level", "utils"): return
@@ -378,10 +406,36 @@ async def rank_channel(ctx: commands.Context):
         await ctx.reply("rank channel has been added. everyone can use `-rank` and `-levels` only in this channel.")
 
 async def help_level(ctx: commands.Context):
-    await ctx.reply("placeholder")
+    text = [
+        "`-insult` Toggles insults. Defaults to thoughtcatalog.com",
+        "`-insultview` View custom insults.",
+        "`-insultadd` Add custom insult.",
+        "`-insultdel` Delete custom insult.",
+    ]
+    await ctx.reply("\n".join(text))
 
 async def help_insult(ctx: commands.Context):
-    await ctx.reply("placeholder")
+    text = [
+        "# User commands",
+        "`-xp` Toggle XP leveling system.",
+        "`-rank` View a member's rank.",
+        "`-levels` View server leaderboard.",
+        "# Role commands",
+        "`-xproleadd` Add level role.",
+        "`-xproleedit` Edit level role.",
+        "`-xproledel` Delete level role.",
+        "`-xproleview` View level roles.",
+        "# Message commands",
+        "`-lvlmsgadd` Add custom level up message.",
+        "`-lvlmsgdel` Delete custom level up message.",
+        "`-lvlmsgview` View custom level up messages.",
+        "`-lvlmsgtroll` Toggle default troll level up messages.",
+        "# Channel commands",
+        "`-xpchan` Toggle XP channel.",
+        "`-xpchanedit` Edit XP channel.",
+        "`-xprankchan` Set rank/leaderboard command channel.",
+    ]
+    await ctx.reply("\n".join(text))
 
 # utils
 async def assign_roles_logic(message: discord.Message, level: int, db_fake_roles: list):
@@ -642,89 +696,114 @@ class LevelInsult(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    async def prefix(self, ctx: commands.Context, arg=None):
-        await set_prefix_cmd(ctx, arg)
+    # utils
+    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Change bot command prefix.")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def prefix(self, ctx: commands.Context, prefix:str=None):
+        await set_prefix_cmd(ctx, prefix)
 
-    @commands.command()
-    async def botmaster(self, ctx: commands.Context, arg=None):
-        await add_master_user(ctx, arg)
+    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Adds bot master role to a user.")
+    @app_commands.describe(user_id="User ID of the user you want to be a bot master. Leave blank to make yourself one.")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def botmaster(self, ctx: commands.Context, user_id:str=None):
+        await add_master_user(ctx, user_id)
 
     # insults
-    @commands.command()
+    @commands.hybrid_command(description=f'{description_helper["emojis"]["utils"]} {description_helper["utils"]["insult"]}')
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def insult(self, ctx: commands.Context):
         await toggle_insult(ctx)
 
-    @commands.command()
+    @commands.hybrid_command(description=f"{description_helper['emojis']['insult']} View custom insults.")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def insultview(self, ctx: commands.Context):
         await view_insults(ctx)
 
-    @commands.command()
-    async def insultadd(self, ctx: commands.Context, *, arg=None):
-        await add_insult(ctx, arg)
+    @commands.hybrid_command(description=f"{description_helper['emojis']['insult']} Add custom insult.")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def insultadd(self, ctx: commands.Context, *, insult:str=None):
+        await add_insult(ctx, insult)
 
-    @commands.command()
-    async def insultdel(self, ctx: commands.Context, *, arg=None):
-        await del_insult(ctx, arg)
+    @commands.hybrid_command(description=f"{description_helper['emojis']['insult']} Delete custom insult.")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def insultdel(self, ctx: commands.Context, *, insult:str=None):
+        await del_insult(ctx, insult)
 
-    @commands.command()
+    @commands.hybrid_command(description=f"{description_helper['emojis']['insult']} How to use custom insults.")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def insulthelp(self, ctx: commands.Context):
         await help_insult(ctx)
 
     # xp level system
-    @commands.command()
+    @commands.hybrid_command(description=f'{description_helper["emojis"]["utils"]} {description_helper["utils"]["xp"]}')
     async def xp(self, ctx: commands.Context):
         await toggle_xp(ctx)
 
-    @commands.command()
-    async def rank(self, ctx: commands.Context, arg=None):
-        await user_rank(ctx, arg)
+    @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} View a member's rank.")
+    async def rank(self, ctx: commands.Context, user_id:str=None):
+        await user_rank(ctx, user_id)
 
-    @commands.command()
+    @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} View server leaderboard.")
     async def levels(self, ctx: commands.Context):
         await guild_lead(ctx)
 
-    @commands.command()
-    async def xproleadd(self, ctx: commands.Context, arg=None):
-        await add_xp_role(ctx, arg)
+    @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} View level roles.")
+    async def xproleview(self, ctx: commands.Context):
+        await view_xp_roles(ctx)
 
-    @commands.command()
-    async def xproleedit(self, ctx: commands.Context, role_id=None, keep=None, multiplier=None, cooldown=None):
+    @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} Add level role.")
+    async def xproleadd(self, ctx: commands.Context, level:str=None):
+        await add_xp_role(ctx, level)
+
+    @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} Edit level role.")
+    @app_commands.describe(keep="please enter `0` for no or `1` for yes.", 
+                           multiplier="please enter in `1.75x` or `1` format. use `0` for xp restriction, `-1` for none.", 
+                           cooldown="please enter a valid integer. use `-1` for none.")
+    async def xproleedit(self, ctx: commands.Context, role_id:str=None, keep:str=None, multiplier:str=None, cooldown:str=None):
         await edit_xp_role(ctx, role_id, keep, multiplier, cooldown)
 
-    @commands.command()
-    async def xproledel(self, ctx: commands.Context, arg=None):
-        await delete_xp_role(ctx, arg)
+    @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} Delete level role.")
+    async def xproledel(self, ctx: commands.Context, role_id:str=None):
+        await delete_xp_role(ctx, role_id)
 
-    @commands.command()
+    @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} View custom level up messages.")
     async def lvlmsgview(self, ctx: commands.Context):
         await view_lvlmsgs(ctx)
 
-    @commands.command()
-    async def lvlmsgadd(self, ctx: commands.Context, *, arg=None):
-        await add_lvl_msg(ctx, arg)
+    @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} Add custom level up message.")
+    async def lvlmsgadd(self, ctx: commands.Context, *, message:str=None):
+        await add_lvl_msg(ctx, message)
 
-    @commands.command()
-    async def lvlmsgdel(self, ctx: commands.Context, *, arg=None):
-        await del_lvl_msg(ctx, arg)
+    @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} Delete custom level up message.")
+    async def lvlmsgdel(self, ctx: commands.Context, *, message:str=None):
+        await del_lvl_msg(ctx, message)
 
-    @commands.command()
+    @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} Toggle troll level up messages.")
     async def lvlmsgtroll(self, ctx: commands.Context):
         await toggle_troll(ctx)
 
-    @commands.command()
+    @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} How to use XP system.")
     async def xphelp(self, ctx: commands.Context):
         await help_level(ctx)
 
-    @commands.command()
+    @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} Toggle XP channel.")
     async def xpchan(self, ctx: commands.Context):
         await toggle_special_channel(ctx)
 
-    @commands.command()
-    async def xpchanedit(self, ctx: commands.Context, rate=None, cd=None):
-        await edit_special_channel(ctx, rate, cd)
+    @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} Edit XP channel.")
+    @app_commands.describe(rate="please enter in `1.75x` or `1` format. use `0` for xp restriction, `-1` for none.",
+                           cooldown="please enter a valid integer. use `-1` for none.")
+    async def xpchanedit(self, ctx: commands.Context, rate:str=None, cooldown:str=None):
+        await edit_special_channel(ctx, rate, cooldown)
 
-    @commands.command()
+    @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} Set rank/leaderboard command channel.")
     async def xprankchan(self, ctx: commands.Context):
         await rank_channel(ctx)
 

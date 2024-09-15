@@ -1,7 +1,8 @@
 from discord.ext import commands
+from discord import app_commands
 import aiohttp
 from urllib import parse as p
-from util_discord import command_check
+from util_discord import command_check, description_helper
 
 async def req_real(api):
     try:
@@ -25,9 +26,11 @@ class CogWeather(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    async def weather(self, ctx: commands.Context, *, arg=None):
-        await Weather(ctx, arg)
+    @commands.hybrid_command(description=f'{description_helper["emojis"]["utils"]} {description_helper["utils"]["weather"]}')
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def weather(self, ctx: commands.Context, *, query:str=None):
+        await Weather(ctx, query)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogWeather(bot))

@@ -1,7 +1,11 @@
 import discord
 from discord.ext import commands
+from discord import app_commands
 from aki_new import Akinator, CantGoBackAnyFurther
-from util_discord import command_check
+from util_discord import command_check, description_helper
+
+categories = ['people', 'objects', 'animals']
+languages = ['en', 'ar', 'cn', 'de', 'es', 'fr', 'it', 'jp', 'kr', 'nl', 'pl', 'pt', 'ru', 'tr', 'id']
 
 def w(ctx: commands.Context, aki: Akinator) -> discord.Embed:
     embed_win = discord.Embed(title=aki.name_proposition, description=aki.description_proposition,
@@ -94,12 +98,12 @@ class ButtonAction0(discord.ui.Button):
             await interaction.message.edit(embed=embed_loss, view=None)
 
 # @commands.max_concurrency(1, per=BucketType.default, wait=False)
-async def Aki(ctx: commands.Context, cat: str='people', lang: str='en'):
+async def Aki(ctx: commands.Context, cat: str, lang: str):
     if await command_check(ctx, "aki", "games"): return
     msg = await ctx.reply('Starting game…')
-    categories = ['people', 'objects', 'animals']
+    if not cat: cat = 'people'
+    if not lang: lang = 'en'
     sfw = not ctx.channel.nsfw if ctx.guild else True
-    languages = ['en', 'ar', 'cn', 'de', 'es', 'fr', 'it', 'jp', 'kr', 'nl', 'pl', 'pt', 'ru', 'tr', 'id']
     if not lang in languages:
         return await msg.edit(content=f"Invalid language parameter.\nSupported languages:```{languages}```")
     if not cat in categories:
@@ -110,14 +114,27 @@ async def Aki(ctx: commands.Context, cat: str='people', lang: str='en'):
         await msg.edit(content=None, embed=qEmbed(aki, ctx), view=QView(aki, ctx))
     except Exception as e: await msg.edit(content=f"Error! :(\n{e}")
 
+async def cat_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    return [
+        app_commands.Choice(name=cat, value=cat) for cat in categories if current.lower() in cat.lower()
+    ]
+
+async def lang_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    return [
+        app_commands.Choice(name=lang, value=lang) for lang in languages if current.lower() in lang.lower()
+    ]
+
 class CogAki(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.hybrid_command(description=f'{description_helper["emojis"]["games"]} {description_helper["games"]["aki"]}')
+    @app_commands.autocomplete(category=cat_auto, language=lang_auto)
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     # @commands.max_concurrency(1, per=BucketType.default, wait=False)
-    async def aki(self, ctx: commands.Context, arg1='people', arg2='en'):
-        await Aki(ctx, arg1, arg2)
+    async def aki(self, ctx: commands.Context, category:str=None, language:str=None):
+        await Aki(ctx, category, language)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogAki(bot))

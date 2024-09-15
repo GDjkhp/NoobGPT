@@ -4,10 +4,11 @@ import aiohttp
 from discord.ext import commands
 import os
 import re
-from util_discord import command_check
+from util_discord import command_check, description_helper
 from curl_cffi.requests import AsyncSession
 import sys
 import asyncio
+from discord import app_commands
 
 if sys.platform == 'win32':
     asyncio.set_event_loop_policy(
@@ -251,11 +252,15 @@ class CogPahe(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    async def pahe(self, ctx: commands.Context, *, arg=None):
-        await pahe_search(ctx, arg)
+    @commands.hybrid_command(description=f"{description_helper['emojis']['anime']} animepahe")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def pahe(self, ctx: commands.Context, *, query:str=None):
+        await pahe_search(ctx, query)
 
-    @commands.command()
+    @commands.hybrid_command(description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["pahe"]}')
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def anime(self, ctx: commands.Context):
         await help_anime(ctx)
 

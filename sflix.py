@@ -1,5 +1,6 @@
 import re
 import discord
+from discord import app_commands
 from discord.ext import commands
 from httpclient import HttpClient
 from bs4 import BeautifulSoup as BS
@@ -9,7 +10,7 @@ from Crypto.Cipher import AES
 import hashlib
 import json
 from Crypto.Util.Padding import unpad
-from util_discord import command_check
+from util_discord import command_check, description_helper
 
 client, client_cdn = HttpClient(), HttpClient()
 title, url, aid, mv_tv, poster = 0, 1, 2, 3, 4
@@ -411,9 +412,11 @@ class CogSflix(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    async def flix(self, ctx: commands.Context, *, arg=None):
-        await Sflix(ctx, arg)
+    @commands.hybrid_command(description=f"{description_helper['emojis']['tv']} sflix")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def flix(self, ctx: commands.Context, *, query:str=None):
+        await Sflix(ctx, query)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogSflix(bot))

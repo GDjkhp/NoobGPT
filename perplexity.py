@@ -1,10 +1,11 @@
 import aiohttp
 import os
 import discord
+from discord import app_commands
 from discord.ext import commands
 import time
 import base64
-from util_discord import command_check
+from util_discord import command_check, description_helper
 
 # ugly
 def strip_dash(text: str):
@@ -25,6 +26,10 @@ async def loopMsg(message: discord.Message):
     repliedMessage = await message.channel.fetch_message(message.reference.message_id)
     previousMessages = await loopMsg(repliedMessage)
     return previousMessages + base_data
+
+# TODO: vision support for slash
+def loopMsgSlash(prompt: str):
+    return [{"role": "user", "content": prompt}]
 
 async def loopMsgGH(message: discord.Message):
     role = "assistant" if message.author.bot else "user"
@@ -247,7 +252,7 @@ async def main_perplexity(ctx: commands.Context, model: int):
             return await msg.edit(content=f"**Error! :(**")
         await msg.edit(content=f"{models[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
-async def main_github(ctx: commands.Context, model: int):
+async def main_github(ctx: commands.Context, model: int, prompt: str=None):
     if await command_check(ctx, "github", "ai"): return
     async with ctx.typing():
         msg = await ctx.reply(f"{models_github[model]}\nGenerating response…")
@@ -255,7 +260,9 @@ async def main_github(ctx: commands.Context, model: int):
         try:
             url = "https://models.inference.ai.azure.com/chat/completions"
             key = os.getenv('GITHUB')
-            response = await make_request(models_github[model], await loopMsgGH(ctx.message), url, key) # spicy
+            response = await make_request(models_github[model], 
+                                          await loopMsgGH(ctx.message) if not prompt else loopMsgSlash(prompt), 
+                                          url, key) # spicy
             text = response["choices"][0]["message"]["content"]
             if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
             chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
@@ -271,7 +278,7 @@ async def main_github(ctx: commands.Context, model: int):
             return await msg.edit(content=f"**Error! :(**")
         await msg.edit(content=f"{models_github[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
-async def main_groq(ctx: commands.Context, model: int):
+async def main_groq(ctx: commands.Context, model: int, prompt: str=None):
     if await command_check(ctx, "groq", "ai"): return
     async with ctx.typing():
         msg = await ctx.reply(f"{models_groq[model]}\nGenerating response…")
@@ -279,7 +286,9 @@ async def main_groq(ctx: commands.Context, model: int):
         try:
             url = "https://api.groq.com/openai/v1/chat/completions"
             key = os.getenv('GROQ')
-            response = await make_request(models_groq[model], await loopMsg(ctx.message), url, key) # spicy
+            response = await make_request(models_groq[model], 
+                                          await loopMsg(ctx.message) if not prompt else loopMsgSlash(prompt), 
+                                          url, key) # spicy
             text = response["choices"][0]["message"]["content"]
             if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
             chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
@@ -317,13 +326,15 @@ async def main_anthropic(ctx: commands.Context, model: int):
             return await msg.edit(content=f"**Error! :(**")
         await msg.edit(content=f"{models_claude[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
-async def main_mistral(ctx: commands.Context, model: int):
+async def main_mistral(ctx: commands.Context, model: int, prompt: str=None):
     if await command_check(ctx, "mistral", "ai"): return
     async with ctx.typing():
         msg = await ctx.reply(f"{models_mistral[model]}\nGenerating response…")
         old = round(time.time() * 1000)
         try: 
-            response = await make_request_mistral(models_mistral[model], await loopMsg(ctx.message), True if model == 6 else False)
+            response = await make_request_mistral(models_mistral[model], 
+                                                  await loopMsg(ctx.message) if not prompt else loopMsgSlash(prompt), 
+                                                  True if model == 6 else False)
             text = response["choices"][0]["message"]["content"]
             if not text or text == "": return await msg.edit(content=f"**Error! :(**\nEmpty response.")
             chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
@@ -376,6 +387,12 @@ class CogPerplex(commands.Cog):
     async def mx22b(self, ctx: commands.Context):
         await main_mistral(ctx, 2)
 
+    @app_commands.command(name="mixtral", description=f"{description_helper['emojis']['ai']} {models_mistral[2]}")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def mx22b_slash(self, ctx: commands.Context, *, prompt: str):
+        await main_mistral(ctx, 2, prompt)
+
     @commands.command()
     async def ms(self, ctx: commands.Context):
         await main_mistral(ctx, 3)
@@ -387,6 +404,12 @@ class CogPerplex(commands.Cog):
     @commands.command()
     async def ml(self, ctx: commands.Context):
         await main_mistral(ctx, 5)
+
+    @app_commands.command(name="mistral", description=f"{description_helper['emojis']['ai']} {models_mistral[5]}")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def ml_slash(self, ctx: commands.Context, *, prompt: str):
+        await main_mistral(ctx, 5, prompt)
 
     @commands.command()
     async def mcode(self, ctx: commands.Context):
@@ -447,6 +470,12 @@ class CogPerplex(commands.Cog):
     async def l3170(self, ctx: commands.Context):
         await main_groq(ctx, 1)
 
+    @app_commands.command(name="llama", description=f"{description_helper['emojis']['ai']} {models_groq[1]}")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def l3170_slash(self, ctx: commands.Context, *, prompt: str):
+        await main_groq(ctx, 1, prompt)
+
     @commands.command()
     async def l318(self, ctx: commands.Context):
         await main_groq(ctx, 2)
@@ -476,9 +505,21 @@ class CogPerplex(commands.Cog):
     async def gpt4o(self, ctx: commands.Context):
         await main_github(ctx, 0)
 
+    @app_commands.command(name="gpt4o", description=f"{description_helper['emojis']['ai']} {models_github[0]}")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def gpt4o_slash(self, ctx: commands.Context, *, prompt: str):
+        await main_github(ctx, 0, prompt)
+
     @commands.command()
     async def gpt4om(self, ctx: commands.Context):
         await main_github(ctx, 1)
+
+    @app_commands.command(name="gpt4om", description=f"{description_helper['emojis']['ai']} {models_github[1]}")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def gpt4om_slash(self, ctx: commands.Context, *, prompt: str):
+        await main_github(ctx, 1, prompt)
 
     @commands.command()
     async def ai21(self, ctx: commands.Context):

@@ -1,9 +1,10 @@
 import discord
+from discord import app_commands
 from discord.ext import commands
 import aiohttp
 from PIL import Image
 import io
-from util_discord import command_check
+from util_discord import command_check, description_helper
 
 BASE_URL = "https://api.mangadex.org"
 provider = "https://gdjkhp.github.io/img/mangadex-logo.png"
@@ -404,13 +405,17 @@ class CogDex(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.hybrid_command(description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["manga"]}')
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def manga(self, ctx: commands.Context):
         await help_manga(ctx)
 
-    @commands.command()
-    async def dex(self, ctx: commands.Context, *, arg=None):
-        await dex_search(ctx, arg)
+    @commands.hybrid_command(description=f"{description_helper['emojis']['manga']} mangadex")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def dex(self, ctx: commands.Context, *, query:str=None):
+        await dex_search(ctx, query)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogDex(bot))

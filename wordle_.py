@@ -1,4 +1,5 @@
 import discord
+from discord import app_commands
 from discord.ext import commands
 import json
 import random
@@ -6,11 +7,12 @@ from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 from util_database import myclient
 import pymongo
-from util_discord import command_check
+from util_discord import command_check, description_helper
 
 mycol = myclient["games"]["wordle"]
 font = ImageFont.truetype("./res/font/LibreFranklin-Bold.ttf", size=75)
 colors = ["#787c7e", "#e9c342", "#77a76a"] # gray, yellow, green
+possible_modes = ["all", "me", "hardcore", "lead", "rank", "global"]
 
 def read_json_file(file_path):
     with open(file_path, 'r') as json_file:
@@ -352,9 +354,9 @@ async def brag_function(ctx: commands.Context, mode: str, optional: str):
         global_scores = await cursor.to_list(None)
         return await ctx.reply(embed=await brag_embed(global_scores, ctx, True))
 
-async def wordle(ctx: commands.Context, mode: str, count: str):
+async def wordle_game(ctx: commands.Context, mode: str, count: str):
     if await command_check(ctx, "word", "games"): return
-    params = "```-word [stats: <rank/lead/global> OR mode: <all/hardcore/me> count: <1-50>]```"
+    params = "```-wordle [stats: <rank/lead/global> OR mode: <all/hardcore/me> count: <1-50>]```"
 
     if mode in ["lead", "rank", "global"]:
         return await brag_function(ctx, mode, count)
@@ -384,13 +386,26 @@ async def wordle(ctx: commands.Context, mode: str, count: str):
     await ctx.reply(file=wordle_image(history, words[0]["word"].upper()),
                     embed=QuizEmbed(settings, 0, words, players), view=QuizView(ctx, words, 0, dead, settings, players, history))
 
+async def mode_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    return [
+        app_commands.Choice(name=mode, value=mode) for mode in possible_modes if current.lower() in mode.lower()
+    ]
+
 class CogWord(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['wordle'])
+    @commands.command() # alias
     async def word(self, ctx: commands.Context, mode: str=None, count: str=None):
-        await wordle(ctx, mode, count)
+        await wordle_game(ctx, mode, count)
+
+    @commands.hybrid_command(description=f'{description_helper["emojis"]["games"]} {description_helper["games"]["wordle"]}')
+    @app_commands.autocomplete(mode=mode_auto)
+    @app_commands.describe(count="Must be a valid integer.")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def wordle(self, ctx: commands.Context, mode: str=None, count: str=None):
+        await wordle_game(ctx, mode, count)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogWord(bot))

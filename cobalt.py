@@ -2,7 +2,8 @@ import aiohttp
 from discord.ext import commands
 import time
 import discord
-from util_discord import command_check
+from discord import app_commands
+from util_discord import command_check, description_helper
 import asyncio
 from curl_cffi.requests import AsyncSession
 import sys
@@ -86,11 +87,23 @@ async def get_filename(url):
                 print("Content-Disposition header not found.")
                 return ""
 
-async def COBALT_API(ctx: commands.Context, args: list[str]):
+async def COBALT_API(ctx: commands.Context, args: str):
     if await command_check(ctx, "cob", "media"): return
     async with ctx.typing():
         msg = await ctx.reply("…")
         old = round(time.time() * 1000)
+
+        help_text = [
+            '-cob [link]\n\noptional:',
+            'vCodec = ["h264", "av1", "vp9"]',
+            'vQuality = ["max", "4320", "2160", "1440", "1080", "720", "480", "360", "240", "144"]',
+            'aFormat = ["best", "mp3", "ogg", "wav", "opus"]',
+            'filenamePattern = ["classic", "pretty", "basic", "nerdy"]',
+            'isAudioOnly, isTTFullAudio, isAudioMuted, dubLang, disableMetadata, twitterGif, vimeoDash'
+        ]
+
+        if not args: return await msg.edit(content="\n".join(help_text))
+        args: list[str] = args.split()
 
         url:str = None
         vCodec:str = None
@@ -140,15 +153,6 @@ async def COBALT_API(ctx: commands.Context, args: list[str]):
             if x == "vimeoDash":
                 vimeoDash = True
                 args.remove(x)
-
-        help_text = [
-            '-cob [link]\n\noptional:',
-            'vCodec = ["h264", "av1", "vp9"]',
-            'vQuality = ["max", "4320", "2160", "1440", "1080", "720", "480", "360", "240", "144"]',
-            'aFormat = ["best", "mp3", "ogg", "wav", "opus"]',
-            'filenamePattern = ["classic", "pretty", "basic", "nerdy"]',
-            'isAudioOnly, isTTFullAudio, isAudioMuted, dubLang, disableMetadata, twitterGif, vimeoDash'
-        ]
 
         if not args: return await msg.edit(content="\n".join(help_text))
         url = args[0]
@@ -236,9 +240,15 @@ class CogCob(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    async def cob(self, ctx: commands.Context, *, arg:str=""):
-        await COBALT_API(ctx, arg.split())
+    @commands.hybrid_command(description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["cobalt"]}')
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def cobalt(self, ctx: commands.Context, *, arg:str=None):
+        await COBALT_API(ctx, arg)
+
+    @commands.command() # alias
+    async def cob(self, ctx: commands.Context, *, arg:str=None):
+        await COBALT_API(ctx, arg)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogCob(bot))

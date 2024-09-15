@@ -2,9 +2,10 @@ from pygelbooru import Gelbooru
 from discord.ext import commands
 import re
 import discord
+from discord import app_commands
 import random
 from util_database import myclient
-from util_discord import command_check
+from util_discord import command_check, description_helper
 
 async def help_booru(ctx: commands.Context):
     if await command_check(ctx, "booru", "media"): return
@@ -158,18 +159,32 @@ class CogSus(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.hybrid_command(description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["booru"]}')
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def booru(self, ctx: commands.Context):
         await help_booru(ctx)
-    @commands.command()
-    async def r34(self, ctx: commands.Context, *, arg=None):
-        await R34(ctx, arg)
-    @commands.command()
-    async def gel(self, ctx: commands.Context, *, arg=None):
-        await GEL(ctx, arg)
-    @commands.command()
-    async def safe(self, ctx: commands.Context, *, arg=None):
-        await SAFE(ctx, arg)
+
+    @commands.hybrid_command(description=f"{description_helper['emojis']['booru']} rule34")
+    @app_commands.describe(tags="how to search tags: `hatsune miku, school uniform`")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def r34(self, ctx: commands.Context, *, tags:str=None):
+        await R34(ctx, tags)
+
+    @commands.hybrid_command(description=f"{description_helper['emojis']['booru']} gelbooru")
+    @app_commands.describe(tags="how to search tags: `hatsune miku, school uniform`")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def gel(self, ctx: commands.Context, *, tags:str=None):
+        await GEL(ctx, tags)
+
+    @commands.hybrid_command(description=f"{description_helper['emojis']['booru']} safebooru")
+    @app_commands.describe(tags="how to search tags: `hatsune miku, school uniform`")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def safe(self, ctx: commands.Context, *, tags:str=None):
+        await SAFE(ctx, tags)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogSus(bot))

@@ -2,8 +2,9 @@ from bs4 import BeautifulSoup
 import re
 import aiohttp
 import discord
+from discord import app_commands
 from discord.ext import commands
-from util_discord import command_check
+from util_discord import command_check, description_helper
 
 BASE_URL = "https://kissasian.lu"
 provider="https://gdjkhp.github.io/img/kissasian.png"
@@ -344,11 +345,15 @@ class CogKiss(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    async def kiss(self, ctx: commands.Context, *, arg=None):
-        await kiss_search(ctx, arg)
+    @commands.hybrid_command(description=f"{description_helper['emojis']['tv']} kissasian")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def kiss(self, ctx: commands.Context, *, query:str=None):
+        await kiss_search(ctx, query)
 
-    @commands.command()
+    @commands.hybrid_command(description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["tv"]}')
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def tv(self, ctx: commands.Context):
         await help_tv(ctx)
 

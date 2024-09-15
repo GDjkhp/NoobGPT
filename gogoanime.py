@@ -1,10 +1,11 @@
 import discord
+from discord import app_commands
 from discord.ext import commands
 from httpclient import HttpClient
 from bs4 import BeautifulSoup as BS
 import re
 from urllib import parse as p
-from util_discord import command_check
+from util_discord import command_check, description_helper
 from util_database import myclient
 mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 
@@ -273,9 +274,11 @@ class CogGogo(commands.Cog):
         if not ctx.author.id == user_id: return
         await set_domain(ctx, arg)
 
-    @commands.command()
-    async def gogo(self, ctx: commands.Context, *, arg=None):
-        await Gogoanime(ctx, arg)
+    @commands.hybrid_command(description=f"{description_helper['emojis']['anime']} gogoanime")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def gogo(self, ctx: commands.Context, *, query:str=None):
+        await Gogoanime(ctx, query)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogGogo(bot))

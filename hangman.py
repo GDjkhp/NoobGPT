@@ -1,8 +1,10 @@
 import random
 import discord
+from discord import app_commands
 from discord.ext import commands
 import json
-from util_discord import command_check
+from util_discord import command_check, description_helper
+modes = ["all", "me", "hardcore"]
 
 def read_json_file(file_path):
     with open(file_path, 'r') as json_file:
@@ -170,7 +172,6 @@ async def HANG(ctx: commands.Context, mode: str, count: str, gtype: str, cat: st
     msg = await ctx.reply("Writing dictionary…")
     params = "```-hang [mode: <all/hardcore/me> count: <1-50>, type: <any/word/quiz> category: <any/9-32> difficulty: <any/easy/medium/hard>```"
     if mode:
-        modes = ["all", "me", "hardcore"]
         if mode in modes: pass
         else: return await msg.edit(content="Mode not found.\n"+params)
     else: mode = "me"
@@ -192,13 +193,22 @@ async def HANG(ctx: commands.Context, mode: str, count: str, gtype: str, cat: st
     await msg.edit(content=c2e(box), embed=QuizEmbed(words, index, settings, players, ctx), 
                    view=QuizView(ctx, words, index, box, dead, settings, players))
 
+async def mode_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    return [
+        app_commands.Choice(name=mode, value=mode) for mode in modes if current.lower() in mode.lower()
+    ]
+
 class CogHang(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    async def hang(self, ctx: commands.Context, mode: str=None, count: str=None, type: str=None):
-        await HANG(ctx, mode, count, type, None, None)
+    @commands.hybrid_command(description=f'{description_helper["emojis"]["games"]} {description_helper["games"]["hang"]}')
+    @app_commands.autocomplete(mode=mode_auto)
+    @app_commands.describe(count="Must be a valid integer.")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def hang(self, ctx: commands.Context, mode: str=None, count: str=None):
+        await HANG(ctx, mode, count, None, None, None)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogHang(bot))

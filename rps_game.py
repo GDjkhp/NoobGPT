@@ -1,6 +1,7 @@
 import discord
+from discord import app_commands
 from discord.ext import commands
-from util_discord import command_check
+from util_discord import command_check, description_helper
 
 async def game_rps(ctx: commands.Context):
     if await command_check(ctx, "rps", "games"): return
@@ -53,7 +54,9 @@ class CogRPS(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.hybrid_command(description=f'{description_helper["emojis"]["games"]} {description_helper["games"]["rps"]}')
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def rps(self, ctx: commands.Context):
         await game_rps(ctx)
 

@@ -1,9 +1,10 @@
 import discord
+from discord import app_commands
 from discord.ext import commands
 from manganelo import get_search_results, fetch_image, SearchResult, StoryPage, Chapter
 from PIL import Image
 import io
-from util_discord import command_check
+from util_discord import command_check, description_helper
 
 provider = "https://gdjkhp.github.io/img/nt.png"
 pagelimit=12
@@ -306,9 +307,11 @@ class CogNato(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    async def nato(self, ctx: commands.Context, *, arg=None):
-        await nato_search(ctx, arg)
+    @commands.hybrid_command(description=f"{description_helper['emojis']['manga']} manganato")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def nato(self, ctx: commands.Context, *, query:str=None):
+        await nato_search(ctx, query)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogNato(bot))

@@ -2,8 +2,10 @@ import aiohttp
 from urllib import parse as p
 import random
 import discord
+from discord import app_commands
 from discord.ext import commands
-from util_discord import command_check
+from util_discord import command_check, description_helper
+v2cat = ["science", "film_and_tv", "music", "history", "geography", "art_and_literature", "sport_and_leisure", "general_knowledge", "science", "food_and_drink"]
 
 async def req_real(api):
     try:
@@ -15,7 +17,7 @@ async def req_real(api):
 async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, diff: str, ty: str):
     if await command_check(ctx, "quiz", "games"): return
     msg = await ctx.reply("Crunching data…")
-    params = "```-quiz [mode: <all/anon/me> version: <any/v1/v2> count: <1-50> category: <any/9-32> difficulty: <any/easy/medium/hard> type: <any/multiple/boolean>```"
+    params = "```-quiz [version: <any/v1/v2> mode: <all/anon/me> count: <1-50> category: <any/9-32> difficulty: <any/easy/medium/hard> type: <any/multiple/boolean>```"
     if count:
         if count.isdigit():
             if int(count) > 51 or int(count) < 1: 
@@ -39,7 +41,6 @@ async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, d
         if mode == "anon": anon = True
         if mode == "me": a = True
         if not a: return await msg.edit(content="Mode not found."+params)
-    v2cat = "science,film_and_tv,music,history,geography,art_and_literature,sport_and_leisure,general_knowledge,science,food_and_drink".split(",")
     req_fake = await req_real("https://opentdb.com/api_category.php")
     categories = v2cat if v == "v2" else req_fake["trivia_categories"]
     if cat:
@@ -296,13 +297,55 @@ class ButtonChoice(discord.ui.Button):
                                                         view=QuizView(self.results, self.index+1, self.ctx, self.players, self.settings))
             else: await interaction.response.edit_message(content=text+"\nTest ended.", embed=None, view=None)
 
+async def mode_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    return [
+        app_commands.Choice(name=mode, value=mode) for mode in ["all", "anon", "me"] if current.lower() in mode.lower()
+    ]
+
+async def cat_auto_v1(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    req_fake = await req_real("https://opentdb.com/api_category.php")
+    return [
+        app_commands.Choice(name=cat["name"], value=str(cat["id"])) for cat in req_fake["trivia_categories"] if current.lower() in cat["name"].lower()
+    ]
+
+async def cat_auto_v2(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    return [
+        app_commands.Choice(name=cat, value=cat) for cat in v2cat if current.lower() in cat.lower()
+    ]
+
+async def diff_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    return [
+        app_commands.Choice(name=diff, value=diff) for diff in ["any", "easy", "medium", "hard"] if current.lower() in diff.lower()
+    ]
+
+async def type_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    return [
+        app_commands.Choice(name=type_, value=type_) for type_ in ["any", "multiple", "boolean"] if current.lower() in type_.lower()
+    ]
+
 class CogQuiz(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command()
-    async def quiz(self, ctx: commands.Context, mode: str=None, v: str=None, count: str=None, cat: str=None, diff: str=None, ty: str=None):
-        await QUIZ(ctx, mode, v, count, cat, diff, ty)
+    async def quiz(self, ctx: commands.Context, version: str=None, mode: str=None, count: str=None, category: str=None, difficulty: str=None, type_: str=None):
+        await QUIZ(ctx, mode, version, count, category, difficulty, type_)
+
+    @app_commands.command(name="quiz-v1", description=f"{description_helper['emojis']['games']} opentdb")
+    @app_commands.autocomplete(mode=mode_auto, category=cat_auto_v1, difficulty=diff_auto, type_=type_auto)
+    @app_commands.describe(count="Must be a valid integer. (1-50)")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def quizv1(self, ctx: commands.Context, mode: str=None, count: str=None, category: str=None, difficulty: str=None, type_: str=None):
+        await QUIZ(ctx, mode, "v1", count, category, difficulty, type_)
+
+    @app_commands.command(name="quiz-v2", description=f"{description_helper['emojis']['games']} the-trivia-api")
+    @app_commands.autocomplete(mode=mode_auto, category=cat_auto_v2, difficulty=diff_auto, type_=type_auto)
+    @app_commands.describe(count="Must be a valid integer. (1-50)")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def quizv2(self, ctx: commands.Context, mode: str=None, count: str=None, category: str=None, difficulty: str=None, type_: str=None):
+        await QUIZ(ctx, mode, "v2", count, category, difficulty, type_)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogQuiz(bot))

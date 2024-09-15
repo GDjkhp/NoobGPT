@@ -1,10 +1,11 @@
 import yt_dlp
 from discord.ext import commands
+from discord import app_commands
 import discord
 import os
 import asyncio
 import time
-from util_discord import command_check
+from util_discord import command_check, description_helper
 
 async def YTDLP(ctx: commands.Context, arg1: str, arg2: str):
     if await command_check(ctx, "ytdlp", "media"): return
@@ -76,6 +77,24 @@ class CogYT(commands.Cog):
     @commands.command()
     async def ytdlp(self, ctx: commands.Context, arg1=None, arg2=None):
         await YTDLP(ctx, arg1, arg2)
+
+    @app_commands.command(name="ytdlp", description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["ytdlp"]}')
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def ytdlp_basic(self, ctx: commands.Context, arg1=None):
+        await YTDLP(ctx, arg1, None)
+
+    @app_commands.command(name="ytdlp-mp3", description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["ytdlp"]}')
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def ytdlp_mp3(self, ctx: commands.Context, link=None):
+        await YTDLP(ctx, "mp3", link)
+
+    @app_commands.command(name="ytdlp-m4a", description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["ytdlp"]}')
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def ytdlp_m4a(self, ctx: commands.Context, link=None):
+        await YTDLP(ctx, "m4a", link)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogYT(bot))

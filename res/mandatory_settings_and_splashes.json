@@ -1,4 +1,57 @@
 {
+    "help_wanted_dictionaries_dead_or_alive": {
+        "ai": {
+            "openai": "OpenAI is an AI research and deployment company. Our mission is to ensure that artificial general intelligence benefits all of humanity.",
+            "googleai": "Google AI is a division of Google dedicated to artificial intelligence.",
+            "petals": "Run large language models at home, BitTorrent‑style.",
+            "perplex": "Perplexity AI unlocks the power of knowledge with information discovery and sharing.",
+            "groq": "The LPU™ Inference Engine by Groq is a hardware and software platform that delivers exceptional compute speed, quality, and energy efficiency.",
+            "github": "If you want to develop a generative AI application, you can use GitHub Models to find and experiment with AI models for free.",
+            "mistral": "Mistral AI is a French company selling artificial intelligence products.",
+            "claude": "Anthropic is an AI safety and research company that's working to build reliable, interpretable, and steerable AI systems.",
+            "cai": "Character.ai is an American neural language model chatbot service that can generate human-like text responses and participate in contextual conversation."
+        },
+        "games": {
+            "aki": "Play a guessing game of Akinator.",
+            "tic": "Play tic-tac-toe with someone. (Deprecated)",
+            "hang": "Play the word puzzle game of hangman.",
+            "quiz": "Play a game of quiz.",
+            "wordle": "Play a game of wordle.",
+            "rps": "Play rock-paper-scissors."
+        },
+        "media": {
+            "music": "Listen to music in a voice channel.",
+            "anime": "Watch animated works originating in Japan.",
+            "manga": "Read comics originating in Japan.",
+            "booru": "A form of imageboard where images are categorized with tags.",
+            "tv": "Watch TV shows and movies.",
+            "ytdlp": "yt-dlp is a feature-rich command-line audio/video downloader with support for thousands of sites.",
+            "cobalt": "cobalt is a media downloader that doesn't piss you off."
+        },
+        "utils": {
+            "config": "Control bot commands.",
+            "insult": "Toggle insults.",
+            "xp": "Toggle XP leveling system.",
+            "quote": "Reply to a message to make it a quote.",
+            "weather": "Check the current weather.",
+            "av": "Return a user's Discord profile avatar.",
+            "ban": "Return a user's Discord profile banner."
+        },
+        "emojis": {
+            "ai": "[AI 🤖]",
+            "games": "[Games 🎲]",
+            "media": "[Media 💽]",
+            "utils": "[Utils 🔧]",
+            "anime": "[Anime 🍥]",
+            "manga": "[Manga 📚]",
+            "tv": "[TV 📺]",
+            "music": "[Music 🎵]",
+            "booru": "[Booru 😈]",
+            "cai": "[Character AI 🦸‍♀️]",
+            "xp": "[XP 💠]",
+            "insult": "[Insult 🤬]"
+        }
+    },
     "mee6 default": "GG {name}, you just advanced to level {level}!",
     "legal": "EVERY POST I HAVE EVER MADE ON THIS DISCORD IS SATIRE. I DO NOT CONDONE NOR SUPPORT ANY OF THE OPINIONS EXPRESSED ON THIS CHATROOM. Any post associated with this IP is satire and should be treated as such. At no point has anyone associated with this IP has condoned, encouraged, committed, or abated acts of violence or threats of violence against any persons, regardless of racial, ethnic, religious or cultural background. In case of an investigation by any federal entity or similar, I do not have any involvement with the people in it, I do not know how I am here, probably added by a third party, I do not support any actions by the member(s) of this group.",
     "some funny splashes you can modify": [

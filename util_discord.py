@@ -1,10 +1,11 @@
 from discord.ext import commands
+from discord import app_commands
 import json
 from util_database import myclient
 mycol = myclient["utils"]["commands"]
 
 def read_json_file(file_path):
-    with open(file_path, 'r') as json_file:
+    with open(file_path, 'r', encoding='utf-8') as json_file:
         data = json.load(json_file)
     return data
 
@@ -214,6 +215,8 @@ async def set_dj_role_db(server_id: int, role_id):
     await mycol2.update_one({"guild":server_id}, {"$set": {"bot_dj_role": role_id}})
 
 # public code for everyone to share, free to use
+description_helper = read_json_file("./res/mandatory_settings_and_splashes.json")["help_wanted_dictionaries_dead_or_alive"]
+
 async def command_check(ctx: commands.Context, com: str, cat: str):
     db = await get_database(ctx.guild.id if ctx.guild else ctx.channel.id)
     if com in db["disabled_commands"]: return True
@@ -225,12 +228,11 @@ async def command_check(ctx: commands.Context, com: str, cat: str):
         return True
 
 async def check_if_master_or_admin(ctx: commands.Context):
-    if not ctx.guild: return True # dm support, fuck you guys <3
+    if not ctx.guild: return True # dm support, fuck you guys <3 (im going crazy)
     db = await get_database2(ctx.guild.id)
     check = db.get("bot_master_role") and ctx.guild.get_role(db["bot_master_role"]) in ctx.author.roles
     if check or ctx.author.guild_permissions.administrator: return True
 
-# unused (for prefix help commands)
 async def get_guild_prefix(ctx: commands.Context):
     db = await get_database2(ctx.guild.id if ctx.guild else ctx.channel.id)
     return db["prefix"]
@@ -239,35 +241,51 @@ class DiscordUtil(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.hybrid_command(description=f'{description_helper["emojis"]["utils"]} {description_helper["utils"]["config"]}')
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def config(self, ctx: commands.Context):
         await config_commands(ctx)
 
-    @commands.command()
+    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Toggle channel mode, where you can set specific commands per channel.")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def channel(self, ctx: commands.Context):
         await command_channel_mode(ctx)
 
-    @commands.command()
-    async def enable(self, ctx: commands.Context, arg=None):
-        await command_enable(ctx, arg)
+    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Toggle command. Requires channel mode.")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def enable(self, ctx: commands.Context, command:str=None):
+        await command_enable(ctx, command)
 
-    @commands.command()
-    async def disable(self, ctx: commands.Context, arg=None):
-        await command_disable(ctx, arg)
+    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Disable command server-wide.")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def disable(self, ctx: commands.Context, command:str=None):
+        await command_disable(ctx, command)
 
-    @commands.command()
+    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} View available commands.")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def view(self, ctx: commands.Context):
         await command_view(ctx)
 
-    @commands.command()
-    async def ban(self, ctx: commands.Context, *, arg=None):
-        await banner(ctx, ctx.bot, arg)
+    @commands.hybrid_command(description=f'{description_helper["emojis"]["utils"]} {description_helper["utils"]["ban"]}')
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def ban(self, ctx: commands.Context, *, user_id:str=None):
+        await banner(ctx, ctx.bot, user_id)
 
-    @commands.command()
-    async def av(self, ctx: commands.Context, *, arg=None):
-        await avatar(ctx, ctx.bot, arg)
+    @commands.hybrid_command(description=f'{description_helper["emojis"]["utils"]} {description_helper["utils"]["av"]}')
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def av(self, ctx: commands.Context, *, user_id:str=None):
+        await avatar(ctx, ctx.bot, user_id)
 
-    @commands.command()
+    @commands.hybrid_command(description="very helpful command")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def legal(self, ctx: commands.Context):
         await copypasta(ctx)
 

@@ -1,11 +1,12 @@
 from discord.ext import commands
 import discord
+from discord import app_commands
 import aiohttp
 import time
 import os
 import base64
 import json
-from util_discord import command_check
+from util_discord import command_check, description_helper
 
 headers = {'Content-Type': 'application/json'}
 def palm_proxy(model: str) -> str:
@@ -107,6 +108,9 @@ async def json_data(msg: discord.Message):
     messagesArray = await loopMsg(msg)
     return {"contents": messagesArray}
 
+def json_data_slash(prompt: str):
+    return {"contents": [{"role": "user", "parts": [{"text": prompt}]}]}
+
 def json_data_palm(arg: str, safe: bool):
     return {
         "prompt": {
@@ -152,12 +156,12 @@ async def req_real(url, json, headers, palm):
             else: print(await response.content.read())
 
 models = [
-    "text-bison-001",
+    "text-bison-001", # dead
     "gemini-1.5-pro",
     "gemini-1.5-flash",
 ]
 
-async def GEMINI_REST(ctx: commands.Context, model: int, palm: bool):
+async def GEMINI_REST(ctx: commands.Context, model: int, palm: bool, prompt: str=None):
     if await command_check(ctx, "googleai", "ai"): return
     async with ctx.typing():
         msg = await ctx.reply(f"{models[model]}\nGenerating response…")
@@ -169,7 +173,7 @@ async def GEMINI_REST(ctx: commands.Context, model: int, palm: bool):
             payload = json_data_palm(strip_dash(ctx.message.content), not ctx.channel.nsfw)
         else:
             proxy = palm_proxy(f"{models[model]}:generateContent")
-            payload = await json_data(ctx.message)
+            payload = await json_data(ctx.message) if not prompt else json_data_slash(prompt)
         text = await req_real(proxy, payload, headers, palm)
         # silly
         if not text: return await msg.edit(content=f"**Error! :(**")
@@ -185,9 +189,9 @@ async def GEMINI_REST(ctx: commands.Context, model: int, palm: bool):
 async def help_google(ctx: commands.Context):
     if await command_check(ctx, "googleai", "ai"): return
     text  = [
-        f"`-ge` {models[1]}",
+        f"`-gemini` {models[1]}",
         f"`-flash` {models[2]}",
-        f"`-palm` {models[0]}"
+        # f"`-palm` {models[0]}"
     ]
     await ctx.reply("\n".join(text))
 
@@ -195,17 +199,29 @@ class CogGoogle(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    async def palm(self, ctx: commands.Context):
-        await GEMINI_REST(ctx, 0, True)
+    # @commands.command()
+    # async def palm(self, ctx: commands.Context):
+    #     await GEMINI_REST(ctx, 0, True)
 
-    @commands.command()
-    async def ge(self, ctx: commands.Context):
+    @commands.command(aliases=["ge"]) # alias
+    async def gemini(self, ctx: commands.Context):
         await GEMINI_REST(ctx, 1, False)
+
+    @app_commands.command(name="gemini", description=f"{description_helper['emojis']['ai']} {models[1]}")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def gemini_slash(self, ctx: commands.Context, *, prompt: str):
+        await GEMINI_REST(ctx, 1, False, prompt)
 
     @commands.command()
     async def flash(self, ctx: commands.Context):
         await GEMINI_REST(ctx, 2, False)
+
+    @app_commands.command(name="flash", description=f"{description_helper['emojis']['ai']} {models[2]}")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def flash_slash(self, ctx: commands.Context, *, prompt: str):
+        await GEMINI_REST(ctx, 2, False, prompt)
 
     @commands.command()
     async def googleai(self, ctx: commands.Context):

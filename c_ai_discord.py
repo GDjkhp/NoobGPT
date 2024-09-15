@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from discord import app_commands
 from character_ai import PyAsyncCAI
 import asyncio
 import aiohttp
@@ -10,11 +11,12 @@ from typing import Dict
 import time
 import util_database
 import os
-from util_discord import command_check, check_if_master_or_admin as check
+from util_discord import command_check, check_if_master_or_admin as check, description_helper
 
 mycol = util_database.myclient["ai"]["character"]
 client = PyAsyncCAI(os.getenv('CHARACTER'))
 list_types = ["search", "trending", "recommended"]
+real_modes = ["basic", "nospace", "split", "snake"]
 pagelimit=12
 typing_chans = []
 provider="https://gdjkhp.github.io/img/Character.AI.png"
@@ -209,7 +211,7 @@ async def t_mode(ctx: commands.Context):
     await set_mode(ctx.guild.id, not db["channel_mode"])
     await ctx.reply(f'`channel mode` is now set to `{not db["channel_mode"]}`')
 
-async def set_rate(ctx: commands.Context, num):
+async def set_rate(ctx: commands.Context, num: str):
     if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "c.ai", "ai"): return
     # fucked up the perms again
@@ -311,7 +313,6 @@ async def set_mention_mode(ctx: commands.Context, modes: str):
         return await ctx.reply("\n".join(text))
 
     modes = modes.split()
-    real_modes = ["basic", "nospace", "split", "snake"]
     for mode in list(modes):
         if mode in real_modes:
             if not mode in db["mention_modes"]: 
@@ -335,14 +336,14 @@ async def c_help(ctx: commands.Context):
         "`-cadm` toggle admin approval",
         "`-cmode` toggle channel mode",
         "`-cping <basic/nospace/split/snake>` set mention mode",
-        "`-crate <int>` set global message_rate (0-100)",
-        "`-cedit <int>` set char_message_rate per channel (0-100)",
+        "`-crate <rate>` set global message_rate (0-100)",
+        "`-cedit <rate>` set char_message_rate per channel (0-100)",
         "# Get started",
         "setup: `-cchan` -> `-cadd <query>`",
         "stop: `-crate 0`",
         "delete all chars: `-cdel` -> `💀`",
         "reset all chars: `-cres` -> `💀`",
-        "set all char_message_rate: `-cedit <int>` -> `💀`",
+        "set all char_message_rate: `-cedit <rate>` -> `💀`",
         "channel mode: `True` = read specific channels, `False` = read all channels",
         "admin approval: `True` = disables most commands, `False` = enables all commands",
         "you can also setup forums and threads per character with `-cchan` -> `-cedit 100`"
@@ -350,6 +351,11 @@ async def c_help(ctx: commands.Context):
     await ctx.reply("\n".join(text))
 
 # utils
+async def mode_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    return [
+        app_commands.Choice(name=mode, value=mode) for mode in real_modes if current.lower() in mode.lower()
+    ]
+
 async def search_char(text: str, list_type: str):
     if list_type == "trending": 
         res = await client.character.trending()
@@ -1098,57 +1104,64 @@ class CogCAI(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    async def cadd(self, ctx: commands.Context, *, arg=None):
-        await add_char(ctx, arg, 0)
+    @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} add character")
+    async def cadd(self, ctx: commands.Context, *, query:str=None):
+        await add_char(ctx, query, 0)
 
-    @commands.command()
+    @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} recommended characters")
     async def crec(self, ctx: commands.Context):
         await add_char(ctx, None, 2)
 
-    @commands.command()
+    @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} trending characters")
     async def ctren(self, ctx: commands.Context):
         await add_char(ctx, None, 1)
 
-    @commands.command()
+    @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} delete character")
     async def cdel(self, ctx: commands.Context):
         await delete_char(ctx)
 
-    @commands.command()
+    @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} toggle admin approval")
     async def cadm(self, ctx: commands.Context):
         await t_adm(ctx)
 
-    @commands.command()
+    @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} add/remove channel")
     async def cchan(self, ctx: commands.Context):
         await t_chan(ctx)
 
-    @commands.command()
-    async def crate(self, ctx: commands.Context, *, arg=None):
-        await set_rate(ctx, arg)
+    @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} set global message_rate")
+    @app_commands.describe(rate="Must be a valid integer. (0-100)")
+    async def crate(self, ctx: commands.Context, *, rate:str=None):
+        await set_rate(ctx, rate)
 
-    @commands.command(aliases=['c.ai'])
+    @commands.command(aliases=["c.ai"])
     async def chelp(self, ctx: commands.Context):
         await c_help(ctx)
 
-    @commands.command()
+    @commands.hybrid_command(description=f'{description_helper["emojis"]["ai"]} {description_helper["ai"]["cai"]}')
+    async def cai(self, ctx: commands.Context):
+        await c_help(ctx)
+
+    @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} toggle channel mode")
     async def cmode(self, ctx: commands.Context):
         await t_mode(ctx)
 
-    @commands.command()
+    @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} available characters")
     async def cchar(self, ctx: commands.Context):
         await view_char(ctx)
 
-    @commands.command()
-    async def cedit(self, ctx: commands.Context, rate=None):
+    @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} set char_message_rate per channel")
+    @app_commands.describe(rate="Must be a valid integer. (0-100)")
+    async def cedit(self, ctx: commands.Context, rate:str=None):
         await edit_char(ctx, rate)
 
-    @commands.command()
+    @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} reset character")
     async def cres(self, ctx: commands.Context):
         await reset_char(ctx)
 
-    @commands.command()
-    async def cping(self, ctx: commands.Context, *, arg=None):
-        await set_mention_mode(ctx, arg)
+    @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} set mention mode")
+    @app_commands.autocomplete(mode=mode_auto)
+    async def cping(self, ctx: commands.Context, *, mode:str=None):
+        await set_mention_mode(ctx, mode)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogCAI(bot))
