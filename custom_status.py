@@ -96,7 +96,7 @@ async def del_kv(ctx: commands.Context, key: str):
 
 class LanyardUtil(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: commands.Bot = bot
 
     @commands.command()
     async def kvview(self, ctx: commands.Context):
@@ -115,7 +115,14 @@ class LanyardUtil(commands.Cog):
 
     @commands.command()
     async def kvdel(self, ctx: commands.Context, key=None):
+        if not ctx.author.id == user_id: return
         await del_kv(ctx, key)
+
+    @commands.command()
+    async def sync(self, ctx: commands.Context):
+        if not ctx.author.id == user_id: return
+        synced = await self.bot.tree.sync()
+        await ctx.reply(f"Synced {len(synced)} slash commands")
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(LanyardUtil(bot))

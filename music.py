@@ -139,7 +139,7 @@ class CancelButton(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        await interaction.message.delete()
+        await interaction.response.edit_message("🤨", embed=None, view=None)
 
 class DisabledButton(discord.ui.Button):
     def __init__(self, e: str, r: int):
@@ -174,10 +174,8 @@ class nextPage(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        await interaction.message.edit(view=None)
-        await interaction.response.defer()
-        await interaction.message.edit(embed=search_embed(self.arg, self.result, self.index), 
-                                       view=SearchView(self.ctx, self.arg, self.result, self.index))
+        await interaction.response.edit_message(embed=search_embed(self.arg, self.result, self.index), 
+                                                view=SearchView(self.ctx, self.arg, self.result, self.index))
 
 class SelectChoice(discord.ui.Select):
     def __init__(self, ctx: commands.Context, index: int, result: wavelink.Search):
@@ -205,9 +203,9 @@ class SelectChoice(discord.ui.Select):
 
         selected = self.result[int(self.values[0])]
         await vc.queue.put_wait(selected)
-        text, desc = "🎵 Song added to the queue", f'`{selected.title}` has been added to the queue.'
-        await interaction.message.edit(embed=music_embed(text, desc), view=None)
         if not vc.playing: await vc.play(vc.queue.get())
+        text, desc = "🎵 Song added to the queue", f'`{selected.title}` has been added to the queue.'
+        await interaction.response.edit_message(embed=music_embed(text, desc), view=None)
 
 class MusicUtil(commands.Cog):
     def __init__(self, bot):

@@ -161,10 +161,10 @@ models = [
     "gemini-1.5-flash",
 ]
 
-async def GEMINI_REST(ctx: commands.Context, model: int, palm: bool, prompt: str=None):
+async def GEMINI_REST(ctx: commands.Context | discord.Interaction, model: int, palm: bool, prompt: str=None):
     if await command_check(ctx, "googleai", "ai"): return
     # async with ctx.typing():
-    msg = await ctx.reply(f"{models[model]}\nGenerating response…")
+    if isinstance(ctx, commands.Context): msg = await ctx.reply(f"{models[model]}\nGenerating response…")
     old = round(time.time() * 1000)
     text = None
     # rewrite
@@ -176,15 +176,22 @@ async def GEMINI_REST(ctx: commands.Context, model: int, palm: bool, prompt: str
         payload = await json_data(ctx.message) if not prompt else json_data_slash(prompt)
     text = await req_real(proxy, payload, headers, palm)
     # silly
-    if not text: return await msg.edit(content=f"**Error! :(**")
+    if not text:
+        if isinstance(ctx, commands.Context):
+            return await msg.edit(content=f"**Error! :(**")
+        if isinstance(ctx, discord.Interaction):
+            return await ctx.response.send_message(content=f"**Error! :(**")
     chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
     replyFirst = True
     for chunk in chunks:
         if replyFirst: 
             replyFirst = False
-            await ctx.reply(chunk)
-        else: await ctx.send(chunk)
-    await msg.edit(content=f"{models[model]}\n**Took {round(time.time() * 1000)-old}ms**")
+            if isinstance(ctx, commands.Context): await ctx.reply(chunk)
+            if isinstance(ctx, discord.Interaction): await ctx.response.send_message(chunk)
+        else:
+            if isinstance(ctx, commands.Context): await ctx.send(chunk)
+            if isinstance(ctx, discord.Interaction): await ctx.followup.send(chunk)
+    if isinstance(ctx, commands.Context): await msg.edit(content=f"{models[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
 async def help_google(ctx: commands.Context):
     if await command_check(ctx, "googleai", "ai"): return

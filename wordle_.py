@@ -238,19 +238,17 @@ class ButtonChoice(discord.ui.Button):
             return await interaction.response.send_modal(MyModal(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history))
         if self.id == "NEXT":
             game_reset(self.dead, self.settings, self.history)
-            await interaction.channel.send(content=f"New game.",
-                                           embed=QuizEmbed(self.settings, self.index+1, self.words, self.players),
-                                           file=wordle_image(self.history, self.words[self.index+1]["word"].upper()),
-                                           view=QuizView(self.ctx, self.words, self.index+1, self.dead, self.settings, self.players, self.history))
+            await interaction.response.send_message(content=f"New game.",
+                                                    embed=QuizEmbed(self.settings, self.index+1, self.words, self.players),
+                                                    file=wordle_image(self.history, self.words[self.index+1]["word"].upper()),
+                                                    view=QuizView(self.ctx, self.words, self.index+1, self.dead, self.settings, self.players, self.history))
         if self.id == "UPDATE":
             if interaction.user.id != host_id: 
                 return await interaction.response.send_message(f"Only <@{host_id}> can press this button.", ephemeral=True)
-            await interaction.channel.send(content=f"Message updated.\n{format_hearts(self.dead)}",
-                                           embed=QuizEmbed(self.settings, self.index, self.words, self.players),
-                                           file=wordle_image(self.history, self.words[self.index]["word"].upper()),
-                                           view=QuizView(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history))
-        await interaction.message.delete()
-        await interaction.response.defer()
+            await interaction.response.send_message(content=f"Message updated.\n{format_hearts(self.dead)}",
+                                                    embed=QuizEmbed(self.settings, self.index, self.words, self.players),
+                                                    file=wordle_image(self.history, self.words[self.index]["word"].upper()),
+                                                    view=QuizView(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history))
 
 class MyModal(discord.ui.Modal):
     def __init__(self, ctx: commands.Context, words: list, index: int, dead: dict, settings: dict, players: dict, history: list):
@@ -266,8 +264,6 @@ class MyModal(discord.ui.Modal):
         if len(i) != 5:
             return await interaction.response.send_message(content="hey, 5 letter words only pls.", ephemeral=True)
         
-        await interaction.message.edit(view=None)
-        await interaction.response.defer()
         self.history.append(i)
         check_and_push(i, self.dead, word)
 
@@ -293,21 +289,20 @@ class MyModal(discord.ui.Modal):
             
             self.settings["result"] = 1
             self.players[interaction.user.id]["score"] += 1
-            await interaction.channel.send(embed=QuizEmbed(self.settings, self.index, self.words, self.players),
-                                           view=QuizView(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history),
-                                           file=wordle_image(self.history, word))
+            await interaction.response.send_message(embed=QuizEmbed(self.settings, self.index, self.words, self.players),
+                                                    view=QuizView(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history),
+                                                    file=wordle_image(self.history, word))
         else:
             self.settings["step"] += 1
             if self.settings["step"] != 6: # in-game
-                await interaction.channel.send(embed=QuizEmbed(self.settings, self.index, self.words, self.players), content=format_hearts(self.dead),
-                                               view=QuizView(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history),
-                                               file=wordle_image(self.history, word))
+                await interaction.response.send_message(embed=QuizEmbed(self.settings, self.index, self.words, self.players), content=format_hearts(self.dead),
+                                                        view=QuizView(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history),
+                                                        file=wordle_image(self.history, word))
             else: # you lose
                 self.settings["result"] = 0
-                await interaction.channel.send(embed=QuizEmbed(self.settings, self.index, self.words, self.players),
-                                               content=f"GAME OVER!\n{word}", view=None,
-                                               file=wordle_image(self.history, word))
-        await interaction.message.delete()
+                await interaction.response.send_message(embed=QuizEmbed(self.settings, self.index, self.words, self.players),
+                                                        content=f"GAME OVER!\n{word}", view=None,
+                                                        file=wordle_image(self.history, word))
 
 async def brag_embed(server_scores, ctx: commands.Context, global_lead: bool) -> discord.Embed:
     e = discord.Embed(color=0x00ff00, title=ctx.guild if not global_lead else "GLOBAL", description="wordle prototype")

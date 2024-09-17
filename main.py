@@ -97,8 +97,6 @@ async def setup_hook():
     await bot.load_extension('wordle_')
     await bot.load_extension('rps_game')
     await bot.load_extension('help')
-    synced = await bot.tree.sync()
-    print(f"Synced {len(synced)} slash commands")
 
 # from place import PLACE
 # @bot.command()

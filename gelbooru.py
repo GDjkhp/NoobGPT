@@ -119,7 +119,6 @@ class ButtonEnd(discord.ui.Button):
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can delete this message.", 
                                                     ephemeral=True)
         await interaction.response.edit_message(content="🤨", view=None, embed=None)
-        await interaction.message.delete(delay=5)
 
 class ButtonHeart(discord.ui.Button):
     def __init__(self, ctx: commands.Context, db: str, id: int, row: int):

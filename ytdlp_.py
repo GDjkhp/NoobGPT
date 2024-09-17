@@ -13,10 +13,10 @@ async def YTDLP(ctx: commands.Context, arg1: str, arg2: str):
     old = round(time.time() * 1000)
     if not arg1: arg1, arg2 = "mp3", "dQw4w9WgXcQ"
     formats = ['mp3', 'm4a']
-    if arg2 and not arg1 in formats: return await ctx.reply(f"Unsupported format :(\nAvailable conversion formats: `{formats}`")
+    if arg2 and not arg1 in formats: return await ctx.channel.send(f"Unsupported format :(\nAvailable conversion formats: `{formats}`")
     elif not arg2: arg2, arg1 = arg1, None
     ydl_opts = get_ydl_opts(arg1)
-    msg = await ctx.reply("Cooking…")
+    msg = await ctx.channel.send("Cooking…")
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         try:
             # fixme: broken if generic
@@ -27,7 +27,7 @@ async def YTDLP(ctx: commands.Context, arg1: str, arg2: str):
             await asyncio.to_thread(ydl.download, [arg2])  # Use asyncio to run download asynchronously
             if os.path.isfile(filename):
                 try: 
-                    await ctx.reply(file=discord.File(filename))
+                    await ctx.channel.send(file=discord.File(filename))
                     await msg.edit(content=f"`{filename}` has been prepared successfully!\nTook {round(time.time() * 1000)-old}ms")
                 except: await msg.edit(content=f"Error: An error occured while cooking `{filename}`\nFile too large!")
                 os.remove(filename)

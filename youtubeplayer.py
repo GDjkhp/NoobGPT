@@ -49,7 +49,7 @@ async def music_summon(ctx: commands.Context):
             return
         vc.autoplay = wavelink.AutoPlayMode.enabled
 
-async def music_play(ctx: commands.Context, search):
+async def music_play(ctx: commands.Context, search: str):
     if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "music", "media"): return
     if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
@@ -58,11 +58,8 @@ async def music_play(ctx: commands.Context, search):
         return await ctx.send(f'Join the voice channel with the bot first.')
 
     if not search: return await ctx.reply("usage: `-play <query>`")
-    if isinstance(search, str):
-        try: tracks = await wavelink.Playable.search(search)
-        except Exception as e: return await ctx.send(f'Error :(\n{e}')
-    if isinstance(search, wavelink.Playable):
-        tracks = [search]
+    try: tracks = await wavelink.Playable.search(search)
+    except Exception as e: return await ctx.send(f'Error :(\n{e}')
     if not tracks: return await ctx.send('No results found.')
 
     if not ctx.voice_client:
@@ -345,16 +342,16 @@ async def queue_move(ctx: commands.Context, init: str, dest: str):
         vc.queue.put_at(index2, track)
         await ctx.send(embed=music_embed("↕️ Move track", f"`{track.title}` is now at position `{index2+1}`."))
 
-async def search_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[wavelink.Playable]]:
+async def search_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     tracks = await wavelink.Playable.search(current)
     return [
-        app_commands.Choice(name=track.title, value=track) for track in tracks
+        app_commands.Choice(name=track.title, value=track.uri) for track in tracks
     ]
 
-async def search_auto_spotify(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[wavelink.Playable]]:
+async def search_auto_spotify(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     tracks = await wavelink.Playable.search(current, source="spsearch:")
     return [
-        app_commands.Choice(name=track.title, value=track) for track in tracks
+        app_commands.Choice(name=track.title, value=track.uri) for track in tracks
     ]
 
 class YouTubePlayer(commands.Cog):

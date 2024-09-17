@@ -144,13 +144,11 @@ class SelectChoice(discord.ui.Select):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        await interaction.message.edit(view=None)
-        await interaction.response.defer()
         if self.result[int(self.values[0])][mv_tv] == "TV":
             r = await client.get(f"{domain}/ajax/v2/tv/seasons/{self.result[int(self.values[0])][aid]}")
             season_ids = [i["data-id"] for i in BS(r, "lxml").select(".dropdown-item")]
             embed = await buildSeasons(season_ids, self.result[int(self.values[0])])
-            await interaction.message.edit(embed = embed, view = MyView2(self.ctx, self.result[int(self.values[0])], season_ids, 0))
+            await interaction.response.edit_message(embed = embed, view = MyView2(self.ctx, self.result[int(self.values[0])], season_ids, 0))
         else:
             sid = await server_id(self.result[int(self.values[0])][aid])
             iframe_url, tv_id = await get_link(sid)
@@ -158,9 +156,9 @@ class SelectChoice(discord.ui.Select):
             try:
                 # url = await cdn_url(iframe_link, iframe_id)
                 embed = await buildMovie(self.result[int(self.values[0])])
-                await interaction.message.edit(embed=embed, view=None)
+                await interaction.response.edit_message(embed=embed, view=None)
                 await interaction.followup.send(f"[{self.result[int(self.values[0])][title]}]({iframe_url}&_debug=true)", ephemeral=True)
-            except Exception as e: await interaction.message.edit(content=e, view=None)
+            except Exception as e: await interaction.response.edit_message(content=e, view=None)
 
 # legacy code
 class ButtonSelect(discord.ui.Button):
@@ -172,13 +170,11 @@ class ButtonSelect(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        await interaction.message.edit(view=None)
-        await interaction.response.defer()
         if self.result[mv_tv] == "TV":
             r = await client.get(f"{domain}/ajax/v2/tv/seasons/{self.result[aid]}")
             season_ids = [i["data-id"] for i in BS(r, "lxml").select(".dropdown-item")]
             embed = await buildSeasons(season_ids, self.result)
-            await interaction.message.edit(embed = embed, view = MyView2(self.ctx, self.result, season_ids, 0))
+            await interaction.response.edit_message(embed = embed, view = MyView2(self.ctx, self.result, season_ids, 0))
         else:
             sid = await server_id(self.result[aid])
             iframe_url, tv_id = await get_link(sid)
@@ -186,8 +182,8 @@ class ButtonSelect(discord.ui.Button):
             try:
                 # url = await cdn_url(iframe_link, iframe_id)
                 embed = await buildMovie(self.result)
-                await interaction.message.edit(embed=embed, view=None, content=f"[{self.result[title]}]({iframe_url}&_debug=true)")
-            except Exception as e: await interaction.message.edit(content=e, view=None)
+                await interaction.response.edit_message(embed=embed, view=None, content=f"[{self.result[title]}]({iframe_url}&_debug=true)")
+            except Exception as e: await interaction.response.edit_message(content=e, view=None)
             
 class ButtonNextSearch(discord.ui.Button):
     def __init__(self, ctx: commands.Context, arg: str, result: list, index: int, l: str):
@@ -198,9 +194,7 @@ class ButtonNextSearch(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        await interaction.message.edit(view=None)
-        await interaction.response.defer()
-        await interaction.message.edit(view = MyView(self.ctx, self.result, self.arg, self.index))
+        await interaction.response.edit_message(view = MyView(self.ctx, self.result, self.arg, self.index))
 
 # season
 class MyView2(discord.ui.View):
@@ -238,13 +232,11 @@ class ButtonSelect2(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        await interaction.message.edit(view=None)
-        await interaction.response.defer()
         z = f"{domain}/ajax/v2/season/episodes/{self.season_id}"
         rf = await client.get(z)
         episodes = [i["data-id"] for i in BS(rf, "lxml").select(".episode-item")]
         embed = await buildEpisodes(episodes, self.index, self.result)
-        await interaction.message.edit(embed = embed, view = MyView3(self.ctx, self.season_id, episodes, self.result, 0, self.index))
+        await interaction.response.edit_message(embed = embed, view = MyView3(self.ctx, self.season_id, episodes, self.result, 0, self.index))
 
 class ButtonNextSeason(discord.ui.Button):
     def __init__(self, ctx: commands.Context, result: list, season_ids: list, index: int, row: int, l: str):
@@ -255,9 +247,7 @@ class ButtonNextSeason(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        await interaction.message.edit(view=None)
-        await interaction.response.defer()
-        await interaction.message.edit(view = MyView2(self.ctx, self.result, self.season_ids, self.index))
+        await interaction.response.edit_message(view = MyView2(self.ctx, self.result, self.season_ids, self.index))
 
 # episode
 class MyView3(discord.ui.View):
@@ -295,9 +285,7 @@ class ButtonNextEp(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        await interaction.message.edit(view=None)
-        await interaction.response.defer()
-        await interaction.message.edit(view = MyView3(self.ctx, self.season_id, self.episodes, self.result, self.index, self.season))
+        await interaction.response.edit_message(view = MyView3(self.ctx, self.season_id, self.episodes, self.result, self.index, self.season))
 
 class ButtonSelect3(discord.ui.Button):
     def __init__(self, ctx: commands.Context, index: int, season_id: str, episode: str, season: int, title: str, row: int):
@@ -308,14 +296,13 @@ class ButtonSelect3(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        await interaction.response.defer()
         sid = await ep_server_id(self.episode)
         iframe_url, tv_id = await get_link(sid)
         iframe_link, iframe_id = rabbit_id(iframe_url)
         try:
             # url = await cdn_url(iframe_link, iframe_id)
-            await interaction.followup.send(f"{self.title} [S{self.season}E{self.index}]({iframe_url}&_debug=true)", ephemeral=True)
-        except Exception as e: await interaction.message.edit(content=e, view=None)
+            await interaction.response.send_message(f"{self.title} [S{self.season}E{self.index}]({iframe_url}&_debug=true)", ephemeral=True)
+        except Exception as e: await interaction.response.edit_message(content=e, view=None)
 
 class DisabledButton(discord.ui.Button):
     def __init__(self, e: str, r: int):
@@ -330,7 +317,7 @@ class CancelButton(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        await interaction.message.delete()
+        await interaction.response.edit_message("🤨", embed=None, view=None)
 
 # sflix functions
 async def server_id(mov_id: str) -> str:

@@ -14,15 +14,22 @@ async def req_real(api):
                 if response.status == 200: return await response.json()
     except Exception as e: print(e)
 
-async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, diff: str, ty: str):
+async def QUIZ(ctx: commands.Context | discord.Interaction, mode: str, v: str, count: str, cat: str, diff: str, ty: str):
     if await command_check(ctx, "quiz", "games"): return
-    msg = await ctx.reply("Crunching data…")
+    if isinstance(ctx, commands.Context): msg = await ctx.channel.send("Crunching data…")
     params = "```-quiz [version: <any/v1/v2> mode: <all/anon/me> count: <1-50> category: <any/9-32> difficulty: <any/easy/medium/hard> type: <any/multiple/boolean>```"
     if count:
         if count.isdigit():
             if int(count) > 51 or int(count) < 1: 
-                return await msg.edit(content="Items must be 1-50.") 
-        else: return await msg.edit(content="Must be integer :("+params)
+                if isinstance(ctx, commands.Context):
+                    return await msg.edit(content="Items must be 1-50.") 
+                if isinstance(ctx, discord.Interaction):
+                    return await ctx.response.send_message(content="Items must be 1-50.") 
+        else: 
+            if isinstance(ctx, commands.Context):
+                return await msg.edit(content="Must be integer :("+params)
+            if isinstance(ctx, discord.Interaction):
+                return await ctx.response.send_message(content="Must be integer :("+params)
     else: count = "50"
     multi, anon, ck, req = False, False, None, None
     if v == None or v == "v1" or v == "any": 
@@ -31,7 +38,11 @@ async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, d
     elif v == "v2": 
         req = f"https://the-trivia-api.com/v2/questions/?limit={int(count)}"
         ck = "correctAnswer"
-    else: return await msg.edit(content="Version not found.\n"+params)
+    else: 
+        if isinstance(ctx, commands.Context):
+            return await msg.edit(content="Version not found.\n"+params)
+        if isinstance(ctx, discord.Interaction):
+            return await ctx.response.send_message(content="Version not found.\n"+params)
     if mode:
         modes = ["all", "anon"]
         a = False
@@ -40,7 +51,11 @@ async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, d
             a = True
         if mode == "anon": anon = True
         if mode == "me": a = True
-        if not a: return await msg.edit(content="Mode not found."+params)
+        if not a: 
+            if isinstance(ctx, commands.Context):
+                return await msg.edit(content="Mode not found."+params)
+            if isinstance(ctx, discord.Interaction):
+                return await ctx.response.send_message(content="Mode not found."+params)
     req_fake = await req_real("https://opentdb.com/api_category.php")
     categories = v2cat if v == "v2" else req_fake["trivia_categories"]
     if cat:
@@ -52,7 +67,11 @@ async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, d
             req += f"&categories={cat}"
             a = True
         if cat == "any": a = True 
-        if not a: return await msg.edit(content=None, embed=BuildCategory(categories))
+        if not a:
+            if isinstance(ctx, commands.Context):
+                return await msg.edit(content=None, embed=BuildCategory(categories))
+            if isinstance(ctx, discord.Interaction):
+                return await ctx.response.send_message(content=None, embed=BuildCategory(categories))
     if diff:
         d = ["easy", "medium", "hard"]
         a = False
@@ -60,7 +79,11 @@ async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, d
             req += f"&difficulties={diff}" if v == "v2" else f"&difficulty={diff}"
             a = True
         if diff == "any": a = True
-        if not a: return await msg.edit(content="Difficulty not found!"+params)
+        if not a:
+            if isinstance(ctx, commands.Context):
+                return await msg.edit(content="Difficulty not found!"+params)
+            if isinstance(ctx, discord.Interaction):
+                return await ctx.response.send_message(content="Difficulty not found!"+params)
     if ty and v == "v1":
         t = ["multiple", "boolean"]
         a = False
@@ -68,17 +91,29 @@ async def QUIZ(ctx: commands.Context, mode: str, v: str, count: str, cat: str, d
             req += f"&type={ty}"
             a = True
         if ty == "any": a = True
-        if not a: return await msg.edit(content="Type not found!"+params)
+        if not a:
+            if isinstance(ctx, commands.Context):
+                return await msg.edit(content="Type not found!"+params)
+            if isinstance(ctx, discord.Interaction):
+                return await ctx.response.send_message(content="Type not found!"+params)
     settings = {"multiplayer": multi, "anon": anon, "difficulty": diff, "type": ty, "count": int(count), "correct_key": ck}
     req_fake0 = await req_real(req)
     results = req_fake0["results"] if v == "v1" else req_fake0
-    if not results: return await msg.edit(content="Error crunching questions, try again.")
+    if not results:
+        if isinstance(ctx, commands.Context):
+            return await msg.edit(content="Error crunching questions, try again.")
+        if isinstance(ctx, discord.Interaction):
+            return await ctx.response.send_message(content="Error crunching questions, try again.")
     results = decodeResults(results, settings["correct_key"])
     players = {}
     players[ctx.author.id] = add_player(ctx.author)
     players[ctx.author.id]["host"] = True
-    await msg.edit(content=f"`{settings}`", embed=BuildQuestion(results, 0, ctx, players, settings), 
-                   view=QuizView(results, 0, ctx, players, settings))
+    if isinstance(ctx, commands.Context):
+        await msg.edit(content=f"`{settings}`", embed=BuildQuestion(results, 0, ctx, players, settings), 
+                       view=QuizView(results, 0, ctx, players, settings))
+    if isinstance(ctx, discord.Interaction): 
+        await ctx.response.send_message(content=f"`{settings}`", embed=BuildQuestion(results, 0, ctx, players, settings), 
+                                        view=QuizView(results, 0, ctx, players, settings))
     
 def add_player(p) -> dict:
     return {"score": 0, "choice": -1, "name": p, "emoji": "❓", "host": False, "confirm": -1}
@@ -267,7 +302,6 @@ class ButtonChoice(discord.ui.Button):
                                                            ephemeral=True)
         
         # register player choice
-        await interaction.message.edit(view=None)
         if not interaction.user.id in self.players: self.players[interaction.user.id] = add_player(interaction.user)
         self.players[interaction.user.id]["choice"] = self.c
         

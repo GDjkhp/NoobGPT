@@ -137,7 +137,6 @@ class ButtonChoice(discord.ui.Button):
                                                           embed=None, view=None)
                 
         # register player choice
-        await interaction.message.edit(view=None)
         if not interaction.user.id in self.players: self.players[interaction.user.id] = add_player(interaction.user)
 
         if self.id == "INPUT": 
@@ -154,8 +153,7 @@ class ButtonChoice(discord.ui.Button):
         if self.id == "UPDATE":
             if interaction.user.id != host_id: 
                 return await interaction.response.send_message(f"Only <@{host_id}> can press this button.", ephemeral=True)
-            await interaction.message.edit(content="Message updated.", embed=None, view=None)
-            await interaction.response.send_message(content=c2e(self.box), 
+            await interaction.response.edit_message(content=c2e(self.box), 
                                                     embed=QuizEmbed(self.words, self.index, self.settings, self.players, self.ctx), 
                                                     view=QuizView(self.ctx, self.words, self.index, self.box, self.dead, self.settings, self.players))
 
