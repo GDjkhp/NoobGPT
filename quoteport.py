@@ -6,7 +6,7 @@ import aiohttp
 import time
 from imagetext_py import *
 import asyncio
-from util_discord import command_check
+from util_discord import command_check, description_helper
 
 font_reg = './res/font/AmaticSC-Regular.ttf'
 font_bold = './res/font/AmaticSC-Bold.ttf'
@@ -16,27 +16,35 @@ FontDB.LoadFromDir("./res/font")
 font_real_bold = FontDB.Query("AmaticSC-Bold NotoSansJP-Bold")
 font_real_reg = FontDB.Query("AmaticSC-Regular NotoSansJP-Regular")
 
-async def quote_this(ctx: commands.Context):
+async def quote_this(ctx: commands.Context, msg_id: int):
     if await command_check(ctx, "quote", "utils"): return
-    if ctx.message.reference:
-        info = await ctx.reply("Quoting…")
-        old = round(time.time() * 1000)
-        referenced_message = await ctx.message.channel.fetch_message(ctx.message.reference.message_id)
-        content = replace_mentions(referenced_message)
-        render_canvas = RenderCanvas()
+    if ctx.message.reference or msg_id:
+        if not msg_id: msg_id = ctx.message.reference.message_id
         try:
-            attach = referenced_message.attachments[0].url if referenced_message.attachments else None
-            user = f'- {referenced_message.author.name}'
-            avatar_url = "https://cdn.discordapp.com/embed/avatars/4.png"
-            if referenced_message.author.avatar:
-                avatar_url = referenced_message.author.avatar.url
-            image_data = await render_canvas.build_word(content, attach, user, avatar_url)
-        except Exception as e: 
-            print(e)
-            return await info.edit(content=f"⁉️")
-        await ctx.reply(file=discord.File(image_data, 'quote.png'))
-        return await info.edit(content=f"Took {round(time.time() * 1000)-old}ms")
-    await ctx.reply("⁉️")
+            referenced_message = await ctx.channel.fetch_message(msg_id)
+        except:
+            return await ctx.reply("**Error! :(**")
+    else:
+        if not ctx.channel.last_message_id:
+            return await ctx.reply("⁉️")
+        referenced_message = await ctx.channel.fetch_message(ctx.channel.last_message_id)
+
+    info = await ctx.reply("Quoting…")
+    old = round(time.time() * 1000)
+    content = replace_mentions(referenced_message)
+    render_canvas = RenderCanvas()
+    try:
+        attach = referenced_message.attachments[0].url if referenced_message.attachments else None
+        user = f'- {referenced_message.author.name}'
+        avatar_url = "https://cdn.discordapp.com/embed/avatars/4.png"
+        if referenced_message.author.avatar:
+            avatar_url = referenced_message.author.avatar.url
+        image_data = await render_canvas.build_word(content, attach, user, avatar_url)
+    except Exception as e: 
+        print(e)
+        return await info.edit(content=f"⁉️")
+    await ctx.reply(file=discord.File(image_data, 'quote.png'))
+    return await info.edit(content=f"Took {round(time.time() * 1000)-old}ms")
 
 def replace_mentions(message: discord.Message):
     content = message.content
@@ -182,9 +190,9 @@ class CogQuote(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    async def quote(self, ctx: commands.Context):
-        await quote_this(ctx)
+    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} {description_helper['utils']['quote']}")
+    async def quote(self, ctx: commands.Context, msg_id: int=None):
+        await quote_this(ctx, msg_id)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogQuote(bot))

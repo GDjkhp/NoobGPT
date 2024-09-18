@@ -370,7 +370,7 @@ class CogQuiz(commands.Cog):
     @app_commands.describe(count="Must be a valid integer. (1-50)")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def quizv1(self, ctx: commands.Context, mode: str=None, count: str=None, category: str=None, difficulty: str=None, type_: str=None):
+    async def quizv1(self, ctx: discord.Interaction, mode: str=None, count: str=None, category: str=None, difficulty: str=None, type_: str=None):
         await QUIZ(ctx, mode, "v1", count, category, difficulty, type_)
 
     @app_commands.command(name="quiz-v2", description=f"{description_helper['emojis']['games']} the-trivia-api")
@@ -378,7 +378,7 @@ class CogQuiz(commands.Cog):
     @app_commands.describe(count="Must be a valid integer. (1-50)")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def quizv2(self, ctx: commands.Context, mode: str=None, count: str=None, category: str=None, difficulty: str=None, type_: str=None):
+    async def quizv2(self, ctx: discord.Interaction, mode: str=None, count: str=None, category: str=None, difficulty: str=None, type_: str=None):
         await QUIZ(ctx, mode, "v2", count, category, difficulty, type_)
 
 async def setup(bot: commands.Bot):

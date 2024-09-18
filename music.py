@@ -55,11 +55,12 @@ async def set_dj_role(ctx: commands.Context):
         await set_dj_role_db(ctx.guild.id, 0)
         await ctx.reply("dj role has been removed")
 
-async def check_if_dj(ctx: commands.Context):
+async def check_if_dj(ctx: commands.Context | discord.Interaction):
     db = await get_database2(ctx.guild.id)
     if db.get("bot_dj_role"):
         if db["bot_dj_role"]:
-            return ctx.guild.get_role(db["bot_dj_role"]) in ctx.author.roles
+            if isinstance(ctx, commands.Context): return ctx.guild.get_role(db["bot_dj_role"]) in ctx.author.roles
+            if isinstance(ctx, discord.Interaction): return ctx.guild.get_role(db["bot_dj_role"]) in ctx.user.roles
     return True
 
 def music_embed(title: str, description: str):
@@ -139,7 +140,7 @@ class CancelButton(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        await interaction.response.edit_message("🤨", embed=None, view=None)
+        await interaction.response.edit_message(content="🤨", embed=None, view=None)
 
 class DisabledButton(discord.ui.Button):
     def __init__(self, e: str, r: int):

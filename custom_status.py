@@ -124,5 +124,14 @@ class LanyardUtil(commands.Cog):
         synced = await self.bot.tree.sync()
         await ctx.reply(f"Synced {len(synced)} slash commands")
 
+    @commands.command()
+    async def stats(self, ctx: commands.Context):
+        stat_list = [
+            f"serving {len(self.bot.users)} users in {len(self.bot.guilds)} guilds",
+            f"will return in {round(self.bot.latency*1000)}ms",
+            f"{len(self.bot.tree.get_commands())} application commands found"
+        ]
+        await ctx.reply("\n".join(stat_list))
+
 async def setup(bot: commands.Bot):
     await bot.add_cog(LanyardUtil(bot))

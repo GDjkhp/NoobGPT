@@ -283,7 +283,7 @@ class DiscordUtil(commands.Cog):
     async def av(self, ctx: commands.Context, *, user_id:str=None):
         await avatar(ctx, ctx.bot, user_id)
 
-    @commands.hybrid_command(description="very helpful command")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} very helpful command")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def legal(self, ctx: commands.Context):

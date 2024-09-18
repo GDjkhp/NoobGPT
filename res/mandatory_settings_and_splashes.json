@@ -32,7 +32,7 @@
             "config": "Control bot commands.",
             "insult": "Toggle insults.",
             "xp": "Toggle XP leveling system.",
-            "quote": "Reply to a message to make it a quote.",
+            "quote": "Make it a quote.",
             "weather": "Check the current weather.",
             "av": "Return a user's Discord profile avatar.",
             "ban": "Return a user's Discord profile banner."

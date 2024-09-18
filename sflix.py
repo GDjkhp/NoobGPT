@@ -317,7 +317,7 @@ class CancelButton(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        await interaction.response.edit_message("🤨", embed=None, view=None)
+        await interaction.response.edit_message(content="🤨", embed=None, view=None)
 
 # sflix functions
 async def server_id(mov_id: str) -> str:

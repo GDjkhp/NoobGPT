@@ -210,7 +210,7 @@ class ButtonChoice(discord.ui.Button):
 
         # solo lock
         if self.settings["mode"] != "all" and interaction.user.id != host_id:
-            return await interaction.response.send_message(content=f"<@{host_id}> is playing this game. Use `-word` to create your own game.",
+            return await interaction.response.send_message(content=f"<@{host_id}> is playing this game. Use `-wordle` to create your own game.",
                                                            ephemeral=True)
         # register player choice
         if not interaction.user.id in self.players: self.players[interaction.user.id] = add_player(interaction.user)
