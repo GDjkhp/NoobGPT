@@ -16,7 +16,7 @@ async def req_real(api):
 
 async def QUIZ(ctx: commands.Context | discord.Interaction, mode: str, v: str, count: str, cat: str, diff: str, ty: str):
     if await command_check(ctx, "quiz", "games"): return
-    if isinstance(ctx, commands.Context): msg = await ctx.channel.send("Crunching data…")
+    if isinstance(ctx, commands.Context): msg = await ctx.reply("Crunching data…")
     params = "```-quiz [version: <any/v1/v2> mode: <all/anon/me> count: <1-50> category: <any/9-32> difficulty: <any/easy/medium/hard> type: <any/multiple/boolean>```"
     if count:
         if count.isdigit():
@@ -106,8 +106,10 @@ async def QUIZ(ctx: commands.Context | discord.Interaction, mode: str, v: str, c
             return await ctx.response.send_message(content="Error crunching questions, try again.")
     results = decodeResults(results, settings["correct_key"])
     players = {}
-    players[ctx.author.id] = add_player(ctx.author)
-    players[ctx.author.id]["host"] = True
+    if isinstance(ctx, commands.Context): real_player = ctx.author
+    if isinstance(ctx, discord.Interaction): real_player = ctx.user
+    players[real_player.id] = add_player(real_player)
+    players[real_player.id]["host"] = True
     if isinstance(ctx, commands.Context):
         await msg.edit(content=f"`{settings}`", embed=BuildQuestion(results, 0, ctx, players, settings), 
                        view=QuizView(results, 0, ctx, players, settings))
@@ -173,17 +175,19 @@ def keysScore(d: dict) -> str:
     for key, value in d.items(): text += f"\n<@{key}>: {value['score']} {value['emoji']}"
     return text
 
-def parseText(settings: dict, results: list, index: int, players: dict, c: int, ctx: commands.Context) -> str:
+def parseText(settings: dict, results: list, index: int, players: dict, c: int, ctx: commands.Context | discord.Interaction) -> str:
     if settings["multiplayer"]:
         text = f"{question_fix(results[index]['question'])}\n{results[index][settings['correct_key']]}"
         text += keysScore(players)
     else:
         z = [420, 69, -1, 1337, 666]
+        if isinstance(ctx, commands.Context): real_player = ctx.author
+        if isinstance(ctx, discord.Interaction): real_player = ctx.user
         if not c in z: 
             check = results[index][settings["correct_key"]] == results[index]["choices"][c]
-            r = f"\n{question_fix(results[index]['question'])}\n{results[index][settings['correct_key']]}\nScore: {players[ctx.author.id]['score']} "
+            r = f"\n{question_fix(results[index]['question'])}\n{results[index][settings['correct_key']]}\nScore: {players[real_player.id]['score']} "
             text = r+"✅" if check else r+"❌"
-        else: text = f"Score: {players[ctx.author.id]['score']}"
+        else: text = f"Score: {players[real_player.id]['score']}"
     return text
 
 def button_confirm(d, k) -> bool:
@@ -200,20 +204,22 @@ def BuildCategory(categories) -> discord.Embed:
     embed.add_field(name="Random", value="any", inline=True)
     return embed
 
-def BuildQuestion(results: list, index: int, ctx: commands.Context, players: dict, settings: dict):
+def BuildQuestion(results: list, index: int, ctx: commands.Context | discord.Interaction, players: dict, settings: dict):
     embed = discord.Embed(title=f"{index+1}. {question_fix(results[index]['question'])}", 
                           description=f"{results[index]['category']} ({results[index]['difficulty']})")
     embed.set_footer(text=f"{index+1}/{len(results)}")
-    if not settings["multiplayer"]: 
-        if ctx.message.author.avatar: embed.set_author(name=ctx.author, icon_url=ctx.message.author.avatar.url) 
-        else: embed.set_author(name=ctx.author)
+    if not settings["multiplayer"]:
+        if isinstance(ctx, commands.Context): real_player = ctx.author
+        if isinstance(ctx, discord.Interaction): real_player = ctx.user
+        if real_player.avatar: embed.set_author(name=real_player, icon_url=real_player.avatar.url) 
+        else: embed.set_author(name=real_player)
     else: 
         text = keys(players, settings["anon"])
         embed.set_author(name=text)
     return embed
 
 class QuizView(discord.ui.View):
-    def __init__(self, results: list, index: int, ctx: commands.Context, players: dict, settings: dict):
+    def __init__(self, results: list, index: int, ctx: commands.Context | discord.Interaction, players: dict, settings: dict):
         super().__init__(timeout=None)
         for c in range(len(results[index]["choices"])):
             self.add_item(ButtonChoice(results, index, ctx, c, players, 0, "CHOICE", settings))
@@ -225,7 +231,7 @@ class QuizView(discord.ui.View):
         self.add_item(ButtonChoice(results, index, ctx, 666, players, 2, "UPDATE", settings))
 
 class ButtonChoice(discord.ui.Button):
-    def __init__(self, results: list, index: int, ctx: commands.Context, c: int, players: dict, row: int, id: str, settings: dict):
+    def __init__(self, results: list, index: int, ctx: commands.Context | discord.Interaction, c: int, players: dict, row: int, id: str, settings: dict):
         emoji, l = "🔀" if id == "RANDOM" else i2c(c), id
         if id == "CHOICE": l = results[index]["choices"][c]
         super().__init__(emoji=emoji, label=l[:80], row=row)
@@ -297,8 +303,10 @@ class ButtonChoice(discord.ui.Button):
                                                            view=QuizView(self.results, self.index, self.ctx, self.players, self.settings))
             
         # solo lock
-        if not self.settings["multiplayer"] and interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"{self.ctx.message.author.mention} is playing this game and set to singleplayer.", 
+        if isinstance(self.ctx, commands.Context): real_player = self.ctx.author
+        if isinstance(self.ctx, discord.Interaction): real_player = self.ctx.user
+        if not self.settings["multiplayer"] and interaction.user != real_player:
+            return await interaction.response.send_message(f"{real_player.mention} is playing this game and set to singleplayer.", 
                                                            ephemeral=True)
         
         # register player choice
