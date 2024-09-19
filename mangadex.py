@@ -392,6 +392,7 @@ class CogDex(commands.Cog):
         await help_manga(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['manga']} mangadex")
+    @app_commands.describe(query="Search query")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def dex(self, ctx: commands.Context, *, query:str=None):

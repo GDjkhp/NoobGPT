@@ -1105,6 +1105,7 @@ class CogCAI(commands.Cog):
         self.bot = bot
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} add character")
+    @app_commands.describe(query="Search query")
     async def cadd(self, ctx: commands.Context, *, query:str=None):
         await add_char(ctx, query, 0)
 
@@ -1129,7 +1130,7 @@ class CogCAI(commands.Cog):
         await t_chan(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} set global message_rate")
-    @app_commands.describe(rate="Must be a valid integer. (0-100)")
+    @app_commands.describe(rate="Set global message rate (Must be a valid integer: 0-100)")
     async def crate(self, ctx: commands.Context, *, rate:str=None):
         await set_rate(ctx, rate)
 
@@ -1150,7 +1151,7 @@ class CogCAI(commands.Cog):
         await view_char(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} set char_message_rate per channel")
-    @app_commands.describe(rate="Must be a valid integer. (0-100)")
+    @app_commands.describe(rate="Set character message rate per channel (Must be a valid integer: 0-100)")
     async def cedit(self, ctx: commands.Context, rate:str=None):
         await edit_char(ctx, rate)
 
@@ -1160,6 +1161,7 @@ class CogCAI(commands.Cog):
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} set mention mode")
     @app_commands.autocomplete(mode=mode_auto)
+    @app_commands.describe(mode="Set mention mode")
     async def cping(self, ctx: commands.Context, *, mode:str=None):
         await set_mention_mode(ctx, mode)
 

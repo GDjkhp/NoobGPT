@@ -375,19 +375,21 @@ class CogQuiz(commands.Cog):
 
     @app_commands.command(name="quiz-v1", description=f"{description_helper['emojis']['games']} opentdb")
     @app_commands.autocomplete(mode=mode_auto, category=cat_auto_v1, difficulty=diff_auto, type_=type_auto)
-    @app_commands.describe(count="Must be a valid integer. (1-50)")
+    @app_commands.describe(count="Set count (Must be a valid integer: 1-50)",
+                           mode="Set game mode", category="Set category", difficulty="Set difficulty", type="Set question type")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def quizv1(self, ctx: discord.Interaction, mode: str=None, count: str=None, category: str=None, difficulty: str=None, type_: str=None):
-        await QUIZ(ctx, mode, "v1", count, category, difficulty, type_)
+    async def quizv1(self, ctx: discord.Interaction, mode: str=None, count: str=None, category: str=None, difficulty: str=None, type: str=None):
+        await QUIZ(ctx, mode, "v1", count, category, difficulty, type)
 
     @app_commands.command(name="quiz-v2", description=f"{description_helper['emojis']['games']} the-trivia-api")
     @app_commands.autocomplete(mode=mode_auto, category=cat_auto_v2, difficulty=diff_auto, type_=type_auto)
-    @app_commands.describe(count="Must be a valid integer. (1-50)")
+    @app_commands.describe(count="Set count (Must be a valid integer: 1-50)",
+                           mode="Set game mode", category="Set category", difficulty="Set difficulty", type="Set question type")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def quizv2(self, ctx: discord.Interaction, mode: str=None, count: str=None, category: str=None, difficulty: str=None, type_: str=None):
-        await QUIZ(ctx, mode, "v2", count, category, difficulty, type_)
+    async def quizv2(self, ctx: discord.Interaction, mode: str=None, count: str=None, category: str=None, difficulty: str=None, type: str=None):
+        await QUIZ(ctx, mode, "v2", count, category, difficulty, type)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogQuiz(bot))

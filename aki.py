@@ -129,6 +129,7 @@ class CogAki(commands.Cog):
 
     @commands.hybrid_command(description=f'{description_helper["emojis"]["games"]} {description_helper["games"]["aki"]}')
     @app_commands.autocomplete(category=cat_auto, language=lang_auto)
+    @app_commands.describe(category="Set category", language="Set language")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     # @commands.max_concurrency(1, per=BucketType.default, wait=False)

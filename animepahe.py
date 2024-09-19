@@ -247,6 +247,7 @@ class CogPahe(commands.Cog):
         self.bot = bot
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['anime']} animepahe")
+    @app_commands.describe(query="Search query")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def pahe(self, ctx: commands.Context, *, query:str=None):

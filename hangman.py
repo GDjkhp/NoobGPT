@@ -202,7 +202,7 @@ class CogHang(commands.Cog):
 
     @commands.hybrid_command(description=f'{description_helper["emojis"]["games"]} {description_helper["games"]["hang"]}')
     @app_commands.autocomplete(mode=mode_auto)
-    @app_commands.describe(count="Must be a valid integer.")
+    @app_commands.describe(mode="Set game mode", count="Set count (Must be a valid integer)")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def hang(self, ctx: commands.Context, mode: str=None, count: str=None):

@@ -1,4 +1,5 @@
 import discord
+from discord import app_commands
 from discord.ext import commands
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
@@ -25,6 +26,8 @@ async def quote_this(ctx: commands.Context, msg_id: int):
         except:
             return await ctx.reply("**Error! :(**")
     else:
+        if isinstance(ctx.channel, discord.DMChannel):
+            return await ctx.reply("good job! i don't have access to this channel.")
         if not ctx.channel.last_message_id:
             return await ctx.reply("⁉️")
         referenced_message = await ctx.channel.fetch_message(ctx.channel.last_message_id)
@@ -191,6 +194,7 @@ class CogQuote(commands.Cog):
         self.bot = bot
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} {description_helper['utils']['quote']}")
+    @app_commands.describe(msg_id="Message ID of the message you want to quote")
     async def quote(self, ctx: commands.Context, msg_id: int=None):
         await quote_this(ctx, msg_id)
 

@@ -95,18 +95,21 @@ class CogYT(commands.Cog):
         await YTDLP(ctx, arg1, arg2)
 
     @app_commands.command(name="ytdlp", description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["ytdlp"]}'[:100])
+    @app_commands.describe(link="Video link")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def ytdlp_basic(self, ctx: discord.Interaction, link:str=None):
         await YTDLP(ctx, link, None)
 
     @app_commands.command(name="ytdlp-mp3", description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["ytdlp"]}'[:100])
+    @app_commands.describe(link="Video link")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def ytdlp_mp3(self, ctx: discord.Interaction, link:str=None):
         await YTDLP(ctx, "mp3", link)
 
     @app_commands.command(name="ytdlp-m4a", description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["ytdlp"]}'[:100])
+    @app_commands.describe(link="Video link")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def ytdlp_m4a(self, ctx: discord.Interaction, link:str=None):

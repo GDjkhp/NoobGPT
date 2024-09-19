@@ -28,7 +28,7 @@ async def music_help(ctx: commands.Context):
         "`-replace <index> <query>` Replace track.",
         "`-swap <index1> <index2>` Swap tracks.",
         "`-move <index1> <index2>` Move track.",
-        "`-loop <off/one/all>` Loop music modes.",
+        "`-repeat <off/one/all>` Repeat music modes.",
         "`-autoplay <partial/enabled/disabled>` Autoplay and recommended music modes.",
         # "`-filters` Show available filters.",
     ]
@@ -266,15 +266,15 @@ async def queue_loop(ctx: commands.Context, mode: str):
 
     if mode == 'off':
         vc.queue.mode = wavelink.QueueMode.normal
-        text, desc = "❌ Loop disabled", "wavelink.QueueMode.normal"
+        text, desc = "❌ Repeat disabled", "wavelink.QueueMode.normal"
     elif mode == 'one':
         vc.queue.mode = wavelink.QueueMode.loop
-        text, desc = "🔂 Loop one", "wavelink.QueueMode.loop"
+        text, desc = "🔂 Repeat one", "wavelink.QueueMode.loop"
     elif mode == 'all':
         vc.queue.mode = wavelink.QueueMode.loop_all
-        text, desc = "🔁 Loop all", "wavelink.QueueMode.loop_all"
+        text, desc = "🔁 Repeat all", "wavelink.QueueMode.loop_all"
     else:
-        return await ctx.reply("Mode not found.\nUsage: `-loop <off/one/all>`")
+        return await ctx.reply("Mode not found.\nUsage: `-repeat <off/one/all>`")
     embed = music_embed(text, desc)
     await ctx.reply(embed=embed)
 
@@ -414,6 +414,16 @@ async def search_auto_spotify(interaction: discord.Interaction, current: str) ->
         app_commands.Choice(name=track.title, value=track.uri) for track in tracks
     ]
 
+async def mode_repeat_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    return [
+        app_commands.Choice(name=mode, value=mode) for mode in ["off", "one", "all"] if current.lower() in mode.lower()
+    ]
+
+async def mode_rec_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    return [
+        app_commands.Choice(name=mode, value=mode) for mode in ["partial", "enabled", "disabled"] if current.lower() in mode.lower()
+    ]
+
 class YouTubePlayer(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -430,42 +440,44 @@ class YouTubePlayer(commands.Cog):
     async def music(self, ctx: commands.Context):
         await music_help(ctx)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Create DJ role.")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Create DJ role")
     async def dj(self, ctx: commands.Context):
         await set_dj_role(ctx)
 
     # player
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Join voice channel.")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Join voice channel")
     async def summon(self, ctx: commands.Context):
         await music_summon(ctx)
 
     @commands.command() # alias
-    async def p(self, ctx: commands.Context, *, search: str=None):
-        await music_play(ctx, search)
+    async def p(self, ctx: commands.Context, *, query: str=None):
+        await music_play(ctx, query)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Play music. (YouTube Music)")
-    @app_commands.autocomplete(search=search_auto)
-    async def play(self, ctx: commands.Context, *, search:str=None):
-        await music_play(ctx, search)
+    @app_commands.describe(query="Search query")
+    @app_commands.autocomplete(query=search_auto)
+    async def play(self, ctx: commands.Context, *, query:str=None):
+        await music_play(ctx, query)
 
     @app_commands.command(name="play-spotify", description=f"{description_helper['emojis']['music']} Play music. (Spotify)")
-    @app_commands.autocomplete(search=search_auto_spotify)
-    async def play_spotify(self, ctx: discord.Interaction, *, search:str=None):
-        await music_play(ctx, search)
+    @app_commands.describe(query="Search query")
+    @app_commands.autocomplete(query=search_auto_spotify)
+    async def play_spotify(self, ctx: discord.Interaction, *, query:str=None):
+        await music_play(ctx, query)
 
     @commands.command(aliases=['die', 'dc']) # alias
     async def leave(self, ctx: commands.Context):
         await music_stop(ctx)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Stop music and disconnect from voice channel.")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Stop music and disconnect from voice channel")
     async def stop(self, ctx: commands.Context):
         await music_stop(ctx)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Pause music.")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Pause music")
     async def pause(self, ctx: commands.Context):
         await music_pause(ctx)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Resume music.")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Resume music")
     async def resume(self, ctx: commands.Context):
         await music_resume(ctx)
 
@@ -473,7 +485,7 @@ class YouTubePlayer(commands.Cog):
     async def s(self, ctx: commands.Context):
         await music_skip(ctx)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Skip music.")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Skip music")
     async def skip(self, ctx: commands.Context):
         await music_skip(ctx)
 
@@ -481,65 +493,79 @@ class YouTubePlayer(commands.Cog):
     async def np(self, ctx: commands.Context):
         await music_nowplaying(ctx)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Now playing.")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Now playing")
     async def nowplaying(self, ctx: commands.Context):
         await music_nowplaying(ctx)
 
     # queue
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Search music. (YouTube Music)")
-    async def search(self, ctx: commands.Context, *, search: str=None):
-        await queue_search(ctx, search)
+    async def search(self, ctx: commands.Context, *, query: str=None):
+        await queue_search(ctx, query)
 
     @app_commands.command(name="search-spotify", description=f"{description_helper['emojis']['music']} Search music. (Spotify)")
-    async def search_spotify(self, ctx: discord.Interaction, *, search: str=None):
-        await queue_search(ctx, search, "spsearch:")
+    @app_commands.describe(query="Search query")
+    async def search_spotify(self, ctx: discord.Interaction, *, query: str=None):
+        await queue_search(ctx, query, "spsearch:")
 
     @commands.command() # alias
     async def queue(self, ctx: commands.Context, page: str=None):
         await queue_list(ctx, page)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Show queue.")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Show queue")
+    @app_commands.describe(page="Page number")
     async def list(self, ctx: commands.Context, page: str=None):
         await queue_list(ctx, page)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Loop music modes.")
-    async def loop(self, ctx: commands.Context, mode: str):
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Repeat music modes")
+    @app_commands.describe(mode="Repeat mode")
+    @app_commands.autocomplete(mode=mode_repeat_auto)
+    async def repeat(self, ctx: commands.Context, mode: str):
         await queue_loop(ctx, mode)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Autoplay and recommended music modes.")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Autoplay and recommended music modes")
+    @app_commands.describe(mode="Autoplay mode")
+    @app_commands.autocomplete(mode=mode_rec_auto)
     async def autoplay(self, ctx: commands.Context, mode: str):
         await queue_autoplay(ctx, mode)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Shuffle queue.")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Shuffle queue")
     async def shuffle(self, ctx: commands.Context):
         await queue_shuffle(ctx)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Reset queue.")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Reset queue")
     async def reset(self, ctx: commands.Context):
         await queue_reset(ctx)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Remove a track from the queue.")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Remove a track from the queue")
+    @app_commands.describe(index="Track number you want to remove (Must be a valid integer)")
     async def remove(self, ctx: commands.Context, index: str):
         await queue_remove(ctx, index)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Replace track.")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Replace track")
+    @app_commands.describe(index="Track number you want to replace (Must be a valid integer)", query="Search query")
     async def replace(self, ctx: commands.Context, index: str, *, query: str):
         await queue_replace(ctx, index, query)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Swap tracks.")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Swap tracks")
+    @app_commands.describe(init="First track number you want to swap into (Must be a valid integer)",
+                           dest="Second track number you want to swap into (Must be a valid integer)")
     async def swap(self, ctx: commands.Context, init: str, dest: str):
         await queue_swap(ctx, init, dest)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Peek track.")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Peek track")
+    @app_commands.describe(index="Track number you want to peek into (Must be a valid integer)")
     async def peek(self, ctx: commands.Context, index: str):
         await queue_peek(ctx, index)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Move track.")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Move track")
+    @app_commands.describe(init="Track number you want to move from (Must be a valid integer)",
+                           dest="Track number you want to move to (Must be a valid integer)")
     async def move(self, ctx: commands.Context, init: str, dest: str):
         await queue_move(ctx, init, dest)
 
     # filter
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Set volume.")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Set volume")
+    @app_commands.describe(value="Set value (Must be a valid integer: 0-100)")
     async def volume(self, ctx: commands.Context, value: str=None):
         await music_volume(ctx, value)
 

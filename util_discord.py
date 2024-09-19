@@ -247,37 +247,41 @@ class DiscordUtil(commands.Cog):
     async def config(self, ctx: commands.Context):
         await config_commands(ctx)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Toggle channel mode, where you can set specific commands per channel.")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Toggle channel mode, where you can set specific commands per channel")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def channel(self, ctx: commands.Context):
         await command_channel_mode(ctx)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Toggle command. Requires channel mode.")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Toggle command. Requires channel mode")
+    @app_commands.describe(command="Command you want to enable")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def enable(self, ctx: commands.Context, command:str=None):
         await command_enable(ctx, command)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Disable command server-wide.")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Disable command server-wide")
+    @app_commands.describe(command="Command you want to disable")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def disable(self, ctx: commands.Context, command:str=None):
         await command_disable(ctx, command)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} View available commands.")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} View available commands")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def view(self, ctx: commands.Context):
         await command_view(ctx)
 
     @commands.hybrid_command(description=f'{description_helper["emojis"]["utils"]} {description_helper["utils"]["ban"]}')
+    @app_commands.describe(user_id="User ID of the user you want to see the banner of")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def ban(self, ctx: commands.Context, *, user_id:str=None):
         await banner(ctx, ctx.bot, user_id)
 
     @commands.hybrid_command(description=f'{description_helper["emojis"]["utils"]} {description_helper["utils"]["av"]}')
+    @app_commands.describe(user_id="User ID of the user you want to see the avatar of")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def av(self, ctx: commands.Context, *, user_id:str=None):

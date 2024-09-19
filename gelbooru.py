@@ -165,21 +165,21 @@ class CogSus(commands.Cog):
         await help_booru(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['booru']} rule34")
-    @app_commands.describe(tags="how to search tags: `hatsune miku, school uniform`")
+    @app_commands.describe(tags="Search tags (e.g. `hatsune miku, school uniform`)")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def r34(self, ctx: commands.Context, *, tags:str=None):
         await R34(ctx, tags)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['booru']} gelbooru")
-    @app_commands.describe(tags="how to search tags: `hatsune miku, school uniform`")
+    @app_commands.describe(tags="Search tags (e.g. `hatsune miku, school uniform`)")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def gel(self, ctx: commands.Context, *, tags:str=None):
         await GEL(ctx, tags)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['booru']} safebooru")
-    @app_commands.describe(tags="how to search tags: `hatsune miku, school uniform`")
+    @app_commands.describe(tags="Search tags (e.g. `hatsune miku, school uniform`)")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def safe(self, ctx: commands.Context, *, tags:str=None):

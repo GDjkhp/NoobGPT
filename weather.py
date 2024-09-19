@@ -27,6 +27,7 @@ class CogWeather(commands.Cog):
         self.bot = bot
 
     @commands.hybrid_command(description=f'{description_helper["emojis"]["utils"]} {description_helper["utils"]["weather"]}')
+    @app_commands.describe(query="Location query (e.g. Lucena City)")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def weather(self, ctx: commands.Context, *, query:str=None):

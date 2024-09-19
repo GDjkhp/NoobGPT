@@ -241,6 +241,7 @@ class CogCob(commands.Cog):
         self.bot = bot
 
     @commands.hybrid_command(description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["cobalt"]}')
+    @app_commands.describe(arg="cobalt arguments")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def cobalt(self, ctx: commands.Context, *, arg:str=None):
