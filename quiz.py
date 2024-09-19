@@ -374,7 +374,7 @@ class CogQuiz(commands.Cog):
         await QUIZ(ctx, mode, version, count, category, difficulty, type_)
 
     @app_commands.command(name="quiz-v1", description=f"{description_helper['emojis']['games']} opentdb")
-    @app_commands.autocomplete(mode=mode_auto, category=cat_auto_v1, difficulty=diff_auto, type_=type_auto)
+    @app_commands.autocomplete(mode=mode_auto, category=cat_auto_v1, difficulty=diff_auto, type=type_auto)
     @app_commands.describe(count="Set count (Must be a valid integer: 1-50)",
                            mode="Set game mode", category="Set category", difficulty="Set difficulty", type="Set question type")
     @app_commands.allowed_installs(guilds=True, users=True)
@@ -383,7 +383,7 @@ class CogQuiz(commands.Cog):
         await QUIZ(ctx, mode, "v1", count, category, difficulty, type)
 
     @app_commands.command(name="quiz-v2", description=f"{description_helper['emojis']['games']} the-trivia-api")
-    @app_commands.autocomplete(mode=mode_auto, category=cat_auto_v2, difficulty=diff_auto, type_=type_auto)
+    @app_commands.autocomplete(mode=mode_auto, category=cat_auto_v2, difficulty=diff_auto, type=type_auto)
     @app_commands.describe(count="Set count (Must be a valid integer: 1-50)",
                            mode="Set game mode", category="Set category", difficulty="Set difficulty", type="Set question type")
     @app_commands.allowed_installs(guilds=True, users=True)
