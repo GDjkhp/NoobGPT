@@ -17,10 +17,12 @@ FontDB.LoadFromDir("./res/font")
 font_real_bold = FontDB.Query("AmaticSC-Bold NotoSansJP-Bold")
 font_real_reg = FontDB.Query("AmaticSC-Regular NotoSansJP-Regular")
 
-async def quote_this(ctx: commands.Context, msg_id: int):
+async def quote_this(ctx: commands.Context, msg_id: str):
     if await command_check(ctx, "quote", "utils"): return
     if ctx.message.reference or msg_id:
-        if not msg_id: msg_id = ctx.message.reference.message_id
+        if not msg_id: msg_id: int = ctx.message.reference.message_id
+        elif not msg_id.isdigit(): return await ctx.reply("not a digit :(")
+        msg_id: int = int(msg_id)
         try:
             referenced_message = await ctx.channel.fetch_message(msg_id)
         except:
@@ -195,7 +197,7 @@ class CogQuote(commands.Cog):
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} {description_helper['utils']['quote']}")
     @app_commands.describe(msg_id="Message ID of the message you want to quote")
-    async def quote(self, ctx: commands.Context, msg_id: int=None):
+    async def quote(self, ctx: commands.Context, msg_id: str=None):
         await quote_this(ctx, msg_id)
 
 async def setup(bot: commands.Bot):
