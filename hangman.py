@@ -3,7 +3,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 import json
-from util_discord import command_check, description_helper
+from util_discord import command_check, description_helper, get_guild_prefix
 modes = ["all", "me", "hardcore"]
 
 def read_json_file(file_path):
@@ -115,7 +115,7 @@ class ButtonChoice(discord.ui.Button):
             self.players[k]["host"] = True
         # solo lock
         if self.settings["mode"] != "all" and interaction.user.id != host_id:
-            return await interaction.response.send_message(content=f"<@{host_id}> is playing this game. Use `-hang` to create your own game.",
+            return await interaction.response.send_message(content=f"<@{host_id}> is playing this game. Use `{await get_guild_prefix(self.ctx)}hang` to create your own game.",
                                                            ephemeral=True)
         if self.id == "LEAVE": 
             a = False
@@ -168,7 +168,7 @@ def QuizEmbed(words: list, index: int, settings: dict, players: dict, ctx: comma
 async def HANG(ctx: commands.Context, mode: str, count: str, gtype: str, cat: str, diff: str):
     if await command_check(ctx, "hang", "games"): return
     msg = await ctx.reply("Writing dictionary…")
-    params = "```-hang [mode: <all/hardcore/me> count: <1-50>, type: <any/word/quiz> category: <any/9-32> difficulty: <any/easy/medium/hard>```"
+    params = f"```{await get_guild_prefix(ctx)}hang [mode: <all/hardcore/me> count: <1-50>, type: <any/word/quiz> category: <any/9-32> difficulty: <any/easy/medium/hard>```"
     if mode:
         if mode in modes: pass
         else: return await msg.edit(content="Mode not found.\n"+params)

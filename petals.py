@@ -4,7 +4,7 @@ import aiohttp
 import websockets
 import json
 import re
-from util_discord import command_check
+from util_discord import command_check, get_guild_prefix
 
 # list of old models
 models = [
@@ -109,7 +109,7 @@ async def req_real(api):
 async def PETALS(ctx: commands.Context):
     if await command_check(ctx, "petals", "ai"): return
     status = await req_real("https://health.petals.dev/api/v1/state")
-    text = "`-beluga2` petals-team/StableBeluga2```diff\n"
+    text = f"`{await get_guild_prefix(ctx)}beluga2` petals-team/StableBeluga2```diff\n"
     for i in status["model_reports"]: 
         text += f"{'+ ' if i['state'] == 'healthy' else '- '}{i['name']}: {i['state']}\n"
     text += "```"

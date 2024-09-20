@@ -5,7 +5,7 @@ import aiohttp
 import io
 from discord.ext import commands
 import os
-from util_discord import command_check
+from util_discord import command_check, get_guild_prefix
 
 client = AsyncOpenAI(api_key=os.getenv('OPENAI'))
 
@@ -39,10 +39,11 @@ async def discord_image(link: str, prompt: str) -> discord.File:
             
 async def help_openai(ctx: commands.Context):
     if await command_check(ctx, "openai", "ai"): return
+    p = await get_guild_prefix(ctx)
     text = [
-        "`-ask` gpt-3.5-turbo",
-        "`-gpt` gpt-3.5-turbo-instruct",
-        "`-imagine` dall-e-2"
+        f"`{p}ask` gpt-3.5-turbo",
+        f"`{p}gpt` gpt-3.5-turbo-instruct",
+        f"`{p}imagine` dall-e-2"
     ]
     await ctx.reply("\n".join(text))
 

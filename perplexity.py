@@ -5,7 +5,7 @@ from discord import app_commands
 from discord.ext import commands
 import time
 import base64
-from util_discord import command_check, description_helper
+from util_discord import command_check, description_helper, get_guild_prefix
 
 # ugly
 def strip_dash(text: str):
@@ -118,62 +118,67 @@ models_github=[
 
 async def help_perplexity(ctx: commands.Context):
     if await command_check(ctx, "perplex", "ai"): return
+    p = await get_guild_prefix(ctx)
     text = [
-         f"`-ll` {models[0]}",
-        f"`-cll` {models[1]}",
-        f"`-mis` {models[2]}",
-        f"`-mix` {models[3]}",
-        f"`-ssc` {models[4]}",
-        f"`-sso` {models[5]}",
-        f"`-smc` {models[6]}",
-        f"`-smo` {models[7]}",
+         f"`{p}ll` {models[0]}",
+        f"`{p}cll` {models[1]}",
+        f"`{p}mis` {models[2]}",
+        f"`{p}mix` {models[3]}",
+        f"`{p}ssc` {models[4]}",
+        f"`{p}sso` {models[5]}",
+        f"`{p}smc` {models[6]}",
+        f"`{p}smo` {models[7]}",
     ]
     await ctx.reply("\n".join(text))
 
 async def help_claude(ctx: commands.Context):
     if await command_check(ctx, "claude", "ai"): return
+    p = await get_guild_prefix(ctx)
     text = [
-        f"`-cla` {models_claude[0]}",
-        f"`-c3o` {models_claude[1]}",
-        f"`-c3s` {models_claude[2]}",
+        f"`{p}cla` {models_claude[0]}",
+        f"`{p}c3o` {models_claude[1]}",
+        f"`{p}c3s` {models_claude[2]}",
     ]
     await ctx.reply("\n".join(text))
 
 async def help_mistral(ctx: commands.Context):
     if await command_check(ctx, "mistral", "ai"): return
+    p = await get_guild_prefix(ctx)
     text = [
-        f"`-m7b` {models_mistral[0]}",
-        f"`-mx7b` {models_mistral[1]}",
-        f"`-mx22b` {models_mistral[2]}",
-        f"`-ms` {models_mistral[3]}",
-        f"`-mm` {models_mistral[4]}",
-        f"`-ml` {models_mistral[5]}",
-        f"`-mcode` {models_mistral[6]}",
+        f"`{p}m7b` {models_mistral[0]}",
+        f"`{p}mx7b` {models_mistral[1]}",
+        f"`{p}mx22b` {models_mistral[2]}",
+        f"`{p}ms` {models_mistral[3]}",
+        f"`{p}mm` {models_mistral[4]}",
+        f"`{p}ml` {models_mistral[5]}",
+        f"`{p}mcode` {models_mistral[6]}",
     ]
     await ctx.reply("\n".join(text))
 
 async def help_groq(ctx: commands.Context):
     if await command_check(ctx, "groq", "ai"): return
+    p = await get_guild_prefix(ctx)
     text = [
-        f"`-l31405` {models_groq[0]}",
-        f"`-l3170` {models_groq[1]}",
-        f"`-l318` {models_groq[2]}",
-        f"`-l370` {models_groq[3]}",
-        f"`-l38` {models_groq[4]}",
-        f"`-mix7b` {models_groq[5]}",
-        f"`-g7b` {models_groq[6]}",
-        f"`-g29b` {models_groq[7]}",
+        f"`{p}l31405` {models_groq[0]}",
+        f"`{p}l3170` {models_groq[1]}",
+        f"`{p}l318` {models_groq[2]}",
+        f"`{p}l370` {models_groq[3]}",
+        f"`{p}l38` {models_groq[4]}",
+        f"`{p}mix7b` {models_groq[5]}",
+        f"`{p}g7b` {models_groq[6]}",
+        f"`{p}g29b` {models_groq[7]}",
     ]
     await ctx.reply("\n".join(text))
 
 async def help_github(ctx: commands.Context):
     if await command_check(ctx, "github", "ai"): return
+    p = await get_guild_prefix(ctx)
     text = [
-        f"`-gpt4o` {models_github[0]}",
-        f"`-gpt4om` {models_github[1]}",
-        f"`-ai21` {models_github[7]}",
-        f"`-ccr` {models_github[8]}",
-        f"`-ccrp` {models_github[9]}",
+        f"`{p}gpt4o` {models_github[0]}",
+        f"`{p}gpt4om` {models_github[1]}",
+        f"`{p}ai21` {models_github[7]}",
+        f"`{p}ccr` {models_github[8]}",
+        f"`{p}ccrp` {models_github[9]}",
     ]
     await ctx.reply("\n".join(text))
 

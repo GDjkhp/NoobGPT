@@ -49,19 +49,20 @@ def category_to_commands(cat: str, commands: list):
         if not x in commands: commands.append(x)
 
 async def config_commands(ctx: commands.Context):
+    p = await get_guild_prefix(ctx)
     text = [
-        "`-view` View available commands.",
-        "`-botmaster [user/userid]` Adds bot master role to a user.",
-        "`-prefix [prefix]` Change bot command prefix.",
-        "`-channel` Toggle channel mode, where you can set specific commands per channel.",
-        "`-toggle [command]` Toggle command. Requires channel mode.",
-        "`-disable [command]` Disable command server-wide."
+        f"`{p}view` View available commands.",
+        f"`{p}botmaster [user/userid]` Adds bot master role to a user.",
+        f"`{p}prefix [prefix]` Change bot command prefix.",
+        f"`{p}channel` Toggle channel mode, where you can set specific commands per channel.",
+        f"`{p}toggle [command]` Toggle command. Requires channel mode.",
+        f"`{p}disable [command]` Disable command server-wide."
     ]
     await ctx.reply("\n".join(text))
 
 async def command_enable(ctx: commands.Context, com: str):
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
-    if not com: return await ctx.reply("execute `-halp` to view commands")
+    if not com: return await ctx.reply(f"execute `{await get_guild_prefix(ctx)}halp` to view commands")
     if not com in available_commands and not com in available_categories:
         return await ctx.reply("😩")
     db = await get_database(ctx.guild.id if ctx.guild else ctx.channel.id)
@@ -97,7 +98,7 @@ async def command_enable(ctx: commands.Context, com: str):
 
 async def command_disable(ctx: commands.Context, com: str):
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
-    if not com: return await ctx.reply("execute `-halp` to view commands")
+    if not com: return await ctx.reply(f"execute `{await get_guild_prefix(ctx)}halp` to view commands")
     if not com in available_commands and not com in available_categories:
         return await ctx.reply("😩")
     db = await get_database(ctx.guild.id if ctx.guild else ctx.channel.id) # nonsense

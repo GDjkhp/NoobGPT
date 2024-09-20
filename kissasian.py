@@ -4,7 +4,7 @@ import aiohttp
 import discord
 from discord import app_commands
 from discord.ext import commands
-from util_discord import command_check, description_helper
+from util_discord import command_check, description_helper, get_guild_prefix
 
 BASE_URL = "https://kissasian.lu"
 provider="https://gdjkhp.github.io/img/kissasian.png"
@@ -12,12 +12,13 @@ pagelimit=12
 
 async def help_tv(ctx: commands.Context):
     if await command_check(ctx, "tv", "media"): return
-    sources = ["`-flix` sflix", "`-kiss` kissasian"]
+    p = await get_guild_prefix(ctx)
+    sources = [f"`{p}flix` sflix", f"`{p}kiss` kissasian"]
     await ctx.reply("\n".join(sources))
 
 async def kiss_search(ctx: commands.Context, arg: str):
     if await command_check(ctx, "tv", "media"): return
-    if not arg: return await ctx.reply("usage: `-kiss <query>`")
+    if not arg: return await ctx.reply(f"usage: `{await get_guild_prefix(ctx)}kiss <query>`")
     results = await search(arg)
     if not results['data']: return await ctx.reply("none found")
     await ctx.reply(embed=buildSearch(arg, results["data"], 0), view=SearchView(ctx, arg, results["data"], 0))

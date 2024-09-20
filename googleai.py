@@ -6,7 +6,7 @@ import time
 import os
 import base64
 import json
-from util_discord import command_check, description_helper
+from util_discord import command_check, description_helper, get_guild_prefix
 
 headers = {'Content-Type': 'application/json'}
 def palm_proxy(model: str) -> str:
@@ -195,10 +195,11 @@ async def GEMINI_REST(ctx: commands.Context | discord.Interaction, model: int, p
 
 async def help_google(ctx: commands.Context):
     if await command_check(ctx, "googleai", "ai"): return
+    p = await get_guild_prefix(ctx)
     text  = [
-        f"`-gemini` {models[1]}",
-        f"`-flash` {models[2]}",
-        # f"`-palm` {models[0]}"
+        f"`{p}gemini` {models[1]}",
+        f"`{p}flash` {models[2]}",
+        # f"`{p}palm` {models[0]}"
     ]
     await ctx.reply("\n".join(text))
 

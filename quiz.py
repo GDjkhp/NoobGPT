@@ -4,7 +4,7 @@ import random
 import discord
 from discord import app_commands
 from discord.ext import commands
-from util_discord import command_check, description_helper
+from util_discord import command_check, description_helper, get_guild_prefix
 v2cat = ["science", "film_and_tv", "music", "history", "geography", "art_and_literature", "sport_and_leisure", "general_knowledge", "science", "food_and_drink"]
 
 async def req_real(api):
@@ -17,7 +17,7 @@ async def req_real(api):
 async def QUIZ(ctx: commands.Context | discord.Interaction, mode: str, v: str, count: str, cat: str, diff: str, ty: str):
     if await command_check(ctx, "quiz", "games"): return
     if isinstance(ctx, commands.Context): msg = await ctx.reply("Crunching data…")
-    params = "```-quiz [version: <any/v1/v2> mode: <all/anon/me> count: <1-50> category: <any/9-32> difficulty: <any/easy/medium/hard> type: <any/multiple/boolean>```"
+    params = f"```{await get_guild_prefix(ctx)}quiz [version: <any/v1/v2> mode: <all/anon/me> count: <1-50> category: <any/9-32> difficulty: <any/easy/medium/hard> type: <any/multiple/boolean>```"
     if count:
         if count.isdigit():
             if int(count) > 51 or int(count) < 1: 

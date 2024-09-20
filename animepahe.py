@@ -4,7 +4,7 @@ import aiohttp
 from discord.ext import commands
 import os
 import re
-from util_discord import command_check, description_helper
+from util_discord import command_check, description_helper, get_guild_prefix
 from curl_cffi.requests import AsyncSession
 import sys
 import asyncio
@@ -22,7 +22,8 @@ provider="https://gdjkhp.github.io/img/apdoesnthavelogotheysaidapistooplaintheys
 
 async def help_anime(ctx: commands.Context):
     if await command_check(ctx, "anime", "media"): return
-    sources = ["`-gogo` gogoanime", "`-pahe` animepahe"]
+    p = await get_guild_prefix(ctx)
+    sources = [f"`{p}gogo` gogoanime", f"`{p}pahe` animepahe"]
     await ctx.reply("\n".join(sources))
 
 async def new_req_old(url: str, headers: dict, json_mode: bool):
@@ -71,7 +72,7 @@ def buildAnime(details: dict) -> discord.Embed:
 
 async def pahe_search(ctx: commands.Context, arg: str):
     if await command_check(ctx, "anime", "media"): return
-    if not arg: return await ctx.reply("usage: `-pahe <query>`")
+    if not arg: return await ctx.reply(f"usage: `{await get_guild_prefix(ctx)}pahe <query>`")
     results = await new_req(f"https://animepahe.ru/api?m=search&q={arg.replace(' ', '+')}", headers, True)
     if not results: return await ctx.reply("none found")
     await ctx.reply(embed=buildSearch(arg, results["data"], 0), view=SearchView(ctx, arg, results["data"], 0))

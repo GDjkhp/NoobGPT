@@ -4,7 +4,7 @@ from discord.ext import commands
 import aiohttp
 from PIL import Image
 import io
-from util_discord import command_check, description_helper
+from util_discord import command_check, description_helper, get_guild_prefix
 
 BASE_URL = "https://api.mangadex.org"
 provider = "https://gdjkhp.github.io/img/mangadex-logo.png"
@@ -12,12 +12,13 @@ pagelimit=12
 
 async def help_manga(ctx: commands.Context):
     if await command_check(ctx, "manga", "media"): return
-    sources = ["`-dex` mangadex", "`-nato` manganato"]
+    p = await get_guild_prefix(ctx)
+    sources = [f"`{p}dex` mangadex", f"`{p}nato` manganato"]
     await ctx.reply("\n".join(sources))
 
 async def dex_search(ctx: commands.Context, arg: str):
     if await command_check(ctx, "manga", "media"): return
-    if not arg: return await ctx.reply("usage: `-dex <query>`")
+    if not arg: return await ctx.reply(f"usage: `{await get_guild_prefix(ctx)}dex <query>`")
     msg = await ctx.reply("please wait")
     res = await search_manga(arg)
     if not res: return await msg.edit(content="none found")

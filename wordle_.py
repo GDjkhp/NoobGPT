@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 from util_database import myclient
 import pymongo
-from util_discord import command_check, description_helper
+from util_discord import command_check, description_helper, get_guild_prefix
 
 mycol = myclient["games"]["wordle"]
 font = ImageFont.truetype("./res/font/LibreFranklin-Bold.ttf", size=75)
@@ -210,7 +210,7 @@ class ButtonChoice(discord.ui.Button):
 
         # solo lock
         if self.settings["mode"] != "all" and interaction.user.id != host_id:
-            return await interaction.response.send_message(content=f"<@{host_id}> is playing this game. Use `-wordle` to create your own game.",
+            return await interaction.response.send_message(content=f"<@{host_id}> is playing this game. Use `{await get_guild_prefix(self.ctx)}wordle` to create your own game.",
                                                            ephemeral=True)
         # register player choice
         if not interaction.user.id in self.players: self.players[interaction.user.id] = add_player(interaction.user)
@@ -238,10 +238,11 @@ class ButtonChoice(discord.ui.Button):
             return await interaction.response.send_modal(MyModal(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history))
         if self.id == "NEXT":
             game_reset(self.dead, self.settings, self.history)
-            await interaction.response.send_message(content=f"New game.",
-                                                    embed=QuizEmbed(self.settings, self.index+1, self.words, self.players),
-                                                    file=wordle_image(self.history, self.words[self.index+1]["word"].upper()),
-                                                    view=QuizView(self.ctx, self.words, self.index+1, self.dead, self.settings, self.players, self.history))
+            await interaction.response.edit_message(view=None)
+            await interaction.followup.send(content=f"New game.",
+                                            embed=QuizEmbed(self.settings, self.index+1, self.words, self.players),
+                                            file=wordle_image(self.history, self.words[self.index+1]["word"].upper()),
+                                            view=QuizView(self.ctx, self.words, self.index+1, self.dead, self.settings, self.players, self.history))
         if self.id == "UPDATE":
             if interaction.user.id != host_id: 
                 return await interaction.response.send_message(f"Only <@{host_id}> can press this button.", ephemeral=True)
@@ -289,20 +290,23 @@ class MyModal(discord.ui.Modal):
             
             self.settings["result"] = 1
             self.players[interaction.user.id]["score"] += 1
-            await interaction.response.send_message(embed=QuizEmbed(self.settings, self.index, self.words, self.players),
-                                                    view=QuizView(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history),
-                                                    file=wordle_image(self.history, word))
+            await interaction.response.edit_message(view=None)
+            await interaction.followup.send(embed=QuizEmbed(self.settings, self.index, self.words, self.players),
+                                            view=QuizView(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history),
+                                            file=wordle_image(self.history, word))
         else:
             self.settings["step"] += 1
             if self.settings["step"] != 6: # in-game
-                await interaction.response.send_message(embed=QuizEmbed(self.settings, self.index, self.words, self.players), content=format_hearts(self.dead),
-                                                        view=QuizView(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history),
-                                                        file=wordle_image(self.history, word))
+                await interaction.response.edit_message(view=None)
+                await interaction.followup.send(embed=QuizEmbed(self.settings, self.index, self.words, self.players), content=format_hearts(self.dead),
+                                                view=QuizView(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history),
+                                                file=wordle_image(self.history, word))
             else: # you lose
                 self.settings["result"] = 0
-                await interaction.response.send_message(embed=QuizEmbed(self.settings, self.index, self.words, self.players),
-                                                        content=f"GAME OVER!\n{word}", view=None,
-                                                        file=wordle_image(self.history, word))
+                await interaction.response.edit_message(view=None)
+                await interaction.followup.send(embed=QuizEmbed(self.settings, self.index, self.words, self.players),
+                                                content=f"GAME OVER!\n{word}", view=None,
+                                                file=wordle_image(self.history, word))
 
 async def brag_embed(server_scores, ctx: commands.Context, global_lead: bool) -> discord.Embed:
     e = discord.Embed(color=0x00ff00, title=ctx.guild if not global_lead else "GLOBAL", description="wordle prototype")
@@ -351,7 +355,7 @@ async def brag_function(ctx: commands.Context, mode: str, optional: str):
 
 async def wordle_game(ctx: commands.Context, mode: str, count: str):
     if await command_check(ctx, "word", "games"): return
-    params = "```-wordle [stats: <rank/lead/global> OR mode: <all/hardcore/me> count: <1-50>]```"
+    params = f"```{await get_guild_prefix(ctx)}wordle [stats: <rank/lead/global> OR mode: <all/hardcore/me> count: <1-50>]```"
 
     if mode in ["lead", "rank", "global"]:
         return await brag_function(ctx, mode, count)

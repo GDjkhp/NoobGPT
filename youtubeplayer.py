@@ -2,35 +2,36 @@ import wavelink
 from discord.ext import commands
 from discord import app_commands
 from music import *
-from util_discord import command_check, description_helper
+from util_discord import command_check, description_helper, get_guild_prefix
 
 async def music_help(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "music", "media"): return
+    p = await get_guild_prefix(ctx)
     texts = [
         "# Player commands",
-        "`-play <query>` Play music. Supports YouTube, Spotify, SoundCloud, Apple Music.",
-        "`-nowplaying` Now playing.",
-        "`-pause` Pause music.",
-        "`-resume` Resume music.",
-        "`-skip` Skip music.",
-        "`-stop` Stop music and disconnect from voice channel.",
-        "`-volume <value>` Set volume.",
-        "`-summon` Join voice channel.",
-        "`-dj` Create DJ role.",
+        f"`{p}play <query>` Play music. Supports YouTube, Spotify, SoundCloud, Apple Music.",
+        f"`{p}nowplaying` Now playing.",
+        f"`{p}pause` Pause music.",
+        f"`{p}resume` Resume music.",
+        f"`{p}skip` Skip music.",
+        f"`{p}stop` Stop music and disconnect from voice channel.",
+        f"`{p}volume <value>` Set volume.",
+        f"`{p}summon` Join voice channel.",
+        f"`{p}dj` Create DJ role.",
         "# Queue commands",
-        "`-search <query>` Search music. Defaults to YouTube.",
-        "`-list <page>` Show queue.",
-        "`-shuffle` Shuffle queue.",
-        "`-reset` Reset queue.",
-        "`-peek` Peek track.",
-        "`-remove <index>` Remove a track from the queue.",
-        "`-replace <index> <query>` Replace track.",
-        "`-swap <index1> <index2>` Swap tracks.",
-        "`-move <index1> <index2>` Move track.",
-        "`-repeat <off/one/all>` Repeat music modes.",
-        "`-autoplay <partial/enabled/disabled>` Autoplay and recommended music modes.",
-        # "`-filters` Show available filters.",
+        f"`{p}search <query>` Search music. Defaults to YouTube.",
+        f"`{p}list <page>` Show queue.",
+        f"`{p}shuffle` Shuffle queue.",
+        f"`{p}reset` Reset queue.",
+        f"`{p}peek` Peek track.",
+        f"`{p}remove <index>` Remove a track from the queue.",
+        f"`{p}replace <index> <query>` Replace track.",
+        f"`{p}swap <index1> <index2>` Swap tracks.",
+        f"`{p}move <index1> <index2>` Move track.",
+        f"`{p}repeat <off/one/all>` Repeat music modes.",
+        f"`{p}autoplay <partial/enabled/disabled>` Autoplay and recommended music modes.",
+        # f"`{p}filters` Show available filters.",
     ]
     await ctx.reply("\n".join(texts))
 
@@ -68,10 +69,11 @@ async def music_play(ctx: commands.Context | discord.Interaction, search: str):
             return await ctx.response.send_message(f'Join the voice channel with the bot first.')
         
     if not search:
+        p = await get_guild_prefix(ctx)
         if isinstance(ctx, commands.Context):
-            return await ctx.reply("usage: `-play <query>`")
+            return await ctx.reply(f"usage: `{p}play <query>`")
         if isinstance(ctx, discord.Interaction):
-            return await ctx.response.send_message("usage: `-play <query>`")
+            return await ctx.response.send_message(f"usage: `{p}play <query>`")
         
     try: tracks = await wavelink.Playable.search(search)
     except Exception as e:
@@ -207,10 +209,11 @@ async def queue_search(ctx: commands.Context | discord.Interaction, search: str,
             return await ctx.response.send_message(f'Join the voice channel with the bot first.')
 
     if not search:
+        p = await get_guild_prefix(ctx)
         if isinstance(ctx, commands.Context):
-            return await ctx.reply("usage: `-search <query>`")
+            return await ctx.reply(f"usage: `{p}search <query>`")
         if isinstance(ctx, discord.Interaction):
-            return await ctx.response.send_message("usage: `-search <query>`")
+            return await ctx.response.send_message(f"usage: `{p}search <query>`")
     
     try: tracks = await wavelink.Playable.search(search, source=source)
     except Exception as e:
@@ -274,7 +277,7 @@ async def queue_loop(ctx: commands.Context, mode: str):
         vc.queue.mode = wavelink.QueueMode.loop_all
         text, desc = "🔁 Repeat all", "wavelink.QueueMode.loop_all"
     else:
-        return await ctx.reply("Mode not found.\nUsage: `-repeat <off/one/all>`")
+        return await ctx.reply(f"Mode not found.\nUsage: `{await get_guild_prefix(ctx)}repeat <off/one/all>`")
     embed = music_embed(text, desc)
     await ctx.reply(embed=embed)
 
@@ -297,7 +300,7 @@ async def queue_autoplay(ctx: commands.Context, mode: str):
         vc.autoplay = wavelink.AutoPlayMode.disabled
         text, desc = "❌ Autoplay disabled", "wavelink.AutoPlayMode.disabled"
     else:
-        return await ctx.reply("Mode not found.\nUsage: `-autoplay <partial/enabled/disabled>`")
+        return await ctx.reply(f"Mode not found.\nUsage: `{await get_guild_prefix(ctx)}autoplay <partial/enabled/disabled>`")
     embed = music_embed(text, desc)
     await ctx.reply(embed=embed)
 

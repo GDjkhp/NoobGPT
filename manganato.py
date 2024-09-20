@@ -4,14 +4,14 @@ from discord.ext import commands
 from manganelo import get_search_results, fetch_image, SearchResult, StoryPage, Chapter
 from PIL import Image
 import io
-from util_discord import command_check, description_helper
+from util_discord import command_check, description_helper, get_guild_prefix
 
 provider = "https://gdjkhp.github.io/img/nt.png"
 pagelimit=12
 
 async def nato_search(ctx: commands.Context, arg: str):
     if await command_check(ctx, "manga", "media"): return
-    if not arg: return await ctx.reply("usage: `-nato <query>`")
+    if not arg: return await ctx.reply(f"usage: `{await get_guild_prefix(ctx)}nato <query>`")
     msg = await ctx.reply("please wait")
     res = await get_search_results(arg)
     if not res: return await msg.edit(content="none found")

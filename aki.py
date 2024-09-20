@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from aki_new import Akinator, CantGoBackAnyFurther
-from util_discord import command_check, description_helper
+from util_discord import command_check, description_helper, get_guild_prefix
 
 categories = ['people', 'objects', 'animals']
 languages = ['en', 'ar', 'cn', 'de', 'es', 'fr', 'it', 'jp', 'kr', 'nl', 'pl', 'pt', 'ru', 'tr', 'id']
@@ -41,8 +41,8 @@ class ButtonAction(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author:
-            return await interaction.response.send_message(content=f"<@{self.ctx.message.author.id}> is playing this game! Use `-aki` to create your own game.", 
-                                                   ephemeral=True)
+            return await interaction.response.send_message(content=f"<@{self.ctx.message.author.id}> is playing this game! Use `{await get_guild_prefix(self.ctx)}aki` to create your own game.", 
+                                                           ephemeral=True)
         if self.action == 's':
             return await interaction.response.edit_message(content=f"Skill issue <@{interaction.user.id}>", view=None, embed=None)
         if self.action == 'b':
@@ -69,8 +69,8 @@ class ButtonAction0(discord.ui.Button):
 
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author:
-            return await interaction.response.send_message(content=f"<@{self.ctx.message.author.id}> is playing this game! Use `-aki` to create your own game.", 
-                                                   ephemeral=True)
+            return await interaction.response.send_message(content=f"<@{self.ctx.message.author.id}> is playing this game! Use `{await get_guild_prefix(self.ctx)}aki` to create your own game.", 
+                                                           ephemeral=True)
         if self.action == 'y':
             embed_win = discord.Embed(title='GG!', color=0x00FF00)
             embed_win.add_field(name=self.aki.name_proposition, value=self.aki.description_proposition, inline=False)

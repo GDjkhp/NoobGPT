@@ -11,7 +11,7 @@ from typing import Dict
 import time
 import util_database
 import os
-from util_discord import command_check, check_if_master_or_admin as check, description_helper
+from util_discord import command_check, check_if_master_or_admin as check, description_helper, get_guild_prefix
 
 mycol = util_database.myclient["ai"]["character"]
 client = PyAsyncCAI(os.getenv('CHARACTER'))
@@ -143,7 +143,7 @@ async def add_char(ctx: commands.Context, text: str, search_type: int):
     
     list_type = list_types[search_type]
     if search_type == 0: 
-        if not text: return await ctx.reply("usage: `-cadd <query>`")
+        if not text: return await ctx.reply(f"usage: `{await get_guild_prefix(ctx)}cadd <query>`")
     else: text = list_type
     try:
         if len(text) >= 43: # char_id test
@@ -224,7 +224,7 @@ async def set_rate(ctx: commands.Context, num: str):
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
         return await ctx.reply("channel not found")
     
-    if not num: return await ctx.reply("usage: `-crate <0-100>`")
+    if not num: return await ctx.reply(f"usage: `{await get_guild_prefix(ctx)}crate <0-100>`")
     if not num.isdigit(): return await ctx.reply("not a digit")
     num = fix_num(num)
     await set_rate_db(ctx.guild.id, num)
@@ -264,7 +264,7 @@ async def edit_char(ctx: commands.Context, rate: str):
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
         return await ctx.reply("channel not found")
     
-    if not rate: return await ctx.reply("usage: `-cedit <0-100>`")
+    if not rate: return await ctx.reply(f"usage: `{await get_guild_prefix(ctx)}cedit <0-100>`")
     if not rate.isdigit(): return await ctx.reply("not a digit :(")
     rate = fix_num(rate)
 
@@ -304,7 +304,7 @@ async def set_mention_mode(ctx: commands.Context, modes: str):
     
     if not modes:
         text = [
-            "usage: `-cping <basic/nospace/split/snake>`",
+            f"usage: `{await get_guild_prefix(ctx)}cping <basic/nospace/split/snake>`",
             "basic: `yoko littner` -> `yoko littner`",
             "nospace: `hu tao` -> `hutao`",
             "split: `hatsune miku` -> `hatsune`, `miku`",
@@ -323,30 +323,31 @@ async def set_mention_mode(ctx: commands.Context, modes: str):
 
 async def c_help(ctx: commands.Context):
     if await command_check(ctx, "c.ai", "ai"): return
+    p = await get_guild_prefix(ctx)
     text = [
         "# Character commands",
-        "`-cchar` available characters",
-        "`-cadd <query>` add character",
-        "`-cdel` delete character",
-        "`-cres` reset character",
-        "`-ctren` trending characters",
-        "`-crec` recommended characters",
+        f"`{p}cchar` available characters",
+        f"`{p}cadd <query>` add character",
+        f"`{p}cdel` delete character",
+        f"`{p}cres` reset character",
+        f"`{p}ctren` trending characters",
+        f"`{p}crec` recommended characters",
         "# Server commands",
-        "`-cchan` add/remove channel",
-        "`-cadm` toggle admin approval",
-        "`-cmode` toggle channel mode",
-        "`-cping <basic/nospace/split/snake>` set mention mode",
-        "`-crate <rate>` set global message_rate (0-100)",
-        "`-cedit <rate>` set char_message_rate per channel (0-100)",
+        f"`{p}cchan` add/remove channel",
+        f"`{p}cadm` toggle admin approval",
+        f"`{p}cmode` toggle channel mode",
+        f"`{p}cping <basic/nospace/split/snake>` set mention mode",
+        f"`{p}crate <rate>` set global message_rate (0-100)",
+        f"`{p}cedit <rate>` set char_message_rate per channel (0-100)",
         "# Get started",
-        "setup: `-cchan` -> `-cadd <query>`",
-        "stop: `-crate 0`",
-        "delete all chars: `-cdel` -> `💀`",
-        "reset all chars: `-cres` -> `💀`",
-        "set all char_message_rate: `-cedit <rate>` -> `💀`",
+        f"setup: `{p}cchan` -> `{p}cadd <query>`",
+        f"stop: `{p}crate 0`",
+        f"delete all chars: `{p}cdel` -> `💀`",
+        f"reset all chars: `{p}cres` -> `💀`",
+        f"set all char_message_rate: `{p}cedit <rate>` -> `💀`",
         "channel mode: `True` = read specific channels, `False` = read all channels",
         "admin approval: `True` = disables most commands, `False` = enables all commands",
-        "you can also setup forums and threads per character with `-cchan` -> `-cedit 100`"
+        f"you can also setup forums and threads per character with `{p}cchan` -> `{p}cedit 100`"
     ]
     await ctx.reply("\n".join(text))
 
@@ -680,7 +681,8 @@ class ResetAllButton(discord.ui.Button):
             await interaction.message.edit(content=f'resetting `{selected["name"]}`\n{count}/{len(self.result)}\n{e_strs}')
             if not selected.get("char_id"):
                 count -= 1
-                errors.append(f"`char_id` not found. please re-add `{selected['name']}` with `-cdel` and `-cadd`")
+                p = await get_guild_prefix(self.ctx)
+                errors.append(f"`char_id` not found. please re-add `{selected['name']}` with `{p}cdel` and `{p}cadd`")
                 continue
             
             chat = None
@@ -960,7 +962,8 @@ class ResetChoice(discord.ui.Select):
         await interaction.response.defer()
 
         if not selected.get("char_id"):
-            return await interaction.message.edit(content=f"`char_id` not found. please re-add `{selected['name']}` with `-cdel` and `-cadd`")
+            p = await get_guild_prefix(self.ctx)
+            return await interaction.message.edit(content=f"`char_id` not found. please re-add `{selected['name']}` with `{p}cdel` and `{p}cadd`")
         chat = None
         try:
             chat = await client.chat.new_chat(selected["char_id"])
