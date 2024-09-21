@@ -75,18 +75,21 @@ async def music_play(ctx: commands.Context | discord.Interaction, search: str):
         if isinstance(ctx, discord.Interaction):
             return await ctx.response.send_message(f"usage: `{p}play <query>`")
         
-    try: tracks = await wavelink.Playable.search(search)
+    try:
+        if isinstance(ctx, discord.Interaction): 
+            await ctx.response.send_message("Loading…")
+        tracks = await wavelink.Playable.search(search)
     except Exception as e:
         if isinstance(ctx, commands.Context):
             return await ctx.reply(f'Error :(\n{e}')
         if isinstance(ctx, discord.Interaction):
-            return await ctx.response.send_message(f'Error :(\n{e}')
+            return await ctx.edit_original_response(content=f'Error :(\n{e}')
         
     if not tracks:
         if isinstance(ctx, commands.Context):
             return await ctx.reply('No results found.')
         if isinstance(ctx, discord.Interaction):
-            return await ctx.response.send_message('No results found.')
+            return await ctx.edit_original_response(content='No results found.')
 
     if not ctx.guild.voice_client:
         try:
@@ -99,7 +102,7 @@ async def music_play(ctx: commands.Context | discord.Interaction, search: str):
             await setup_hook_music(ctx.bot)
             return
         vc.autoplay = wavelink.AutoPlayMode.enabled
-    vc.music_channel = ctx.message.channel
+    vc.music_channel = ctx.channel
 
     if isinstance(tracks, wavelink.Playlist):
         added: int = await vc.queue.put_wait(tracks)
@@ -113,7 +116,7 @@ async def music_play(ctx: commands.Context | discord.Interaction, search: str):
     if isinstance(ctx, commands.Context):
         await ctx.reply(embed=embed)
     if isinstance(ctx, discord.Interaction):
-        await ctx.response.send_message(embed=embed)
+        await ctx.edit_original_response(embed=embed, content=None)
 
 async def music_pause(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
@@ -215,23 +218,26 @@ async def queue_search(ctx: commands.Context | discord.Interaction, search: str,
         if isinstance(ctx, discord.Interaction):
             return await ctx.response.send_message(f"usage: `{p}search <query>`")
     
-    try: tracks = await wavelink.Playable.search(search, source=source)
+    try: 
+        if isinstance(ctx, discord.Interaction):
+            await ctx.response.send_message("Loading…")
+        tracks = await wavelink.Playable.search(search, source=source)
     except Exception as e:
         if isinstance(ctx, commands.Context):
             return await ctx.reply(f'Error :(\n{e}')
         if isinstance(ctx, discord.Interaction):
-            return await ctx.response.send_message(f'Error :(\n{e}')
+            return await ctx.edit_original_response(content=f'Error :(\n{e}')
     
     if not tracks:
         if isinstance(ctx, commands.Context):
             return await ctx.reply('No results found.')
         if isinstance(ctx, discord.Interaction):
-            return await ctx.response.send_message('No results found.')
+            return await ctx.edit_original_response(content='No results found.')
     
     if isinstance(ctx, commands.Context):
         await ctx.reply(embed=search_embed(search, tracks, 0), view=SearchView(ctx, search, tracks, 0))
     if isinstance(ctx, discord.Interaction):
-        await ctx.response.send_message(embed=search_embed(search, tracks, 0), view=SearchView(ctx, search, tracks, 0))
+        await ctx.edit_original_response(embed=search_embed(search, tracks, 0), view=SearchView(ctx, search, tracks, 0), content=None)
 
 async def queue_list(ctx: commands.Context, page: str):
     if not ctx.guild: return await ctx.reply("not supported")
@@ -410,12 +416,14 @@ async def queue_move(ctx: commands.Context, init: str, dest: str):
         await ctx.reply(embed=music_embed("↕️ Move track", f"`{track.title}` is now at position `{index2+1}`."))
 
 async def search_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    if not current: return []
     tracks = await wavelink.Playable.search(current)
     return [
         app_commands.Choice(name=track.title, value=track.uri) for track in tracks
     ][:25]
 
 async def search_auto_spotify(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    if not current: return []
     tracks = await wavelink.Playable.search(current, source="spsearch:")
     return [
         app_commands.Choice(name=track.title, value=track.uri) for track in tracks
