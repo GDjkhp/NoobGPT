@@ -46,15 +46,19 @@ class ButtonAction(discord.ui.Button):
         if self.action == 's':
             return await interaction.response.edit_message(content=f"Skill issue <@{interaction.user.id}>", view=None, embed=None)
         if self.action == 'b':
-            try: await self.aki.back()
+            try:
+                await interaction.response.defer()
+                await self.aki.back()
             except CantGoBackAnyFurther:
-                return await interaction.response.send_message(content=f"CantGoBackAnyFurther", ephemeral=True)
-        else: await self.aki.answer(self.action)
+                return await interaction.followup.send(content=f"CantGoBackAnyFurther", ephemeral=True)
+        else:
+            await interaction.response.edit_message(view=None)
+            await self.aki.answer(self.action)
         if not self.aki.win and self.aki.step < 79:
-            await interaction.response.edit_message(embed=qEmbed(self.aki, self.ctx), view=QView(self.aki, self.ctx))
+            await interaction.edit_original_response(embed=qEmbed(self.aki, self.ctx), view=QView(self.aki, self.ctx))
         else:
             embed = w(self.ctx, self.aki)
-            await interaction.response.edit_message(embed=embed, view=RView(self.aki, self.ctx))
+            await interaction.edit_original_response(embed=embed, view=RView(self.aki, self.ctx))
 
 class RView(discord.ui.View):
     def __init__(self, aki: Akinator, ctx):
