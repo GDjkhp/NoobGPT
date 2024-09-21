@@ -238,6 +238,8 @@ async def main_perplexity(ctx: commands.Context | discord.Interaction, model: in
     # async with ctx.typing():
     if isinstance(ctx, commands.Context):
         msg = await ctx.reply(f"{models[model]}\nGenerating response…")
+    if isinstance(ctx, discord.Interaction):
+        await ctx.response.send_message(f"{models[model]}\nGenerating response…")
     old = round(time.time() * 1000)
     try:
         url = "https://api.perplexity.ai/chat/completions"
@@ -248,32 +250,36 @@ async def main_perplexity(ctx: commands.Context | discord.Interaction, model: in
             if isinstance(ctx, commands.Context):
                 return await msg.edit(content=f"**Error! :(**\nEmpty response.")
             if isinstance(ctx, discord.Interaction):
-                return await ctx.response.send_message(content=f"**Error! :(**\nEmpty response.")
+                return await ctx.edit_original_response(content=f"**Error! :(**\nEmpty response.")
         chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
         replyFirst = True
         for chunk in chunks:
-            if replyFirst: 
-                replyFirst = False
-                if isinstance(ctx, commands.Context): await ctx.reply(chunk)
-                if isinstance(ctx, discord.Interaction): await ctx.response.send_message(chunk)
-            else:
-                if isinstance(ctx, commands.Context): await ctx.send(chunk)
-                if isinstance(ctx, discord.Interaction): await ctx.followup.send(chunk)
+            if isinstance(ctx, discord.Interaction): await ctx.followup.send(chunk)
+            if isinstance(ctx, commands.Context):
+                if replyFirst:
+                    replyFirst = False
+                    await ctx.reply(chunk)
+                else:
+                    await ctx.send(chunk)
     except Exception as e:
         # bruh = response["detail"][0]["msg"] if response and response.get("detail") else e
         print(e)
         if isinstance(ctx, commands.Context):
             return await msg.edit(content=f"**Error! :(**")
         if isinstance(ctx, discord.Interaction):
-            return await ctx.response.send_message(content=f"**Error! :(**")
+            return await ctx.edit_original_response(content=f"**Error! :(**")
     if isinstance(ctx, commands.Context):
         await msg.edit(content=f"{models[model]}\n**Took {round(time.time() * 1000)-old}ms**")
+    if isinstance(ctx, discord.Interaction):
+        await ctx.edit_original_response(content=f"{models[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
 async def main_github(ctx: commands.Context | discord.Interaction, model: int, prompt: str=None):
     if await command_check(ctx, "github", "ai"): return
     # async with ctx.typing():
     if isinstance(ctx, commands.Context):
         msg = await ctx.reply(f"{models_github[model]}\nGenerating response…")
+    if isinstance(ctx, discord.Interaction):
+        await ctx.response.send_message(f"{models_github[model]}\nGenerating response…")
     old = round(time.time() * 1000)
     try:
         url = "https://models.inference.ai.azure.com/chat/completions"
@@ -286,32 +292,36 @@ async def main_github(ctx: commands.Context | discord.Interaction, model: int, p
             if isinstance(ctx, commands.Context):
                 return await msg.edit(content=f"**Error! :(**\nEmpty response.")
             if isinstance(ctx, discord.Interaction):
-                return await ctx.response.send_message(content=f"**Error! :(**\nEmpty response.")
+                return await ctx.edit_original_response(content=f"**Error! :(**\nEmpty response.")
         chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
         replyFirst = True
         for chunk in chunks:
-            if replyFirst: 
-                replyFirst = False
-                if isinstance(ctx, commands.Context): await ctx.reply(chunk)
-                if isinstance(ctx, discord.Interaction): await ctx.response.send_message(chunk)
-            else:
-                if isinstance(ctx, commands.Context): await ctx.send(chunk)
-                if isinstance(ctx, discord.Interaction): await ctx.followup.send(chunk)
+            if isinstance(ctx, discord.Interaction): await ctx.followup.send(chunk)
+            if isinstance(ctx, commands.Context):
+                if replyFirst:
+                    replyFirst = False
+                    await ctx.reply(chunk)
+                else:
+                    await ctx.send(chunk)
     except Exception as e:
         # bruh = response["detail"][0]["msg"] if response and response.get("detail") else e
         print(e)
         if isinstance(ctx, commands.Context):
             return await msg.edit(content=f"**Error! :(**")
         if isinstance(ctx, discord.Interaction):
-            return await ctx.response.send_message(content=f"**Error! :(**")
+            return await ctx.edit_original_response(content=f"**Error! :(**")
     if isinstance(ctx, commands.Context):
         await msg.edit(content=f"{models_github[model]}\n**Took {round(time.time() * 1000)-old}ms**")
+    if isinstance(ctx, discord.Interaction):
+        await ctx.edit_original_response(content=f"{models_github[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
 async def main_groq(ctx: commands.Context | discord.Interaction, model: int, prompt: str=None):
     if await command_check(ctx, "groq", "ai"): return
     # async with ctx.typing():
     if isinstance(ctx, commands.Context):
         msg = await ctx.reply(f"{models_groq[model]}\nGenerating response…")
+    if isinstance(ctx, discord.Interaction):
+        await ctx.response.send_message(f"{models_groq[model]}\nGenerating response…")
     old = round(time.time() * 1000)
     try:
         url = "https://api.groq.com/openai/v1/chat/completions"
@@ -324,32 +334,36 @@ async def main_groq(ctx: commands.Context | discord.Interaction, model: int, pro
             if isinstance(ctx, commands.Context):
                 return await msg.edit(content=f"**Error! :(**\nEmpty response.")
             if isinstance(ctx, discord.Interaction):
-                return await ctx.response.send_message(content=f"**Error! :(**\nEmpty response.")
+                return await ctx.edit_original_response(content=f"**Error! :(**\nEmpty response.")
         chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
         replyFirst = True
         for chunk in chunks:
-            if replyFirst: 
-                replyFirst = False
-                if isinstance(ctx, commands.Context): await ctx.reply(chunk)
-                if isinstance(ctx, discord.Interaction): await ctx.response.send_message(chunk)
-            else:
-                if isinstance(ctx, commands.Context): await ctx.send(chunk)
-                if isinstance(ctx, discord.Interaction): await ctx.followup.send(chunk)
+            if isinstance(ctx, discord.Interaction): await ctx.followup.send(chunk)
+            if isinstance(ctx, commands.Context):
+                if replyFirst:
+                    replyFirst = False
+                    await ctx.reply(chunk)
+                else:
+                    await ctx.send(chunk)
     except Exception as e:
         # bruh = response["detail"][0]["msg"] if response and response.get("detail") else e
         print(e)
         if isinstance(ctx, commands.Context):
             return await msg.edit(content=f"**Error! :(**")
         if isinstance(ctx, discord.Interaction):
-            return await ctx.response.send_message(content=f"**Error! :(**")
+            return await ctx.edit_original_response(content=f"**Error! :(**")
     if isinstance(ctx, commands.Context):
         await msg.edit(content=f"{models_groq[model]}\n**Took {round(time.time() * 1000)-old}ms**")
+    if isinstance(ctx, discord.Interaction):
+        await ctx.edit_original_response(content=f"{models_groq[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
 async def main_anthropic(ctx: commands.Context | discord.Interaction, model: int):
     if await command_check(ctx, "claude", "ai"): return
     # async with ctx.typing():
     if isinstance(ctx, commands.Context):
         msg = await ctx.reply(f"{models_claude[model]}\nGenerating response…")
+    if isinstance(ctx, discord.Interaction):
+        await ctx.response.send_message(f"{models_claude[model]}\nGenerating response…")
     old = round(time.time() * 1000)
     try:
         response = await make_request_claude(models_claude[model], await loopMsg(ctx.message)) # spicy
@@ -358,32 +372,36 @@ async def main_anthropic(ctx: commands.Context | discord.Interaction, model: int
             if isinstance(ctx, commands.Context):
                 return await msg.edit(content=f"**Error! :(**\nEmpty response.")
             if isinstance(ctx, discord.Interaction):
-                return await ctx.response.send_message(content=f"**Error! :(**\nEmpty response.")
+                return await ctx.edit_original_response(content=f"**Error! :(**\nEmpty response.")
         chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
         replyFirst = True
         for chunk in chunks:
-            if replyFirst: 
-                replyFirst = False
-                if isinstance(ctx, commands.Context): await ctx.reply(chunk)
-                if isinstance(ctx, discord.Interaction): await ctx.response.send_message(chunk)
-            else:
-                if isinstance(ctx, commands.Context): await ctx.send(chunk)
-                if isinstance(ctx, discord.Interaction): await ctx.followup.send(chunk)
+            if isinstance(ctx, discord.Interaction): await ctx.followup.send(chunk)
+            if isinstance(ctx, commands.Context):
+                if replyFirst:
+                    replyFirst = False
+                    await ctx.reply(chunk)
+                else:
+                    await ctx.send(chunk)
     except Exception as e:
         # bruh = response["error"]["message"] if response and response.get("error") else e
         print(e)
         if isinstance(ctx, commands.Context):
             return await msg.edit(content=f"**Error! :(**")
         if isinstance(ctx, discord.Interaction):
-            return await ctx.response.send_message(content=f"**Error! :(**")
+            return await ctx.edit_original_response(content=f"**Error! :(**")
     if isinstance(ctx, commands.Context):
         await msg.edit(content=f"{models_claude[model]}\n**Took {round(time.time() * 1000)-old}ms**")
+    if isinstance(ctx, discord.Interaction):
+        await ctx.edit_original_response(content=f"{models_claude[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
 async def main_mistral(ctx: commands.Context | discord.Interaction, model: int, prompt: str=None):
     if await command_check(ctx, "mistral", "ai"): return
     # async with ctx.typing():
     if isinstance(ctx, commands.Context):
         msg = await ctx.reply(f"{models_mistral[model]}\nGenerating response…")
+    if isinstance(ctx, discord.Interaction):
+        await ctx.edit_original_response(f"{models_mistral[model]}\nGenerating response…")
     old = round(time.time() * 1000)
     try: 
         response = await make_request_mistral(models_mistral[model], 
@@ -394,25 +412,27 @@ async def main_mistral(ctx: commands.Context | discord.Interaction, model: int, 
             if isinstance(ctx, commands.Context):
                 return await msg.edit(content=f"**Error! :(**\nEmpty response.")
             if isinstance(ctx, discord.Interaction):
-                return await ctx.response.send_message(content=f"**Error! :(**\nEmpty response.")
+                return await ctx.edit_original_response(content=f"**Error! :(**\nEmpty response.")
         chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
         replyFirst = True
         for chunk in chunks:
-            if replyFirst: 
-                replyFirst = False
-                if isinstance(ctx, commands.Context): await ctx.reply(chunk)
-                if isinstance(ctx, discord.Interaction): await ctx.response.send_message(chunk)
-            else:
-                if isinstance(ctx, commands.Context): await ctx.send(chunk)
-                if isinstance(ctx, discord.Interaction): await ctx.followup.send(chunk)
+            if isinstance(ctx, discord.Interaction): await ctx.followup.send(chunk)
+            if isinstance(ctx, commands.Context):
+                if replyFirst:
+                    replyFirst = False
+                    await ctx.reply(chunk)
+                else:
+                    await ctx.send(chunk)
     except Exception as e:
         print(e)
         if isinstance(ctx, commands.Context):
             return await msg.edit(content=f"**Error! :(**")
         if isinstance(ctx, discord.Interaction):
-            return await ctx.response.send_message(content=f"**Error! :(**")
+            return await ctx.edit_original_response(content=f"**Error! :(**")
     if isinstance(ctx, commands.Context):
         await msg.edit(content=f"{models_mistral[model]}\n**Took {round(time.time() * 1000)-old}ms**")
+    if isinstance(ctx, discord.Interaction):
+        await ctx.edit_original_response(content=f"{models_mistral[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
 class CogPerplex(commands.Cog):
     def __init__(self, bot):

@@ -18,6 +18,7 @@ async def help_tv(ctx: commands.Context):
 
 async def kiss_search(ctx: commands.Context, arg: str):
     if await command_check(ctx, "tv", "media"): return
+    return await ctx.reply("KISSASIAN down?????????\nOMG NOOOOOOOOOO!!!!!!!!!")
     if not arg: return await ctx.reply(f"usage: `{await get_guild_prefix(ctx)}kiss <query>`")
     results = await search(arg)
     if not results['data']: return await ctx.reply("none found")

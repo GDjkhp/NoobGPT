@@ -245,16 +245,20 @@ async def queue_list(ctx: commands.Context, page: str):
             current_queue = vc.auto_queue
         else: return await ctx.reply(embed=music_embed("📜 Playlist", "The queue is empty."))
     if not page: page = "1"
-    if not page.isdigit() or not int(page): return await ctx.reply("not a digit :(")
+    if not page.isdigit(): return await ctx.reply("not a digit :(")
     page: int = int(page)
-    total = 0
-    for t in current_queue: total += t.length
-    index = page - 1  # page 1 = index 0
+    total = sum(t.length for t in current_queue)
     items_per_page = 5
+    total_pages = (len(current_queue) + items_per_page - 1) // items_per_page
+    # Redirect to last page if requested page is out of range
+    if page > total_pages:
+        page = total_pages
+    elif page < 1:
+        page = 1
+    index = page - 1  # page 1 = index 0
     queue_context = current_queue[index * items_per_page:(index + 1) * items_per_page]
     queue_list = "\n".join([f"{i + 1 + (items_per_page * index)}. `{track.title}` ({format_mil(track.length)})" for i, track in enumerate(queue_context)])
     embed = music_embed("📜 Playlist", queue_list)
-    total_pages = (len(current_queue) + items_per_page - 1) // items_per_page
     embed.set_footer(text=f"Page {page}/{total_pages}, Queue: {len(current_queue)} ({format_mil(total)})")
     await ctx.reply(embed=embed)
 
