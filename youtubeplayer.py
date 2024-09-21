@@ -413,13 +413,13 @@ async def search_auto(interaction: discord.Interaction, current: str) -> list[ap
     tracks = await wavelink.Playable.search(current)
     return [
         app_commands.Choice(name=track.title, value=track.uri) for track in tracks
-    ]
+    ][:25]
 
 async def search_auto_spotify(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     tracks = await wavelink.Playable.search(current, source="spsearch:")
     return [
         app_commands.Choice(name=track.title, value=track.uri) for track in tracks
-    ]
+    ][:25]
 
 async def mode_repeat_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     return [
