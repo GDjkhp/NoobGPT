@@ -5,11 +5,15 @@ from util_discord import command_check, get_database2, set_dj_role_db, check_if_
 from util_database import myclient
 mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 user_id = 729554186777133088
+nodes = []
 
 async def setup_hook_music(bot: commands.Bot):
-    await wavelink.Pool.close()
+    global nodes
+    for node in list(nodes):
+        node_type: wavelink.Node = node
+        await node_type.close(eject=True)
+        nodes.remove(node)
     data = await node_list()
-    nodes = []
     for lava in data:
         nodes.append(wavelink.Node(uri=lava["host"], password=lava["password"], retries=3600)) # 1 hour (1 retry = 60 secs)
     await wavelink.Pool.connect(client=bot, nodes=nodes)
