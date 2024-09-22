@@ -157,6 +157,7 @@ async def music_skip(ctx: commands.Context):
         if vc.autoplay == wavelink.AutoPlayMode.enabled and not vc.auto_queue.is_empty:
             vc.queue = vc.auto_queue.copy()
         else: return await ctx.reply("There are no songs in the queue to skip")
+    await ctx.reply(embed=music_embed("⏭️ Music skipped", f"Now playing: `{vc.queue[0]}`"))
     await vc.skip()
 
 async def music_stop(ctx: commands.Context):
@@ -366,8 +367,8 @@ async def queue_replace(ctx: commands.Context, index: str, query: str):
         real_index = min(int(index)-1, len(vc.queue)-1)
         track = vc.queue.peek(real_index)
         vc.queue[real_index] = tracks[0]
-        await ctx.reply(embed=music_embed("➡️ Replace track", 
-                                            f"`{track.title}` has been removed and `{tracks[0].title}` has been replaced."))
+        await ctx.reply(embed=music_embed("➡️ Replace track",
+                                          f"`{track.title}` has been removed and `{tracks[0].title}` has been replaced."))
 
 async def queue_swap(ctx: commands.Context, init: str, dest: str):
     if not ctx.guild: return await ctx.reply("not supported")
@@ -383,8 +384,8 @@ async def queue_swap(ctx: commands.Context, init: str, dest: str):
         first = vc.queue.peek(index1)
         second = vc.queue.peek(index2)
         vc.queue.swap(index1, index2)
-        await ctx.reply(embed=music_embed("🔄 Swap tracks", 
-                                            f"`{first.title}` is at position `{index2+1}` and `{second.title}` is at position `{index1+1}`."))
+        await ctx.reply(embed=music_embed("🔄 Swap tracks",
+                                          f"`{first.title}` is at position `{index2+1}` and `{second.title}` is at position `{index1+1}`."))
 
 async def queue_peek(ctx: commands.Context, index: str):
     if not ctx.guild: return await ctx.reply("not supported")
