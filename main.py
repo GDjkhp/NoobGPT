@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 load_dotenv()
 import os
+import traceback
 import discord
 from discord.ext import commands
 from level_insult import *
@@ -51,12 +52,13 @@ async def on_message(message: discord.Message):
     bot.loop.create_task(earn_xp(bot, message))
     await bot.process_commands(message)
 
-# stckovrflw
+# stckovrflw (imporved)
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
         return
     print(error)
+    traceback.print_exception(type(error), error, error.__traceback__)
 
 # guthib (no longer needed, for slash commands)
 # @bot.tree.error

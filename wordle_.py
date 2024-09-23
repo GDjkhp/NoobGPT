@@ -265,6 +265,7 @@ class MyModal(discord.ui.Modal):
         if len(i) != 5:
             return await interaction.response.send_message(content="hey, 5 letter words only pls.", ephemeral=True)
         
+        await interaction.response.edit_message(view=None)
         self.history.append(i)
         check_and_push(i, self.dead, word)
 
@@ -290,20 +291,17 @@ class MyModal(discord.ui.Modal):
             
             self.settings["result"] = 1
             self.players[interaction.user.id]["score"] += 1
-            await interaction.response.edit_message(view=None)
             await interaction.followup.send(embed=QuizEmbed(self.settings, self.index, self.words, self.players),
                                             view=QuizView(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history),
                                             file=wordle_image(self.history, word))
         else:
             self.settings["step"] += 1
             if self.settings["step"] != 6: # in-game
-                await interaction.response.edit_message(view=None)
                 await interaction.followup.send(embed=QuizEmbed(self.settings, self.index, self.words, self.players), content=format_hearts(self.dead),
                                                 view=QuizView(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history),
                                                 file=wordle_image(self.history, word))
             else: # you lose
                 self.settings["result"] = 0
-                await interaction.response.edit_message(view=None)
                 await interaction.followup.send(embed=QuizEmbed(self.settings, self.index, self.words, self.players),
                                                 content=f"GAME OVER!\n{word}", view=None,
                                                 file=wordle_image(self.history, word))

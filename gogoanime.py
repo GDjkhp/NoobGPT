@@ -130,8 +130,9 @@ class SelectChoice(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
+        await interaction.response.edit_message(view=None)
         req = await client.get(f"{gogoanime}{self.result[int(self.values[0])][url]}")
         soup = BS(req, "lxml")
 
@@ -145,7 +146,7 @@ class SelectChoice(discord.ui.Select):
                    self.result[int(self.values[0])][poster], animetype, released, genre]
 
         embed = buildAnime(details)
-        await interaction.response.edit_message(content=None, embed = embed, view = MyView5(self.ctx, details, 0))
+        await interaction.edit_original_response(content=None, embed = embed, view = MyView5(self.ctx, details, 0))
 
 # legacy code
 class ButtonSelect4(discord.ui.Button):
@@ -155,8 +156,9 @@ class ButtonSelect4(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
+        await interaction.response.edit_message(view=None)
         req = await client.get(f"{gogoanime}{self.result[url]}")
         soup = BS(req, "lxml")
 
@@ -169,7 +171,7 @@ class ButtonSelect4(discord.ui.Button):
         details = [self.result[title], self.result[url], desc, episodes, self.result[poster], animetype, released, genre]
 
         embed = buildAnime(details)
-        await interaction.response.edit_message(embed = embed, view = MyView5(self.ctx, details, 0))
+        await interaction.edit_original_response(embed = embed, view = MyView5(self.ctx, details, 0))
 
 class nextPage(discord.ui.Button):
     def __init__(self, ctx: commands.Context, arg: str, result: list, index: int, l: str):
@@ -178,7 +180,7 @@ class nextPage(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(view = MyView4(self.ctx, self.arg, self.result, self.index))
 
@@ -218,8 +220,9 @@ class ButtonSelect5(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
+        await interaction.response.defer()
         url = self.sUrl.split("/")[-1]
         request = await client.get(f"{gogoanime}/{url}-episode-{self.index}")
         soup = BS(request, "lxml")
@@ -237,7 +240,7 @@ class nextPageEP(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(view = MyView5(self.ctx, self.details, self.index))
 
@@ -248,7 +251,7 @@ class CancelButton(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(content="🤨", embed=None, view=None)
 

@@ -138,7 +138,7 @@ class CancelButton(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(content="🤨", embed=None, view=None)
 
@@ -173,7 +173,7 @@ class nextPage(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(embed=search_embed(self.arg, self.result, self.index), 
                                                 view=SearchView(self.ctx, self.arg, self.result, self.index))
@@ -190,7 +190,7 @@ class SelectChoice(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         if not self.ctx.voice_client:
             try: vc = await self.ctx.author.voice.channel.connect(cls=wavelink.Player)

@@ -31,7 +31,7 @@ class CancelButton(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(content="🤨", embed=None, view=None)
 
@@ -47,7 +47,7 @@ class nextPage(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(embed=buildSearch(self.arg, self.result, self.index), 
                                                 view=SearchView(self.ctx, self.arg, self.result, self.index))
@@ -84,12 +84,13 @@ class SelectChoice(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
+        await interaction.response.edit_message(view=None)
         id = self.result[int(self.values[0])]['id']
         selected = await series_info(id)
         selected['id'] = id
-        await interaction.response.edit_message(embed=buildKiss(selected), view=EpisodeView(self.ctx, selected, 0))
+        await interaction.edit_original_response(embed=buildKiss(selected), view=EpisodeView(self.ctx, selected, 0))
 
 # episode
 class nextPageEP(discord.ui.Button):
@@ -99,7 +100,7 @@ class nextPageEP(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(view=EpisodeView(self.ctx, self.details, self.index))
 
@@ -136,7 +137,7 @@ class ButtonEpisode(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.defer()
         link = await get_stream(self.details['id'], ep_no(self.details['episode_links'][self.index]))

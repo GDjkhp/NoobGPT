@@ -130,32 +130,33 @@ class ButtonChoice(discord.ui.Button):
                                                                ephemeral=True)
             for k in keys_to_remove: del self.players[k]
             if self.players:
-                await interaction.response.edit_message(content=c2e(self.box), 
-                                                        embed=QuizEmbed(self.words, self.index, self.settings, self.players, self.ctx), 
-                                                        view=QuizView(self.ctx, self.words, self.index, self.box, self.dead, self.settings, self.players))
-            else: await interaction.response.edit_message(content=f"You left.\n{c2e(self.words[self.index]['word'].replace('_', ' ').lower())}", 
-                                                          embed=None, view=None)
-                
+                return await interaction.response.edit_message(content=c2e(self.box), 
+                                                               embed=QuizEmbed(self.words, self.index, self.settings, self.players, self.ctx), 
+                                                               view=QuizView(self.ctx, self.words, self.index, self.box, self.dead, self.settings, self.players))
+            else: return await interaction.response.edit_message(content=f"You left.\n{c2e(self.words[self.index]['word'].replace('_', ' ').lower())}", 
+                                                                 embed=None, view=None)
+            
         # register player choice
         if not interaction.user.id in self.players: self.players[interaction.user.id] = add_player(interaction.user)
-
-        if self.id == "INPUT": 
-            await interaction.response.send_modal(MyModal(self.ctx, self.words, self.index, self.box, self.dead, self.settings, self.players))
+        
+        if self.id == "INPUT":
+            return await interaction.response.send_modal(MyModal(self.ctx, self.words, self.index, self.box, self.dead, self.settings, self.players))
         if self.id == "NEXT":
             if self.settings["mode"] != "hardcore": self.settings["step"] = 0
             word = self.words[self.index+1]["word"].replace("_", " ").lower()
             self.dead = [" ", "-"]
             self.box = convert_box(word, self.dead)
             self.settings["result"] = -1
-            await interaction.response.edit_message(content=c2e(self.box), 
-                                                    embed=QuizEmbed(self.words, self.index+1, self.settings, self.players, self.ctx), 
-                                                    view=QuizView(self.ctx, self.words, self.index+1, self.box, self.dead, self.settings, self.players))
+            return await interaction.response.edit_message(content=c2e(self.box), 
+                                                           embed=QuizEmbed(self.words, self.index+1, self.settings, self.players, self.ctx), 
+                                                           view=QuizView(self.ctx, self.words, self.index+1, self.box, self.dead, self.settings, self.players))
         if self.id == "UPDATE":
             if interaction.user.id != host_id: 
                 return await interaction.response.send_message(f"Only <@{host_id}> can press this button.", ephemeral=True)
-            await interaction.response.edit_message(content=c2e(self.box), 
-                                                    embed=QuizEmbed(self.words, self.index, self.settings, self.players, self.ctx), 
-                                                    view=QuizView(self.ctx, self.words, self.index, self.box, self.dead, self.settings, self.players))
+            await interaction.response.edit_message(content="Message updated.", embed=None, view=None)
+            await interaction.followup.send(content=c2e(self.box),
+                                            embed=QuizEmbed(self.words, self.index, self.settings, self.players, self.ctx),
+                                            view=QuizView(self.ctx, self.words, self.index, self.box, self.dead, self.settings, self.players))
 
 def QuizEmbed(words: list, index: int, settings: dict, players: dict, ctx: commands.Context) -> discord.Embed:
     c = c_state(settings["result"])

@@ -10,7 +10,7 @@ languages = ['en', 'ar', 'cn', 'de', 'es', 'fr', 'it', 'jp', 'kr', 'nl', 'pl', '
 def w(ctx: commands.Context, aki: Akinator) -> discord.Embed:
     embed_win = discord.Embed(title=aki.name_proposition, description=aki.description_proposition,
                               colour=0x00FF00)
-    if ctx.message.author.avatar: embed_win.set_author(name=ctx.author, icon_url=ctx.message.author.avatar.url)
+    if ctx.author.avatar: embed_win.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
     else: embed_win.set_author(name=ctx.author)
     embed_win.set_image(url=aki.photo)
     # embed_win.add_field(name="Ranking", value="#"+aki.first_guess['ranking'], inline=True)
@@ -19,7 +19,7 @@ def w(ctx: commands.Context, aki: Akinator) -> discord.Embed:
     return embed_win
 def qEmbed(aki: Akinator, ctx: commands.Context) -> discord.Embed:
     e = discord.Embed(title=f"{aki.step+1}. {aki.question}", description=f"{aki.progression}%", color=0x00FF00)
-    if ctx.message.author.avatar: e.set_author(name=ctx.author, icon_url=ctx.message.author.avatar.url)
+    if ctx.author.avatar: e.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
     else: e.set_author(name=ctx.author)
     return e
 
@@ -41,7 +41,7 @@ class ButtonAction(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author:
-            return await interaction.response.send_message(content=f"<@{self.ctx.message.author.id}> is playing this game! Use `{await get_guild_prefix(self.ctx)}aki` to create your own game.", 
+            return await interaction.response.send_message(content=f"<@{self.ctx.author.id}> is playing this game! Use `{await get_guild_prefix(self.ctx)}aki` to create your own game.", 
                                                            ephemeral=True)
         if self.action == 's':
             return await interaction.response.edit_message(content=f"Skill issue <@{interaction.user.id}>", view=None, embed=None)
@@ -73,7 +73,7 @@ class ButtonAction0(discord.ui.Button):
 
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author:
-            return await interaction.response.send_message(content=f"<@{self.ctx.message.author.id}> is playing this game! Use `{await get_guild_prefix(self.ctx)}aki` to create your own game.", 
+            return await interaction.response.send_message(content=f"<@{self.ctx.author.id}> is playing this game! Use `{await get_guild_prefix(self.ctx)}aki` to create your own game.", 
                                                            ephemeral=True)
         if self.action == 'y':
             embed_win = discord.Embed(title='GG!', color=0x00FF00)
@@ -82,7 +82,7 @@ class ButtonAction0(discord.ui.Button):
             # embed_win.add_field(name="Ranking", value="#"+self.aki.first_guess['ranking'], inline=True)
             embed_win.add_field(name="Questions", value=self.aki.step+1, inline=True)
             embed_win.add_field(name="Progress", value=f"{self.aki.progression}%", inline=True)
-            if self.ctx.message.author.avatar: embed_win.set_author(name=self.ctx.author, icon_url=self.ctx.message.author.avatar.url)
+            if self.ctx.author.avatar: embed_win.set_author(name=self.ctx.author, icon_url=self.ctx.author.avatar.url)
             else: embed_win.set_author(name=self.ctx.author)
             await interaction.response.edit_message(embed=embed_win, view=None)
         else:
@@ -96,7 +96,7 @@ class ButtonAction0(discord.ui.Button):
             # for times in self.aki.guesses:
             #     embed_loss.add_field(name=times['name'], value=times['description'])
             
-            if self.ctx.message.author.avatar: embed_loss.set_author(name=self.ctx.author, icon_url=self.ctx.message.author.avatar.url)
+            if self.ctx.author.avatar: embed_loss.set_author(name=self.ctx.author, icon_url=self.ctx.author.avatar.url)
             else: embed_loss.set_author(name=self.ctx.author)
             await interaction.response.edit_message(embed=embed_loss, view=None)
 

@@ -297,10 +297,10 @@ class ButtonChoice(discord.ui.Button):
         if self.id == "UPDATE":
             if interaction.user.id != host_id: 
                 return await interaction.response.send_message(f"Only <@{host_id}> can press this button.", ephemeral=True)
-            await interaction.message.edit(content="Message updated.", embed=None, view=None)
-            return await interaction.response.send_message(content=keysScore(self.players),
-                                                           embed=BuildQuestion(self.results, self.index, self.ctx, self.players, self.settings), 
-                                                           view=QuizView(self.results, self.index, self.ctx, self.players, self.settings))
+            await interaction.response.edit_message(content="Message updated.", embed=None, view=None)
+            return await interaction.followup.send(content=keysScore(self.players),
+                                                   embed=BuildQuestion(self.results, self.index, self.ctx, self.players, self.settings),
+                                                   view=QuizView(self.results, self.index, self.ctx, self.players, self.settings))
             
         # solo lock
         if isinstance(self.ctx, commands.Context): real_player = self.ctx.author
@@ -310,6 +310,7 @@ class ButtonChoice(discord.ui.Button):
                                                            ephemeral=True)
         
         # register player choice
+        await interaction.response.edit_message(view=None)
         if not interaction.user.id in self.players: self.players[interaction.user.id] = add_player(interaction.user)
         self.players[interaction.user.id]["choice"] = self.c
         
@@ -319,9 +320,9 @@ class ButtonChoice(discord.ui.Button):
             if value["choice"] == -1: playing = True
         if playing:
             text = keysScore(self.players)
-            await interaction.response.edit_message(content=text,
-                                                    embed=BuildQuestion(self.results, self.index, self.ctx, self.players, self.settings), 
-                                                    view=QuizView(self.results, self.index, self.ctx, self.players, self.settings))
+            await interaction.edit_original_response(content=text,
+                                                     embed=BuildQuestion(self.results, self.index, self.ctx, self.players, self.settings), 
+                                                     view=QuizView(self.results, self.index, self.ctx, self.players, self.settings))
         else:
             # multiplayer check
             for key, value in self.players.items():
@@ -334,10 +335,10 @@ class ButtonChoice(discord.ui.Button):
             # step
             text = parseText(self.settings, self.results, self.index, self.players, self.c, self.ctx)
             if self.index+1 < len(self.results): 
-                await interaction.response.edit_message(content=text,
-                                                        embed=BuildQuestion(self.results, self.index+1, self.ctx, self.players, self.settings), 
-                                                        view=QuizView(self.results, self.index+1, self.ctx, self.players, self.settings))
-            else: await interaction.response.edit_message(content=text+"\nTest ended.", embed=None, view=None)
+                await interaction.edit_original_response(content=text,
+                                                         embed=BuildQuestion(self.results, self.index+1, self.ctx, self.players, self.settings), 
+                                                         view=QuizView(self.results, self.index+1, self.ctx, self.players, self.settings))
+            else: await interaction.edit_original_response(content=text+"\nTest ended.", embed=None, view=None)
 
 async def mode_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     return [

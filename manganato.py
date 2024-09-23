@@ -74,7 +74,7 @@ class CancelButton(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(content="🤨", embed=None, view=None)
 
@@ -110,7 +110,7 @@ class nextPage(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(embed=buildSearch(self.arg, self.result, self.index), 
                                                 view=SearchView(self.ctx, self.arg, self.result, self.index))
@@ -128,7 +128,7 @@ class SelectChoice(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.defer()
         selected = await self.result[int(self.values[0])].story_page
@@ -145,7 +145,7 @@ class nextPageCH(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         # if interaction.message.attachments: await interaction.message.remove_attachments(interaction.message.attachments[0])
         await interaction.response.defer()
@@ -194,7 +194,7 @@ class ButtonChapter(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         # if interaction.message.attachments: await interaction.message.remove_attachments(interaction.message.attachments[0])
         await interaction.response.defer()
@@ -218,7 +218,7 @@ class nextPageReal(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         # if interaction.message.attachments: await interaction.message.remove_attachments(interaction.message.attachments[0])
         await interaction.response.defer()
@@ -264,7 +264,7 @@ class ButtonPage(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         # if interaction.message.attachments: await interaction.message.remove_attachments(interaction.message.attachments[0])
         await interaction.response.defer()
@@ -280,7 +280,7 @@ class ButtonBack(discord.ui.Button):
 
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         # if interaction.message.attachments: await interaction.message.remove_attachments(interaction.message.attachments[0])
         await interaction.response.defer()

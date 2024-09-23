@@ -34,7 +34,7 @@ async def view_collection(ctx: commands.Context, api: str):
     message = await ctx.reply(f"Retrieving collection…")
     results, errors = [], []
     mycol = myclient["gel"][api]
-    user = await mycol.find_one({"user": ctx.message.author.id})
+    user = await mycol.find_one({"user": ctx.author.id})
     if not user: 
         return await message.edit(content="**No results found**")
     for x in user["favorites"]:
@@ -117,14 +117,14 @@ class ButtonEnd(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if self.lock and interaction.user != self.ctx.author:
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can delete this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can delete this message.", 
                                                     ephemeral=True)
         await interaction.response.edit_message(content="🤨", view=None, embed=None)
 
 class ButtonHeart(discord.ui.Button):
     def __init__(self, ctx: commands.Context, db: str, id: int, row: int):
         self.mycol = myclient["gel"][db]
-        # emoji = "❤️" if list(self.mycol.find({"user": ctx.message.author.id, "favorites": id})) else "💔"
+        # emoji = "❤️" if list(self.mycol.find({"user": ctx.author.id, "favorites": id})) else "💔"
         super().__init__(style=discord.ButtonStyle.success, emoji="❤️", row=row)
         self.db, self.ctx, self.id = db, ctx, id
     
@@ -147,11 +147,11 @@ class ButtonAction(discord.ui.Button):
     async def callback(self, interaction: discord.Interaction):
         if self.lock[0] != self.lock[1]:
             if interaction.user != self.ctx.author:
-                return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can lock/unlock this message.", 
+                return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can lock/unlock this message.", 
                                                                ephemeral=True)
             else: self.lock = [self.lock[1], self.lock[1]]
         if self.lock[1] and interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"<@{self.ctx.message.author.id}> locked this message.", ephemeral=True)
+            return await interaction.response.send_message(f"<@{self.ctx.author.id}> locked this message.", ephemeral=True)
         await interaction.response.edit_message(embed = await BuildEmbed(self.tags, self.results, self.index, self.safe, self.lock, self.ctx), 
                                                 view = ImageView(self.tags, self.results, self.index, self.safe, self.lock, self.ctx, self.db))
         

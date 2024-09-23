@@ -84,7 +84,7 @@ class CancelButton(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(content="🤨", embed=None, view=None)
 
@@ -100,7 +100,7 @@ class nextPage(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(embed=buildSearch(self.arg, self.result, self.index), 
                                                 view=SearchView(self.ctx, self.arg, self.result, self.index))
@@ -137,11 +137,12 @@ class SelectChoice(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
+        await interaction.response.edit_message(view=None)
         selected = self.result[int(self.values[0])]
         r_search = await new_req(f"https://animepahe.ru/api?m=release&id={selected['session']}&sort=episode_asc&page=1", headers, True)
-        if not r_search.get('data'): return await interaction.response.edit_message(content="no episodes found", embed=None)
+        if not r_search.get('data'): return await interaction.edit_original_response(content="no episodes found", embed=None)
         req = await new_req(f"https://animepahe.ru/play/{selected['session']}/{r_search['data'][0]['session']}", headers, False)
         soup = soupify(req)
         items = soup.find("div", {"class": "clusterize-scroll"}).findAll("a")
@@ -158,7 +159,7 @@ class SelectChoice(discord.ui.Select):
         externals = [external[i].get("href").replace("//", "https://") for i in range(len(external))]
         selected["details"] = enclose_words(not_final)
         selected["details"][len(selected["details"])-1] = format_links(selected["details"][len(selected["details"])-1], externals)
-        await interaction.response.edit_message(embed=buildAnime(selected), view=EpisodeView(self.ctx, selected, urls, ep_texts, 0))
+        await interaction.edit_original_response(embed=buildAnime(selected), view=EpisodeView(self.ctx, selected, urls, ep_texts, 0))
 
 # episode
 class nextPageEP(discord.ui.Button):
@@ -168,7 +169,7 @@ class nextPageEP(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(view=EpisodeView(self.ctx, self.details, self.urls, self.ep_texts, self.index))
 
@@ -205,7 +206,7 @@ class ButtonEpisode(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.defer()
         req = await new_req(f"https://animepahe.ru{self.url_session}", headers, False)
@@ -226,7 +227,7 @@ class ButtonDownload(discord.ui.Button):
 
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author:
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.defer()
         req = await new_req(self.url_fake, None, False)

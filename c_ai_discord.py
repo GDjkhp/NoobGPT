@@ -523,20 +523,17 @@ class SelectChoice(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author:
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         selected = self.result[int(self.values[0])]
-
-        await interaction.message.edit(content=f'adding `{selected["participant__name"]}`', embed=None, view=None)
-        await interaction.response.defer()
-        
+        await interaction.response.edit_message(content=f'adding `{selected["participant__name"]}`', embed=None, view=None)
         chat = None
         try:
             chat = await client.chat.new_chat(selected["external_id"])
         except Exception as e: print(e)
         if not chat or not chat.get('participants'): 
             print(chat)
-            return await interaction.message.edit(content="an error occured")
+            return await interaction.edit_original_response(content="an error occured")
         
         tgt = None
         for participant in chat['participants']:
@@ -545,7 +542,7 @@ class SelectChoice(discord.ui.Select):
                 break
         if not tgt:
             print(chat['participants'])
-            return await interaction.message.edit(content="tgt not found")
+            return await interaction.edit_original_response(content="tgt not found")
 
         # proper checking
         db = await get_database(self.ctx.guild.id)
@@ -554,7 +551,7 @@ class SelectChoice(discord.ui.Select):
             for x in db["characters"]:
                 if x["username"] == tgt: found = True
             if found:
-                return await interaction.message.edit(content=f"`{selected['participant__name']}` was already in chat")
+                return await interaction.edit_original_response(content=f"`{selected['participant__name']}` was already in chat")
 
         # thread support
         parent = self.ctx.channel
@@ -564,7 +561,7 @@ class SelectChoice(discord.ui.Select):
             threads = [{"id": self.ctx.channel.id, "rate": 100}]
 
         whs = await parent.webhooks()
-        if len(whs) == 15: return await interaction.message.edit(content="webhook limit reached, please delete at least one")
+        if len(whs) == 15: return await interaction.edit_original_response(content="webhook limit reached, please delete at least one")
         url = "https://cdn.discordapp.com/embed/avatars/4.png"
         if selected['avatar_file_name']:
             url = f"https://characterai.io/i/400/static/avatars/{selected['avatar_file_name']}"
@@ -573,7 +570,7 @@ class SelectChoice(discord.ui.Select):
         role = await self.ctx.guild.create_role(name=selected["participant__name"], color=0x00ff00, mentionable=True)
         data = character_data(selected, tgt, chat, role, img, parent, wh, threads)
         await push_character(self.ctx.guild.id, data)
-        await interaction.message.edit(content=f"`{selected['participant__name']}` has been added to the server")
+        await interaction.edit_original_response(content=f"`{selected['participant__name']}` has been added to the server")
         await add_task_to_queue(self.ctx, data, chat["messages"][0]["text"]) # wake up
 
 class MyView4(discord.ui.View):
@@ -603,7 +600,7 @@ class nextPage(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(view = MyView4(self.ctx, self.arg, self.result, self.index), 
                                                 embed=search_embed(self.arg, self.result, self.index))
@@ -619,7 +616,7 @@ class CancelButton(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.message.delete()
 
@@ -635,14 +632,13 @@ class DeleteChoice(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author:
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         selected = self.result[int(self.values[0])]
-
-        await interaction.message.edit(content=f'deleting `{selected["name"]}`', embed=None, view=None)
+        await interaction.response.edit_message(content=f'deleting `{selected["name"]}`', embed=None, view=None)
         await interaction.response.defer()
         await delete_method(self.ctx, selected)
-        await interaction.message.edit(content=f"`{selected['name']}` has been deleted from the server")
+        await interaction.edit_original_response(content=f"`{selected['name']}` has been deleted from the server")
 
 class DeleteAllButton(discord.ui.Button):
     def __init__(self, ctx: commands.Context, result: list, row: int=None):
@@ -651,16 +647,15 @@ class DeleteAllButton(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        await interaction.message.edit(content='deleting', view=None, embed=None)
-        await interaction.response.defer()
+        await interaction.response.edit_message(content='deleting', view=None, embed=None)
         count = 0
         for selected in self.result:
             count+=1
-            await interaction.message.edit(content=f'deleting `{selected["name"]}`\n{count}/{len(self.result)}')
+            await interaction.edit_original_response(content=f'deleting `{selected["name"]}`\n{count}/{len(self.result)}')
             await delete_method(self.ctx, selected)
-        await interaction.message.edit(content=f"`{count}` characters have been deleted from the server")
+        await interaction.edit_original_response(content=f"`{count}` characters have been deleted from the server")
 
 class ResetAllButton(discord.ui.Button):
     def __init__(self, ctx: commands.Context, result: list, row: int=None):
@@ -669,16 +664,15 @@ class ResetAllButton(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        await interaction.message.edit(content='resetting', view=None, embed=None)
-        await interaction.response.defer()
+        await interaction.response.edit_message(content='resetting', view=None, embed=None)
         errors = []
         count = 0
         for selected in self.result:
             count+=1
             e_strs = "\n".join(errors)
-            await interaction.message.edit(content=f'resetting `{selected["name"]}`\n{count}/{len(self.result)}\n{e_strs}')
+            await interaction.edit_original_response(content=f'resetting `{selected["name"]}`\n{count}/{len(self.result)}\n{e_strs}')
             if not selected.get("char_id"):
                 count -= 1
                 p = await get_guild_prefix(self.ctx)
@@ -697,7 +691,7 @@ class ResetAllButton(discord.ui.Button):
 
             await reset_method(self.ctx, selected, chat)
         e_strs = "\n".join(errors)
-        await interaction.message.edit(content=f'`{count}/{len(self.result)}` characters have been reset from the server\n{e_strs}')
+        await interaction.edit_original_response(content=f'`{count}/{len(self.result)}` characters have been reset from the server\n{e_strs}')
 
 class EditAllButton(discord.ui.Button):
     def __init__(self, ctx: commands.Context, result: list, rate: int, row: int=None):
@@ -706,16 +700,15 @@ class EditAllButton(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        await interaction.message.edit(content='setting', view=None, embed=None)
-        await interaction.response.defer()
+        await interaction.response.edit_message(content='setting', view=None, embed=None)
         errors = []
         count = 0
         for selected in self.result:
             count+=1
             e_strs = "\n".join(errors)
-            await interaction.message.edit(content=f'setting `{selected["name"]}` char_message_rate to `{self.rate}`\n{count}/{len(self.result)}\n{e_strs}')
+            await interaction.edit_original_response(content=f'setting `{selected["name"]}` char_message_rate to `{self.rate}`\n{count}/{len(self.result)}\n{e_strs}')
 
             if not selected.get("webhooks"): # old
                 await pull_character(self.ctx.guild.id, selected)
@@ -736,7 +729,7 @@ class EditAllButton(discord.ui.Button):
                 count -= 1
                 errors.append(f"`{selected['name']}` webhook not found")
         e_strs = "\n".join(errors)
-        await interaction.message.edit(content=f'`{count}/{len(self.result)}` characters have been edited from the server\n{e_strs}')
+        await interaction.edit_original_response(content=f'`{count}/{len(self.result)}` characters have been edited from the server\n{e_strs}')
 
 async def delete_method(ctx: commands.Context, selected):
     role = ctx.guild.get_role(selected["role_id"])
@@ -786,7 +779,7 @@ class nextPageDelete(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(view = DeleteView(self.ctx, self.result, self.index), 
                                                 embed= view_embed(self.ctx, self.result, self.index, 0xff0000))
@@ -817,7 +810,7 @@ class nextPageAvail(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(view = AvailView(self.ctx, self.result, self.index), 
                                                 embed= view_embed(self.ctx, self.result, self.index, 0x00ff00))
@@ -834,13 +827,10 @@ class EditChoice(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author:
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         selected = self.result[int(self.values[0])]
-
-        await interaction.message.edit(content=f'setting `{selected["name"]}` char_message_rate to `{self.rate}`', embed=None, view=None)
-        await interaction.response.defer()
-
+        await interaction.response.edit_message(content=f'setting `{selected["name"]}` char_message_rate to `{self.rate}`', embed=None, view=None)
         if not selected.get("webhooks"): # old
             await pull_character(self.ctx.guild.id, selected)
             selected["webhooks"] = []
@@ -867,14 +857,14 @@ class EditChoice(discord.ui.Select):
                 threads = [{"id": self.ctx.channel.id, "rate": self.rate}]
             whs = await parent.webhooks()
             if len(whs) == 15:
-                return await interaction.message.edit(content="webhook limit reached, please delete at least one")
+                return await interaction.edit_original_response(content="webhook limit reached, please delete at least one")
             wh = await parent.create_webhook(name=selected["name"], avatar=selected["avatar"])
             await pull_character(self.ctx.guild.id, selected)
             selected["webhooks"] = mod_webhooks # malform fix
             await push_webhook(self.ctx.guild.id, selected, {
                 "channel": parent.id, "url": wh.url, "char_message_rate": self.rate, "threads": threads})
 
-        await interaction.message.edit(content=f"`{selected['name']}` char_message_rate is now set to `{self.rate}` on this channel")
+        await interaction.edit_original_response(content=f"`{selected['name']}` char_message_rate is now set to `{self.rate}` on this channel")
 
 class EditView(discord.ui.View):
     def __init__(self, ctx: commands.Context, result: list, index: int, rate: int):
@@ -904,7 +894,7 @@ class nextPageEdit(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(view = EditView(self.ctx, self.result, self.index, self.rate), 
                                                 embed= view_embed(self.ctx, self.result, self.index, 0x00ffff))
@@ -937,7 +927,7 @@ class nextPageReset(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(view = ResetView(self.ctx, self.result, self.index), 
                                                 embed= view_embed(self.ctx, self.result, self.index, 0xff00ff))
@@ -954,26 +944,23 @@ class ResetChoice(discord.ui.Select):
 
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author:
-            return await interaction.response.send_message(f"Only <@{self.ctx.message.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         selected = self.result[int(self.values[0])]
-
-        await interaction.message.edit(content=f'resetting `{selected["name"]}`', embed=None, view=None)
-        await interaction.response.defer()
-
+        await interaction.response.edit_message(content=f'resetting `{selected["name"]}`', embed=None, view=None)
         if not selected.get("char_id"):
             p = await get_guild_prefix(self.ctx)
-            return await interaction.message.edit(content=f"`char_id` not found. please re-add `{selected['name']}` with `{p}cdel` and `{p}cadd`")
+            return await interaction.edit_original_response(content=f"`char_id` not found. please re-add `{selected['name']}` with `{p}cdel` and `{p}cadd`")
         chat = None
         try:
             chat = await client.chat.new_chat(selected["char_id"])
         except Exception as e: print(e)
         if not chat or not chat.get('participants'):
             print(chat)
-            return await interaction.message.edit(content="an error occured")
+            return await interaction.edit_original_response(content="an error occured")
 
         await reset_method(self.ctx, selected, chat)
-        await interaction.message.edit(content=f"`{selected['name']}` has been reset")
+        await interaction.edit_original_response(content=f"`{selected['name']}` has been reset")
         await add_task_to_queue(self.ctx, selected, chat["messages"][0]["text"]) # wake up
 
 # database handling
