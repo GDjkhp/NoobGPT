@@ -8,7 +8,7 @@ from level_insult import *
 
 intents = discord.Intents.default()
 intents.message_content = True
-intents.presences = True
+# intents.presences = True
 intents.members = True
 mentions = discord.AllowedMentions(everyone=False, users=True, roles=True, replied_user=True)
 bot = commands.Bot(command_prefix = get_prefix, intents = intents, 
