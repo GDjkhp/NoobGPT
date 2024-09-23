@@ -20,6 +20,7 @@ provider="https://gdjkhp.github.io/img/66356c25ce98cb12993249e21742b129.png"
 
 async def Sflix(ctx: commands.Context, arg: str):
     if await command_check(ctx, "tv", "media"): return
+    return await ctx.reply("currently broken, will fix soon.")
     msg = await ctx.reply(f"Searching `{arg}`\nPlease wait…")
     try:
         result = results(await searchQuery(arg)) 
@@ -299,7 +300,7 @@ class ButtonSelect3(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        await interaction.response.edit_message(view=None)
+        await interaction.response.defer()
         sid = await ep_server_id(self.episode)
         iframe_url, tv_id = await get_link(sid)
         iframe_link, iframe_id = rabbit_id(iframe_url)
