@@ -129,15 +129,16 @@ class ButtonHeart(discord.ui.Button):
         self.db, self.ctx, self.id = db, ctx, id
     
     async def callback(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         if not await self.mycol.find_one({"user": interaction.user.id}):
             await self.mycol.insert_one({"user": interaction.user.id})
         p = await get_guild_prefix(self.ctx)
         if not await self.mycol.find_one({"user": interaction.user.id, "favorites": self.id}):
             await self.mycol.update_one({"user": interaction.user.id}, {"$push": {"favorites" : self.id}})
-            await interaction.response.send_message(f"❤️ Added to favorites ❤️\nUse `{p}{self.db}` to view your collection.", ephemeral=True)
+            await interaction.followup.send(f"❤️ Added to favorites ❤️\nUse `{p}{self.db}` to view your collection.", ephemeral=True)
         else: 
             await self.mycol.update_one({"user": interaction.user.id}, {"$pull": {"favorites" : self.id}})
-            await interaction.response.send_message(f"💔 Removed to favorites 💔\nUse `{p}{self.db}` to view your collection.", ephemeral=True)
+            await interaction.followup.send(f"💔 Removed to favorites 💔\nUse `{p}{self.db}` to view your collection.", ephemeral=True)
 
 class ButtonAction(discord.ui.Button):
     def __init__(self, tags: list, safe: bool, results: list, index: list, l: str, row: int, lock: list, ctx: commands.Context, db: str, la: str):
