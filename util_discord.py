@@ -1,6 +1,7 @@
 from discord.ext import commands
 from discord import app_commands
 import json
+import os
 from util_database import myclient
 mycol = myclient["utils"]["commands"]
 
@@ -218,6 +219,9 @@ async def set_dj_role_db(server_id: int, role_id):
 # public code for everyone to share, free to use
 description_helper = read_json_file("./res/mandatory_settings_and_splashes.json")["help_wanted_dictionaries_dead_or_alive"]
 
+def check_if_not_owner(ctx: commands.Context): # does not support interactions, deal with it
+    return ctx.author.id != int(os.getenv("OWNER"))
+
 async def command_check(ctx: commands.Context, com: str, cat: str):
     db = await get_database(ctx.guild.id if ctx.guild else ctx.channel.id)
     if com in db["disabled_commands"]: return True
@@ -232,7 +236,7 @@ async def check_if_master_or_admin(ctx: commands.Context):
     if not ctx.guild: return True # dm support, fuck you guys <3 (im going crazy)
     db = await get_database2(ctx.guild.id)
     check = db.get("bot_master_role") and ctx.guild.get_role(db["bot_master_role"]) in ctx.author.roles
-    if check or ctx.author.guild_permissions.administrator: return True
+    return check or ctx.author.guild_permissions.administrator
 
 async def get_guild_prefix(ctx: commands.Context):
     db = await get_database2(ctx.guild.id if ctx.guild else ctx.channel.id)

@@ -2,9 +2,9 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from util_discord import command_check, description_helper, get_guild_prefix
+import os
 
 # this is a deed that i should've done a long time ago
-user_id = 729554186777133088
 async def HALP(ctx: commands.Context):
     if await command_check(ctx, "halp", "utils"): return
     desc = "A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you."
@@ -36,7 +36,7 @@ class ButtonSelect(discord.ui.Button):
 
 async def create_embed(color: int, ctx: commands.Context, title: str, desc: str=None, url: str=None) -> discord.Embed:
     bot: commands.Bot = ctx.bot
-    user = await bot.fetch_user(user_id)
+    user = await bot.fetch_user(int(os.getenv("OWNER")))
     emby = discord.Embed(title=title, description=desc, url=url, color=color)
     emby.set_thumbnail(url='https://gdjkhp.github.io/img/tama-anim-walk----Copy.gif')
     emby.set_footer(text='Bot by GDjkhp\n© The Karakters Kompany, 2024',

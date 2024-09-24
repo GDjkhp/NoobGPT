@@ -1,10 +1,9 @@
 import wavelink
 from discord.ext import commands
 import discord
-from util_discord import command_check, get_database2, set_dj_role_db, check_if_master_or_admin
+from util_discord import command_check, get_database2, set_dj_role_db, check_if_master_or_admin, check_if_not_owner
 from util_database import myclient
 mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
-user_id = 729554186777133088
 
 async def setup_hook_music(bot: commands.Bot):
     await wavelink.Pool.close()
@@ -200,7 +199,7 @@ class SelectChoice(discord.ui.Select):
                 return
             vc.autoplay = wavelink.AutoPlayMode.enabled
         else: vc: wavelink.Player = self.ctx.voice_client
-        vc.music_channel = self.ctx.message.channel
+        vc.music_channel = self.ctx.channel
 
         selected = self.result[int(self.values[0])]
         await vc.queue.put_wait(selected)
@@ -214,22 +213,22 @@ class MusicUtil(commands.Cog):
 
     @commands.command()
     async def nodeadd(self, ctx: commands.Context, host: str, password: str):
-        if not ctx.author.id == user_id: return
+        if check_if_not_owner(ctx): return
         await add_node(ctx, host, password)
 
     @commands.command()
     async def nodedel(self, ctx: commands.Context, index: int):
-        if not ctx.author.id == user_id: return
+        if check_if_not_owner(ctx): return
         await delete_node(ctx, index)
 
     @commands.command()
     async def nodeview(self, ctx: commands.Context):
-        if not ctx.author.id == user_id: return
+        if check_if_not_owner(ctx): return
         await view_nodes(ctx)
 
     @commands.command(name="rmusic")
     async def reload_music(self, ctx: commands.Context):
-        if not ctx.author.id == user_id: return
+        if check_if_not_owner(ctx): return
         await setup_hook_music(ctx.bot)
 
 async def setup(bot: commands.Bot):

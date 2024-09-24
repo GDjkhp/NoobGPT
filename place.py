@@ -26,7 +26,7 @@ async def PlaceEmbed(x: int, y: int, z: float, ctx: commands.Context, status: st
     d = await find_pixel(x, y)
     e = discord.Embed(title=f"({x}, {y}) [{z}x]", description=f"{d['author']}: {d['color']}", 
                       color=rgb_tuple_to_hex(rgb_string_to_tuple(d['color'])))
-    if ctx.message.author.avatar: e.set_author(name=ctx.author, icon_url=ctx.message.author.avatar.url) 
+    if ctx.author.avatar: e.set_author(name=ctx.author, icon_url=ctx.author.avatar.url) 
     else: e.set_author(name=ctx.author)
     e.set_footer(text=status)
     return e

@@ -20,7 +20,6 @@ provider="https://gdjkhp.github.io/img/66356c25ce98cb12993249e21742b129.png"
 
 async def Sflix(ctx: commands.Context, arg: str):
     if await command_check(ctx, "tv", "media"): return
-    return await ctx.reply("currently broken, will fix soon.")
     msg = await ctx.reply(f"Searching `{arg}`\nPlease wait…")
     try:
         result = results(await searchQuery(arg)) 
@@ -159,7 +158,8 @@ class SelectChoice(discord.ui.Select):
                 # url = await cdn_url(iframe_link, iframe_id)
                 embed = await buildMovie(self.result[int(self.values[0])])
                 await interaction.edit_original_response(embed=embed, view=None)
-                await interaction.followup.send(f"[{self.result[int(self.values[0])][title]}]({iframe_url}&_debug=true)", ephemeral=True)
+                await interaction.followup.send(f"{self.result[int(self.values[0])][title]}",
+                                                view=WatchView([f"{iframe_url}&_debug=true"]), ephemeral=True)
             except Exception as e: await interaction.edit_original_response(content=e, view=None)
 
 # legacy code
@@ -306,8 +306,16 @@ class ButtonSelect3(discord.ui.Button):
         iframe_link, iframe_id = rabbit_id(iframe_url)
         try:
             # url = await cdn_url(iframe_link, iframe_id)
-            await interaction.followup.send(f"{self.title} [S{self.season}E{self.index}]({iframe_url}&_debug=true)", ephemeral=True)
+            await interaction.followup.send(f"{self.title} S{self.season}E{self.index}", 
+                                            view=WatchView([f"{iframe_url}&_debug=true"]), ephemeral=True)
         except Exception as e: await interaction.edit_original_response(content=e, view=None)
+
+class WatchView(discord.ui.View):
+    def __init__(self, links: list):
+        super().__init__(timeout=None)
+        for x in links[:25]:
+            self.add_item(discord.ui.Button(style=discord.ButtonStyle.link, url=x, emoji="🎞️",
+                                            label=f"Watch Full HD Movies & TV Shows"))
 
 class DisabledButton(discord.ui.Button):
     def __init__(self, e: str, r: int):

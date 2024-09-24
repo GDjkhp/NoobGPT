@@ -141,8 +141,15 @@ class ButtonEpisode(discord.ui.Button):
                                                            ephemeral=True)
         await interaction.response.defer()
         link = await get_stream(self.details['id'], ep_no(self.details['episode_links'][self.index]))
-        msg_content = f"[{self.details['title']}: Episode {ep_no(self.details['episode_links'][self.index])}]({link})"
-        await interaction.followup.send(msg_content, ephemeral=True)
+        msg_content = f"{self.details['title']}: Episode {ep_no(self.details['episode_links'][self.index])}"
+        await interaction.followup.send(msg_content, view=WatchView([link]), ephemeral=True)
+
+class WatchView(discord.ui.View):
+    def __init__(self, links: list):
+        super().__init__(timeout=None)
+        for x in links[:25]:
+            self.add_item(discord.ui.Button(style=discord.ButtonStyle.link, url=x, emoji="🎞️",
+                                            label=f"Watch Full HD Movies & TV Shows"))
 
 def buildSearch(arg: str, result: list, index: int) -> discord.Embed:
     embed = discord.Embed(title=f"Search results: `{arg}`", description=f"{len(result)} found", color=0x00ff00)

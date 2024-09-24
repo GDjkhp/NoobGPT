@@ -235,14 +235,21 @@ class ButtonDownload(discord.ui.Button):
         script_tag = soup.find("script")
         match = re.search(r"https://kwik\.si/f/\w+", script_tag.string)
         if match: 
-            await interaction.followup.send(f"[{self.details['title']}: {self.ep_text} [{self.text}]]({match.group()})", 
-                                            ephemeral=True)
+            await interaction.followup.send(f"{self.details['title']}: {self.ep_text} [{self.text}]", 
+                                            view=WatchView([match.group()]), ephemeral=True)
 
 class DownloadView(discord.ui.View):
     def __init__(self, ctx: commands.Context, urls: list, details: dict, index: int, texts: list, ep_text: str):
         super().__init__(timeout=None)
         for x in range(len(urls)):
             self.add_item(ButtonDownload(ctx, urls[x], x, details, index, texts[x], ep_text))
+
+class WatchView(discord.ui.View):
+    def __init__(self, links: list):
+        super().__init__(timeout=None)
+        for x in links[:25]:
+            self.add_item(discord.ui.Button(style=discord.ButtonStyle.link, url=x, emoji="🎞️",
+                                            label=f"Watch Full HD Movies & TV Shows"))
 
 class CogPahe(commands.Cog):
     def __init__(self, bot):

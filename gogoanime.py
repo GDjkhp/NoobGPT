@@ -5,7 +5,7 @@ from httpclient import HttpClient
 from bs4 import BeautifulSoup as BS
 import re
 from urllib import parse as p
-from util_discord import command_check, description_helper
+from util_discord import command_check, description_helper, check_if_not_owner
 from util_database import myclient
 mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 
@@ -15,7 +15,6 @@ desc, ep, animetype, released, genre = 2, 3, 5, 6, 7
 pagelimit = 12
 gogoanime = "https://anitaku.pe"
 provider="https://gdjkhp.github.io/img/logo.png"
-user_id = 729554186777133088
 
 async def get_domain():
     global gogoanime
@@ -227,7 +226,7 @@ class ButtonSelect5(discord.ui.Button):
         request = await client.get(f"{gogoanime}/{url}-episode-{self.index}")
         soup = BS(request, "lxml")
         video = soup.find("li", {"class": "doodstream"}).find("a")["data-video"]
-        await interaction.followup.send(f"[{url}-episode-{self.index}]({video})", ephemeral=True)
+        await interaction.followup.send(f"{url}-episode-{self.index}", view=WatchView([video]), ephemeral=True)
         # url0 = await doodstream(
         #     soup.find("li", {"class": "doodstream"}).find("a")["data-video"]
         # )
@@ -255,6 +254,13 @@ class CancelButton(discord.ui.Button):
                                                            ephemeral=True)
         await interaction.response.edit_message(content="🤨", embed=None, view=None)
 
+class WatchView(discord.ui.View):
+    def __init__(self, links: list):
+        super().__init__(timeout=None)
+        for x in links[:25]:
+            self.add_item(discord.ui.Button(style=discord.ButtonStyle.link, url=x, emoji="🎞️",
+                                            label=f"Watch Full HD Movies & TV Shows"))
+
 class DisabledButton(discord.ui.Button):
     def __init__(self, e: str, r: int):
         super().__init__(emoji=e, style=discord.ButtonStyle.success, disabled=True, row=r)
@@ -265,7 +271,7 @@ class CogGogo(commands.Cog):
 
     @commands.command()
     async def rgogo(self, ctx: commands.Context, arg=None):
-        if not ctx.author.id == user_id: return
+        if check_if_not_owner(ctx): return
         await set_domain(ctx, arg)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['anime']} gogoanime")

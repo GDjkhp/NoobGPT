@@ -46,8 +46,8 @@ async def view_collection(ctx: commands.Context, api: str):
             await message.edit(content=f"Retrieving collection…\nErrors: {errors}\n{len(results)} found")
         except: errors.append(x)
     if errors: await ctx.reply(f"Error retrieving `{errors}`")
-    await message.edit(content=None, embed = await BuildEmbed(ctx.message.author, results, 0, True if api == "safe" else False, [False, False], ctx), 
-                       view = ImageView(ctx.message.author, results, 0, True if api == "safe" else False, [False, False], ctx, api))
+    await message.edit(content=None, embed = await BuildEmbed(ctx.author, results, 0, api == "safe", [False, False], ctx), 
+                       view = ImageView(ctx.author, results, 0, api == "safe", [False, False], ctx, api))
 
 async def search_posts(ctx: commands.Context, arg: str, api: str):
     tags = re.split(r'\s*,\s*', arg)
@@ -63,8 +63,8 @@ async def search_posts(ctx: commands.Context, arg: str, api: str):
         await message.edit(content=f"Searching posts with tags `{tags}`\nPlease wait…\n{len(results)} found")
         page+=1
     if not results: return await message.edit(content="**No results found**")
-    await message.edit(content=None, embed = await BuildEmbed(tags, results, 0, True if api == "safe" else False, [False, False], ctx), 
-                       view = ImageView(tags, results, 0, True if api == "safe" else False, [False, False], ctx, api))
+    await message.edit(content=None, embed = await BuildEmbed(tags, results, 0, api == "safe", [False, False], ctx), 
+                       view = ImageView(tags, results, 0, api == "safe", [False, False], ctx, api))
 
 async def BuildEmbed(tags: list, results, index: int, safe: bool, lock: list, ctx: commands.Context) -> discord.Embed:
     embed = discord.Embed(title=f"Search results: `{tags}`", description=f"{index+1}/{len(results)} found", color=0x00ff00)

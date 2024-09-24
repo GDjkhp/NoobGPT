@@ -6,8 +6,8 @@ import aiohttp
 import os
 import time
 import json
+from util_discord import check_if_not_owner
 
-user_id = 729554186777133088
 headers = {"authorization": os.getenv("LANYARD")}
 loop_status = False
 
@@ -52,7 +52,7 @@ async def silly_activities(bot: commands.Bot):
                 "powered by pterodactyl",
                 "don't make me popular >_<",
             ]
-            data = await the_real_req(f"https://api.lanyard.rest/v1/users/{user_id}")
+            data = await the_real_req(f"https://api.lanyard.rest/v1/users/{os.getenv('OWNER')}")
             if data["success"]: 
                 strings.append(f"gdjkhp is currently {data['data']['discord_status']}")
                 if data["data"]["kv"]: 
@@ -71,12 +71,12 @@ def kv_embed(kv: dict):
     return e
 
 async def view_kv(ctx: commands.Context):
-    data = await the_real_req(f"https://api.lanyard.rest/v1/users/{user_id}")
+    data = await the_real_req(f"https://api.lanyard.rest/v1/users/{os.getenv('OWNER')}")
     await ctx.reply(embed=kv_embed(data["data"]["kv"]))
 
 async def get_kv(ctx: commands.Context, key: str):
     if not key: return await ctx.reply("no key provided")
-    data = await the_real_req(f"https://api.lanyard.rest/v1/users/{user_id}")
+    data = await the_real_req(f"https://api.lanyard.rest/v1/users/{os.getenv('OWNER')}")
     if not data["data"]["kv"] or not data["data"]["kv"].get(key): return await ctx.reply("no results found")
     await ctx.reply(data["data"]["kv"][key])
 
@@ -84,14 +84,14 @@ async def set_kv(ctx: commands.Context, arg: str):
     key = arg.split()[0]
     value = " ".join(arg.split()[1:])
     if not key or not value: return await ctx.reply("no key/value provided")
-    await the_real_put(f"https://api.lanyard.rest/v1/users/{user_id}/kv/{key}", value)
-    data = await the_real_req(f"https://api.lanyard.rest/v1/users/{user_id}")
+    await the_real_put(f"https://api.lanyard.rest/v1/users/{os.getenv('OWNER')}/kv/{key}", value)
+    data = await the_real_req(f"https://api.lanyard.rest/v1/users/{os.getenv('OWNER')}")
     await ctx.reply(embed=kv_embed(data["data"]["kv"]))
 
 async def del_kv(ctx: commands.Context, key: str):
     if not key: return await ctx.reply("no key provided")
-    await the_real_delete(f"https://api.lanyard.rest/v1/users/{user_id}/kv/{key}")
-    data = await the_real_req(f"https://api.lanyard.rest/v1/users/{user_id}")
+    await the_real_delete(f"https://api.lanyard.rest/v1/users/{os.getenv('OWNER')}/kv/{key}")
+    data = await the_real_req(f"https://api.lanyard.rest/v1/users/{os.getenv('OWNER')}")
     await ctx.reply(embed=kv_embed(data["data"]["kv"]))
 
 class LanyardUtil(commands.Cog):
@@ -100,27 +100,27 @@ class LanyardUtil(commands.Cog):
 
     @commands.command()
     async def kvview(self, ctx: commands.Context):
-        if not ctx.author.id == user_id: return
+        if check_if_not_owner(ctx): return
         await view_kv(ctx)
 
     @commands.command()
     async def kvget(self, ctx: commands.Context, key=None):
-        if not ctx.author.id == user_id: return
+        if check_if_not_owner(ctx): return
         await get_kv(ctx, key)
 
     @commands.command()
     async def kvset(self, ctx: commands.Context, *, arg=None):
-        if not ctx.author.id == user_id: return
+        if check_if_not_owner(ctx): return
         await set_kv(ctx, arg)
 
     @commands.command()
     async def kvdel(self, ctx: commands.Context, key=None):
-        if not ctx.author.id == user_id: return
+        if check_if_not_owner(ctx): return
         await del_kv(ctx, key)
 
     @commands.command()
     async def sync(self, ctx: commands.Context):
-        if not ctx.author.id == user_id: return
+        if check_if_not_owner(ctx): return
         synced = await self.bot.tree.sync()
         await ctx.reply(f"Synced {len(synced)} slash commands")
 

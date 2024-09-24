@@ -172,7 +172,7 @@ async def COBALT_API(ctx: commands.Context, args: str):
             links.append(response["url"])
     
     await msg.edit(content=f"{filename}\nstatus: {response['status']}\n{round(time.time() * 1000)-old}ms", 
-                    view=None if response["status"] in bad else DownloadView(links))
+                   view=None if response["status"] in bad else DownloadView(links))
         
 class DownloadView(discord.ui.View):
     def __init__(self, links: list):
