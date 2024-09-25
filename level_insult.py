@@ -17,7 +17,9 @@ async def detect_mentions(message: discord.Message, bot: commands.Bot):
     if message.author.bot: return False
     if message.mentions:
         if bot.user in message.mentions: return True
-    ref_msg = await message.channel.fetch_message(message.reference.message_id) if message.reference else None
+    ref_msg = None
+    msg_id = message.reference.message_id if message.reference and message.reference.message_id else None
+    if msg_id: ref_msg = await message.channel.fetch_message(msg_id)
     if ref_msg and ref_msg.author == bot.user: return True
 
 async def insult_user(bot: commands.Bot, msg: discord.Message):

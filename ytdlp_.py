@@ -46,7 +46,7 @@ async def YTDLP(ctx: commands.Context | discord.Interaction, arg1: str, arg2: st
                     if isinstance(ctx, discord.Interaction):
                         await ctx.followup.send(file=file)
                         await ctx.edit_original_response(content=f"`{filename}` has been prepared successfully!\nTook {round(time.time() * 1000)-old}ms")
-                except discord.errors.HTTPException:
+                except:
                     error_message = f"Error: An error occurred while cooking `{filename}`\nFile too large!"
                     if isinstance(ctx, commands.Context):
                         await msg.edit(content=error_message)
