@@ -10,23 +10,23 @@ from util_discord import command_check, get_guild_prefix
 client = AsyncOpenAI(api_key=os.getenv('OPENAI'))
 
 # ugly
-def strip_dash(text: str):
+def strip_dash(text: str, prefix: str):
     words = text.split()
     for i, word in enumerate(words):
-        if word.startswith("-") and i != len(words)-1:
+        if word.startswith(prefix) and i != len(words)-1:
             words = words[:i] + words[i+1:]
             break
     return " ".join(words)
 
 # i really love this function, improved
-async def loopMsg(message: discord.Message):
+async def loopMsg(message: discord.Message, prefix: str):
     role = "assistant" if message.author.bot else "user"
-    content = message.content if message.author.bot else strip_dash(message.content)
-    content = "Hello!" if content and content[0] == "-" else content
+    content = message.content if message.author.bot else strip_dash(message.content, prefix)
+    content = "Hello!" if content and content.startswith(prefix) else content
     base_data = [{"role": role, "content": content}]
     if not message.reference: return base_data
     repliedMessage = await message.channel.fetch_message(message.reference.message_id)
-    previousMessages = await loopMsg(repliedMessage)
+    previousMessages = await loopMsg(repliedMessage, prefix)
     return previousMessages + base_data
 
 async def discord_image(link: str, prompt: str) -> discord.File:
@@ -53,7 +53,8 @@ async def chat(ctx: commands.Context):
     message = ctx.message
     info = await message.reply("Generating response…")
     old = round(time.time() * 1000)
-    messagesArray = await loopMsg(message)
+    prefix = await get_guild_prefix(ctx)
+    messagesArray = await loopMsg(message, prefix)
     try:
         completion = await client.chat.completions.create(
             model="gpt-3.5-turbo",
@@ -77,10 +78,11 @@ async def image(ctx: commands.Context):
     message = ctx.message
     info = await message.reply("Generating image…")
     old = round(time.time() * 1000)
-    promptMsg = message.content.replace("-imagine ", "")
+    p = await get_guild_prefix(ctx)
+    promptMsg = message.content.replace(f"{p}imagine ", "")
     if message.reference: # reply hack
         hey = await message.channel.fetch_message(message.reference.message_id)
-        promptMsg = f"{promptMsg}: {hey.content.replace('-imagine ', '')}"
+        promptMsg = f"{promptMsg}: {hey.content.replace(f'{p}imagine ', '')}"
     promptMsg = "Generate something." if promptMsg == "" else promptMsg
     try:
         response = await client.images.generate(
@@ -98,7 +100,7 @@ async def gpt3(ctx: commands.Context):
     message = ctx.message
     info = await message.reply("Generating response…")
     old = round(time.time() * 1000)
-    content = message.content.replace("-gpt ", "")
+    content = message.content.replace(f"{await get_guild_prefix(ctx)}gpt ", "")
     content = "Generate 'Lorem ipsum…'" if content == "" else content
     try:
         completion = await client.completions.create(

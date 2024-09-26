@@ -8,19 +8,19 @@ import base64
 from util_discord import command_check, description_helper, get_guild_prefix
 
 # ugly
-def strip_dash(text: str):
+def strip_dash(text: str, prefix: str):
     words = text.split()
     for i, word in enumerate(words):
-        if word.startswith("-") and i != len(words)-1:
+        if word.startswith(prefix) and i != len(words)-1:
             words = words[:i] + words[i+1:]
             break
     return " ".join(words)
 
 # i really love this function, improved
-async def loopMsg(message: discord.Message):
+async def loopMsg(message: discord.Message, prefix: str):
     role = "assistant" if message.author.bot else "user"
-    content = message.content if message.author.bot else strip_dash(message.content)
-    content = "Hello!" if content and content[0] == "-" else content
+    content = message.content if message.author.bot else strip_dash(message.content, prefix)
+    content = "Hello!" if content and content.startswith(prefix) else content
     base_data = [{"role": role, "content": content}]
     if not message.reference: return base_data
     try:
@@ -28,16 +28,16 @@ async def loopMsg(message: discord.Message):
     except:
         print("Exception in loopMsg:perplexity")
         return base_data
-    previousMessages = await loopMsg(repliedMessage)
+    previousMessages = await loopMsg(repliedMessage, prefix)
     return previousMessages + base_data
 
 # TODO: vision support for slash
 def loopMsgSlash(prompt: str):
     return [{"role": "user", "content": prompt}]
 
-async def loopMsgGH(message: discord.Message):
+async def loopMsgGH(message: discord.Message, prefix: str):
     role = "assistant" if message.author.bot else "user"
-    content = message.content if message.author.bot else strip_dash(message.content)
+    content = message.content if message.author.bot else strip_dash(message.content, prefix)
     
     # vision support?
     base64_data = None
@@ -47,8 +47,8 @@ async def loopMsgGH(message: discord.Message):
             async with session.get(attachment.url) as resp:
                 image_data = await resp.read()
                 base64_data = base64.b64encode(image_data).decode('utf-8')
-                content = "What’s in this image?" if content and content[0] == "-" else content
-    content = "Hello!" if content and content[0] == "-" else content # if none is supplied
+                content = "What’s in this image?" if content and content.startswith(prefix) else content
+    content = "Hello!" if content and content.startswith(prefix) else content # if none is supplied
 
     base_data = [{
         "role": role, 
@@ -63,7 +63,7 @@ async def loopMsgGH(message: discord.Message):
     except:
         print("Exception in loopMsg:perplexity")
         return base_data
-    previousMessages = await loopMsgGH(repliedMessage)
+    previousMessages = await loopMsgGH(repliedMessage, prefix)
     return previousMessages + base_data
 
 models = [
@@ -252,7 +252,7 @@ async def main_perplexity(ctx: commands.Context | discord.Interaction, model: in
     try:
         url = "https://api.perplexity.ai/chat/completions"
         key = os.getenv('PERPLEXITY')
-        response = await make_request(models[model], await loopMsg(ctx.message), url, key) # spicy
+        response = await make_request(models[model], await loopMsg(ctx.message, await get_guild_prefix(ctx)), url, key) # spicy
         text = response["choices"][0]["message"]["content"]
         if not text or text == "":
             if isinstance(ctx, commands.Context):
@@ -293,7 +293,7 @@ async def main_github(ctx: commands.Context | discord.Interaction, model: int, p
         url = "https://models.inference.ai.azure.com/chat/completions"
         key = os.getenv('GITHUB')
         response = await make_request(models_github[model], 
-                                      await loopMsgGH(ctx.message) if not prompt else loopMsgSlash(prompt), 
+                                      await loopMsgGH(ctx.message, await get_guild_prefix(ctx)) if not prompt else loopMsgSlash(prompt), 
                                       url, key) # spicy
         text = response["choices"][0]["message"]["content"]
         if not text or text == "":
@@ -335,7 +335,7 @@ async def main_groq(ctx: commands.Context | discord.Interaction, model: int, pro
         url = "https://api.groq.com/openai/v1/chat/completions"
         key = os.getenv('GROQ')
         response = await make_request(models_groq[model], 
-                                      await loopMsg(ctx.message) if not prompt else loopMsgSlash(prompt), 
+                                      await loopMsg(ctx.message, await get_guild_prefix(ctx)) if not prompt else loopMsgSlash(prompt), 
                                       url, key) # spicy
         text = response["choices"][0]["message"]["content"]
         if not text or text == "":
@@ -374,7 +374,7 @@ async def main_anthropic(ctx: commands.Context | discord.Interaction, model: int
         await ctx.response.send_message(f"{models_claude[model]}\nGenerating response…")
     old = round(time.time() * 1000)
     try:
-        response = await make_request_claude(models_claude[model], await loopMsg(ctx.message)) # spicy
+        response = await make_request_claude(models_claude[model], await loopMsg(ctx.message, await get_guild_prefix(ctx))) # spicy
         text = response["content"][0]["text"]
         if not text or text == "":
             if isinstance(ctx, commands.Context):
@@ -413,7 +413,7 @@ async def main_mistral(ctx: commands.Context | discord.Interaction, model: int, 
     old = round(time.time() * 1000)
     try: 
         response = await make_request_mistral(models_mistral[model], 
-                                              await loopMsg(ctx.message) if not prompt else loopMsgSlash(prompt), 
+                                              await loopMsg(ctx.message, await get_guild_prefix(ctx)) if not prompt else loopMsgSlash(prompt), 
                                               True if model == 6 else False)
         text = response["choices"][0]["message"]["content"]
         if not text or text == "":

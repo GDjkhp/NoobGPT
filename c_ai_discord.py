@@ -80,9 +80,9 @@ async def queue_msgs(ctx, chars, clean_text):
 async def c_ai(bot: commands.Bot, msg: discord.Message):
     if not msg.guild: return
     if msg.author.id == bot.user.id: return
-    if msg.content and msg.content[0] == "-": return # ignore commands
     # if msg.content == "": return # you can send blank messages
     ctx = await bot.get_context(msg) # context hack
+    if msg.content and msg.content.startswith(await get_guild_prefix(ctx)): return # ignore commands
     if await command_check(ctx, "c.ai", "ai"): return
 
     # fucked up the perms again

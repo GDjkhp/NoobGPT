@@ -40,7 +40,8 @@ async def insult_user(bot: commands.Bot, msg: discord.Message):
 async def earn_xp(bot: commands.Bot, msg: discord.Message):
     if not msg.guild: return
     if msg.author.bot: return
-    if msg.content and msg.content[0] == "-": return # TODO: ignore commands
+    ctx = await bot.get_context(msg)
+    if msg.content and msg.content.startswith(await get_guild_prefix(ctx)): return
     db = await get_database(msg.guild.id)
     if not db["xp_module"]: return
 

@@ -7,7 +7,7 @@ import aiohttp
 import time
 from imagetext_py import *
 import asyncio
-from util_discord import command_check, description_helper
+from util_discord import command_check, description_helper, get_guild_prefix
 
 font_reg = './res/font/AmaticSC-Regular.ttf'
 font_bold = './res/font/AmaticSC-Bold.ttf'
@@ -37,7 +37,7 @@ async def quote_this(ctx: commands.Context, msg_id: str):
             messages = [message async for message in ctx.history(limit=2)]
             if len(messages) == 2:
                 referenced_message = messages[0]
-                if "quote" in referenced_message.content:
+                if f"{await get_guild_prefix(ctx)}quote" in referenced_message.content:
                     referenced_message = messages[1]
             else: return ctx.reply("maybe i'm blind")
         except:

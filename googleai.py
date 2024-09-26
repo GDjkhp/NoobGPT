@@ -64,19 +64,19 @@ def get_text_palm(response_data) -> str:
         return get_error_palm(response_data)
     
 # ugly
-def strip_dash(text: str):
+def strip_dash(text: str, prefix: str):
     words = text.split()
     for i, word in enumerate(words):
-        if word.startswith("-") and i != len(words)-1:
+        if word.startswith(prefix) and i != len(words)-1:
             words = words[:i] + words[i+1:]
             break
     return " ".join(words)
 
 # i really love this function, improved
-async def loopMsg(message: discord.Message):
+async def loopMsg(message: discord.Message, prefix: str):
     role = "model" if message.author.bot else "user"
-    content = message.content if message.author.bot else strip_dash(message.content)
-    content = "Hello!" if content and content[0] == "-" else content
+    content = message.content if message.author.bot else strip_dash(message.content, prefix)
+    content = "Hello!" if content and content.startswith(prefix) else content
     base64_data, mime = None, None
     if len(message.attachments) > 0:
         attachment = message.attachments[0]
@@ -105,11 +105,11 @@ async def loopMsg(message: discord.Message):
     except:
         print("Exception in loopMsg:googleai")
         return base_data
-    previousMessages = await loopMsg(repliedMessage)
+    previousMessages = await loopMsg(repliedMessage, prefix)
     return previousMessages + base_data
     
-async def json_data(msg: discord.Message):
-    messagesArray = await loopMsg(msg)
+async def json_data(msg: discord.Message, prefix: str):
+    messagesArray = await loopMsg(msg, prefix)
     return {"contents": messagesArray}
 
 def json_data_slash(prompt: str):
@@ -174,13 +174,14 @@ async def GEMINI_REST(ctx: commands.Context | discord.Interaction, model: int, p
         await ctx.response.send_message(f"{models[model]}\nGenerating response…")
     old = round(time.time() * 1000)
     text = None
+    prefix = await get_guild_prefix(ctx)
     # rewrite
     if palm:
         proxy = palm_proxy(f"{models[model]}:generateText")
-        payload = json_data_palm(strip_dash(ctx.message.content), not ctx.channel.nsfw)
+        payload = json_data_palm(strip_dash(ctx.message.content, prefix), not ctx.channel.nsfw)
     else:
         proxy = palm_proxy(f"{models[model]}:generateContent")
-        payload = await json_data(ctx.message) if not prompt else json_data_slash(prompt)
+        payload = await json_data(ctx.message, prefix) if not prompt else json_data_slash(prompt)
     text = await req_real(proxy, payload, headers, palm)
     # silly
     if not text:
