@@ -34,13 +34,12 @@ async def quote_this(ctx: commands.Context, msg_id: str):
         if not ctx.channel.last_message_id:
             return await ctx.reply("⁉️")
         try:
-            if isinstance(ctx, discord.Interaction):
-                referenced_message = await ctx.channel.fetch_message(ctx.channel.last_message_id)
-            if isinstance(ctx, commands.Context):
-                messages = [message async for message in ctx.history(limit=2)]
-                if len(messages) == 2:
+            messages = [message async for message in ctx.history(limit=2)]
+            if len(messages) == 2:
+                referenced_message = messages[0]
+                if "quote" in referenced_message.content:
                     referenced_message = messages[1]
-                else: return ctx.reply("maybe i'm blind")
+            else: return ctx.reply("maybe i'm blind")
         except:
             print("Exception in quote_this[1]")
             return await ctx.reply("**Error! :(**")
