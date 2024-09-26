@@ -96,7 +96,11 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
     # get character (lowercase mention, roles, reply)
     chars = []
     clean_text = replace_mentions(msg, bot)
-    ref_msg = await msg.channel.fetch_message(msg.reference.message_id) if msg.reference else None
+    ref_msg = None
+    try:
+        ref_msg = await msg.channel.fetch_message(msg.reference.message_id) if msg.reference and msg.reference.message_id else None
+    except:
+        print("Exception in c_ai")
 
     # feat: character mentions
     if not db.get("mention_modes"):

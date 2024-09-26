@@ -100,7 +100,11 @@ async def loopMsg(message: discord.Message):
         }
     ]
     if not message.reference: return base_data
-    repliedMessage = await message.channel.fetch_message(message.reference.message_id)
+    try:
+        repliedMessage = await message.channel.fetch_message(message.reference.message_id)
+    except:
+        print("Exception in loopMsg:googleai")
+        return base_data
     previousMessages = await loopMsg(repliedMessage)
     return previousMessages + base_data
     

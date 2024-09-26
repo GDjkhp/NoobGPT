@@ -26,13 +26,24 @@ async def quote_this(ctx: commands.Context, msg_id: str):
         try:
             referenced_message = await ctx.channel.fetch_message(msg_id)
         except:
+            print("Exception in quote_this[0]")
             return await ctx.reply("**Error! :(**")
     else:
         if isinstance(ctx.channel, discord.DMChannel):
             return await ctx.reply("good job! i don't have access to this channel.")
         if not ctx.channel.last_message_id:
             return await ctx.reply("⁉️")
-        referenced_message = await ctx.channel.fetch_message(ctx.channel.last_message_id)
+        try:
+            if isinstance(ctx, discord.Interaction):
+                referenced_message = await ctx.channel.fetch_message(ctx.channel.last_message_id)
+            if isinstance(ctx, commands.Context):
+                messages = [message async for message in ctx.history(limit=2)]
+                if len(messages) == 2:
+                    referenced_message = messages[1]
+                else: return ctx.reply("maybe i'm blind")
+        except:
+            print("Exception in quote_this[1]")
+            return await ctx.reply("**Error! :(**")
 
     info = await ctx.reply("Quoting…")
     old = round(time.time() * 1000)
