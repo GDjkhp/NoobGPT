@@ -640,7 +640,6 @@ class DeleteChoice(discord.ui.Select):
                                                            ephemeral=True)
         selected = self.result[int(self.values[0])]
         await interaction.response.edit_message(content=f'deleting `{selected["name"]}`', embed=None, view=None)
-        await interaction.response.defer()
         await delete_method(self.ctx, selected)
         await interaction.edit_original_response(content=f"`{selected['name']}` has been deleted from the server")
 
