@@ -178,7 +178,7 @@ class nextPage(discord.ui.Button):
                                                 view=SearchView(self.ctx, self.arg, self.result, self.index))
 
 class SelectChoice(discord.ui.Select):
-    def __init__(self, ctx: commands.Context, index: int, result: wavelink.Search):
+    def __init__(self, ctx: commands.Context | discord.Interaction, index: int, result: wavelink.Search):
         super().__init__(placeholder=f"{min(index + pagelimit, len(result))}/{len(result)} found")
         i, self.result, self.ctx = index, result, ctx
         while i < len(result):
@@ -188,17 +188,27 @@ class SelectChoice(discord.ui.Select):
             i += 1
 
     async def callback(self, interaction: discord.Interaction):
-        if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
-                                                           ephemeral=True)
-        if not self.ctx.voice_client:
-            try: vc = await self.ctx.author.voice.channel.connect(cls=wavelink.Player)
+        if isinstance(self.ctx, commands.Context):
+            if interaction.user != self.ctx.author:
+                return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
+                                                            ephemeral=True)
+        if isinstance(self.ctx, discord.Interaction):
+            if interaction.user != self.ctx.user:
+                return await interaction.response.send_message(f"Only <@{self.ctx.user.id}> can interact with this message.", 
+                                                            ephemeral=True)
+        if not self.ctx.guild.voice_client:
+            try: 
+                if isinstance(self.ctx, commands.Context):
+                    vc = await self.ctx.author.voice.channel.connect(cls=wavelink.Player)
+                if isinstance(self.ctx, discord.Interaction):
+                    vc = await self.ctx.user.voice.channel.connect(cls=wavelink.Player)
             except:
                 print("ChannelTimeoutException")
-                await setup_hook_music(self.ctx.bot)
+                if isinstance(self.ctx, commands.Context):
+                    await setup_hook_music(self.ctx.bot)
                 return
             vc.autoplay = wavelink.AutoPlayMode.enabled
-        else: vc: wavelink.Player = self.ctx.voice_client
+        else: vc: wavelink.Player = self.ctx.guild.voice_client
         vc.music_channel = self.ctx.channel
 
         selected = self.result[int(self.values[0])]

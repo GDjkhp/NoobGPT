@@ -99,7 +99,8 @@ async def music_play(ctx: commands.Context | discord.Interaction, search: str):
                 vc = await ctx.user.voice.channel.connect(cls=wavelink.Player)
         except: 
             print("ChannelTimeoutException")
-            await setup_hook_music(ctx.bot)
+            if isinstance(ctx, commands.Context):
+                await setup_hook_music(ctx.bot)
             return
         vc.autoplay = wavelink.AutoPlayMode.enabled
     vc.music_channel = ctx.channel
