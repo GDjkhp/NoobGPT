@@ -190,12 +190,10 @@ class SelectChoice(discord.ui.Select):
     async def callback(self, interaction: discord.Interaction):
         if isinstance(self.ctx, commands.Context):
             if interaction.user != self.ctx.author:
-                return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
-                                                            ephemeral=True)
+                return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", ephemeral=True)
         if isinstance(self.ctx, discord.Interaction):
             if interaction.user != self.ctx.user:
-                return await interaction.response.send_message(f"Only <@{self.ctx.user.id}> can interact with this message.", 
-                                                            ephemeral=True)
+                return await interaction.response.send_message(f"Only <@{self.ctx.user.id}> can interact with this message.", ephemeral=True)
         if not self.ctx.guild.voice_client:
             try: 
                 if isinstance(self.ctx, commands.Context):
