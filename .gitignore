@@ -1,9 +1,7 @@
 .env
-test.py
 *.pyc
+test.py
 test2.py
-synsets_wordle.json
-synsets.json
 meeseeks.py
-tama-anim-merge.gif
-lavalink_server_you_can_reload_when_shit_happens.json
+synsets.json
+synsets_wordle.json

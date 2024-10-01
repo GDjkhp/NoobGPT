@@ -233,7 +233,7 @@ async def command_check(ctx: commands.Context, com: str, cat: str):
         return True
 
 async def check_if_master_or_admin(ctx: commands.Context):
-    if not ctx.guild: return True # dm support, fuck you guys <3 (im going crazy)
+    if not ctx.guild: return True # dm support
     db = await get_database2(ctx.guild.id)
     check = db.get("bot_master_role") and ctx.guild.get_role(db["bot_master_role"]) in ctx.author.roles
     return check or ctx.author.guild_permissions.administrator

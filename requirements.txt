@@ -2,7 +2,6 @@ discord.py
 python-dotenv
 wavelink
 httpx
-curl-cffi
 beautifulsoup4
 websockets
 pygelbooru
@@ -16,3 +15,6 @@ motor
 yt-dlp
 ffmpeg-python
 lxml
+pydub
+git+https://github.com/Xtr4F/PyCharacterAI
+curl-cffi==0.6.2

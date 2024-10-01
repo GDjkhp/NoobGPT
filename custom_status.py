@@ -36,33 +36,34 @@ async def silly_activities(bot: commands.Bot):
     if loop_status: return
     loop_status = True
     while True:
-        try:
-            strings = [
-                f"serving {len(bot.users)} users in {len(bot.guilds)} guilds",
-                f"will return in {round(bot.latency*1000)}ms",
-                time.strftime("%A, %d %B %Y"),
-                "get started: -halp",
-                "🔴 = stable 🟢 = unstable",
-                "RADIO ONSEN EUTOPIA",
-                "feat. tama and sadako",
-                "bot by gdjkhp",
-                "made in yokohama, japan",
-                "hosted in germany",
-                "written in python",
-                "powered by pterodactyl",
-                "don't make me popular >_<",
-            ]
-            data = await the_real_req(f"https://api.lanyard.rest/v1/users/{os.getenv('OWNER')}")
-            if data["success"]: 
-                strings.append(f"gdjkhp is currently {data['data']['discord_status']}")
-                if data["data"]["kv"]: 
-                    for key in list(data["data"]["kv"]):
-                        strings.append(data["data"]["kv"][key])
-            splashes = read_json_file("./res/mandatory_settings_and_splashes.json")["some funny splashes you can modify"]
-            strings.append(random.choice(splashes))
-            await bot.change_presence(activity=discord.CustomActivity(name=random.choice(strings)), 
-                                    status=discord.Status.dnd)
-        except Exception as e: print(e)
+        if bot.is_ready():
+            try:
+                strings = [
+                    f"serving {len(bot.users)} users in {len(bot.guilds)} guilds",
+                    f"will return in {round(bot.latency*1000)}ms",
+                    time.strftime("%A, %d %B %Y"),
+                    "get started: -halp",
+                    "🔴 = stable 🟢 = unstable",
+                    "RADIO ONSEN EUTOPIA",
+                    "feat. tama and sadako",
+                    "bot by gdjkhp",
+                    "made in yokohama, japan",
+                    "hosted in germany",
+                    "written in python",
+                    "powered by pterodactyl",
+                    "don't make me popular >_<",
+                ]
+                data = await the_real_req(f"https://api.lanyard.rest/v1/users/{os.getenv('OWNER')}")
+                if data["success"]: 
+                    strings.append(f"gdjkhp is currently {data['data']['discord_status']}")
+                    if data["data"]["kv"]: 
+                        for key in list(data["data"]["kv"]):
+                            strings.append(data["data"]["kv"][key])
+                splashes = read_json_file("./res/mandatory_settings_and_splashes.json")["some funny splashes you can modify"]
+                strings.append(random.choice(splashes))
+                await bot.change_presence(activity=discord.CustomActivity(name=random.choice(strings)), 
+                                        status=discord.Status.dnd)
+            except Exception as e: print(e)
         await asyncio.sleep(10)
 
 def kv_embed(kv: dict):

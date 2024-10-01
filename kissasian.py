@@ -349,10 +349,11 @@ class CogKiss(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['tv']} kissasian")
-    @app_commands.describe(query="Search query")
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    # @commands.hybrid_command(description=f"{description_helper['emojis']['tv']} kissasian")
+    # @app_commands.describe(query="Search query")
+    # @app_commands.allowed_installs(guilds=True, users=True)
+    # @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @commands.command()
     async def kiss(self, ctx: commands.Context, *, query:str=None):
         await kiss_search(ctx, query)
 
