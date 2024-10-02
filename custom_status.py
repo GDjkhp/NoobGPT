@@ -7,9 +7,7 @@ import os
 import time
 import json
 from util_discord import check_if_not_owner
-
 headers = {"authorization": os.getenv("LANYARD")}
-loop_status = False
 
 async def the_real_req(url: str):
     async with aiohttp.ClientSession() as session:
@@ -32,9 +30,6 @@ def read_json_file(file_path):
     return data
 
 async def silly_activities(bot: commands.Bot):
-    global loop_status
-    if loop_status: return
-    loop_status = True
     while True:
         if bot.is_ready():
             try:
@@ -62,7 +57,7 @@ async def silly_activities(bot: commands.Bot):
                 splashes = read_json_file("./res/mandatory_settings_and_splashes.json")["some funny splashes you can modify"]
                 strings.append(random.choice(splashes))
                 await bot.change_presence(activity=discord.CustomActivity(name=random.choice(strings)), 
-                                        status=discord.Status.dnd)
+                                          status=discord.Status.dnd)
             except Exception as e: print(e)
         await asyncio.sleep(10)
 

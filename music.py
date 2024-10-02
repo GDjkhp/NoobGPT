@@ -12,6 +12,7 @@ async def setup_hook_music(bot: commands.Bot):
     for lava in data:
         nodes.append(wavelink.Node(uri=lava["host"], password=lava["password"], retries=3600)) # 1 hour (1 retry = 60 secs)
     await wavelink.Pool.connect(client=bot, nodes=nodes)
+    print("setup_hook_music ok")
 
 async def view_nodes(ctx: commands.Context):
     data = await node_list()
@@ -217,7 +218,7 @@ class SelectChoice(discord.ui.Select):
 
 class MusicUtil(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: commands.Bot = bot
 
     @commands.command()
     async def nodeadd(self, ctx: commands.Context, host: str, password: str):
@@ -238,6 +239,21 @@ class MusicUtil(commands.Cog):
     async def reload_music(self, ctx: commands.Context):
         if check_if_not_owner(ctx): return
         await setup_hook_music(ctx.bot)
+
+    @commands.command(name="msync")
+    async def sync(self, ctx: commands.Context):
+        if check_if_not_owner(ctx): return
+        synced = await self.bot.tree.sync()
+        await ctx.reply(f"Synced {len(synced)} slash commands")
+
+    @commands.command(name="mstats")
+    async def stats(self, ctx: commands.Context):
+        stat_list = [
+            f"serving {len(self.bot.users)} users in {len(self.bot.guilds)} guilds",
+            f"will return in {round(self.bot.latency*1000)}ms",
+            f"{len(self.bot.tree.get_commands())} application commands found"
+        ]
+        await ctx.reply("\n".join(stat_list))
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(MusicUtil(bot))

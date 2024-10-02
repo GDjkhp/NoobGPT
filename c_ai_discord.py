@@ -87,12 +87,11 @@ async def c_ai_init(ctx: commands.Context):
 async def send_webhook_message(ctx: commands.Context, x, chat: Chat, turn: Turn, db):
     wh = await get_webhook(ctx, x)
     if wh:
-        if not bool(x.get("voice_id")):
-            if type(ctx.channel) == discord.Thread:
-                await wh.send(clean_gdjkhp(turn.get_primary_candidate().text, ctx.author.name), thread=ctx.channel)
-            else:
-                await wh.send(clean_gdjkhp(turn.get_primary_candidate().text, ctx.author.name))
-        else:
+        final_text = clean_gdjkhp(turn.get_primary_candidate().text, ctx.author.name)
+        if db.get("voice_only"): final_text = None
+        speech_file = None
+
+        if bool(x.get("voice_id")):
             speech = await client_voice.utils.generate_speech(chat.chat_id, turn.turn_id, turn.get_primary_candidate().candidate_id, x["voice_id"])
             mp3_buffer = io.BytesIO(speech)
             audio = AudioSegment.from_mp3(mp3_buffer)
@@ -100,15 +99,15 @@ async def send_webhook_message(ctx: commands.Context, x, chat: Chat, turn: Turn,
             audio.export(ogg_buffer, format="ogg", codec="libopus")
             ogg_buffer.seek(0)
             file_size = ogg_buffer.getbuffer().nbytes
-            if db.get("voicehook"):
-                if type(ctx.channel) == discord.Thread:
-                    await wh.send(clean_gdjkhp(turn.get_primary_candidate().text, ctx.author.name), 
-                                  file=discord.File(ogg_buffer, filename="voice-message.ogg"), thread=ctx.channel)
-                else:
-                    await wh.send(clean_gdjkhp(turn.get_primary_candidate().text, ctx.author.name),
-                                  file=discord.File(ogg_buffer, filename="voice-message.ogg"))
+            if db.get("voicehook"): speech_file = discord.File(ogg_buffer, filename="voice-message.ogg")
+    
+        if final_text or speech_file:
+            if type(ctx.channel) == discord.Thread:
+                await wh.send(final_text, file=speech_file, thread=ctx.channel)
             else:
-                await voice_message_hack(audio, ogg_buffer, file_size, ctx)
+                await wh.send(final_text, file=speech_file)
+        if bool(x.get("voice_id")) and not speech_file:
+            await voice_message_hack(audio, ogg_buffer, file_size, ctx)
 
 # the real
 async def c_ai(bot: commands.Bot, msg: discord.Message):
@@ -285,7 +284,9 @@ async def view_char(ctx: commands.Context):
         f"message_rate: `{db['message_rate']}%`",
         f"channel_mode: `{db['channel_mode']}`",
         f"admin_approval: `{db['admin_approval']}`",
-        f"mention_modes: `{db['mention_modes']}`" if db.get("mention_modes") else ""
+        f"mention_modes: `{db['mention_modes']}`" if db.get("mention_modes") else "",
+        f"voicehook: `{db['voicehook']}`" if db.get("voicehook") else "",
+        f"voice_only: `{db['voice_only']}`" if db.get("voice_only") else "",
     ]
     await ctx.reply(view=AvailView(ctx, db["characters"], 0), embed=view_embed(ctx, db["characters"], 0, 0x00ff00), content="\n".join(text))
 
@@ -372,6 +373,19 @@ async def voice_mode(ctx: commands.Context):
     await set_voice_mode(ctx.guild.id, not bool(db.get("voicehook")))
     await ctx.reply(f"`voicehook` is now set to {not bool(db.get('voicehook'))}")
 
+async def voice_only(ctx: commands.Context):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if await command_check(ctx, "c.ai", "ai"): return
+    # fucked up the perms again
+    permissions = ctx.channel.permissions_for(ctx.me)
+    if not permissions.manage_webhooks or not permissions.manage_roles:
+        return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
+    
+    db = await get_database(ctx.guild.id)
+    if db["admin_approval"] and not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
+    await set_voice_only(ctx.guild.id, not bool(db.get("voice_only")))
+    await ctx.reply(f"`voice_only` is now set to {not bool(db.get('voice_only'))}")
+
 async def voice_search(ctx: commands.Context, text: str):
     if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "c.ai", "ai"): return
@@ -433,6 +447,7 @@ async def c_help(ctx: commands.Context):
         f"`{p}crate <rate>` set global message_rate (0-100)",
         f"`{p}cedit <rate>` set char_message_rate per channel (0-100)",
         f"`{p}cvmode` set voice mode",
+        f"`{p}cvonly` set voice only",
         "# Get started",
         f"setup: `{p}cchan` -> `{p}cadd <query>`",
         f"stop: `{p}crate 0`",
@@ -1277,6 +1292,7 @@ async def add_database(server_id: int):
         "message_rate": 66,
         "channel_mode": True,
         "voicehook": True,
+        "voice_only": False,
         "mention_modes": [],
         "channels": [],
         "characters": [],
@@ -1341,6 +1357,9 @@ async def set_mode(server_id: int, b: bool):
 
 async def set_voice_mode(server_id: int, b: bool):
     await mycol.update_one({"guild":server_id}, {"$set": {"voicehook": b}})
+
+async def set_voice_only(server_id: int, b: bool):
+    await mycol.update_one({"guild":server_id}, {"$set": {"voice_only": b}})
 
 async def set_rate_db(server_id: int, value: int):
     await mycol.update_one({"guild":server_id}, {"$set": {"message_rate": value}})
@@ -1478,6 +1497,10 @@ class CogCAI(commands.Cog):
     @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} delete character voice")
     async def cvdel(self, ctx: commands.Context):
         await voice_delete(ctx)
+
+    @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} set voice only")
+    async def cvonly(self, ctx: commands.Context):
+        await voice_only(ctx)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogCAI(bot))

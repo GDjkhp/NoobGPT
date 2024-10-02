@@ -17,4 +17,3 @@ ffmpeg-python
 lxml
 pydub
 git+https://github.com/Xtr4F/PyCharacterAI
-curl-cffi==0.6.2
