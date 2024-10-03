@@ -103,9 +103,11 @@ async def send_webhook_message(ctx: commands.Context, x, chat: Chat, turn: Turn,
     
         if final_text or speech_file:
             if type(ctx.channel) == discord.Thread:
-                await wh.send(final_text, file=speech_file, thread=ctx.channel)
+                if speech_file: await wh.send(final_text, file=speech_file, thread=ctx.channel)
+                else: await wh.send(final_text, thread=ctx.channel)
             else:
-                await wh.send(final_text, file=speech_file)
+                if speech_file: await wh.send(final_text, file=speech_file)
+                else: await wh.send(final_text)
         if bool(x.get("voice_id")) and not speech_file:
             await voice_message_hack(audio, ogg_buffer, file_size, ctx)
 
