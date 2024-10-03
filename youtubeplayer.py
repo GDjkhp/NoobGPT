@@ -453,7 +453,7 @@ class YouTubePlayer(commands.Cog):
             embed = music_now_playing_embed(vc.current)
             await vc.music_channel.send(embed=embed)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['media']} {description_helper['media']['music']}")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['media']} Listen to music in a voice channel")
     async def music(self, ctx: commands.Context):
         await music_help(ctx)
 
@@ -470,13 +470,13 @@ class YouTubePlayer(commands.Cog):
     async def p(self, ctx: commands.Context, *, query: str=None):
         await music_play(ctx, query)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Play music. (YouTube Music)")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Play music (YouTube Music)")
     @app_commands.describe(query="Search query")
     @app_commands.autocomplete(query=search_auto)
     async def play(self, ctx: commands.Context, *, query:str=None):
         await music_play(ctx, query)
 
-    @app_commands.command(name="play-spotify", description=f"{description_helper['emojis']['music']} Play music. (Spotify)")
+    @app_commands.command(name="play-spotify", description=f"{description_helper['emojis']['music']} Play music (Spotify)")
     @app_commands.describe(query="Search query")
     @app_commands.autocomplete(query=search_auto_spotify)
     async def play_spotify(self, ctx: discord.Interaction, *, query:str=None):
@@ -515,11 +515,11 @@ class YouTubePlayer(commands.Cog):
         await music_nowplaying(ctx)
 
     # queue
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Search music. (YouTube Music)")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Search music (YouTube Music)")
     async def search(self, ctx: commands.Context, *, query: str=None):
         await queue_search(ctx, query)
 
-    @app_commands.command(name="search-spotify", description=f"{description_helper['emojis']['music']} Search music. (Spotify)")
+    @app_commands.command(name="search-spotify", description=f"{description_helper['emojis']['music']} Search music (Spotify)")
     @app_commands.describe(query="Search query")
     async def search_spotify(self, ctx: discord.Interaction, *, query: str=None):
         await queue_search(ctx, query, "spsearch:")

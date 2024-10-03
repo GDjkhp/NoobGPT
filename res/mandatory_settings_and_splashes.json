@@ -20,7 +20,6 @@
             "rps": "Play rock-paper-scissors."
         },
         "media": {
-            "music": "Listen to music in a voice channel.",
             "anime": "Watch animated works originating in Japan.",
             "manga": "Read comics originating in Japan.",
             "booru": "A form of imageboard where images are categorized with tags.",

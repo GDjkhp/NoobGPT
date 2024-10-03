@@ -108,10 +108,9 @@ class Moosic(commands.Bot):
 
     async def setup_hook(self):
         self.loop.create_task(silly_activities(self))
-        await setup_hook_music(self)
+        self.loop.create_task(setup_hook_music(self))
         await self.load_extension('youtubeplayer')
         await self.load_extension('music')
-        await self.load_extension('help')
 
 async def start_bot(bot: commands.Bot, token: str):
     await bot.start(token)
