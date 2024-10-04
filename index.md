@@ -36,6 +36,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 
 ### Supports slash and prefix commands. User integration is partially supported.
 * `-help` Show commands help page.
+
 ## AI 🤖
 <a href="https://openai.com"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/openai-white-lockup.png"></a>
 <a href="https://gemini.google.com"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/gemini.png"></a>
@@ -93,6 +94,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 # Bot Commands
 ### Supports slash and prefix commands.
 * `-music` Listen to music in a voice channel.
+
 ## Player commands
 * `-play <query>` Play music. Supports YouTube, Spotify, SoundCloud, Apple Music.
 * `-nowplaying` Now playing.
@@ -103,6 +105,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-volume <value>` Set volume.
 * `-summon` Join voice channel.
 * `-dj` Create DJ role.
+
 ## Queue commands
 * `-search <query>` Search music. Defaults to YouTube.
 * `-list <page>` Show queue.
