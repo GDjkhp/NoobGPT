@@ -8,14 +8,14 @@ A **very simple yet complicated** multi-purpose Discord bot that does pretty muc
 
 ## Usage
 <div align="center">
-<h3><a href="https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=633736118258688&scope=applications.commands%20bot">Add to server</a>, <a href="https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=279444540416&scope=applications.commands%20bot">invite music bot only</a>, or <a href="discord://discord.com/users/1090254079609020447">send a direct message</a> to start using.</h3>
+<h3><a href="https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=633731823291392&scope=applications.commands%20bot">Add to server</a>, <a href="https://discord.com/oauth2/authorize?client_id=1090254079609020447">install as user</a>, or <a href="discord://discord.com/users/1090254079609020447">send a direct message</a> to start using.</h3>
 <a href="discord://discord.com/users/1090254079609020447">
 <img style="background-color: black;" src="https://discord.c99.nl/widget/theme-4/1090254079609020447.png" alt="Discord RPC isn't working!" title="Click here to visit my Discord Profile!">
 </a>
 </div>
 
 ## Source Code
-Requires `Python 3.10+` and `requirements.txt` packages.
+Requires `Python 3.10+`, `requirements.txt` packages, `.env` for secret keys, and a running [MongoDB](https://www.mongodb.com) instance.
 * <https://github.com/GDjkhp/level-up-loser-python-branch>
 
 Host your bots here: [Bot-Hosting.net](https://bot-hosting.net/?aff=729554186777133088)
@@ -31,11 +31,11 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 </details>
 
 # Bot Commands
-* `-halp` Show prefix commands help page.
-
-# Python Computer #1: Beta Branch
+## Python Computer #1: Beta Branch
 Collection of random and unique stuff I came up with, mostly games and useful tools. This is where I add new features regularly.
-### Prefix: -
+
+### Supports slash and prefix commands. User integration is partially supported.
+* `-help` Show commands help page.
 ## AI 🤖
 <a href="https://openai.com"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/openai-white-lockup.png"></a>
 <a href="https://gemini.google.com"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/gemini.png"></a>
@@ -47,9 +47,11 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-googleai` Google AI is a division of Google dedicated to artificial intelligence.
 * `-petals` Run large language models at home, BitTorrent‑style.
 * `-perplex` Perplexity AI unlocks the power of knowledge with information discovery and sharing.
+* `-groq` The LPU™ Inference Engine by Groq is a hardware and software platform that delivers exceptional compute speed, quality, and energy efficiency.
+* `-github` If you want to develop a generative AI application, you can use GitHub Models to find and experiment with AI models for free.
 * `-mistral` Mistral AI is a French company selling artificial intelligence products.
 * `-claude` Anthropic is an AI safety and research company that's working to build reliable, interpretable, and steerable AI systems.
-* `-c.ai` Character.ai is an American neural language model chatbot service that can generate human-like text responses and participate in contextual conversation.
+* `-cai` Character.ai is an American neural language model chatbot service that can generate human-like text responses and participate in contextual conversation.
 
 ## Games 🎲
 * `-aki (optional: category = [people/animals/objects] [language])` Play a guessing game of [Akinator](https://akinator.com).
@@ -60,7 +62,6 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-rps` Play rock-paper-scissors.
 
 ## Media 💽
-* `-music` Listen to music in a voice channel.
 * `-anime` Watch animated works originating in Japan.
 * `-manga` Read comics originating in Japan.
 * `-tv` Watch TV shows and movies.
@@ -76,6 +77,44 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-weather [query]` Check weather forecast using [weather-api](https://github.com/robertoduessmann/weather-api).
 * `-av [userid]` Return a user's Discord profile avatar.
 * `-ban [userid]` Return a user's Discord profile banner.
+
+# Moosic
+<img src="https://gdjkhp.github.io/img/baka.jpg" width=256>
+<h3>grass is greenr on the othr side</h3>
+
+## Usage
+<div align="center">
+<h3><a href="https://discord.com/api/oauth2/authorize?client_id=1073823671392686162&permissions=412588788736&scope=applications.commands%20bot">Add to server</a> to start using.</h3>
+<a href="discord://discord.com/users/1073823671392686162">
+<img style="background-color: black;" src="https://discord.c99.nl/widget/theme-4/1073823671392686162.png" alt="Discord RPC isn't working!" title="Click here to visit my Discord Profile!">
+</a>
+</div>
+
+# Bot Commands
+### Supports slash and prefix commands.
+* `-music` Listen to music in a voice channel.
+## Player commands
+* `-play <query>` Play music. Supports YouTube, Spotify, SoundCloud, Apple Music.
+* `-nowplaying` Now playing.
+* `-pause` Pause music.
+* `-resume` Resume music.
+* `-skip` Skip music.
+* `-stop` Stop music and disconnect from voice channel.
+* `-volume <value>` Set volume.
+* `-summon` Join voice channel.
+* `-dj` Create DJ role.
+## Queue commands
+* `-search <query>` Search music. Defaults to YouTube.
+* `-list <page>` Show queue.
+* `-shuffle` Shuffle queue.
+* `-reset` Reset queue.
+* `-peek` Peek track.
+* `-remove <index>` Remove a track from the queue.
+* `-replace <index> <query>` Replace track.
+* `-swap <index1> <index2>` Swap tracks.
+* `-move <index1> <index2>` Move track.
+* `-repeat <off/one/all>` Repeat music modes.
+* `-autoplay <partial/enabled/disabled>` Autoplay and recommended music modes.
 
 ## Credits
 ### Code
@@ -104,6 +143,8 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * <https://github.com/pydantic/pydantic>
 * <https://github.com/Legrandin/pycryptodome>
 * <https://github.com/kkroening/ffmpeg-python>
+* <https://github.com/Xtr4F/PyCharacterAI>
+* <https://github.com/jiaaro/pydub>
 
 ### Sites
 * <https://openai.com>
@@ -125,31 +166,50 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * <https://mangadex.org>
 * <https://manganato.com>
 * <https://www.crummy.com/software/BeautifulSoup>
+* <https://github.com/marketplace/models>
 
 ### Special Thanks
 * `jaicraft` ~~Perplexity, Claude~~, Mistral access
 <!-- * `aychelletroller` OpenAI access -->
 
-### Legal
-<details><summary><b>Permissions and data collection</b></summary>
-<a href="https://discordlookup.com/permissions-calculator/633736118258688"><h2>Permissions</h2></a>
-<li>Read and send messages, files, embeds, links</li>
-<li>Use custom emojis and stickers</li>
-<li>Speak and join voice channels for music</li>
-<li>Manage webhooks and manage roles for character.ai</li>
+## Legal
+### Permissions
+[Click here to view the full list of permissions](https://discordlookup.com/permissions-calculator/633731823291392)
+* All: Read and send messages, files, embeds and links
+* XP: Manage roles
+* Music: Manage roles, speak and join voice channels
+* Character.AI: Manage webhooks, manage roles and send voice messages
 
-<h2>Data collection</h2>
-Legend: <span style="color: red;">Not accessed</span> / <span style="color: lime;">Accessed</span> / <span style="color: yellow;">Collected</span>
-<li>Server: <span style="color: yellow;">Channels</span> / <span style="color: yellow;">Roles</span> / <span style="color: yellow;">Webhooks</span> / <span style="color: lime;">Emojis</span> / <span style="color: red;">Stickers</span> / <span style="color: red;">Invite</span> / <span style="color: red;">Audit</span> / <span style="color: red;">Events</span> / <span style="color: red;">Insights</span></li>
-<li>User: <span style="color: lime;">Avatar</span> / <span style="color: lime;">Banner</span></li>
-<li>Message: <span style="color: lime;">Content</span> / <span style="color: lime;">Files</span> / <span style="color: lime;">Embeds</span> / <span style="color: lime;">Links</span> / <span style="color: red;">Reactions</span></li>
-Note: Content generated by AI services, including your inputs, are managed and collected by them. Read their terms of services and privacy policies.
-</details>
-<marquee>Use AI with ethics. Proceed with caution!</marquee>
-<br>
-Execute `-legal` for legal troubles. 
-<br>
-<br>
+### Data collection
+Required privilaged gateway intents: Server members and message content
+* Only IDs are collected. Server and user IDs are collected by default in order to save your settings. Yes, this includes booru collections.
+* Webhooks are collected in order for Character.AI to work. This is optional. Everything else are required.
+* You can wipe your user and server data. DM gdjkhp for a complete data wipe. GDPR is real.
+
+| **items**   | **accessed** | **collected** |
+| :---------- | :----------: | :-----------: |
+| **server**  | ✅           | ✅           |
+| channels    | ✅           | ✅           |
+| roles       | ✅           | ✅           |
+| webhooks    | ✅           | ✅           |
+| emojis      | ✅           | ❌           |
+| stickers    | ❌           | ❌           |
+| invite      | ❌           | ❌           |
+| audit       | ❌           | ❌           |
+| events      | ❌           | ❌           |
+| insights    | ❌           | ❌           |
+| **user**    | ✅           | ✅           |
+| avatar      | ✅           | ❌           |
+| banner      | ✅           | ❌           |
+| **message** | ✅           | ❌           |
+| content     | ✅           | ❌           |
+| files       | ✅           | ❌           |
+| embeds      | ✅           | ❌           |
+| links       | ✅           | ❌           |
+| reactions   | ❌           | ❌           |
+
+# Use AI responsibly ⚠
+<marquee>Content generated by AI services, including your inputs, are managed and collected by them. Read their terms of services and privacy policies before using. Proceed with caution and happy prompting!</marquee>
 Bot by GDjkhp
 <br>
 © The Karakters Kompany, 2024
