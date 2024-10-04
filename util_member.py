@@ -29,22 +29,22 @@ class DiscordUtilMember(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def banner(self, ctx: commands.Context, *, user_id:str=None):
-        await banner_function(ctx, self, user_id)
+        await banner_function(ctx, self.bot, user_id)
 
     @commands.hybrid_command(description=f'{description_helper["emojis"]["utils"]} {description_helper["utils"]["avatar"]}')
     @app_commands.describe(user_id="User ID of the user you want to see the avatar of")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def avatar(self, ctx: commands.Context, *, user_id:str=None):
-        await avatar_function(ctx, self, user_id)
+        await avatar_function(ctx, self.bot, user_id)
 
     @commands.command()
     async def av(self, ctx: commands.Context, *, user_id:str=None):
-        await avatar_function(ctx, self, user_id)
+        await avatar_function(ctx, self.bot, user_id)
 
     @commands.command()
     async def ban(self, ctx: commands.Context, *, user_id:str=None):
-        await banner_function(ctx, self, user_id)
+        await banner_function(ctx, self.bot, user_id)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(DiscordUtilMember(bot))
