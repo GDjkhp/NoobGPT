@@ -31,7 +31,7 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 </details>
 
 # Bot Commands
-## Python Computer #1: Beta Branch
+### Python Computer #1: Beta Branch
 Collection of random and unique stuff I came up with, mostly games and useful tools. This is where I add new features regularly.
 
 ### Supports slash and prefix commands. User integration is partially supported.
