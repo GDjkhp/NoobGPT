@@ -14,7 +14,11 @@ style.innerHTML = `
 body { 
     background-color: black; 
     color: white; 
-}`;
+}
+tr, th, td {
+    background-color: black;
+}
+`;
 document.head.appendChild(style);
 
 var particlesDiv = document.createElement("div");
