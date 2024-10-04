@@ -711,21 +711,6 @@ class LevelInsult(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # utils
-    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Change bot command prefix")
-    @app_commands.describe(prefix="Set prefix")
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def prefix(self, ctx: commands.Context, prefix:str=None):
-        await set_prefix_cmd(ctx, prefix)
-
-    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Adds bot master role to a user")
-    @app_commands.describe(user_id="User ID of the member you want to be a bot master")
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def botmaster(self, ctx: commands.Context, user_id:str=None):
-        await add_master_user(ctx, user_id)
-
     # insults
     @commands.hybrid_command(description=f'{description_helper["emojis"]["utils"]} {description_helper["utils"]["insult"]}')
     @app_commands.allowed_installs(guilds=True, users=True)

@@ -46,7 +46,7 @@ class NoobGPT(commands.Bot):
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandNotFound):
             return
-        raise error
+        print(error)
 
     async def setup_hook(self):
         self.loop.create_task(silly_activities(self))
@@ -54,6 +54,7 @@ class NoobGPT(commands.Bot):
         self.loop.create_task(main_rob(self))
         await self.load_extension('custom_status')
         await self.load_extension('util_discord')
+        await self.load_extension('util_member')
         await self.load_extension('level_insult')
         await self.load_extension('sflix')
         await self.load_extension('kissasian')
@@ -104,13 +105,14 @@ class Moosic(commands.Bot):
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandNotFound):
             return
-        raise error
+        print(error)
 
     async def setup_hook(self):
         self.loop.create_task(silly_activities(self))
         self.loop.create_task(setup_hook_music(self))
         await self.load_extension('youtubeplayer')
         await self.load_extension('music')
+        await self.load_extension('util_discord')
 
 async def start_bot(bot: commands.Bot, token: str):
     await bot.start(token)

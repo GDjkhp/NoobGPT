@@ -1,9 +1,12 @@
 from discord.ext import commands
 from discord import app_commands
+import discord
 import json
 import os
 from util_database import myclient
 mycol = myclient["utils"]["commands"]
+mycol_prefix = myclient["utils"]["nodeports"]
+legal_url="https://gdjkhp.github.io/NoobGPT/#legal"
 
 def read_json_file(file_path):
     with open(file_path, 'r', encoding='utf-8') as json_file:
@@ -12,25 +15,10 @@ def read_json_file(file_path):
 
 async def copypasta(ctx: commands.Context):
     if await command_check(ctx, "legal", "utils"): return
-    await ctx.reply(read_json_file("./res/mandatory_settings_and_splashes.json")["legal"])
-
-async def avatar(ctx: commands.Context, bot: commands.Bot, arg: str):
-    if await command_check(ctx, "av", "utils"): return
-    if arg and not arg.isdigit(): return await ctx.reply("Must be a valid user ID.")
-    try:
-        user = await bot.fetch_user(int(arg) if arg else ctx.author.id)
-        if user and user.avatar: return await ctx.reply(user.avatar.url)
-    except: pass
-    await ctx.reply("There is no such thing.")
-
-async def banner(ctx: commands.Context, bot: commands.Bot, arg: str):
-    if await command_check(ctx, "ban", "utils"): return
-    if arg and not arg.isdigit(): return await ctx.reply("Must be a valid user ID.")
-    try:
-        user = await bot.fetch_user(int(arg) if arg else ctx.author.id)
-        if user and user.banner: return await ctx.reply(user.banner.url)
-    except: pass
-    await ctx.reply("There is no such thing.")
+    view = discord.ui.View()
+    view.add_item(discord.ui.Button(style=discord.ButtonStyle.link, url=legal_url, 
+                                    emoji="☑️", label="Terms and conditions"))
+    await ctx.reply(read_json_file("./res/mandatory_settings_and_splashes.json")["legal"], view=view)
 
 # shit deed
 available_categories=["ai", "games", "media", "utils"]
@@ -60,6 +48,52 @@ async def config_commands(ctx: commands.Context):
         f"`{p}disable [command]` Disable command server-wide."
     ]
     await ctx.reply("\n".join(text))
+
+async def set_prefix_cmd(ctx: commands.Context, arg: str):
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
+    if not arg: return await ctx.reply(f"usage: `{await get_guild_prefix(ctx)}prefix <prefix>`")
+    db = await get_database_copy(ctx.guild.id) # nonsense
+    await set_prefix(ctx.guild.id, arg)
+    await ctx.reply(f"prefix has been set to `{arg}`")
+
+async def set_prefix(server_id: int, p):
+    await mycol_prefix.update_one({"guild":server_id}, {"$set": {"prefix": p}})
+
+async def add_master_user(ctx: commands.Context, arg: str):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if not ctx.author.guild_permissions.administrator: return await ctx.reply("not an admin :(")
+    permissions = ctx.channel.permissions_for(ctx.me)
+    if not permissions.manage_roles:
+        return await ctx.reply("**manage roles is disabled :(**")
+    
+    if not arg: arg = str(ctx.author.id)
+    if ctx.message.mentions: member = ctx.message.mentions[0]
+    elif arg.isdigit(): member = ctx.guild.get_member(int(arg))
+    else: return await ctx.reply("not a user id")
+    if not member: return await ctx.reply("user not found")
+
+    db = await get_database_copy(ctx.guild.id)
+    if not db.get("bot_master_role") or not ctx.guild.get_role(db["bot_master_role"]):
+        await create_bot_master_role(ctx)
+        db = await get_database(ctx.guild.id) # update
+
+    role = ctx.guild.get_role(db["bot_master_role"])
+    await member.add_roles(role)
+    await ctx.reply(f"bot master role <@&{role.id}> added to <@{member.id}>")
+
+async def create_bot_master_role(ctx: commands.Context):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if not ctx.author.guild_permissions.administrator: return await ctx.reply("not an admin :(")
+    permissions = ctx.channel.permissions_for(ctx.me)
+    if not permissions.manage_roles:
+        return await ctx.reply("**manage roles permission is disabled :(**")
+    db = await get_database_copy(ctx.guild.id) # nonsense
+    role = await ctx.guild.create_role(name="noobgpt bot master", mentionable=False)
+    await set_master_role(ctx.guild.id, role.id)
+    await ctx.reply(f"<@&{role.id}> role added")
+
+async def set_master_role(server_id: int, data):
+    await mycol_prefix.update_one({"guild":server_id}, {"$set": {"bot_master_role": data}})
 
 async def command_enable(ctx: commands.Context, com: str):
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
@@ -145,6 +179,34 @@ async def get_database(server_id: int):
     db = await fetch_database(server_id)
     if db: return db
     return await add_database(server_id)
+
+# prefix + bot master
+async def add_database_copy(server_id: int):
+    data = {
+        "guild": server_id,
+        "prefix": "-",
+        "bot_master_role": 0,
+        "bot_rank_channel": 0,
+        "insult_module": True,
+        "roasts": [],
+        "xp_module": False,
+        "xp_troll": False,
+        "xp_rate": 1,
+        "xp_cooldown": 60,
+        "xp_roles": [],
+        "xp_messages": [],
+        "channels": [],
+    }
+    await mycol_prefix.insert_one(data)
+    return data
+
+async def fetch_database_copy(server_id: int):
+    return await mycol_prefix.find_one({"guild":server_id})
+
+async def get_database_copy(server_id: int):
+    db = await fetch_database_copy(server_id)
+    if db: return db
+    return await add_database_copy(server_id)
 
 async def push_channel(server_id: int, data):
     await mycol.update_one({"guild":server_id}, {"$push": {"channels": dict(data)}})
@@ -278,21 +340,21 @@ class DiscordUtil(commands.Cog):
     async def view(self, ctx: commands.Context):
         await command_view(ctx)
 
-    @commands.hybrid_command(description=f'{description_helper["emojis"]["utils"]} {description_helper["utils"]["ban"]}')
-    @app_commands.describe(user_id="User ID of the user you want to see the banner of")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Change bot command prefix")
+    @app_commands.describe(prefix="Set prefix")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def ban(self, ctx: commands.Context, *, user_id:str=None):
-        await banner(ctx, ctx.bot, user_id)
+    async def prefix(self, ctx: commands.Context, prefix:str=None):
+        await set_prefix_cmd(ctx, prefix)
 
-    @commands.hybrid_command(description=f'{description_helper["emojis"]["utils"]} {description_helper["utils"]["av"]}')
-    @app_commands.describe(user_id="User ID of the user you want to see the avatar of")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Adds bot master role to a user")
+    @app_commands.describe(user_id="User ID of the member you want to be a bot master")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def av(self, ctx: commands.Context, *, user_id:str=None):
-        await avatar(ctx, ctx.bot, user_id)
+    async def botmaster(self, ctx: commands.Context, user_id:str=None):
+        await add_master_user(ctx, user_id)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} very helpful command")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} View terms of service and privacy policy")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def legal(self, ctx: commands.Context):

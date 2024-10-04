@@ -82,7 +82,7 @@ class CogHelp(commands.Cog):
     async def halp(self, ctx: commands.Context):
         await HALP(ctx)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} how to use")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} How to use this bot")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def help(self, ctx: commands.Context):

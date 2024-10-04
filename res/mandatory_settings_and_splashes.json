@@ -33,8 +33,8 @@
             "xp": "Toggle XP leveling system.",
             "quote": "Make it a quote.",
             "weather": "Check the current weather.",
-            "av": "Return a user's Discord profile avatar.",
-            "ban": "Return a user's Discord profile banner."
+            "avatar": "Return a user's Discord profile avatar.",
+            "banner": "Return a user's Discord profile banner."
         },
         "emojis": {
             "ai": "[AI 🤖]",
