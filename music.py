@@ -4,6 +4,7 @@ import discord
 from util_discord import command_check, get_database2, set_dj_role_db, check_if_master_or_admin, check_if_not_owner
 from util_database import myclient
 mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
+fixing=False
 
 async def setup_hook_music(bot: commands.Bot):
     await wavelink.Pool.close()
@@ -147,41 +148,41 @@ class DisabledButton(discord.ui.Button):
         super().__init__(emoji=e, style=discord.ButtonStyle.success, disabled=True, row=r)
 
 class SearchView(discord.ui.View):
-    def __init__(self, ctx: commands.Context, arg: str, result: wavelink.Search, index: int):
+    def __init__(self, bot: commands.Bot, ctx: commands.Context, arg: str, result: wavelink.Search, index: int):
         super().__init__(timeout=None)
         last_index = min(index + pagelimit, len(result))
-        self.add_item(SelectChoice(ctx, index, result))
+        self.add_item(SelectChoice(bot, ctx, index, result))
         if index - pagelimit > -1:
-            self.add_item(nextPage(ctx, arg, result, 0, "⏪"))
-            self.add_item(nextPage(ctx, arg, result, index - pagelimit, "◀️"))
+            self.add_item(nextPage(bot, ctx, arg, result, 0, "⏪"))
+            self.add_item(nextPage(bot, ctx, arg, result, index - pagelimit, "◀️"))
         else:
             self.add_item(DisabledButton("⏪", 1))
             self.add_item(DisabledButton("◀️", 1))
         if not last_index == len(result):
-            self.add_item(nextPage(ctx, arg, result, last_index, "▶️"))
+            self.add_item(nextPage(bot, ctx, arg, result, last_index, "▶️"))
             max_page = get_max_page(len(result))
-            self.add_item(nextPage(ctx, arg, result, max_page, "⏩"))
+            self.add_item(nextPage(bot, ctx, arg, result, max_page, "⏩"))
         else:
             self.add_item(DisabledButton("▶️", 1))
             self.add_item(DisabledButton("⏩", 1))
         self.add_item(CancelButton(ctx, 1))
 
 class nextPage(discord.ui.Button):
-    def __init__(self, ctx: commands.Context, arg: str, result: wavelink.Search, index: int, l: str):
+    def __init__(self, bot: commands.Bot, ctx: commands.Context, arg: str, result: wavelink.Search, index: int, l: str):
         super().__init__(emoji=l, style=discord.ButtonStyle.success)
-        self.result, self.index, self.arg, self.ctx = result, index, arg, ctx
+        self.result, self.index, self.arg, self.ctx, self.bot = result, index, arg, ctx, bot
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(embed=search_embed(self.arg, self.result, self.index), 
-                                                view=SearchView(self.ctx, self.arg, self.result, self.index))
+                                                view=SearchView(self.bot, self.ctx, self.arg, self.result, self.index))
 
 class SelectChoice(discord.ui.Select):
-    def __init__(self, ctx: commands.Context | discord.Interaction, index: int, result: wavelink.Search):
+    def __init__(self, bot: commands.Bot, ctx: commands.Context | discord.Interaction, index: int, result: wavelink.Search):
         super().__init__(placeholder=f"{min(index + pagelimit, len(result))}/{len(result)} found")
-        i, self.result, self.ctx = index, result, ctx
+        i, self.result, self.ctx, self.bot = index, result, ctx, bot
         while i < len(result):
             if (i < index+pagelimit): self.add_option(label=f"[{i + 1}] {result[i].title}"[:100], 
                                                       value=i, description=result[i].author[:100])
@@ -195,17 +196,19 @@ class SelectChoice(discord.ui.Select):
         if isinstance(self.ctx, discord.Interaction):
             if interaction.user != self.ctx.user:
                 return await interaction.response.send_message(f"Only <@{self.ctx.user.id}> can interact with this message.", ephemeral=True)
+        await interaction.response.edit_message(content="Loading…", embed=None, view=None)
         if not self.ctx.guild.voice_client:
             try: 
-                if isinstance(self.ctx, commands.Context):
-                    vc = await self.ctx.author.voice.channel.connect(cls=wavelink.Player)
-                if isinstance(self.ctx, discord.Interaction):
-                    vc = await self.ctx.user.voice.channel.connect(cls=wavelink.Player)
+                vc = await voice_channel_connector(self.ctx)
             except:
+                global fixing
+                if not fixing: fixing=True
+                else: return await interaction.edit_original_response(content="Please try again later.")
                 print("ChannelTimeoutException")
-                if isinstance(self.ctx, commands.Context):
-                    await setup_hook_music(self.ctx.bot)
-                return
+                await interaction.edit_original_response(content="An error occured. Reconnecting…")
+                await setup_hook_music(self.bot)
+                fixing=False
+                return await interaction.edit_original_response(content="Please re-run the command.")
             vc.autoplay = wavelink.AutoPlayMode.enabled
         else: vc: wavelink.Player = self.ctx.guild.voice_client
         vc.music_channel = self.ctx.channel
@@ -214,7 +217,14 @@ class SelectChoice(discord.ui.Select):
         await vc.queue.put_wait(selected)
         if not vc.playing: await vc.play(vc.queue.get())
         text, desc = "🎵 Song added to the queue", f'`{selected.title}` has been added to the queue.'
-        await interaction.response.edit_message(embed=music_embed(text, desc), view=None)
+        await interaction.edit_original_response(content=None, embed=music_embed(text, desc), view=None)
+
+async def voice_channel_connector(ctx):
+    if isinstance(ctx, commands.Context):
+        vc = await ctx.author.voice.channel.connect(cls=wavelink.Player, timeout=5, self_deaf=True)
+    if isinstance(ctx, discord.Interaction):
+        vc = await ctx.user.voice.channel.connect(cls=wavelink.Player, timeout=5, self_deaf=True)
+    return vc
 
 class MusicUtil(commands.Cog):
     def __init__(self, bot):
@@ -238,7 +248,7 @@ class MusicUtil(commands.Cog):
     @commands.command(name="rmusic")
     async def reload_music(self, ctx: commands.Context):
         if check_if_not_owner(ctx): return
-        await setup_hook_music(ctx.bot)
+        await setup_hook_music(self.bot)
 
     @commands.command(name="msync")
     async def sync(self, ctx: commands.Context):

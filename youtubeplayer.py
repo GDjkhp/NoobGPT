@@ -43,14 +43,19 @@ async def music_summon(ctx: commands.Context):
         return await ctx.reply(f'Join a voice channel first.')
     
     if not ctx.voice_client:
-        try: vc = await ctx.author.voice.channel.connect(cls=wavelink.Player)
+        try: vc = await voice_channel_connector(ctx)
         except: 
+            global fixing
+            if not fixing: fixing=True
+            else: return await ctx.reply(content="Please try again later.")
             print("ChannelTimeoutException")
+            msg=await ctx.reply(content="An error occured. Reconnecting…")
             await setup_hook_music(ctx.bot)
-            return
+            fixing=False
+            return await msg.edit(content="Please re-run the command.")
         vc.autoplay = wavelink.AutoPlayMode.enabled
 
-async def music_play(ctx: commands.Context | discord.Interaction, search: str):
+async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interaction, search: str):
     if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "music", "media"): return
 
@@ -93,15 +98,21 @@ async def music_play(ctx: commands.Context | discord.Interaction, search: str):
 
     if not ctx.guild.voice_client:
         try:
-            if isinstance(ctx, commands.Context):
-                vc = await ctx.author.voice.channel.connect(cls=wavelink.Player)
-            if isinstance(ctx, discord.Interaction):
-                vc = await ctx.user.voice.channel.connect(cls=wavelink.Player)
-        except: 
+            vc = await voice_channel_connector(ctx)
+        except:
+            global fixing
+            if not fixing: fixing=True
+            else: 
+                if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="Please try again later.")
+                if isinstance(ctx, commands.Context): return await ctx.reply(content="Please try again later.")
             print("ChannelTimeoutException")
-            if isinstance(ctx, commands.Context):
-                await setup_hook_music(ctx.bot)
-            return
+            if isinstance(ctx, discord.Interaction): await ctx.edit_original_response(content="An error occured. Reconnecting…")
+            if isinstance(ctx, commands.Context): msg=await ctx.reply(content="An error occured. Reconnecting…")
+            await setup_hook_music(bot)
+            fixing=False
+            if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="Please re-run the command.")
+            if isinstance(ctx, commands.Context): return await msg.edit(content="Please re-run the command.")
+
         vc.autoplay = wavelink.AutoPlayMode.enabled
     vc.music_channel = ctx.channel
 
@@ -195,7 +206,7 @@ async def music_volume(ctx: commands.Context, value: str):
     await ctx.reply(embed=music_embed(f"{'🔊' if value > 0 else '🔇'} Volume", f"Volume is now set to `{value}`"))
 
 # queue commands
-async def queue_search(ctx: commands.Context | discord.Interaction, search: str, source: str="ytmsearch:"):
+async def queue_search(bot: commands.Bot, ctx: commands.Context | discord.Interaction, search: str, source: str="ytmsearch:"):
     if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "music", "media"): return
 
@@ -237,9 +248,9 @@ async def queue_search(ctx: commands.Context | discord.Interaction, search: str,
             return await ctx.edit_original_response(content='No results found.')
     
     if isinstance(ctx, commands.Context):
-        await ctx.reply(embed=search_embed(search, tracks, 0), view=SearchView(ctx, search, tracks, 0))
+        await ctx.reply(embed=search_embed(search, tracks, 0), view=SearchView(bot, ctx, search, tracks, 0))
     if isinstance(ctx, discord.Interaction):
-        await ctx.edit_original_response(embed=search_embed(search, tracks, 0), view=SearchView(ctx, search, tracks, 0), content=None)
+        await ctx.edit_original_response(embed=search_embed(search, tracks, 0), view=SearchView(bot, ctx, search, tracks, 0), content=None)
 
 async def queue_list(ctx: commands.Context, page: str):
     if not ctx.guild: return await ctx.reply("not supported")
@@ -468,19 +479,19 @@ class YouTubePlayer(commands.Cog):
 
     @commands.command() # alias
     async def p(self, ctx: commands.Context, *, query: str=None):
-        await music_play(ctx, query)
+        await music_play(self.bot, ctx, query)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Play music (YouTube Music)")
     @app_commands.describe(query="Search query")
     @app_commands.autocomplete(query=search_auto)
     async def play(self, ctx: commands.Context, *, query:str=None):
-        await music_play(ctx, query)
+        await music_play(self.bot, ctx, query)
 
     @app_commands.command(name="play-spotify", description=f"{description_helper['emojis']['music']} Play music (Spotify)")
     @app_commands.describe(query="Search query")
     @app_commands.autocomplete(query=search_auto_spotify)
     async def play_spotify(self, ctx: discord.Interaction, *, query:str=None):
-        await music_play(ctx, query)
+        await music_play(self.bot, ctx, query)
 
     @commands.command(aliases=['die', 'dc']) # alias
     async def leave(self, ctx: commands.Context):
@@ -517,12 +528,12 @@ class YouTubePlayer(commands.Cog):
     # queue
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Search music (YouTube Music)")
     async def search(self, ctx: commands.Context, *, query: str=None):
-        await queue_search(ctx, query)
+        await queue_search(self.bot, ctx, query)
 
     @app_commands.command(name="search-spotify", description=f"{description_helper['emojis']['music']} Search music (Spotify)")
     @app_commands.describe(query="Search query")
     async def search_spotify(self, ctx: discord.Interaction, *, query: str=None):
-        await queue_search(ctx, query, "spsearch:")
+        await queue_search(self.bot, ctx, query, "spsearch:")
 
     @commands.command() # alias
     async def queue(self, ctx: commands.Context, page: str=None):
