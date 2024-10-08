@@ -418,7 +418,7 @@ async def rank_channel(ctx: commands.Context):
         await set_rank_channel(ctx.guild.id, ctx.channel.id)
         await ctx.reply(f"rank channel has been added. everyone can use `{p}rank` and `{p}levels` only in this channel.")
 
-async def help_level(ctx: commands.Context):
+async def help_insult(ctx: commands.Context):
     p = await get_guild_prefix(ctx)
     text = [
         f"`{p}insult` Toggles insults. Defaults to thoughtcatalog.com",
@@ -428,7 +428,7 @@ async def help_level(ctx: commands.Context):
     ]
     await ctx.reply("\n".join(text))
 
-async def help_insult(ctx: commands.Context):
+async def help_level(ctx: commands.Context):
     p = await get_guild_prefix(ctx)
     text = [
         "# User commands",
