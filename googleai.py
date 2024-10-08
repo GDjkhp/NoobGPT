@@ -129,7 +129,7 @@ async def json_data_slash(prompt: str, image: discord.Attachment):
             ]
         }
     ]
-    return base_data
+    return {"contents": base_data}
 
 def json_data_palm(arg: str, safe: bool):
     return {
