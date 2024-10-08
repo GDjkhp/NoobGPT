@@ -80,11 +80,9 @@ async def loopMsg(message: discord.Message, prefix: str):
     base64_data, mime = None, None
     if len(message.attachments) > 0:
         attachment = message.attachments[0]
-        async with aiohttp.ClientSession() as session:
-            async with session.get(attachment.url) as resp:
-                image_data = await resp.read()
-                base64_data = base64.b64encode(image_data).decode('utf-8')
-                mime = attachment.content_type
+        image_data = await attachment.read()
+        base64_data = base64.b64encode(image_data).decode('utf-8')
+        mime = attachment.content_type
     base_data = [
         {
             "role": role, 

@@ -31,9 +31,14 @@ async def loopMsg(message: discord.Message, prefix: str):
     previousMessages = await loopMsg(repliedMessage, prefix)
     return previousMessages + base_data
 
-# TODO: vision support for slash
-def loopMsgSlash(prompt: str):
-    return [{"role": "user", "content": prompt}]
+async def loopMsgSlash(prompt: str, image: discord.Attachment=None):
+    data = [{"role": "user", "content": prompt}]
+    if image:
+        image_data = await image.read()
+        base64_data = base64.b64encode(image_data).decode('utf-8')
+        # data[0]["data"]={"imageBase64": f"data:image/jpeg;base64,{base64_data}"} # blackbox
+        data[0]["content"]+=[{"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_data}"}}] # openai/github
+    return data
 
 async def loopMsgGH(message: discord.Message, prefix: str):
     role = "assistant" if message.author.bot else "user"
@@ -43,11 +48,9 @@ async def loopMsgGH(message: discord.Message, prefix: str):
     base64_data = None
     if len(message.attachments) > 0:
         attachment = message.attachments[0]
-        async with aiohttp.ClientSession() as session:
-            async with session.get(attachment.url) as resp:
-                image_data = await resp.read()
-                base64_data = base64.b64encode(image_data).decode('utf-8')
-                content = "What’s in this image?" if content and content.startswith(prefix) else content
+        image_data = await attachment.read()
+        base64_data = base64.b64encode(image_data).decode('utf-8')
+        content = "What’s in this image?" if content and content.startswith(prefix) else content
     content = "Hello!" if content and content.startswith(prefix) else content # if none is supplied
 
     base_data = [{
@@ -61,7 +64,7 @@ async def loopMsgGH(message: discord.Message, prefix: str):
     try:
         repliedMessage = await message.channel.fetch_message(message.reference.message_id)
     except:
-        print("Exception in loopMsg:perplexity")
+        print("Exception in loopMsgGH")
         return base_data
     previousMessages = await loopMsgGH(repliedMessage, prefix)
     return previousMessages + base_data
@@ -122,6 +125,12 @@ models_github=[
     "Phi-3-small-128k-instruct",
     "Phi-3-small-8k-instruct",
     "Phi-3.5-mini-instruct",
+]
+models_black=[
+    None, # default
+    "blackboxai-pro", 
+    "gpt-4o", 
+    "gemini-pro"
 ]
 
 async def help_perplexity(ctx: commands.Context):
@@ -190,12 +199,23 @@ async def help_github(ctx: commands.Context):
     ]
     await ctx.reply("\n".join(text))
 
-async def the_real_req(url: str, payload: dict, headers: dict):
+async def the_real_req(url: str, payload: dict, headers: dict = None):
     async with aiohttp.ClientSession() as session:
         async with session.post(url, json=payload, headers=headers) as response:
             if response.status == 200:
                 return await response.json()
             else: print(await response.content.read())
+
+async def make_request_black(model: str, messages: list):
+    url = "https://www.blackbox.ai/api/chat"
+    payload = {
+        "messages": messages,
+        "agentMode": {},
+        "trendingAgentMode": {},
+        "maxTokens": 1024,
+        "userSelectedModel": model
+    }
+    return await the_real_req(url, payload)
 
 async def make_request(model: str, messages: list, url: str, key: str):
     payload = {
@@ -252,7 +272,8 @@ async def main_perplexity(ctx: commands.Context | discord.Interaction, model: in
     try:
         url = "https://api.perplexity.ai/chat/completions"
         key = os.getenv('PERPLEXITY')
-        response = await make_request(models[model], await loopMsg(ctx.message, await get_guild_prefix(ctx)), url, key) # spicy
+        messages = await loopMsg(ctx.message, await get_guild_prefix(ctx))
+        response = await make_request(models[model], messages, url, key) # spicy
         text = response["choices"][0]["message"]["content"]
         if not text or text == "":
             if isinstance(ctx, commands.Context):
@@ -281,7 +302,8 @@ async def main_perplexity(ctx: commands.Context | discord.Interaction, model: in
     if isinstance(ctx, discord.Interaction):
         await ctx.edit_original_response(content=f"{models[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
-async def main_github(ctx: commands.Context | discord.Interaction, model: int, prompt: str=None):
+async def main_github(ctx: commands.Context | discord.Interaction,
+                      model: int, prompt: str=None, image: discord.Attachment=None):
     if await command_check(ctx, "github", "ai"): return
     # async with ctx.typing():
     if isinstance(ctx, commands.Context):
@@ -292,9 +314,8 @@ async def main_github(ctx: commands.Context | discord.Interaction, model: int, p
     try:
         url = "https://models.inference.ai.azure.com/chat/completions"
         key = os.getenv('GITHUB')
-        response = await make_request(models_github[model], 
-                                      await loopMsgGH(ctx.message, await get_guild_prefix(ctx)) if not prompt else loopMsgSlash(prompt), 
-                                      url, key) # spicy
+        messages = await loopMsgGH(ctx.message, await get_guild_prefix(ctx)) if not prompt else await loopMsgSlash(prompt, image)
+        response = await make_request(models_github[model], messages, url, key) # spicy
         text = response["choices"][0]["message"]["content"]
         if not text or text == "":
             if isinstance(ctx, commands.Context):
@@ -334,9 +355,8 @@ async def main_groq(ctx: commands.Context | discord.Interaction, model: int, pro
     try:
         url = "https://api.groq.com/openai/v1/chat/completions"
         key = os.getenv('GROQ')
-        response = await make_request(models_groq[model], 
-                                      await loopMsg(ctx.message, await get_guild_prefix(ctx)) if not prompt else loopMsgSlash(prompt), 
-                                      url, key) # spicy
+        messages = await loopMsg(ctx.message, await get_guild_prefix(ctx)) if not prompt else await loopMsgSlash(prompt)
+        response = await make_request(models_groq[model], messages, url, key) # spicy
         text = response["choices"][0]["message"]["content"]
         if not text or text == "":
             if isinstance(ctx, commands.Context):
@@ -374,7 +394,8 @@ async def main_anthropic(ctx: commands.Context | discord.Interaction, model: int
         await ctx.response.send_message(f"{models_claude[model]}\nGenerating response…")
     old = round(time.time() * 1000)
     try:
-        response = await make_request_claude(models_claude[model], await loopMsg(ctx.message, await get_guild_prefix(ctx))) # spicy
+        messages = await loopMsg(ctx.message, await get_guild_prefix(ctx))
+        response = await make_request_claude(models_claude[model], messages) # spicy
         text = response["content"][0]["text"]
         if not text or text == "":
             if isinstance(ctx, commands.Context):
@@ -411,10 +432,9 @@ async def main_mistral(ctx: commands.Context | discord.Interaction, model: int, 
     if isinstance(ctx, discord.Interaction):
         await ctx.edit_original_response(f"{models_mistral[model]}\nGenerating response…")
     old = round(time.time() * 1000)
-    try: 
-        response = await make_request_mistral(models_mistral[model], 
-                                              await loopMsg(ctx.message, await get_guild_prefix(ctx)) if not prompt else loopMsgSlash(prompt), 
-                                              True if model == 6 else False)
+    try:
+        messages = await loopMsg(ctx.message, await get_guild_prefix(ctx)) if not prompt else await loopMsgSlash(prompt)
+        response = await make_request_mistral(models_mistral[model], messages, True if model == 6 else False)
         text = response["choices"][0]["message"]["content"]
         if not text or text == "":
             if isinstance(ctx, commands.Context):
@@ -602,22 +622,22 @@ class CogPerplex(commands.Cog):
         await main_github(ctx, 0)
 
     @app_commands.command(name="gpt4o", description=f"{description_helper['emojis']['ai']} {models_github[0]}")
-    @app_commands.describe(prompt="Text prompt")
+    @app_commands.describe(prompt="Text prompt", image="Image prompt")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def gpt4o_slash(self, ctx: discord.Interaction, *, prompt: str):
-        await main_github(ctx, 0, prompt)
+    async def gpt4o_slash(self, ctx: discord.Interaction, *, prompt: str, image: discord.Attachment=None):
+        await main_github(ctx, 0, prompt, image)
 
     @commands.command()
     async def gpt4om(self, ctx: commands.Context):
         await main_github(ctx, 1)
 
     @app_commands.command(name="gpt4om", description=f"{description_helper['emojis']['ai']} {models_github[1]}")
-    @app_commands.describe(prompt="Text prompt")
+    @app_commands.describe(prompt="Text prompt", image="Image prompt")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def gpt4om_slash(self, ctx: discord.Interaction, *, prompt: str):
-        await main_github(ctx, 1, prompt)
+    async def gpt4om_slash(self, ctx: discord.Interaction, *, prompt: str, image: discord.Attachment=None):
+        await main_github(ctx, 1, prompt, image)
 
     @commands.command()
     async def ai21(self, ctx: commands.Context):
@@ -630,6 +650,8 @@ class CogPerplex(commands.Cog):
     @commands.command()
     async def ccrp(self, ctx: commands.Context):
         await main_github(ctx, 9)
+
+    # TODO: blackbox
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogPerplex(bot))
