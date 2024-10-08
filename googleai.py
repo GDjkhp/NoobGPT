@@ -110,8 +110,26 @@ async def json_data(msg: discord.Message, prefix: str):
     messagesArray = await loopMsg(msg, prefix)
     return {"contents": messagesArray}
 
-def json_data_slash(prompt: str):
-    return {"contents": [{"role": "user", "parts": [{"text": prompt}]}]}
+async def json_data_slash(prompt: str, image: discord.Attachment):
+    if image:
+        image_data = await image.read()
+        base64_data = base64.b64encode(image_data).decode('utf-8')
+        mime = image.content_type
+    base_data = [
+        {
+            "role": "user", 
+            "parts": [
+                {"text": prompt},
+                {
+                    "inline_data": {
+                        "mime_type": mime,
+                        "data": base64_data
+                    }
+                } if base64_data else None
+            ]
+        }
+    ]
+    return base_data
 
 def json_data_palm(arg: str, safe: bool):
     return {
@@ -163,7 +181,7 @@ models = [
     "gemini-1.5-flash",
 ]
 
-async def GEMINI_REST(ctx: commands.Context | discord.Interaction, model: int, palm: bool, prompt: str=None):
+async def GEMINI_REST(ctx: commands.Context | discord.Interaction, model: int, palm: bool, prompt: str=None, image: discord.Attachment=None):
     if await command_check(ctx, "googleai", "ai"): return
     # async with ctx.typing():
     if isinstance(ctx, commands.Context):
@@ -179,7 +197,7 @@ async def GEMINI_REST(ctx: commands.Context | discord.Interaction, model: int, p
         payload = json_data_palm(strip_dash(ctx.message.content, prefix), not ctx.channel.nsfw)
     else:
         proxy = palm_proxy(f"{models[model]}:generateContent")
-        payload = await json_data(ctx.message, prefix) if not prompt else json_data_slash(prompt)
+        payload = await json_data(ctx.message, prefix) if not prompt else await json_data_slash(prompt, image)
     text = await req_real(proxy, payload, headers, palm)
     # silly
     if not text:
@@ -228,8 +246,8 @@ class CogGoogle(commands.Cog):
     @app_commands.describe(prompt="Text prompt")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def gemini_slash(self, ctx: discord.Interaction, *, prompt: str):
-        await GEMINI_REST(ctx, 1, False, prompt)
+    async def gemini_slash(self, ctx: discord.Interaction, *, prompt: str, image: discord.Attachment=None):
+        await GEMINI_REST(ctx, 1, False, prompt, image)
 
     @commands.command()
     async def flash(self, ctx: commands.Context):
@@ -239,8 +257,8 @@ class CogGoogle(commands.Cog):
     @app_commands.describe(prompt="Text prompt")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def flash_slash(self, ctx: discord.Interaction, *, prompt: str):
-        await GEMINI_REST(ctx, 2, False, prompt)
+    async def flash_slash(self, ctx: discord.Interaction, *, prompt: str, image: discord.Attachment=None):
+        await GEMINI_REST(ctx, 2, False, prompt, image)
 
     @commands.command()
     async def googleai(self, ctx: commands.Context):
