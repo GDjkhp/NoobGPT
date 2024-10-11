@@ -35,7 +35,7 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 Collection of random and unique stuff I came up with, mostly games and useful tools. This is where I add new features regularly.
 
 ### Supports slash and prefix commands. User integration is partially supported.
-* `-help` Show commands help page.
+* `-help` Show commands help page
 
 ## AI 🤖
 <a href="https://openai.com"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/openai-white-lockup.png"></a>
@@ -56,16 +56,16 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 
 ## Games 🎲
 * `-aki (optional: category = [people/animals/objects] [language])` Play a guessing game of [Akinator](https://akinator.com).
-* `-tic` Play tic-tac-toe with someone. (Deprecated)
+* `-tic` Play tic-tac-toe with someone.
 * `-hang (optional: mode = [all/hardcore/me] count = [1-50] type = [any/word/quiz] category = [any/9-32] difficulty = [any/easy/medium/hard])` Play the word puzzle game of hangman.
 * `-quiz (optional: mode = [all/anon/me] version = [any/v1/v2] count = [1-50] category = [any/9-32] [difficulty = any/easy/medium/hard] [type = any/multiple/boolean])` Play a game of quiz.
 * `-word (optional: stats = [rank/lead/global] OR mode = [all/hardcore/me] count = [1-50])` Play a game of wordle.
 * `-rps` Play rock-paper-scissors.
 
 ## Media 💽
+* `-tv` Watch TV shows and movies.
 * `-anime` Watch animated works originating in Japan.
 * `-manga` Read comics originating in Japan.
-* `-tv` Watch TV shows and movies.
 * `-ytdlp (optional: format = [mp3/m4a]) [link]` Download or convert a YouTube video under 25MB discord limit using [yt-dlp](https://github.com/yt-dlp/yt-dlp). See [supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md).
 * `-cob [link]` [cobalt](https://cobalt.tools) is a media downloader that doesn't piss you off. See [supported sites](https://github.com/wukko/cobalt?tab=readme-ov-file#supported-services).
 * `-booru` A form of imageboard where images are categorized with tags.
@@ -93,31 +93,31 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 
 ## Bot Commands
 ### Supports slash and prefix commands.
-* `-music` Listen to music in a voice channel.
+* `-help` Show commands help page
 
 ## Player commands
-* `-play <query>` Play music. Supports YouTube, Spotify, SoundCloud, Apple Music.
-* `-nowplaying` Now playing.
-* `-pause` Pause music.
-* `-resume` Resume music.
-* `-skip` Skip music.
-* `-stop` Stop music and disconnect from voice channel.
-* `-volume <value>` Set volume.
-* `-summon` Join voice channel.
-* `-dj` Create DJ role.
+* `-play <query>` Play music (Supports YouTube, Spotify, SoundCloud, Apple Music)
+* `-search <query>` Search music (Defaults to YouTube)
+* `-nowplaying` Now playing
+* `-pause` Pause music
+* `-resume` Resume music
+* `-skip` Skip music
+* `-stop` Stop music and disconnect from voice channel
+* `-repeat <off/one/all>` Repeat music modes
+* `-autoplay <partial/enabled/disabled>` Toggle autoplay and recommended music
+* `-volume <value>` Set volume
+* `-summon` Join voice channel
+* `-dj` Create DJ role
 
 ## Queue commands
-* `-search <query>` Search music. Defaults to YouTube.
-* `-list <page>` Show queue.
-* `-shuffle` Shuffle queue.
-* `-reset` Reset queue.
-* `-peek` Peek track.
-* `-remove <index>` Remove a track from the queue.
-* `-replace <index> <query>` Replace track.
-* `-swap <index1> <index2>` Swap tracks.
-* `-move <index1> <index2>` Move track.
-* `-repeat <off/one/all>` Repeat music modes.
-* `-autoplay <partial/enabled/disabled>` Autoplay and recommended music modes.
+* `-list <page>` Show queue
+* `-shuffle` Shuffle queue
+* `-clear` Clear queue
+* `-peek` Peek track index
+* `-remove <index>` Remove track
+* `-replace <index> <query>` Replace track
+* `-move <index1> <index2>` Move track position
+* `-swap <index1> <index2>` Swap track positions
 
 ## Credits
 ### Code
