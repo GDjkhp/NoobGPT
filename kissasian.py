@@ -11,13 +11,13 @@ provider="https://gdjkhp.github.io/img/kissasian.png"
 pagelimit=12
 
 async def help_tv(ctx: commands.Context):
-    if await command_check(ctx, "tv", "media"): return
+    if await command_check(ctx, "tv", "media"): return await ctx.reply("command disabled", ephemeral=True)
     p = await get_guild_prefix(ctx)
     sources = [f"`{p}flix` sflix", f"`{p}kiss` kissasian"]
     await ctx.reply("\n".join(sources))
 
 async def kiss_search(ctx: commands.Context, arg: str):
-    if await command_check(ctx, "tv", "media"): return
+    if await command_check(ctx, "tv", "media"): return await ctx.reply("command disabled", ephemeral=True)
     return await ctx.reply("KISSASIAN down?????????\nOMG NOOOOOOOOOO!!!!!!!!!")
     if not arg: return await ctx.reply(f"usage: `{await get_guild_prefix(ctx)}kiss <query>`")
     results = await search(arg)

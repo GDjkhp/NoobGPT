@@ -18,7 +18,7 @@ font_real_bold = FontDB.Query("AmaticSC-Bold NotoSansJP-Bold")
 font_real_reg = FontDB.Query("AmaticSC-Regular NotoSansJP-Regular")
 
 async def quote_this(ctx: commands.Context, msg_id: str):
-    if await command_check(ctx, "quote", "utils"): return
+    if await command_check(ctx, "quote", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if ctx.message.reference or msg_id:
         if not msg_id: msg_id: int = ctx.message.reference.message_id
         elif not msg_id.isdigit(): return await ctx.reply("not a digit :(")

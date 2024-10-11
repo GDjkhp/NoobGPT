@@ -4,6 +4,7 @@ import os
 import discord
 from discord.ext import commands
 from level_insult import *
+from datetime import datetime
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -23,7 +24,7 @@ class NoobGPT(commands.Bot):
                          help_command = None, allowed_mentions = mentions)
 
     async def on_ready(self):
-        print(f"{self.user.name} (c) 2024 The Karakters Kompany. All rights reserved.")
+        print(f"{self.user.name} (c) {datetime.now().year} The Karakters Kompany. All rights reserved.")
         print("Running for the following servers:")
         for number, guild in enumerate(self.guilds, 1):
             print(f"{number}. {guild} ({guild.id})")
@@ -46,7 +47,7 @@ class NoobGPT(commands.Bot):
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandNotFound):
             return
-        print(error)
+        print(f"NoobGPT: {error}")
 
     async def setup_hook(self):
         self.loop.create_task(silly_activities(self))
@@ -86,7 +87,7 @@ class Moosic(commands.Bot):
                          help_command = None, allowed_mentions = mentions)
 
     async def on_ready(self):
-        print(f"{self.user.name} (c) 2024 The Karakters Kompany. All rights reserved.")
+        print(f"{self.user.name} (c) {datetime.now().year} The Karakters Kompany. All rights reserved.")
         print("Running for the following servers:")
         for number, guild in enumerate(self.guilds, 1):
             print(f"{number}. {guild} ({guild.id})")
@@ -105,7 +106,7 @@ class Moosic(commands.Bot):
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandNotFound):
             return
-        print(error)
+        print(f"Moosic: {error}")
 
     async def setup_hook(self):
         self.loop.create_task(silly_activities(self))

@@ -30,7 +30,7 @@ async def petalsWebsocket(ctx: commands.Context, arg: str, model: int):
     Returns:
         None
     """
-    if await command_check(ctx, "petals", "ai"): return
+    if await command_check(ctx, "petals", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     async with ctx.typing():
         msg = await ctx.reply("**Starting session…**")
         if not arg: arg = "Explain who you are, your functions, capabilities, limitations, and purpose."
@@ -107,7 +107,7 @@ async def req_real(api):
     except Exception as e: print(e)
 
 async def PETALS(ctx: commands.Context):
-    if await command_check(ctx, "petals", "ai"): return
+    if await command_check(ctx, "petals", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     status = await req_real("https://health.petals.dev/api/v1/state")
     text = f"`{await get_guild_prefix(ctx)}beluga2` petals-team/StableBeluga2```diff\n"
     for i in status["model_reports"]: 

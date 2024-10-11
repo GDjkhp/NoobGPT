@@ -5,10 +5,9 @@ import json
 import time
 import random
 import re
-from util_database import myclient
+from util_database import *
 from util_discord import command_check, check_if_master_or_admin, description_helper, get_guild_prefix
 
-mycol = myclient["utils"]["nodeports"]
 mycol_players = myclient["utils"]["xp_players"]
 path="./res/mandatory_settings_and_splashes.json"
 
@@ -26,7 +25,7 @@ async def detect_mentions(message: discord.Message, bot: commands.Bot):
     if ref_msg and ref_msg.author == bot.user: return True
 
 async def insult_user(bot: commands.Bot, msg: discord.Message):
-    db = await get_database(msg.guild.id if msg.guild else msg.channel.id)
+    db = await get_database2(msg.guild.id if msg.guild else msg.channel.id)
     if not db["insult_module"]: return
 
     if await detect_mentions(msg, bot):
@@ -42,7 +41,7 @@ async def earn_xp(bot: commands.Bot, msg: discord.Message):
     if msg.author.bot: return
     ctx = await bot.get_context(msg)
     if msg.content and msg.content.startswith(await get_guild_prefix(ctx)): return
-    db = await get_database(msg.guild.id)
+    db = await get_database2(msg.guild.id)
     if not db["xp_module"]: return
 
     fake_chan = get_channel_data(msg.channel.id, db["channels"])
@@ -75,37 +74,31 @@ async def earn_xp(bot: commands.Bot, msg: discord.Message):
 
 # noobgpt sucks without custom prefix they said
 async def get_prefix(bot: commands.Bot, message: discord.Message):
-    db = await get_database(message.guild.id if message.guild else message.channel.id)
+    db = await get_database2(message.guild.id if message.guild else message.channel.id)
     return commands.when_mentioned_or(db['prefix'])(bot, message)
 
 # commands
-async def set_prefix_cmd(ctx: commands.Context, arg: str):
-    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
-    if not arg: return await ctx.reply(f"usage: `{await get_guild_prefix(ctx)}prefix <prefix>`")
-    await set_prefix(ctx.guild.id, arg)
-    await ctx.reply(f"prefix has been set to `{arg}`")
-
 async def toggle_insult(ctx: commands.Context):
-    if await command_check(ctx, "insult", "utils"): return
+    if await command_check(ctx, "insult", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
-    db = await get_database(ctx.guild.id if ctx.guild else ctx.channel.id)
+    db = await get_database2(ctx.guild.id if ctx.guild else ctx.channel.id)
     b = not db["insult_module"]
     await set_insult(ctx.guild.id, b)
     await ctx.reply(f"`insult_module` is set to `{b}`")
 
 async def toggle_xp(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return
+    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
-    db = await get_database(ctx.guild.id)
+    db = await get_database2(ctx.guild.id)
     b = not db["xp_module"]
     await set_xp(ctx.guild.id, b)
     await ctx.reply(f"`xp_module` is set to `{b}`")
 
 async def user_rank(ctx: commands.Context, arg: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return
-    db = await get_database(ctx.guild.id)
+    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    db = await get_database2(ctx.guild.id)
     if not db["xp_module"]: return
     if db.get("bot_rank_channel") and not db["bot_rank_channel"] == ctx.channel.id: return
     if not arg: arg = ctx.author.id
@@ -121,49 +114,15 @@ async def user_rank(ctx: commands.Context, arg: str):
 
 async def guild_lead(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return
-    db = await get_database(ctx.guild.id)
+    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    db = await get_database2(ctx.guild.id)
     if not db["xp_module"]: return
     if db.get("bot_rank_channel") and not db["bot_rank_channel"] == ctx.channel.id: return
     await ctx.reply("under construction") # TODO: query sorting first n players from highest to lowest xp, such bs (hint: wordle)
 
-# unused command, created automagically
-async def create_bot_master_role(ctx: commands.Context):
-    if not ctx.guild: return await ctx.reply("not supported")
-    if not ctx.author.guild_permissions.administrator: return await ctx.reply("not an admin :(")
-    permissions = ctx.channel.permissions_for(ctx.me)
-    if not permissions.manage_roles:
-        return await ctx.reply("**manage roles permission is disabled :(**")
-    db = await get_database(ctx.guild.id) # nonsense
-    role = await ctx.guild.create_role(name="noobgpt bot master", mentionable=False)
-    await set_master_role(ctx.guild.id, role.id)
-    await ctx.reply(f"<@&{role.id}> role added")
-
-async def add_master_user(ctx: commands.Context, arg: str):
-    if not ctx.guild: return await ctx.reply("not supported")
-    if not ctx.author.guild_permissions.administrator: return await ctx.reply("not an admin :(")
-    permissions = ctx.channel.permissions_for(ctx.me)
-    if not permissions.manage_roles:
-        return await ctx.reply("**manage roles is disabled :(**")
-    
-    if not arg: arg = str(ctx.author.id)
-    if ctx.message.mentions: member = ctx.message.mentions[0]
-    elif arg.isdigit(): member = ctx.guild.get_member(int(arg))
-    else: return await ctx.reply("not a user id")
-    if not member: return await ctx.reply("user not found")
-
-    db = await get_database(ctx.guild.id)
-    if not db.get("bot_master_role") or not ctx.guild.get_role(db["bot_master_role"]):
-        await create_bot_master_role(ctx)
-        db = await get_database(ctx.guild.id) # update
-
-    role = ctx.guild.get_role(db["bot_master_role"])
-    await member.add_roles(role)
-    await ctx.reply(f"bot master role <@&{role.id}> added to <@{member.id}>")
-
 async def add_xp_role(ctx: commands.Context, arg: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return
+    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
 
     permissions = ctx.channel.permissions_for(ctx.me)
@@ -181,14 +140,14 @@ async def add_xp_role(ctx: commands.Context, arg: str):
 
 async def view_xp_roles(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return
+    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_roles:
         return await ctx.reply("**manage roles is disabled :(**")
     
-    db = await get_database(ctx.guild.id)
+    db = await get_database2(ctx.guild.id)
     text_list = []
     for role in db["xp_roles"]:
         text_list.append(f'<@&{role["role_id"]}>')
@@ -206,7 +165,7 @@ async def view_xp_roles(ctx: commands.Context):
 
 async def edit_xp_role(ctx: commands.Context, role_id: str, keep: str, multiplier: str, cooldown: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return
+    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     
     permissions = ctx.channel.permissions_for(ctx.me)
@@ -216,7 +175,7 @@ async def edit_xp_role(ctx: commands.Context, role_id: str, keep: str, multiplie
     if not role_id or not role_id.isdigit():
         return await ctx.reply(f"usage: `{await get_guild_prefix(ctx)}xproleedit <roleid>`")
     role_id = int(role_id)
-    db = await get_database(ctx.guild.id)
+    db = await get_database2(ctx.guild.id)
     for role in db["xp_roles"]:
         if role["role_id"] == role_id:
             real_role = ctx.guild.get_role(role_id)
@@ -253,7 +212,7 @@ async def edit_xp_role(ctx: commands.Context, role_id: str, keep: str, multiplie
 
 async def delete_xp_role(ctx: commands.Context, role_id: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return
+    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     
     permissions = ctx.channel.permissions_for(ctx.me)
@@ -263,7 +222,7 @@ async def delete_xp_role(ctx: commands.Context, role_id: str):
     if not role_id or not role_id.isdigit():
         return await ctx.reply(f"usage: `{await get_guild_prefix(ctx)}xproledel <roleid>`")
     role_id = int(role_id)
-    db = await get_database(ctx.guild.id)
+    db = await get_database2(ctx.guild.id)
     for role in db["xp_roles"]:
         if role["role_id"] == role_id:
             await pull_role(ctx.guild.id, role)
@@ -276,10 +235,10 @@ async def delete_xp_role(ctx: commands.Context, role_id: str):
 
 async def toggle_special_channel(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return
+    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
 
-    db = await get_database(ctx.guild.id)
+    db = await get_database2(ctx.guild.id)
     for chan in db["channels"]:
         if chan["channel_id"] == ctx.channel.id:
             await pull_channel(ctx.guild.id, chan)
@@ -290,10 +249,10 @@ async def toggle_special_channel(ctx: commands.Context):
 
 async def edit_special_channel(ctx: commands.Context, rate: str, cooldown: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return
+    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
 
-    db = await get_database(ctx.guild.id)
+    db = await get_database2(ctx.guild.id)
     for chan in db["channels"]:
         if chan["channel_id"] == ctx.channel.id:
             m_str = "`rate` not found.\nplease enter in `1.75x` or `1` format. use `0` for xp restriction, `-1` for none."
@@ -317,16 +276,16 @@ async def edit_special_channel(ctx: commands.Context, rate: str, cooldown: str):
 
 async def toggle_troll(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return
+    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
-    db = await get_database(ctx.guild.id)
+    db = await get_database2(ctx.guild.id)
     b = not db["xp_troll"]
     await set_troll_mode(ctx.guild.id, b)
     await ctx.reply(f"`xp_troll` is set to `{b}`")
 
 async def view_insults(ctx: commands.Context):
-    if await command_check(ctx, "insult", "utils"): return
-    db = await get_database(ctx.guild.id if ctx.guild else ctx.channel.id)
+    if await command_check(ctx, "insult", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    db = await get_database2(ctx.guild.id if ctx.guild else ctx.channel.id)
     text = "\n".join(db["roasts"])
     if not text: 
         return await ctx.reply(content=f"**Error! :(**\nGood bot.\nDefault insults are being used. Add custom insults using `{await get_guild_prefix(ctx)}insultadd`")
@@ -340,8 +299,8 @@ async def view_insults(ctx: commands.Context):
 
 async def view_lvlmsgs(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return
-    db = await get_database(ctx.guild.id)
+    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    db = await get_database2(ctx.guild.id)
     p = await get_guild_prefix(ctx)
     if db["xp_troll"]: return await ctx.reply(f"xp troll is enabled. disable this first using `{p}lvlmsgtroll`.")
     text = "\n".join(db["xp_messages"])
@@ -357,17 +316,17 @@ async def view_lvlmsgs(ctx: commands.Context):
         else: await ctx.send(chunk)
 
 async def add_insult(ctx: commands.Context, arg: str):
-    if await command_check(ctx, "insult", "utils"): return
+    if await command_check(ctx, "insult", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     p = await get_guild_prefix(ctx)
     if not arg: return await ctx.reply(f"usage: `{p}insultadd <str>`")
-    db = await get_database(ctx.guild.id if ctx.guild else ctx.channel.id) # nonsense
+    db = await get_database2(ctx.guild.id if ctx.guild else ctx.channel.id) # nonsense
     await push_insult(ctx.guild.id if ctx.guild else ctx.channel.id, arg)
     await ctx.reply(f"insult added. use `{p}insultview` to list all insults.")
 
 async def add_lvl_msg(ctx: commands.Context, arg: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return
+    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     p = await get_guild_prefix(ctx)
     if not arg: return await ctx.reply(f"usage: `{p}lvlmsgadd <str>`\nformat: {read_json_file(path)['mee6 default']}")
@@ -375,17 +334,17 @@ async def add_lvl_msg(ctx: commands.Context, arg: str):
     await ctx.reply(f"levelup msg added. use `{p}lvlmsgview` to list all levelup msgs.")
 
 async def del_insult(ctx: commands.Context, arg: str):
-    if await command_check(ctx, "insult", "utils"): return
+    if await command_check(ctx, "insult", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     p = await get_guild_prefix(ctx)
     if not arg: return await ctx.reply(f"usage: `{p}insultdel <str>`")
-    db = await get_database(ctx.guild.id if ctx.guild else ctx.channel.id) # nonsense
+    db = await get_database2(ctx.guild.id if ctx.guild else ctx.channel.id) # nonsense
     await pull_insult(ctx.guild.id if ctx.guild else ctx.channel.id, arg)
     await ctx.reply(f"insult removed. use `{p}insultview` to list all insults.")
 
 async def del_lvl_msg(ctx: commands.Context, arg: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return
+    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     p = await get_guild_prefix(ctx)
     if not arg: return await ctx.reply(f"usage: `{p}lvlmsgdel <str>`")
@@ -395,21 +354,21 @@ async def del_lvl_msg(ctx: commands.Context, arg: str):
 # TODO: add xp
 async def user_set_xp(ctx: commands.Context, user: str, number: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return
+    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
 
 # TODO: set level
 async def user_set_level(ctx: commands.Context, user: str, number: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return
+    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
 
 async def rank_channel(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return
+    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
 
-    db = await get_database(ctx.guild.id)
+    db = await get_database2(ctx.guild.id)
     p = await get_guild_prefix(ctx)
     if db.get("bot_rank_channel") and db["bot_rank_channel"] == ctx.channel.id:
         await set_rank_channel(ctx.guild.id, 0)
@@ -421,10 +380,10 @@ async def rank_channel(ctx: commands.Context):
 async def help_insult(ctx: commands.Context):
     p = await get_guild_prefix(ctx)
     text = [
-        f"`{p}insult` Toggles insults. Defaults to thoughtcatalog.com",
-        f"`{p}insultview` View custom insults.",
-        f"`{p}insultadd` Add custom insult.",
-        f"`{p}insultdel` Delete custom insult.",
+        f"`{p}insult` Toggles insults (Defaults to thoughtcatalog.com)",
+        f"`{p}insultview` View custom insults",
+        f"`{p}insultadd` Add custom insult",
+        f"`{p}insultdel` Delete custom insult",
     ]
     await ctx.reply("\n".join(text))
 
@@ -432,23 +391,23 @@ async def help_level(ctx: commands.Context):
     p = await get_guild_prefix(ctx)
     text = [
         "# User commands",
-        f"`{p}xp` Toggle XP leveling system.",
-        f"`{p}rank` View a member's rank.",
-        f"`{p}levels` View server leaderboard.",
+        f"`{p}xp` Toggle XP leveling system",
+        f"`{p}rank` View a member's rank",
+        f"`{p}levels` View server leaderboard",
         "# Role commands",
-        f"`{p}xproleadd` Add level role.",
-        f"`{p}xproleedit` Edit level role.",
-        f"`{p}xproledel` Delete level role.",
-        f"`{p}xproleview` View level roles.",
+        f"`{p}xproleadd` Add level role",
+        f"`{p}xproleedit` Edit level role",
+        f"`{p}xproledel` Delete level role",
+        f"`{p}xproleview` View level roles",
         "# Message commands",
-        f"`{p}lvlmsgadd` Add custom level up message.",
-        f"`{p}lvlmsgdel` Delete custom level up message.",
-        f"`{p}lvlmsgview` View custom level up messages.",
-        f"`{p}lvlmsgtroll` Toggle default troll level up messages.",
+        f"`{p}lvlmsgadd` Add custom level up message",
+        f"`{p}lvlmsgdel` Delete custom level up message",
+        f"`{p}lvlmsgview` View custom level up messages",
+        f"`{p}lvlmsgtroll` Toggle default troll level up messages",
         "# Channel commands",
-        f"`{p}xpchan` Toggle XP channel.",
-        f"`{p}xpchanedit` Edit XP channel.",
-        f"`{p}xprankchan` Set rank/leaderboard command channel.",
+        f"`{p}xpchan` Toggle XP channel",
+        f"`{p}xpchanedit` Edit XP channel",
+        f"`{p}xprankchan` Set rank/leaderboard command channel",
     ]
     await ctx.reply("\n".join(text))
 
@@ -610,33 +569,6 @@ def get_channel_data(chan_id: int, fake_chans: list):
         if chan["channel_id"] == chan_id: return chan
 
 # database handling
-async def add_database(server_id: int):
-    data = {
-        "guild": server_id,
-        "prefix": "-",
-        "bot_master_role": 0,
-        "bot_rank_channel": 0,
-        "insult_module": True,
-        "roasts": [],
-        "xp_module": False,
-        "xp_troll": False,
-        "xp_rate": 1,
-        "xp_cooldown": 60,
-        "xp_roles": [],
-        "xp_messages": [],
-        "channels": [],
-    }
-    await mycol.insert_one(data)
-    return data
-
-async def fetch_database(server_id: int):
-    return await mycol.find_one({"guild":server_id})
-
-async def get_database(server_id: int):
-    db = await fetch_database(server_id)
-    if db: return db
-    return await add_database(server_id)
-
 async def add_player_db(server_id: int):
     data = {
         "guild": server_id,
@@ -653,59 +585,11 @@ async def get_player_db(server_id: int):
     if db: return db
     return await add_player_db(server_id)
 
-async def set_prefix(server_id: int, p):
-    await mycol.update_one({"guild":server_id}, {"$set": {"prefix": p}})
-
 async def push_player(server_id: int, data):
     await mycol_players.update_one({"guild":server_id}, {"$push": {"players": dict(data)}})
 
 async def pull_player(server_id: int, data):
     await mycol_players.update_one({"guild":server_id}, {"$pull": {"players": dict(data)}})
-
-async def set_insult(server_id: int, b: bool):
-    await mycol.update_one({"guild":server_id}, {"$set": {"insult_module": b}})
-
-async def set_xp(server_id: int, b: bool):
-    await mycol.update_one({"guild":server_id}, {"$set": {"xp_module": b}})
-
-async def set_cooldown(server_id: int, b):
-    await mycol.update_one({"guild":server_id}, {"$set": {"xp_cooldown": b}})
-
-async def set_rate(server_id: int, b):
-    await mycol.update_one({"guild":server_id}, {"$set": {"xp_rate": b}})
-
-async def set_troll_mode(server_id: int, b: bool):
-    await mycol.update_one({"guild":server_id}, {"$set": {"xp_troll": b}})
-
-async def push_insult(server_id: int, data):
-    await mycol.update_one({"guild":server_id}, {"$push": {"roasts": data}})
-
-async def pull_insult(server_id: int, data):
-    await mycol.update_one({"guild":server_id}, {"$pull": {"roasts": data}})
-
-async def push_xp_msg(server_id: int, data):
-    await mycol.update_one({"guild":server_id}, {"$push": {"xp_messages": data}})
-
-async def pull_xp_msg(server_id: int, data):
-    await mycol.update_one({"guild":server_id}, {"$pull": {"xp_messages": data}})
-
-async def push_role(server_id: int, data):
-    await mycol.update_one({"guild":server_id}, {"$push": {"xp_roles": dict(data)}})
-
-async def pull_role(server_id: int, data):
-    await mycol.update_one({"guild":server_id}, {"$pull": {"xp_roles": dict(data)}})
-
-async def set_master_role(server_id: int, data):
-    await mycol.update_one({"guild":server_id}, {"$set": {"bot_master_role": data}})
-
-async def push_channel(server_id: int, data):
-    await mycol.update_one({"guild":server_id}, {"$push": {"channels": dict(data)}})
-
-async def pull_channel(server_id: int, data):
-    await mycol.update_one({"guild":server_id}, {"$pull": {"channels": dict(data)}})
-
-async def set_rank_channel(server_id: int, data):
-    await mycol.update_one({"guild":server_id}, {"$set": {"bot_rank_channel": data}})
 
 class LevelInsult(commands.Cog):
     def __init__(self, bot):

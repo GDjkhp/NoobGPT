@@ -169,7 +169,7 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
 
 async def add_char(ctx: commands.Context, text: str, search_type: int):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "c.ai", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -196,7 +196,7 @@ async def add_char(ctx: commands.Context, text: str, search_type: int):
 
 async def delete_char(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "c.ai", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -212,7 +212,7 @@ async def delete_char(ctx: commands.Context):
 
 async def t_chan(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "c.ai", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -226,7 +226,7 @@ async def t_chan(ctx: commands.Context):
 
 async def t_adm(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "c.ai", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -239,7 +239,7 @@ async def t_adm(ctx: commands.Context):
 
 async def t_mode(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "c.ai", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -252,7 +252,7 @@ async def t_mode(ctx: commands.Context):
 
 async def set_rate(ctx: commands.Context, num: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "c.ai", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -271,7 +271,7 @@ async def set_rate(ctx: commands.Context, num: str):
 
 async def view_char(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "c.ai", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -294,7 +294,7 @@ async def view_char(ctx: commands.Context):
 
 async def edit_char(ctx: commands.Context, rate: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "c.ai", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -315,7 +315,7 @@ async def edit_char(ctx: commands.Context, rate: str):
 
 async def reset_char(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "c.ai", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -332,7 +332,7 @@ async def reset_char(ctx: commands.Context):
 
 async def set_mention_mode(ctx: commands.Context, modes: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "c.ai", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -364,7 +364,7 @@ async def set_mention_mode(ctx: commands.Context, modes: str):
 
 async def voice_mode(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "c.ai", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -377,7 +377,7 @@ async def voice_mode(ctx: commands.Context):
 
 async def voice_only(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "c.ai", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -390,7 +390,7 @@ async def voice_only(ctx: commands.Context):
 
 async def voice_search(ctx: commands.Context, text: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "c.ai", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -414,7 +414,7 @@ async def voice_search(ctx: commands.Context, text: str):
 
 async def voice_delete(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "c.ai", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     # fucked up the perms again
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
@@ -429,7 +429,7 @@ async def voice_delete(ctx: commands.Context):
     await ctx.reply(view=DeleteVoiceView(ctx, db["characters"], 0), embed=view_embed(ctx, db["characters"], 0, 0x808080))
 
 async def c_help(ctx: commands.Context):
-    if await command_check(ctx, "c.ai", "ai"): return
+    if await command_check(ctx, "c.ai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     p = await get_guild_prefix(ctx)
     text = [
         "# Character commands",

@@ -134,7 +134,7 @@ models_black=[
 ]
 
 async def help_perplexity(ctx: commands.Context):
-    if await command_check(ctx, "perplex", "ai"): return
+    if await command_check(ctx, "perplex", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     p = await get_guild_prefix(ctx)
     text = [
          f"`{p}ll` {models[0]}",
@@ -149,7 +149,7 @@ async def help_perplexity(ctx: commands.Context):
     await ctx.reply("\n".join(text))
 
 async def help_claude(ctx: commands.Context):
-    if await command_check(ctx, "claude", "ai"): return
+    if await command_check(ctx, "claude", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     p = await get_guild_prefix(ctx)
     text = [
         f"`{p}cla` {models_claude[0]}",
@@ -159,7 +159,7 @@ async def help_claude(ctx: commands.Context):
     await ctx.reply("\n".join(text))
 
 async def help_mistral(ctx: commands.Context):
-    if await command_check(ctx, "mistral", "ai"): return
+    if await command_check(ctx, "mistral", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     p = await get_guild_prefix(ctx)
     text = [
         f"`{p}m7b` {models_mistral[0]}",
@@ -173,7 +173,7 @@ async def help_mistral(ctx: commands.Context):
     await ctx.reply("\n".join(text))
 
 async def help_groq(ctx: commands.Context):
-    if await command_check(ctx, "groq", "ai"): return
+    if await command_check(ctx, "groq", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     p = await get_guild_prefix(ctx)
     text = [
         f"`{p}l31405` {models_groq[0]}",
@@ -188,7 +188,7 @@ async def help_groq(ctx: commands.Context):
     await ctx.reply("\n".join(text))
 
 async def help_github(ctx: commands.Context):
-    if await command_check(ctx, "github", "ai"): return
+    if await command_check(ctx, "github", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     p = await get_guild_prefix(ctx)
     text = [
         f"`{p}gpt4o` {models_github[0]}",
@@ -262,7 +262,7 @@ async def make_request_mistral(model: str, messages: list, code: bool):
     return await the_real_req(url, payload, headers)
 
 async def main_perplexity(ctx: commands.Context | discord.Interaction, model: int):
-    if await command_check(ctx, "perplex", "ai"): return
+    if await command_check(ctx, "perplex", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     # async with ctx.typing():
     if isinstance(ctx, commands.Context):
         msg = await ctx.reply(f"{models[model]}\nGenerating response…")
@@ -304,7 +304,7 @@ async def main_perplexity(ctx: commands.Context | discord.Interaction, model: in
 
 async def main_github(ctx: commands.Context | discord.Interaction,
                       model: int, prompt: str=None, image: discord.Attachment=None):
-    if await command_check(ctx, "github", "ai"): return
+    if await command_check(ctx, "github", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     # async with ctx.typing():
     if isinstance(ctx, commands.Context):
         msg = await ctx.reply(f"{models_github[model]}\nGenerating response…")
@@ -345,7 +345,7 @@ async def main_github(ctx: commands.Context | discord.Interaction,
         await ctx.edit_original_response(content=f"{models_github[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
 async def main_groq(ctx: commands.Context | discord.Interaction, model: int, prompt: str=None):
-    if await command_check(ctx, "groq", "ai"): return
+    if await command_check(ctx, "groq", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     # async with ctx.typing():
     if isinstance(ctx, commands.Context):
         msg = await ctx.reply(f"{models_groq[model]}\nGenerating response…")
@@ -386,7 +386,7 @@ async def main_groq(ctx: commands.Context | discord.Interaction, model: int, pro
         await ctx.edit_original_response(content=f"{models_groq[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
 async def main_anthropic(ctx: commands.Context | discord.Interaction, model: int):
-    if await command_check(ctx, "claude", "ai"): return
+    if await command_check(ctx, "claude", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     # async with ctx.typing():
     if isinstance(ctx, commands.Context):
         msg = await ctx.reply(f"{models_claude[model]}\nGenerating response…")
@@ -425,7 +425,7 @@ async def main_anthropic(ctx: commands.Context | discord.Interaction, model: int
         await ctx.edit_original_response(content=f"{models_claude[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
 async def main_mistral(ctx: commands.Context | discord.Interaction, model: int, prompt: str=None):
-    if await command_check(ctx, "mistral", "ai"): return
+    if await command_check(ctx, "mistral", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     # async with ctx.typing():
     if isinstance(ctx, commands.Context):
         msg = await ctx.reply(f"{models_mistral[model]}\nGenerating response…")

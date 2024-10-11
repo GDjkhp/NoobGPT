@@ -15,7 +15,7 @@ async def req_real(api):
     except Exception as e: print(e)
 
 async def QUIZ(ctx: commands.Context | discord.Interaction, mode: str, v: str, count: str, cat: str, diff: str, ty: str):
-    if await command_check(ctx, "quiz", "games"): return
+    if await command_check(ctx, "quiz", "games"): return await ctx.reply("command disabled", ephemeral=True)
     if isinstance(ctx, commands.Context): msg = await ctx.reply("Crunching data…")
     params = f"```{await get_guild_prefix(ctx)}quiz [version: <any/v1/v2> mode: <all/anon/me> count: <1-50> category: <any/9-32> difficulty: <any/easy/medium/hard> type: <any/multiple/boolean>```"
     if count:

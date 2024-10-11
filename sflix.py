@@ -19,7 +19,7 @@ domain = "https://sflix.se"
 provider="https://gdjkhp.github.io/img/66356c25ce98cb12993249e21742b129.png"
 
 async def Sflix(ctx: commands.Context, arg: str):
-    if await command_check(ctx, "tv", "media"): return
+    if await command_check(ctx, "tv", "media"): return await ctx.reply("command disabled", ephemeral=True)
     msg = await ctx.reply(f"Searching `{arg}`\nPlease wait…")
     try:
         result = results(await searchQuery(arg)) 

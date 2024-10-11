@@ -119,7 +119,7 @@ from discord.ext import commands
 from discord import app_commands
 from util_discord import command_check, description_helper
 async def Tic(ctx: commands.Context):
-    if await command_check(ctx, "tic", "games"): return
+    if await command_check(ctx, "tic", "games"): return await ctx.reply("command disabled", ephemeral=True)
     """Starts a tic-tac-toe game with yourself."""
     await ctx.send('Tic Tac Toe: X goes first', view=TicTacToe())
 

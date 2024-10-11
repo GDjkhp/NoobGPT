@@ -88,7 +88,7 @@ async def get_filename(url):
                 return ""
 
 async def COBALT_API(ctx: commands.Context, args: str):
-    if await command_check(ctx, "cob", "media"): return
+    if await command_check(ctx, "cob", "media"): return await ctx.reply("command disabled", ephemeral=True)
     # async with ctx.typing():
     msg = await ctx.reply("…")
     old = round(time.time() * 1000)

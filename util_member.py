@@ -3,7 +3,7 @@ from discord import app_commands
 from util_discord import command_check, description_helper
 
 async def avatar_function(ctx: commands.Context, bot: commands.Bot, arg: str):
-    if await command_check(ctx, "av", "utils"): return
+    if await command_check(ctx, "av", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if arg and not arg.isdigit(): return await ctx.reply("Must be a valid user ID.")
     try:
         user = await bot.fetch_user(int(arg) if arg else ctx.author.id)
@@ -12,7 +12,7 @@ async def avatar_function(ctx: commands.Context, bot: commands.Bot, arg: str):
     await ctx.reply("There is no such thing.")
 
 async def banner_function(ctx: commands.Context, bot: commands.Bot, arg: str):
-    if await command_check(ctx, "ban", "utils"): return
+    if await command_check(ctx, "ban", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if arg and not arg.isdigit(): return await ctx.reply("Must be a valid user ID.")
     try:
         user = await bot.fetch_user(int(arg) if arg else ctx.author.id)

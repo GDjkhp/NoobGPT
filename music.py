@@ -219,11 +219,12 @@ class SelectChoice(discord.ui.Select):
         text, desc = "🎵 Song added to the queue", f'`{selected.title}` has been added to the queue.'
         await interaction.edit_original_response(content=None, embed=music_embed(text, desc), view=None)
 
-async def voice_channel_connector(ctx):
+async def voice_channel_connector(ctx: commands.Context | discord.Interaction):
     if isinstance(ctx, commands.Context):
-        vc = await ctx.author.voice.channel.connect(cls=wavelink.Player, timeout=5, self_deaf=True)
+        member = ctx.author
     if isinstance(ctx, discord.Interaction):
-        vc = await ctx.user.voice.channel.connect(cls=wavelink.Player, timeout=5, self_deaf=True)
+        member = ctx.user
+    vc = await member.voice.channel.connect(cls=wavelink.Player, timeout=5, self_deaf=True)
     return vc
 
 class MusicUtil(commands.Cog):
@@ -245,8 +246,8 @@ class MusicUtil(commands.Cog):
         if check_if_not_owner(ctx): return
         await view_nodes(ctx)
 
-    @commands.command(name="rmusic")
-    async def reload_music(self, ctx: commands.Context):
+    @commands.command(name="mreset")
+    async def reset(self, ctx: commands.Context):
         if check_if_not_owner(ctx): return
         await setup_hook_music(self.bot)
 

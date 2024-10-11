@@ -352,7 +352,7 @@ async def brag_function(ctx: commands.Context, mode: str, optional: str):
         return await ctx.reply(embed=await brag_embed(global_scores, ctx, True))
 
 async def wordle_game(ctx: commands.Context, mode: str, count: str):
-    if await command_check(ctx, "word", "games"): return
+    if await command_check(ctx, "word", "games"): return await ctx.reply("command disabled", ephemeral=True)
     params = f"```{await get_guild_prefix(ctx)}wordle [stats: <rank/lead/global> OR mode: <all/hardcore/me> count: <1-50>]```"
 
     if mode in ["lead", "rank", "global"]:

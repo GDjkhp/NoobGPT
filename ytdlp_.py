@@ -8,7 +8,7 @@ import time
 from util_discord import command_check, description_helper
 
 async def YTDLP(ctx: commands.Context | discord.Interaction, arg1: str, arg2: str):
-    if await command_check(ctx, "ytdlp", "media"): return
+    if await command_check(ctx, "ytdlp", "media"): return await ctx.reply("command disabled", ephemeral=True)
     # async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
     old = round(time.time() * 1000)
     if not arg1:

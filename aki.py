@@ -102,7 +102,7 @@ class ButtonAction0(discord.ui.Button):
 
 # @commands.max_concurrency(1, per=BucketType.default, wait=False)
 async def Aki(ctx: commands.Context, cat: str, lang: str):
-    if await command_check(ctx, "aki", "games"): return
+    if await command_check(ctx, "aki", "games"): return await ctx.reply("command disabled", ephemeral=True)
     msg = await ctx.reply('Starting game…')
     if not cat: cat = 'people'
     if not lang: lang = 'en'

@@ -13,17 +13,17 @@
         },
         "games": {
             "aki": "Play a guessing game of Akinator.",
-            "tic": "Play tic-tac-toe with someone. (Deprecated)",
+            "tic": "Play tic-tac-toe with someone.",
             "hang": "Play the word puzzle game of hangman.",
             "quiz": "Play a game of quiz.",
             "wordle": "Play a game of wordle.",
             "rps": "Play rock-paper-scissors."
         },
         "media": {
+            "tv": "Watch TV shows and movies.",
             "anime": "Watch animated works originating in Japan.",
             "manga": "Read comics originating in Japan.",
             "booru": "A form of imageboard where images are categorized with tags.",
-            "tv": "Watch TV shows and movies.",
             "ytdlp": "yt-dlp is a feature-rich command-line audio/video downloader with support for thousands of sites.",
             "cobalt": "cobalt is a media downloader that doesn't piss you off."
         },
@@ -49,6 +49,30 @@
             "cai": "[Character AI 🦸]",
             "xp": "[XP 💠]",
             "insult": "[Insult 🤬]"
+        },
+        "player": {
+            "play": "Play music (Supports YouTube, Spotify, SoundCloud, Apple Music)",
+            "search": "Search music (Defaults to YouTube)",
+            "nowplaying": "Now playing",
+            "pause": "Pause music",
+            "resume": "Resume music",
+            "skip": "Skip music",
+            "stop": "Stop music and disconnect from voice channel",
+            "repeat": "Repeat music",
+            "autoplay": "Toggle autoplay and recommended music",
+            "voulume": "Set volume",
+            "summon": "Join voice channel",
+            "dj": "Create DJ role"
+        },
+        "queue": {
+            "list": "Show queue",
+            "shuffle": "Shuffle queue",
+            "clear": "Clear queue",
+            "peek": "Peek track index",
+            "remove": "Remove track",
+            "replace": "Replace track",
+            "move": "Move track position",
+            "swap": "Swap track positions"
         }
     },
     "mee6 default": "GG {name}, you just advanced to level {level}!",

@@ -8,25 +8,25 @@ from util_database import myclient
 from util_discord import command_check, description_helper, get_guild_prefix
 
 async def help_booru(ctx: commands.Context):
-    if await command_check(ctx, "booru", "media"): return
+    if await command_check(ctx, "booru", "media"): return await ctx.reply("command disabled", ephemeral=True)
     p = await get_guild_prefix(ctx)
     text = [f"`{p}gel` gelbooru", f"`{p}safe` safebooru", f"`{p}r34` rule34"]
     await ctx.reply("\n".join(text))
 
 async def R34(ctx: commands.Context, arg: str):
-    if await command_check(ctx, "booru", "media"): return
+    if await command_check(ctx, "booru", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not ctx.guild or not ctx.channel.nsfw: return await ctx.reply("**No.**")
     if arg: await search_posts(ctx, arg, "r34")
     else: await view_collection(ctx, "r34")
 
 async def GEL(ctx: commands.Context, arg: str):
-    if await command_check(ctx, "booru", "media"): return
+    if await command_check(ctx, "booru", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not ctx.guild or not ctx.channel.nsfw: return await ctx.reply("**No.**")
     if arg: await search_posts(ctx, arg, "gel")
     else: await view_collection(ctx, "gel")
 
 async def SAFE(ctx: commands.Context, arg: str):
-    if await command_check(ctx, "booru", "media"): return
+    if await command_check(ctx, "booru", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if arg: await search_posts(ctx, arg, "safe")
     else: await view_collection(ctx, "safe")
 

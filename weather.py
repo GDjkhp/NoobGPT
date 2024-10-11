@@ -12,7 +12,7 @@ async def req_real(api):
     except Exception as e: print(e)
 
 async def Weather(ctx: commands.Context, arg):
-    if await command_check(ctx, "weather", "utils"): return
+    if await command_check(ctx, "weather", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     message = await ctx.reply(f"Calculating…")
     try: results = await req_real('https://goweather.herokuapp.com/weather/'+p.quote_plus(arg))
     except: return await message.edit(content="I tripped.")

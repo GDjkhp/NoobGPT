@@ -21,7 +21,7 @@ pagelimit=12
 provider="https://gdjkhp.github.io/img/apdoesnthavelogotheysaidapistooplaintheysaid.png"
 
 async def help_anime(ctx: commands.Context):
-    if await command_check(ctx, "anime", "media"): return
+    if await command_check(ctx, "anime", "media"): return await ctx.reply("command disabled", ephemeral=True)
     p = await get_guild_prefix(ctx)
     sources = [f"`{p}gogo` gogoanime", f"`{p}pahe` animepahe"]
     await ctx.reply("\n".join(sources))
@@ -71,7 +71,7 @@ def buildAnime(details: dict) -> discord.Embed:
     return embed
 
 async def pahe_search(ctx: commands.Context, arg: str):
-    if await command_check(ctx, "anime", "media"): return
+    if await command_check(ctx, "anime", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not arg: return await ctx.reply(f"usage: `{await get_guild_prefix(ctx)}pahe <query>`")
     results = await new_req(f"https://animepahe.ru/api?m=search&q={arg.replace(' ', '+')}", headers, True)
     if not results: return await ctx.reply("none found")

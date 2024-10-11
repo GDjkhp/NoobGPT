@@ -28,7 +28,7 @@ async def set_domain(ctx: commands.Context, arg: str):
     await ctx.reply(gogoanime)
 
 async def Gogoanime(ctx: commands.Context, arg: str):
-    if await command_check(ctx, "anime", "media"): return
+    if await command_check(ctx, "anime", "media"): return await ctx.reply("command disabled", ephemeral=True)
     await get_domain()
     if arg: msg = await ctx.reply(f"Searching `{arg}`\nPlease wait…")
     else: msg = await ctx.reply("Imagine something that doesn't exist. Must be sad. You are sad. You don't belong here.\nLet's all love lain.")

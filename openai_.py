@@ -38,7 +38,7 @@ async def discord_image(link: str, prompt: str) -> discord.File:
                 return discord.File(fp=image_data, filename=f'{prompt}.png')
             
 async def help_openai(ctx: commands.Context):
-    if await command_check(ctx, "openai", "ai"): return
+    if await command_check(ctx, "openai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     p = await get_guild_prefix(ctx)
     text = [
         f"`{p}ask` gpt-3.5-turbo",
@@ -48,7 +48,7 @@ async def help_openai(ctx: commands.Context):
     await ctx.reply("\n".join(text))
 
 async def chat(ctx: commands.Context):
-    if await command_check(ctx, "openai", "ai"): return
+    if await command_check(ctx, "openai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     # async with ctx.typing():
     message = ctx.message
     info = await message.reply("Generating response…")
@@ -73,7 +73,7 @@ async def chat(ctx: commands.Context):
     await info.edit(content=f"Took {round(time.time() * 1000)-old}ms")
 
 async def image(ctx: commands.Context):
-    if await command_check(ctx, "openai", "ai"): return
+    if await command_check(ctx, "openai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     # async with ctx.typing():
     message = ctx.message
     info = await message.reply("Generating image…")
@@ -95,7 +95,7 @@ async def image(ctx: commands.Context):
     await info.edit(content=f"Took {round(time.time() * 1000)-old}ms")
 
 async def gpt3(ctx: commands.Context):
-    if await command_check(ctx, "openai", "ai"): return
+    if await command_check(ctx, "openai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     # async with ctx.typing():
     message = ctx.message
     info = await message.reply("Generating response…")

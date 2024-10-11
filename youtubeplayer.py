@@ -2,43 +2,18 @@ import wavelink
 from discord.ext import commands
 from discord import app_commands
 from music import *
+from help import HALP_MOOSIC
 from util_discord import command_check, description_helper, get_guild_prefix
 
 async def music_help(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "music", "media"): return
-    p = await get_guild_prefix(ctx)
-    texts = [
-        "# Player commands",
-        f"`{p}play <query>` Play music. Supports YouTube, Spotify, SoundCloud, Apple Music.",
-        f"`{p}nowplaying` Now playing.",
-        f"`{p}pause` Pause music.",
-        f"`{p}resume` Resume music.",
-        f"`{p}skip` Skip music.",
-        f"`{p}stop` Stop music and disconnect from voice channel.",
-        f"`{p}volume <value>` Set volume.",
-        f"`{p}summon` Join voice channel.",
-        f"`{p}dj` Create DJ role.",
-        "# Queue commands",
-        f"`{p}search <query>` Search music. Defaults to YouTube.",
-        f"`{p}list <page>` Show queue.",
-        f"`{p}shuffle` Shuffle queue.",
-        f"`{p}reset` Reset queue.",
-        f"`{p}peek` Peek track.",
-        f"`{p}remove <index>` Remove a track from the queue.",
-        f"`{p}replace <index> <query>` Replace track.",
-        f"`{p}swap <index1> <index2>` Swap tracks.",
-        f"`{p}move <index1> <index2>` Move track.",
-        f"`{p}repeat <off/one/all>` Repeat music modes.",
-        f"`{p}autoplay <partial/enabled/disabled>` Autoplay and recommended music modes.",
-        # f"`{p}filters` Show available filters.",
-    ]
-    await ctx.reply("\n".join(texts))
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+    await HALP_MOOSIC(ctx)
 
 # player commands
 async def music_summon(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "music", "media"): return
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not ctx.author.voice:
         return await ctx.reply(f'Join a voice channel first.')
     
@@ -57,7 +32,11 @@ async def music_summon(ctx: commands.Context):
 
 async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interaction, search: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "music", "media"): return
+    if await command_check(ctx, "music", "media"):
+        if isinstance(ctx, commands.Context):
+            return await ctx.reply("command disabled", ephemeral=True)
+        if isinstance(ctx, discord.Interaction):
+            return await ctx.response.send_message("command disabled", ephemeral=True)
 
     if not await check_if_dj(ctx):
         if isinstance(ctx, commands.Context):
@@ -132,10 +111,10 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
 
 async def music_pause(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "music", "media"): return
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
     vc: wavelink.Player = ctx.voice_client
-    if not vc: return
+    if not vc: return await ctx.reply("voice client not found")
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first.')
 
@@ -145,10 +124,10 @@ async def music_pause(ctx: commands.Context):
 
 async def music_resume(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "music", "media"): return
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
     vc: wavelink.Player = ctx.voice_client
-    if not vc: return
+    if not vc: return await ctx.reply("voice client not found")
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first.')
 
@@ -158,10 +137,10 @@ async def music_resume(ctx: commands.Context):
 
 async def music_skip(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "music", "media"): return
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
     vc: wavelink.Player = ctx.voice_client
-    if not vc: return
+    if not vc: return await ctx.reply("voice client not found")
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first.')
 
@@ -174,10 +153,10 @@ async def music_skip(ctx: commands.Context):
 
 async def music_stop(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "music", "media"): return
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
     vc: wavelink.Player = ctx.voice_client
-    if not vc: return
+    if not vc: return await ctx.reply("voice client not found")
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first.')
 
@@ -187,16 +166,16 @@ async def music_stop(ctx: commands.Context):
 
 async def music_nowplaying(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "music", "media"): return
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     vc: wavelink.Player = ctx.voice_client
-    if not vc: return
+    if not vc: return await ctx.reply("voice client not found")
     if vc.playing: await ctx.reply(embed=music_now_playing_embed(vc.current))
 
 async def music_volume(ctx: commands.Context, value: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "music", "media"): return
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     vc: wavelink.Player = ctx.voice_client
-    if not vc: return
+    if not vc: return await ctx.reply("voice client not found")
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first.')
     if not value: value = "100"
@@ -208,7 +187,11 @@ async def music_volume(ctx: commands.Context, value: str):
 # queue commands
 async def queue_search(bot: commands.Bot, ctx: commands.Context | discord.Interaction, search: str, source: str="ytmsearch:"):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "music", "media"): return
+    if await command_check(ctx, "music", "media"): 
+        if isinstance(ctx, commands.Context):
+            return await ctx.reply("command disabled", ephemeral=True)
+        if isinstance(ctx, discord.Interaction):
+            return await ctx.response.send_message("command disabled", ephemeral=True)
 
     if not await check_if_dj(ctx):
         if isinstance(ctx, commands.Context):
@@ -255,9 +238,9 @@ async def queue_search(bot: commands.Bot, ctx: commands.Context | discord.Intera
 async def queue_list(ctx: commands.Context, page: str):
     if not ctx.guild: return await ctx.reply("not supported")
     if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
-    if await command_check(ctx, "music", "media"): return
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     vc: wavelink.Player = ctx.voice_client
-    if not vc: return
+    if not vc: return await ctx.reply("voice client not found")
     current_queue = vc.queue
     if current_queue.is_empty:
         if vc.autoplay == wavelink.AutoPlayMode.enabled and not vc.auto_queue.is_empty:
@@ -283,10 +266,10 @@ async def queue_list(ctx: commands.Context, page: str):
 
 async def queue_loop(ctx: commands.Context, mode: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "music", "media"): return
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
     vc: wavelink.Player = ctx.voice_client
-    if not vc: return
+    if not vc: return await ctx.reply("voice client not found")
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first.')
 
@@ -306,10 +289,10 @@ async def queue_loop(ctx: commands.Context, mode: str):
 
 async def queue_autoplay(ctx: commands.Context, mode: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "music", "media"): return
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
     vc: wavelink.Player = ctx.voice_client
-    if not vc: return
+    if not vc: return await ctx.reply("voice client not found")
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first.')
 
@@ -329,10 +312,10 @@ async def queue_autoplay(ctx: commands.Context, mode: str):
 
 async def queue_shuffle(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "music", "media"): return
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
     vc: wavelink.Player = ctx.voice_client
-    if not vc: return
+    if not vc: return await ctx.reply("voice client not found")
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first.')
     
@@ -343,9 +326,9 @@ async def queue_shuffle(ctx: commands.Context):
 
 async def queue_reset(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "music", "media"): return
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     vc: wavelink.Player = ctx.voice_client
-    if not vc: return
+    if not vc: return await ctx.reply("voice client not found")
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first.')
     vc.queue.reset()
@@ -353,9 +336,9 @@ async def queue_reset(ctx: commands.Context):
 
 async def queue_remove(ctx: commands.Context, index: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "music", "media"): return
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     vc: wavelink.Player = ctx.voice_client
-    if not vc: return
+    if not vc: return await ctx.reply("voice client not found")
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first.')
     if not index.isdigit() or not int(index): return await ctx.reply("not a digit :(")
@@ -366,9 +349,9 @@ async def queue_remove(ctx: commands.Context, index: str):
 
 async def queue_replace(ctx: commands.Context, index: str, query: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "music", "media"): return
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     vc: wavelink.Player = ctx.voice_client
-    if not vc: return
+    if not vc: return await ctx.reply("voice client not found")
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first.')
     if not index.isdigit() or not int(index): return await ctx.reply("not a digit :(")
@@ -384,9 +367,9 @@ async def queue_replace(ctx: commands.Context, index: str, query: str):
 
 async def queue_swap(ctx: commands.Context, init: str, dest: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "music", "media"): return
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     vc: wavelink.Player = ctx.voice_client
-    if not vc: return
+    if not vc: return await ctx.reply("voice client not found")
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first.')
     if not init.isdigit() or not dest.isdigit() or not int(init) or not int(dest): return await ctx.reply("not a digit :(")
@@ -401,9 +384,9 @@ async def queue_swap(ctx: commands.Context, init: str, dest: str):
 
 async def queue_peek(ctx: commands.Context, index: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "music", "media"): return
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     vc: wavelink.Player = ctx.voice_client
-    if not vc: return
+    if not vc: return await ctx.reply("voice client not found")
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first.')
     if not index.isdigit() or not int(index): return await ctx.reply("not a digit :(")
@@ -414,9 +397,9 @@ async def queue_peek(ctx: commands.Context, index: str):
 
 async def queue_move(ctx: commands.Context, init: str, dest: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "music", "media"): return
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     vc: wavelink.Player = ctx.voice_client
-    if not vc: return
+    if not vc: return await ctx.reply("voice client not found")
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first.')
     if not init.isdigit() or not dest.isdigit() or not int(init) or not int(dest): return await ctx.reply("not a digit :(")
@@ -464,16 +447,16 @@ class YouTubePlayer(commands.Cog):
             embed = music_now_playing_embed(vc.current)
             await vc.music_channel.send(embed=embed)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['media']} Listen to music in a voice channel")
-    async def music(self, ctx: commands.Context):
+    @commands.hybrid_command(description="How to use this bot")
+    async def help(self, ctx: commands.Context):
         await music_help(ctx)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Create DJ role")
+    @commands.hybrid_command(description=description_helper['player']['dj'])
     async def dj(self, ctx: commands.Context):
         await set_dj_role(ctx)
 
     # player
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Join voice channel")
+    @commands.hybrid_command(description=description_helper['player']['summon'])
     async def summon(self, ctx: commands.Context):
         await music_summon(ctx)
 
@@ -481,13 +464,13 @@ class YouTubePlayer(commands.Cog):
     async def p(self, ctx: commands.Context, *, query: str=None):
         await music_play(self.bot, ctx, query)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Play music (YouTube Music)")
+    @commands.hybrid_command(description="Play music (YouTube Music)")
     @app_commands.describe(query="Search query")
     @app_commands.autocomplete(query=search_auto)
     async def play(self, ctx: commands.Context, *, query:str=None):
         await music_play(self.bot, ctx, query)
 
-    @app_commands.command(name="play-spotify", description=f"{description_helper['emojis']['music']} Play music (Spotify)")
+    @app_commands.command(name="play-spotify", description="Play music (Spotify)")
     @app_commands.describe(query="Search query")
     @app_commands.autocomplete(query=search_auto_spotify)
     async def play_spotify(self, ctx: discord.Interaction, *, query:str=None):
@@ -497,15 +480,15 @@ class YouTubePlayer(commands.Cog):
     async def leave(self, ctx: commands.Context):
         await music_stop(ctx)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Stop music and disconnect from voice channel")
+    @commands.hybrid_command(description=description_helper['player']['stop'])
     async def stop(self, ctx: commands.Context):
         await music_stop(ctx)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Pause music")
+    @commands.hybrid_command(description=description_helper['player']['pause'])
     async def pause(self, ctx: commands.Context):
         await music_pause(ctx)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Resume music")
+    @commands.hybrid_command(description=description_helper['player']['resume'])
     async def resume(self, ctx: commands.Context):
         await music_resume(ctx)
 
@@ -513,7 +496,7 @@ class YouTubePlayer(commands.Cog):
     async def s(self, ctx: commands.Context):
         await music_skip(ctx)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Skip music")
+    @commands.hybrid_command(description=description_helper['player']['skip'])
     async def skip(self, ctx: commands.Context):
         await music_skip(ctx)
 
@@ -521,16 +504,16 @@ class YouTubePlayer(commands.Cog):
     async def np(self, ctx: commands.Context):
         await music_nowplaying(ctx)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Now playing")
+    @commands.hybrid_command(description=description_helper['player']['nowplaying'])
     async def nowplaying(self, ctx: commands.Context):
         await music_nowplaying(ctx)
 
     # queue
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Search music (YouTube Music)")
+    @commands.hybrid_command(description="Search music (YouTube Music)")
     async def search(self, ctx: commands.Context, *, query: str=None):
         await queue_search(self.bot, ctx, query)
 
-    @app_commands.command(name="search-spotify", description=f"{description_helper['emojis']['music']} Search music (Spotify)")
+    @app_commands.command(name="search-spotify", description="Search music (Spotify)")
     @app_commands.describe(query="Search query")
     async def search_spotify(self, ctx: discord.Interaction, *, query: str=None):
         await queue_search(self.bot, ctx, query, "spsearch:")
@@ -539,53 +522,53 @@ class YouTubePlayer(commands.Cog):
     async def queue(self, ctx: commands.Context, page: str=None):
         await queue_list(ctx, page)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Show queue")
+    @commands.hybrid_command(description=description_helper['queue']['list'])
     @app_commands.describe(page="Page number")
     async def list(self, ctx: commands.Context, page: str=None):
         await queue_list(ctx, page)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Repeat music modes")
+    @commands.hybrid_command(description=description_helper['player']['repeat'])
     @app_commands.describe(mode="Repeat mode")
     @app_commands.autocomplete(mode=mode_repeat_auto)
     async def repeat(self, ctx: commands.Context, mode: str):
         await queue_loop(ctx, mode)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Autoplay and recommended music modes")
+    @commands.hybrid_command(description=description_helper['player']['autoplay'])
     @app_commands.describe(mode="Autoplay mode")
     @app_commands.autocomplete(mode=mode_rec_auto)
     async def autoplay(self, ctx: commands.Context, mode: str):
         await queue_autoplay(ctx, mode)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Shuffle queue")
+    @commands.hybrid_command(description=description_helper['queue']['shuffle'])
     async def shuffle(self, ctx: commands.Context):
         await queue_shuffle(ctx)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Reset queue")
-    async def reset(self, ctx: commands.Context):
+    @commands.hybrid_command(description=description_helper['queue']['clear'])
+    async def clear(self, ctx: commands.Context):
         await queue_reset(ctx)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Remove a track from the queue")
+    @commands.hybrid_command(description=description_helper['queue']['remove'])
     @app_commands.describe(index="Track number you want to remove (Must be a valid integer)")
     async def remove(self, ctx: commands.Context, index: str):
         await queue_remove(ctx, index)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Replace track")
+    @commands.hybrid_command(description=description_helper['queue']['replace'])
     @app_commands.describe(index="Track number you want to replace (Must be a valid integer)", query="Search query")
     async def replace(self, ctx: commands.Context, index: str, *, query: str):
         await queue_replace(ctx, index, query)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Swap tracks")
+    @commands.hybrid_command(description=description_helper['queue']['swap'])
     @app_commands.describe(init="First track number you want to swap into (Must be a valid integer)",
                            dest="Second track number you want to swap into (Must be a valid integer)")
     async def swap(self, ctx: commands.Context, init: str, dest: str):
         await queue_swap(ctx, init, dest)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Peek track")
+    @commands.hybrid_command(description=description_helper['queue']['peek'])
     @app_commands.describe(index="Track number you want to peek into (Must be a valid integer)")
     async def peek(self, ctx: commands.Context, index: str):
         await queue_peek(ctx, index)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Move track")
+    @commands.hybrid_command(description=description_helper['queue']['move'])
     @app_commands.describe(init="Track number you want to move from (Must be a valid integer)",
                            dest="Track number you want to move to (Must be a valid integer)")
     async def move(self, ctx: commands.Context, init: str, dest: str):
@@ -600,9 +583,9 @@ class YouTubePlayer(commands.Cog):
     # @commands.hybrid_command(description="")
     # async def filters(self, ctx: commands.Context, reset: str=None, filter: str=None):
     #     if not ctx.guild: return await ctx.reply("not supported")
-    #     if await command_check(ctx, "music", "media"): return
+    #     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     #     vc: wavelink.Player = ctx.voice_client
-    #     if not vc: return
+    #     if not vc: return await ctx.reply("voice client not found")
     #     if reset and reset == "reset":
     #         filters: wavelink.Filters = vc.filters
     #         if filter and filter in ["karaoke", "timescale", "lowpass", "rotation", "distortion", "channelmix", "tremolo", "vibrato"]:
@@ -643,9 +626,9 @@ class YouTubePlayer(commands.Cog):
     # @commands.hybrid_command(description="")
     # async def timescale(self, ctx: commands.Context, pitch:float=None, speed:float=None, rate:float=None):
     #     if not ctx.guild: return await ctx.reply("not supported")
-    #     if await command_check(ctx, "music", "media"): return
+    #     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     #     vc: wavelink.Player = ctx.voice_client
-    #     if not vc: return
+    #     if not vc: return await ctx.reply("voice client not found")
     #     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
     #         return await ctx.reply(f'Join the voice channel with the bot first.')
 
@@ -657,9 +640,9 @@ class YouTubePlayer(commands.Cog):
     # @commands.hybrid_command(description="")
     # async def karaoke(self, ctx: commands.Context, level:float=None, mono_level:float=None, filter_band:float=None, filter_width:float=None):
     #     if not ctx.guild: return await ctx.reply("not supported")
-    #     if await command_check(ctx, "music", "media"): return
+    #     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     #     vc: wavelink.Player = ctx.voice_client
-    #     if not vc: return
+    #     if not vc: return await ctx.reply("voice client not found")
     #     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
     #         return await ctx.reply(f'Join the voice channel with the bot first.')
 
@@ -671,9 +654,9 @@ class YouTubePlayer(commands.Cog):
     # @commands.hybrid_command(description="")
     # async def lowpass(self, ctx: commands.Context, smoothing:float=None):
     #     if not ctx.guild: return await ctx.reply("not supported")
-    #     if await command_check(ctx, "music", "media"): return
+    #     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     #     vc: wavelink.Player = ctx.voice_client
-    #     if not vc: return
+    #     if not vc: return await ctx.reply("voice client not found")
     #     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
     #         return await ctx.reply(f'Join the voice channel with the bot first.')
 
@@ -687,9 +670,9 @@ class YouTubePlayer(commands.Cog):
     #                      sin_offset:float=None, sin_scale:float=None, cos_offset:float=None, cos_scale:float=None, 
     #                      tan_offset:float=None, tan_scale:float=None, offset:float=None, scale:float=None):
     #     if not ctx.guild: return await ctx.reply("not supported")
-    #     if await command_check(ctx, "music", "media"): return
+    #     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     #     vc: wavelink.Player = ctx.voice_client
-    #     if not vc: return
+    #     if not vc: return await ctx.reply("voice client not found")
     #     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
     #         return await ctx.reply(f'Join the voice channel with the bot first.')
 
@@ -702,9 +685,9 @@ class YouTubePlayer(commands.Cog):
     # @commands.hybrid_command(description="")
     # async def rotation(self, ctx: commands.Context, rotation_hz:float=None):
     #     if not ctx.guild: return await ctx.reply("not supported")
-    #     if await command_check(ctx, "music", "media"): return
+    #     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     #     vc: wavelink.Player = ctx.voice_client
-    #     if not vc: return
+    #     if not vc: return await ctx.reply("voice client not found")
     #     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
     #         return await ctx.reply(f'Join the voice channel with the bot first.')
 
@@ -717,9 +700,9 @@ class YouTubePlayer(commands.Cog):
     # async def channelmix(self, ctx: commands.Context, left_to_left:float=None, left_to_right:float=None, 
     #                      right_to_left:float=None, right_to_right:float=None):
     #     if not ctx.guild: return await ctx.reply("not supported")
-    #     if await command_check(ctx, "music", "media"): return
+    #     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     #     vc: wavelink.Player = ctx.voice_client
-    #     if not vc: return
+    #     if not vc: return await ctx.reply("voice client not found")
     #     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
     #         return await ctx.reply(f'Join the voice channel with the bot first.')
 
@@ -732,9 +715,9 @@ class YouTubePlayer(commands.Cog):
     # @commands.hybrid_command(description="")
     # async def tremolo(self, ctx: commands.Context, frequency:float=None, depth:float=None):
     #     if not ctx.guild: return await ctx.reply("not supported")
-    #     if await command_check(ctx, "music", "media"): return
+    #     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     #     vc: wavelink.Player = ctx.voice_client
-    #     if not vc: return
+    #     if not vc: return await ctx.reply("voice client not found")
     #     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
     #         return await ctx.reply(f'Join the voice channel with the bot first.')
 
@@ -746,9 +729,9 @@ class YouTubePlayer(commands.Cog):
     # @commands.hybrid_command(description="")
     # async def vibrato(self, ctx: commands.Context, frequency:float=None, depth:float=None):
     #     if not ctx.guild: return await ctx.reply("not supported")
-    #     if await command_check(ctx, "music", "media"): return
+    #     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     #     vc: wavelink.Player = ctx.voice_client
-    #     if not vc: return
+    #     if not vc: return await ctx.reply("voice client not found")
     #     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
     #         return await ctx.reply(f'Join the voice channel with the bot first.')
 

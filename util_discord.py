@@ -3,9 +3,8 @@ from discord import app_commands
 import discord
 import json
 import os
-from util_database import myclient
+from util_database import *
 mycol = myclient["utils"]["commands"]
-mycol_prefix = myclient["utils"]["nodeports"]
 legal_url="https://gdjkhp.github.io/NoobGPT/#legal"
 
 def read_json_file(file_path):
@@ -14,7 +13,7 @@ def read_json_file(file_path):
     return data
 
 async def copypasta(ctx: commands.Context):
-    if await command_check(ctx, "legal", "utils"): return
+    if await command_check(ctx, "legal", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     view = discord.ui.View()
     view.add_item(discord.ui.Button(style=discord.ButtonStyle.link, url=legal_url, 
                                     emoji="☑️", label="Terms and conditions"))
@@ -40,24 +39,21 @@ def category_to_commands(cat: str, commands: list):
 async def config_commands(ctx: commands.Context):
     p = await get_guild_prefix(ctx)
     text = [
-        f"`{p}view` View available commands.",
-        f"`{p}botmaster [user/userid]` Adds bot master role to a user.",
-        f"`{p}prefix [prefix]` Change bot command prefix.",
-        f"`{p}channel` Toggle channel mode, where you can set specific commands per channel.",
-        f"`{p}toggle [command]` Toggle command. Requires channel mode.",
-        f"`{p}disable [command]` Disable command server-wide."
+        f"`{p}view` View disabled commands",
+        f"`{p}botmaster [user id]` Adds bot master role to a user",
+        f"`{p}prefix [prefix]` Change bot command prefix",
+        f"`{p}channel` Toggle channel mode, where you can set specific commands per channel",
+        f"`{p}toggle [command]` Toggle command. Requires channel mode",
+        f"`{p}disable [command]` Disable command server-wide"
     ]
     await ctx.reply("\n".join(text))
 
 async def set_prefix_cmd(ctx: commands.Context, arg: str):
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     if not arg: return await ctx.reply(f"usage: `{await get_guild_prefix(ctx)}prefix <prefix>`")
-    db = await get_database_copy(ctx.guild.id) # nonsense
+    db = await get_database2(ctx.guild.id) # nonsense
     await set_prefix(ctx.guild.id, arg)
     await ctx.reply(f"prefix has been set to `{arg}`")
-
-async def set_prefix(server_id: int, p):
-    await mycol_prefix.update_one({"guild":server_id}, {"$set": {"prefix": p}})
 
 async def add_master_user(ctx: commands.Context, arg: str):
     if not ctx.guild: return await ctx.reply("not supported")
@@ -72,28 +68,26 @@ async def add_master_user(ctx: commands.Context, arg: str):
     else: return await ctx.reply("not a user id")
     if not member: return await ctx.reply("user not found")
 
-    db = await get_database_copy(ctx.guild.id)
+    db = await get_database2(ctx.guild.id)
     if not db.get("bot_master_role") or not ctx.guild.get_role(db["bot_master_role"]):
         await create_bot_master_role(ctx)
-        db = await get_database(ctx.guild.id) # update
+        db = await get_database2(ctx.guild.id) # update
 
     role = ctx.guild.get_role(db["bot_master_role"])
     await member.add_roles(role)
     await ctx.reply(f"bot master role <@&{role.id}> added to <@{member.id}>")
 
+# unused command, created automagically
 async def create_bot_master_role(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
     if not ctx.author.guild_permissions.administrator: return await ctx.reply("not an admin :(")
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_roles:
         return await ctx.reply("**manage roles permission is disabled :(**")
-    db = await get_database_copy(ctx.guild.id) # nonsense
+    db = await get_database2(ctx.guild.id) # nonsense
     role = await ctx.guild.create_role(name="noobgpt bot master", mentionable=False)
     await set_master_role(ctx.guild.id, role.id)
     await ctx.reply(f"<@&{role.id}> role added")
-
-async def set_master_role(server_id: int, data):
-    await mycol_prefix.update_one({"guild":server_id}, {"$set": {"bot_master_role": data}})
 
 async def command_enable(ctx: commands.Context, com: str):
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
@@ -180,34 +174,6 @@ async def get_database(server_id: int):
     if db: return db
     return await add_database(server_id)
 
-# prefix + bot master
-async def add_database_copy(server_id: int):
-    data = {
-        "guild": server_id,
-        "prefix": "-",
-        "bot_master_role": 0,
-        "bot_rank_channel": 0,
-        "insult_module": True,
-        "roasts": [],
-        "xp_module": False,
-        "xp_troll": False,
-        "xp_rate": 1,
-        "xp_cooldown": 60,
-        "xp_roles": [],
-        "xp_messages": [],
-        "channels": [],
-    }
-    await mycol_prefix.insert_one(data)
-    return data
-
-async def fetch_database_copy(server_id: int):
-    return await mycol_prefix.find_one({"guild":server_id})
-
-async def get_database_copy(server_id: int):
-    db = await fetch_database_copy(server_id)
-    if db: return db
-    return await add_database_copy(server_id)
-
 async def push_channel(server_id: int, data):
     await mycol.update_one({"guild":server_id}, {"$push": {"channels": dict(data)}})
 
@@ -242,41 +208,6 @@ async def toggle_global_cat(server_id: int, cat: str):
     if await mycol.find_one({"guild":server_id, "disabled_categories": cat}):
         return await pull_cat(server_id, cat)
     return await push_cat(server_id, cat)
-
-# database handling sequel
-mycol2 = myclient["utils"]["nodeports"]
-async def add_database2(server_id: int):
-    data = {
-        "guild": server_id,
-        "prefix": "-",
-        "bot_master_role": 0,
-        "bot_dj_role": 0,
-        "insult_module": True,
-        "insult_default": True,
-        "xp_module": False,
-        "xp_troll": True,
-        "xp_channel_mode": False,
-        "xp_rate": 1,
-        "xp_cooldown": 60,
-        "channels": [],
-        "xp_roles": [],
-        "xp_messages": [],
-        "roasts": [],
-        "players": []
-    }
-    await mycol2.insert_one(data)
-    return data
-
-async def fetch_database2(server_id: int):
-    return await mycol2.find_one({"guild":server_id})
-
-async def get_database2(server_id: int):
-    db = await fetch_database2(server_id)
-    if db: return db
-    return await add_database2(server_id)
-
-async def set_dj_role_db(server_id: int, role_id):
-    await mycol2.update_one({"guild":server_id}, {"$set": {"bot_dj_role": role_id}})
 
 # public code for everyone to share, free to use
 description_helper = read_json_file("./res/mandatory_settings_and_splashes.json")["help_wanted_dictionaries_dead_or_alive"]
@@ -324,7 +255,7 @@ class DiscordUtil(commands.Cog):
     @app_commands.describe(command="Command you want to enable")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def enable(self, ctx: commands.Context, command:str=None):
+    async def toggle(self, ctx: commands.Context, command:str=None):
         await command_enable(ctx, command)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Disable command server-wide")

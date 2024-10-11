@@ -182,7 +182,7 @@ models = [
 ]
 
 async def GEMINI_REST(ctx: commands.Context | discord.Interaction, model: int, palm: bool, prompt: str=None, image: discord.Attachment=None):
-    if await command_check(ctx, "googleai", "ai"): return
+    if await command_check(ctx, "googleai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     # async with ctx.typing():
     if isinstance(ctx, commands.Context):
         msg = await ctx.reply(f"{models[model]}\nGenerating response…")
@@ -221,7 +221,7 @@ async def GEMINI_REST(ctx: commands.Context | discord.Interaction, model: int, p
         await ctx.edit_original_response(content=f"{models[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
 async def help_google(ctx: commands.Context):
-    if await command_check(ctx, "googleai", "ai"): return
+    if await command_check(ctx, "googleai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     p = await get_guild_prefix(ctx)
     text  = [
         f"`{p}gemini` {models[1]}",
