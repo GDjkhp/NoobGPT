@@ -69,9 +69,6 @@ async def push_role(server_id: int, data):
 async def pull_role(server_id: int, data):
     await mycol2.update_one({"guild":server_id}, {"$pull": {"xp_roles": dict(data)}})
 
-async def set_master_role(server_id: int, data):
-    await mycol2.update_one({"guild":server_id}, {"$set": {"bot_master_role": data}})
-
 async def push_channel(server_id: int, data):
     await mycol2.update_one({"guild":server_id}, {"$push": {"channels": dict(data)}})
 
