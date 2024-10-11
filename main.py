@@ -47,7 +47,7 @@ class NoobGPT(commands.Bot):
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandNotFound):
             return
-        print(f"NoobGPT: {error}")
+        print(f"{self.user.name}: {error}")
 
     async def setup_hook(self):
         self.loop.create_task(silly_activities(self))
@@ -106,7 +106,7 @@ class Moosic(commands.Bot):
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandNotFound):
             return
-        print(f"Moosic: {error}")
+        print(f"{self.user.name}: {error}")
 
     async def setup_hook(self):
         self.loop.create_task(silly_activities(self))
