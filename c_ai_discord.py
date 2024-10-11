@@ -89,17 +89,20 @@ async def send_webhook_message(ctx: commands.Context, x, chat: Chat, turn: Turn,
     if wh:
         final_text = clean_gdjkhp(turn.get_primary_candidate().text, ctx.author.name)
         if db.get("voice_only"): final_text = None
-        speech_file = None
+        speech_file, mp3_buffer = None, None
 
-        if bool(x.get("voice_id")):
-            speech = await client_voice.utils.generate_speech(chat.chat_id, turn.turn_id, turn.get_primary_candidate().candidate_id, x["voice_id"])
-            mp3_buffer = io.BytesIO(speech)
-            audio = AudioSegment.from_mp3(mp3_buffer)
-            ogg_buffer = io.BytesIO()
-            audio.export(ogg_buffer, format="ogg", codec="libopus")
-            ogg_buffer.seek(0)
-            file_size = ogg_buffer.getbuffer().nbytes
-            if db.get("voicehook"): speech_file = discord.File(ogg_buffer, filename="voice-message.ogg")
+        try:
+            if bool(x.get("voice_id")):
+                speech = await client_voice.utils.generate_speech(chat.chat_id, turn.turn_id, turn.get_primary_candidate().candidate_id, x["voice_id"])
+                mp3_buffer = io.BytesIO(speech)
+                audio = AudioSegment.from_mp3(mp3_buffer)
+                ogg_buffer = io.BytesIO()
+                audio.export(ogg_buffer, format="ogg", codec="libopus")
+                ogg_buffer.seek(0)
+                file_size = ogg_buffer.getbuffer().nbytes
+                if db.get("voicehook"): speech_file = discord.File(ogg_buffer, filename="voice-message.ogg")
+        except Exception as e:
+            print(f"send_webhook_message: {e}")
     
         if final_text or speech_file:
             if type(ctx.channel) == discord.Thread:
@@ -108,7 +111,7 @@ async def send_webhook_message(ctx: commands.Context, x, chat: Chat, turn: Turn,
             else:
                 if speech_file: await wh.send(final_text, file=speech_file)
                 else: await wh.send(final_text)
-        if bool(x.get("voice_id")) and not speech_file:
+        if bool(x.get("voice_id")) and not speech_file and mp3_buffer:
             await voice_message_hack(audio, ogg_buffer, file_size, ctx)
 
 # the real
