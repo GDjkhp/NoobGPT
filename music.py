@@ -7,12 +7,15 @@ mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 fixing=False
 
 async def setup_hook_music(bot: commands.Bot):
+    global fixing
+    fixing=True
     await wavelink.Pool.close()
     nodes = []
     data = await node_list()
     for lava in data:
         nodes.append(wavelink.Node(uri=lava["host"], password=lava["password"], retries=3600)) # 1 hour (1 retry = 60 secs)
     await wavelink.Pool.connect(client=bot, nodes=nodes)
+    fixing=False
     print("setup_hook_music ok")
 
 async def view_nodes(ctx: commands.Context):
@@ -201,13 +204,10 @@ class SelectChoice(discord.ui.Select):
             try: 
                 vc = await voice_channel_connector(self.ctx)
             except:
-                global fixing
-                if not fixing: fixing=True
-                else: return await interaction.edit_original_response(content="Please try again later.")
+                if fixing: return await interaction.edit_original_response(content="Please try again later.")
                 print("ChannelTimeoutException")
                 await interaction.edit_original_response(content="An error occured. Reconnecting…")
                 await setup_hook_music(self.bot)
-                fixing=False
                 return await interaction.edit_original_response(content="Please re-run the command.")
             vc.autoplay = wavelink.AutoPlayMode.enabled
         else: vc: wavelink.Player = self.ctx.guild.voice_client
