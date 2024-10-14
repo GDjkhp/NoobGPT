@@ -63,8 +63,9 @@ async def check_if_dj(ctx: commands.Context | discord.Interaction):
     db = await get_database2(ctx.guild.id)
     if db.get("bot_dj_role"):
         if db["bot_dj_role"]:
-            if isinstance(ctx, commands.Context): return ctx.guild.get_role(db["bot_dj_role"]) in ctx.author.roles
-            if isinstance(ctx, discord.Interaction): return ctx.guild.get_role(db["bot_dj_role"]) in ctx.user.roles
+            if isinstance(ctx, commands.Context): r = ctx.author.roles
+            if isinstance(ctx, discord.Interaction): r = ctx.user.roles
+            return ctx.guild.get_role(db["bot_dj_role"]) in r
     return True
 
 def music_embed(title: str, description: str):

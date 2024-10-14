@@ -182,7 +182,11 @@ models = [
 ]
 
 async def GEMINI_REST(ctx: commands.Context | discord.Interaction, model: int, palm: bool, prompt: str=None, image: discord.Attachment=None):
-    if await command_check(ctx, "googleai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
+    if await command_check(ctx, "googleai", "ai"):
+        if isinstance(ctx, commands.Context):
+            return await ctx.reply("command disabled", ephemeral=True)
+        if isinstance(ctx, discord.Interaction):
+            return await ctx.response.send_message("command disabled", ephemeral=True)
     # async with ctx.typing():
     if isinstance(ctx, commands.Context):
         msg = await ctx.reply(f"{models[model]}\nGenerating response…")
