@@ -5,6 +5,7 @@ from discord import app_commands
 from discord.ext import commands
 import time
 import base64
+import re
 from util_discord import command_check, description_helper, get_guild_prefix
 
 # ugly
@@ -68,6 +69,13 @@ async def loopMsgGH(message: discord.Message, prefix: str):
         return base_data
     previousMessages = await loopMsgGH(repliedMessage, prefix)
     return previousMessages + base_data
+
+def remove_lines(text: str):
+    lines = text.split('\n')
+    if len(lines) >= 5:
+        return lines[4]
+    else:
+        return text
 
 models = [
     "llama-2-70b-chat", # ll
@@ -206,16 +214,24 @@ async def the_real_req(url: str, payload: dict, headers: dict = None):
                 return await response.json()
             else: print(await response.content.read())
 
-async def make_request_black(model: str, messages: list):
+async def the_real_req_black(url: str, payload: dict, headers: dict = None):
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, json=payload, headers=headers) as response:
+            if response.status == 200:
+                return await response.content.read()
+
+async def make_request_black(model: str, messages: list, image: bool=False):
     url = "https://www.blackbox.ai/api/chat"
     payload = {
         "messages": messages,
-        "agentMode": {},
+        "agentMode": {
+            "id": "ImageGenerationLV45LJp" if image else "" # text-to-image
+        },
         "trendingAgentMode": {},
         "maxTokens": 1024,
         "userSelectedModel": model
     }
-    return await the_real_req(url, payload)
+    return await the_real_req_black(url, payload)
 
 async def make_request(model: str, messages: list, url: str, key: str):
     payload = {
@@ -430,7 +446,7 @@ async def main_mistral(ctx: commands.Context | discord.Interaction, model: int, 
     if isinstance(ctx, commands.Context):
         msg = await ctx.reply(f"{models_mistral[model]}\nGenerating response…")
     if isinstance(ctx, discord.Interaction):
-        await ctx.edit_original_response(f"{models_mistral[model]}\nGenerating response…")
+        await ctx.response.send_message(f"{models_mistral[model]}\nGenerating response…")
     old = round(time.time() * 1000)
     try:
         messages = await loopMsg(ctx.message, await get_guild_prefix(ctx)) if not prompt else await loopMsgSlash(prompt)
@@ -461,6 +477,50 @@ async def main_mistral(ctx: commands.Context | discord.Interaction, model: int, 
         await msg.edit(content=f"{models_mistral[model]}\n**Took {round(time.time() * 1000)-old}ms**")
     if isinstance(ctx, discord.Interaction):
         await ctx.edit_original_response(content=f"{models_mistral[model]}\n**Took {round(time.time() * 1000)-old}ms**")
+
+async def main_blackbox(ctx: commands.Context | discord.Interaction, model: int, prompt: str=None, image: bool=False):
+    if await command_check(ctx, "blackbox", "ai"): return await ctx.reply("command disabled", ephemeral=True)
+    # async with ctx.typing():
+    if isinstance(ctx, commands.Context):
+        msg = await ctx.reply(f"Generating image…")
+    if isinstance(ctx, discord.Interaction):
+        await ctx.response.send_message(f"Generating image…")
+    old = round(time.time() * 1000)
+    try:
+        messages = await loopMsg(ctx.message, await get_guild_prefix(ctx)) if not prompt else await loopMsgSlash(prompt)
+        response = await make_request_black(model, messages, image)
+
+        if image:
+            link = re.search(r'\((http.*?)\)', response.decode()).group(1) # text-to-image
+            if isinstance(ctx, discord.Interaction): await ctx.followup.send(link)
+            if isinstance(ctx, commands.Context): await ctx.reply(link)
+        else:
+            text = re.sub(r'^\$@\$\w+=.*\$', '', remove_lines(response.decode())) # not tested
+            if not text or text == "":
+                if isinstance(ctx, commands.Context):
+                    return await msg.edit(content=f"**Error! :(**\nEmpty response.")
+                if isinstance(ctx, discord.Interaction):
+                    return await ctx.edit_original_response(content=f"**Error! :(**\nEmpty response.")
+            chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
+            replyFirst = True
+            for chunk in chunks:
+                if isinstance(ctx, discord.Interaction): await ctx.followup.send(chunk)
+                if isinstance(ctx, commands.Context):
+                    if replyFirst:
+                        replyFirst = False
+                        await ctx.reply(chunk)
+                    else:
+                        await ctx.send(chunk)
+    except Exception as e:
+        print(e)
+        if isinstance(ctx, commands.Context):
+            return await msg.edit(content=f"**Error! :(**")
+        if isinstance(ctx, discord.Interaction):
+            return await ctx.edit_original_response(content=f"**Error! :(**")
+    if isinstance(ctx, commands.Context):
+        await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**")
+    if isinstance(ctx, discord.Interaction):
+        await ctx.edit_original_response(content=f"**Took {round(time.time() * 1000)-old}ms**")
 
 class CogPerplex(commands.Cog):
     def __init__(self, bot):
@@ -504,7 +564,7 @@ class CogPerplex(commands.Cog):
     @app_commands.describe(prompt="Text prompt")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def mx22b_slash(self, ctx: discord.Interaction, *, prompt: str):
+    async def mx22b_slash(self, ctx: discord.Interaction, prompt: str):
         await main_mistral(ctx, 2, prompt)
 
     @commands.command()
@@ -523,7 +583,7 @@ class CogPerplex(commands.Cog):
     @app_commands.describe(prompt="Text prompt")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def ml_slash(self, ctx: discord.Interaction, *, prompt: str):
+    async def ml_slash(self, ctx: discord.Interaction, prompt: str):
         await main_mistral(ctx, 5, prompt)
 
     @commands.command()
@@ -589,7 +649,7 @@ class CogPerplex(commands.Cog):
     @app_commands.describe(prompt="Text prompt")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def l3170_slash(self, ctx: discord.Interaction, *, prompt: str):
+    async def l3170_slash(self, ctx: discord.Interaction, prompt: str):
         await main_groq(ctx, 1, prompt)
 
     @commands.command()
@@ -625,7 +685,7 @@ class CogPerplex(commands.Cog):
     @app_commands.describe(prompt="Text prompt", image="Image prompt")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def gpt4o_slash(self, ctx: discord.Interaction, *, prompt: str, image: discord.Attachment=None):
+    async def gpt4o_slash(self, ctx: discord.Interaction, prompt: str, image: discord.Attachment=None):
         await main_github(ctx, 0, prompt, image)
 
     @commands.command()
@@ -636,7 +696,7 @@ class CogPerplex(commands.Cog):
     @app_commands.describe(prompt="Text prompt", image="Image prompt")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def gpt4om_slash(self, ctx: discord.Interaction, *, prompt: str, image: discord.Attachment=None):
+    async def gpt4om_slash(self, ctx: discord.Interaction, prompt: str, image: discord.Attachment=None):
         await main_github(ctx, 1, prompt, image)
 
     @commands.command()
@@ -652,6 +712,16 @@ class CogPerplex(commands.Cog):
         await main_github(ctx, 9)
 
     # TODO: blackbox
+    @commands.command()
+    async def flux(self, ctx: commands.Context):
+        await main_blackbox(ctx, 0, None, True)
+
+    @app_commands.command(name="flux", description=f"{description_helper['emojis']['ai']} flux")
+    @app_commands.describe(prompt="Text prompt")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def flux_slash(self, ctx: discord.Interaction, prompt: str):
+        await main_blackbox(ctx, 0, prompt, True)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogPerplex(bot))

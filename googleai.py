@@ -246,7 +246,7 @@ class CogGoogle(commands.Cog):
     @app_commands.describe(prompt="Text prompt")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def gemini_slash(self, ctx: discord.Interaction, *, prompt: str, image: discord.Attachment=None):
+    async def gemini_slash(self, ctx: discord.Interaction, prompt: str, image: discord.Attachment=None):
         await GEMINI_REST(ctx, 1, False, prompt, image)
 
     @commands.command()
@@ -257,7 +257,7 @@ class CogGoogle(commands.Cog):
     @app_commands.describe(prompt="Text prompt")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def flash_slash(self, ctx: discord.Interaction, *, prompt: str, image: discord.Attachment=None):
+    async def flash_slash(self, ctx: discord.Interaction, prompt: str, image: discord.Attachment=None):
         await GEMINI_REST(ctx, 2, False, prompt, image)
 
     @commands.command()

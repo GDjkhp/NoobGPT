@@ -224,7 +224,7 @@ async def voice_channel_connector(ctx: commands.Context | discord.Interaction):
         member = ctx.author
     if isinstance(ctx, discord.Interaction):
         member = ctx.user
-    vc = await member.voice.channel.connect(cls=wavelink.Player, timeout=5, self_deaf=True)
+    vc = await member.voice.channel.connect(cls=wavelink.Player, self_deaf=True)
     return vc
 
 class MusicUtil(commands.Cog):

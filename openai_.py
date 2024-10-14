@@ -8,6 +8,7 @@ import os
 from util_discord import command_check, get_guild_prefix
 
 client = AsyncOpenAI(api_key=os.getenv('OPENAI'))
+client_sus = AsyncOpenAI(api_key=os.getenv('PAWAN'), base_url="https://api.pawan.krd/v1")
 
 # ugly
 def strip_dash(text: str, prefix: str):
@@ -47,7 +48,7 @@ async def help_openai(ctx: commands.Context):
     ]
     await ctx.reply("\n".join(text))
 
-async def chat(ctx: commands.Context):
+async def chat(ctx: commands.Context, client: AsyncOpenAI, model: str):
     if await command_check(ctx, "openai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     # async with ctx.typing():
     message = ctx.message
@@ -57,7 +58,7 @@ async def chat(ctx: commands.Context):
     messagesArray = await loopMsg(message, prefix)
     try:
         completion = await client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model=model,
             messages=messagesArray
         )
     except Exception as e:
@@ -125,7 +126,7 @@ class CogOpenAI(commands.Cog):
 
     @commands.command()
     async def ask(self, ctx: commands.Context):
-        await chat(ctx)
+        await chat(ctx, client, "gpt-3.5-turbo")
 
     @commands.command()
     async def imagine(self, ctx: commands.Context):
@@ -138,6 +139,11 @@ class CogOpenAI(commands.Cog):
     @commands.command()
     async def openai(self, ctx: commands.Context):
         await help_openai(ctx)
+
+    # PAWAN
+    @commands.command()
+    async def cosmosrp(self, ctx: commands.Context):
+        await chat(ctx, client_sus, "cosmosrp")
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogOpenAI(bot))
