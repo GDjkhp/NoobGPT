@@ -39,10 +39,13 @@ async def add_task_to_queue(ctx: commands.Context, x, chat, turn):
     if ctx.channel.id not in channel_tasks or channel_queues[ctx.channel.id].task_done():
         bot: commands.Bot = ctx.bot
         channel_tasks[ctx.channel.id] = bot.loop.create_task(c_ai_init(ctx))
-async def queue_msgs(ctx, chars, clean_text):
+async def queue_msgs(ctx: commands.Context, chars, clean_text):
     for x in chars:
         if not x.get("char_id"): return
-        chat = await client_voice.chat.fetch_chat(x["history_id"])
+        try: chat = await client_voice.chat.fetch_chat(x["history_id"])
+        except: 
+            await ctx.reply(f"failed to fetch `{x['name']}` chat, please reset")
+            continue
         turn = await client_voice.chat.send_message(x["char_id"], x["history_id"], clean_text)
         if turn.get_primary_candidate(): await add_task_to_queue(ctx, x, chat, turn)
         else: print(turn)
@@ -746,7 +749,7 @@ class SelectChoice(discord.ui.Select):
         data = character_data(selected, chat, role, img, parent, wh, threads)
         await push_character(self.ctx.guild.id, data)
         await interaction.edit_original_response(content=f"`{selected['participant__name']}` has been added to the server")
-        await add_task_to_queue(self.ctx, data, chat, turn) # wake up
+        await send_webhook_message(self.ctx, data, chat, turn, db) # wake up
 
 class MyView4(discord.ui.View):
     def __init__(self, ctx: commands.Context, arg: str, result: list, index: int):
@@ -1110,7 +1113,8 @@ class ResetChoice(discord.ui.Select):
 
         await reset_method(self.ctx, selected, chat)
         await interaction.edit_original_response(content=f"`{selected['name']}` has been reset")
-        await add_task_to_queue(self.ctx, selected, chat, turn) # wake up
+        db = await get_database(self.ctx.guild.id)
+        await send_webhook_message(self.ctx, selected, chat, turn, db) # wake up
 
 class VoiceChoice(discord.ui.Select):
     def __init__(self, ctx: commands.Context, index: int, result: list[Voice]):

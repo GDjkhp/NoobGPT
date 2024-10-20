@@ -217,8 +217,10 @@ async def the_real_req(url: str, payload: dict, headers: dict = None):
 async def the_real_req_black(url: str, payload: dict, headers: dict = None):
     async with aiohttp.ClientSession() as session:
         async with session.post(url, json=payload, headers=headers) as response:
+            text = await response.content.read()
             if response.status == 200:
-                return await response.content.read()
+                return text
+            else: print(text.decode())
 
 async def make_request_black(model: str, messages: list, image: bool=False):
     url = "https://www.blackbox.ai/api/chat"
