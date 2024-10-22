@@ -21,7 +21,7 @@ async def copypasta(ctx: commands.Context):
 
 # shit deed
 available_categories=["ai", "games", "media", "utils"]
-ai_commands=["openai", "googleai", "petals", "perplex", "groq", "github", "mistral", "claude", "c.ai", "blackbox", "pawan"]
+ai_commands=["openai", "googleai", "petals", "perplex", "groq", "github", "mistral", "claude", "c.ai", "blackbox", "pawan", "horde"]
 games_commands=["aki", "tic", "hang", "quiz", "word", "rps"]
 media_commands=["anime", "manga", "tv", "ytdlp", "cob", "booru", "music"]
 utils_commands=["quote", "weather", "av", "ban", "halp", "legal", "xp", "insult"]

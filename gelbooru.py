@@ -37,30 +37,36 @@ async def view_collection(ctx: commands.Context, api: str):
     user = await mycol.find_one({"user": ctx.author.id})
     if not user: 
         return await message.edit(content="**No results found**")
+    view = CancelButton(ctx)
     for x in user["favorites"]:
+        if view.cancelled: break
         try:
             if api == "safe": cached = await Gelbooru(api='https://safebooru.org/').get_post(x)
             if api == "gel": cached = await Gelbooru().get_post(x)
             if api == "r34": cached = await Gelbooru(api='https://api.rule34.xxx/').get_post(x)
             results.append(cached)
-            await message.edit(content=f"Retrieving collection…\nErrors: {errors}\n{len(results)} found")
+            await message.edit(content=f'Retrieving collection…\nErrors: {errors}\n{len(results)}/{len(user["favorites"])} found', view=view)
         except: errors.append(x)
     if errors: await ctx.reply(f"Error retrieving `{errors}`")
-    await message.edit(content=None, embed = await BuildEmbed(ctx.author, results, 0, api == "safe", [False, False], ctx), 
-                       view = ImageView(ctx.author, results, 0, api == "safe", [False, False], ctx, api))
+    if results:
+        await message.edit(content=None, embed = await BuildEmbed(ctx.author, results, 0, api == "safe", [False, False], ctx), 
+                           view = ImageView(ctx.author, results, 0, api == "safe", [False, False], ctx, api))
+    else: await message.edit(content="**No results found**")
 
 async def search_posts(ctx: commands.Context, arg: str, api: str):
     tags = re.split(r'\s*,\s*', arg)
     message = await ctx.reply(f"Searching posts with tags `{tags}`\nPlease wait…")
     results = []
     page = 0
+    view = CancelButton(ctx)
     while len(results) < 25000: # hard limit
+        if view.cancelled: break
         if api == "safe": cached = await Gelbooru(api='https://safebooru.org/').search_posts(tags=tags, page=page)
         if api == "gel": cached = await Gelbooru().search_posts(tags=tags, page=page)
         if api == "r34": cached = await Gelbooru(api='https://api.rule34.xxx/').search_posts(tags=tags, page=page)
         if not cached: break
         results.extend(cached)
-        await message.edit(content=f"Searching posts with tags `{tags}`\nPlease wait…\n{len(results)} found")
+        await message.edit(content=f"Searching posts with tags `{tags}`\nPlease wait…\n{len(results)} found", view=view)
         page+=1
     if not results: return await message.edit(content="**No results found**")
     await message.edit(content=None, embed = await BuildEmbed(tags, results, 0, api == "safe", [False, False], ctx), 
@@ -117,9 +123,22 @@ class ButtonEnd(discord.ui.Button):
     
     async def callback(self, interaction: discord.Interaction):
         if self.lock and interaction.user != self.ctx.author:
-            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can delete this message.", 
-                                                    ephemeral=True)
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can delete this message.", ephemeral=True)
         await interaction.response.edit_message(content="🤨", view=None, embed=None)
+
+class CancelButton(discord.ui.View):
+    def __init__(self, ctx: commands.Context):
+        super().__init__(timeout=None)
+        self.cancelled = False
+        self.ctx = ctx
+
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.danger, emoji="💀")
+    async def cancel_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if interaction.user != self.ctx.author:
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can cancel this message.", ephemeral=True)
+        self.cancelled = True
+        button.disabled = True
+        await interaction.response.edit_message(view=self)
 
 class ButtonHeart(discord.ui.Button):
     def __init__(self, ctx: commands.Context, db: str, id: int, row: int):
