@@ -189,7 +189,7 @@ class CogSus(commands.Cog):
     @app_commands.describe(tags="Search tags (e.g. `hatsune miku, school uniform`)")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def r34(self, ctx: commands.Context, *, tags:str=None):
+    async def rule(self, ctx: commands.Context, *, tags:str=None):
         await R34(ctx, tags)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['booru']} gelbooru")
