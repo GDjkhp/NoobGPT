@@ -145,34 +145,26 @@ async def generate(ctx: commands.Context | discord.Interaction, prompt: str=None
                                 return await info.edit(content="**Generation cancelled**", view=None)
                             if isinstance(ctx, discord.Interaction):
                                 return await ctx.edit_original_response(content="**Generation cancelled**", view=None)
-                try:
-                    async with session.get(f'https://aihorde.net/api/v2/generate/check/{req_id}') as chk_req:
-                        if chk_req.status == 200: chk_results = await chk_req.json()
-                        else: 
-                            if isinstance(ctx, commands.Context):
-                                return await info.edit("error", view=None)
-                            if isinstance(ctx, discord.Interaction):
-                                return await ctx.edit_original_response("error", view=None)
-                        check = [
-                            f"**Queue Position: {chk_results.get('queue_position')} ({chk_results.get('wait_time')}s remaining)**",
-                            settings,
-                            f"{chk_results.get('finished')}/{n} {emoji_peak[count_emoji]}",
-                        ]
+                async with session.get(f'https://aihorde.net/api/v2/generate/check/{req_id}') as chk_req:
+                    if chk_req.status == 200: chk_results = await chk_req.json()
+                    else: 
                         if isinstance(ctx, commands.Context):
-                            await info.edit(content="\n".join(check))
+                            return await info.edit("error", view=None)
                         if isinstance(ctx, discord.Interaction):
-                            await ctx.edit_original_response(content="\n".join(check))
-                        is_done = chk_results['done']
-                        count_emoji+=1
-                        if count_emoji == len(emoji_peak): count_emoji=0
-                        await asyncio.sleep(3)
-                except ConnectionError as e:
-                    retry += 1
-                    print(f"Error {e} when retrieving status. Retry {retry}/10")
-                    if retry < 10:
-                        await asyncio.sleep(3)
-                        continue
-                    raise
+                            return await ctx.edit_original_response("error", view=None)
+                    check = [
+                        f"**Queue Position: {chk_results.get('queue_position')} ({chk_results.get('wait_time')}s remaining)**",
+                        settings,
+                        f"{chk_results.get('finished')}/{n} {emoji_peak[count_emoji]}",
+                    ]
+                    if isinstance(ctx, commands.Context):
+                        await info.edit(content="\n".join(check))
+                    if isinstance(ctx, discord.Interaction):
+                        await ctx.edit_original_response(content="\n".join(check))
+                    is_done = chk_results['done']
+                    count_emoji+=1
+                    if count_emoji == len(emoji_peak): count_emoji=0
+                    await asyncio.sleep(3)
             if not view.cancelled:
                 async with session.get(f'https://aihorde.net/api/v2/generate/status/{req_id}') as retrieve_req:
                     if retrieve_req.status == 200: results_json = await retrieve_req.json()
@@ -307,7 +299,7 @@ class CogHorde(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def dream(self, ctx: discord.Interaction, prompt: str, negative: str=None, model: str="DreamShaper XL",
-                    n: int=1, width: int=64*8, height: int=64*8, steps: int=20,
+                    n: int=1, width: int=64*8, height: int=64*8, steps: int=30,
                     seed: str=get_random_seed(), seed_variation: int=1, sampler_name: str="k_euler_a", 
                     karras: bool=True, tiling: bool=False, post_processing: str=None,
                     source_processing: str="img2img", source_image: discord.Attachment=None, source_mask: discord.Attachment=None):
