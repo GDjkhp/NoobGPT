@@ -139,11 +139,12 @@ async def generate(ctx: commands.Context | discord.Interaction, prompt: str=None
         while not is_done:
             if view.cancelled:
                 async with session.delete(f'https://aihorde.net/api/v2/generate/status/{req_id}') as retrieve_req:
-                    if retrieve_req.status == 200:
-                        if isinstance(ctx, commands.Context):
-                            return await info.edit(content="**Generation cancelled**", view=None)
-                        if isinstance(ctx, discord.Interaction):
-                            return await ctx.edit_original_response(content="**Generation cancelled**", view=None)
+                    if retrieve_req.status == 200: results_json = await retrieve_req.json()
+                if isinstance(ctx, commands.Context):
+                    await info.edit(content="**Generation cancelled**", view=None)
+                if isinstance(ctx, discord.Interaction):
+                    await ctx.edit_original_response(content="**Generation cancelled**", view=None)
+                break
             chk_results = None
             async with session.get(f'https://aihorde.net/api/v2/generate/check/{req_id}') as chk_req:
                 if chk_req.status == 200: chk_results = await chk_req.json()
@@ -262,31 +263,31 @@ async def help_horde(ctx: commands.Context):
                 
 class CogHorde(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: commands.Bot = bot
 
     @commands.command()
     async def stable(self, ctx: commands.Context):
-        await generate(ctx, None, "stable_diffusion")
+        self.bot.loop.create_task(generate(ctx, None, "stable_diffusion"))
 
     @commands.command()
     async def waifu(self, ctx: commands.Context):
-        await generate(ctx, None, "waifu_diffusion")
+        self.bot.loop.create_task(generate(ctx, None, "waifu_diffusion"))
 
     @commands.command()
     async def sdxl(self, ctx: commands.Context):
-        await generate(ctx, None, "SDXL 1.0")
+        self.bot.loop.create_task(generate(ctx, None, "SDXL 1.0"))
 
     @commands.command()
     async def dream(self, ctx: commands.Context):
-        await generate(ctx, None, "Dreamshaper")
+        self.bot.loop.create_task(generate(ctx, None, "Dreamshaper"))
 
     @commands.command()
     async def dreamxl(self, ctx: commands.Context):
-        await generate(ctx, None, "DreamShaper XL")
+        self.bot.loop.create_task(generate(ctx, None, "DreamShaper XL"))
 
     @commands.command()
     async def any(self, ctx: commands.Context):
-        await generate(ctx, None, "Anything v5")
+        self.bot.loop.create_task(generate(ctx, None, "Anything v5"))
 
     @app_commands.command(description=f"{description_helper['emojis']['ai']} stablehorde")
     @app_commands.describe(prompt="Text prompt", negative="Negative prompt", model="Image model", n="Number of images to generate",
@@ -303,9 +304,9 @@ class CogHorde(commands.Cog):
                     seed: str=get_random_seed(), seed_variation: int=1, sampler_name: str="k_euler_a", 
                     karras: bool=True, tiling: bool=False, post_processing: str=None,
                     source_processing: str="img2img", source_image: discord.Attachment=None, source_mask: discord.Attachment=None):
-        await generate(ctx, prompt, model, negative, n, width, height, steps,
-                       seed, seed_variation, sampler_name, karras, tiling, post_processing,
-                       source_processing, source_image, source_mask)
+        self.bot.loop.create_task(generate(ctx, prompt, model, negative, n, width, height, steps,
+                                           seed, seed_variation, sampler_name, karras, tiling, post_processing,
+                                           source_processing, source_image, source_mask))
 
     @commands.command()
     async def horde(self, ctx: commands.Context):

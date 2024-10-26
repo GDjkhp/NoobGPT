@@ -43,9 +43,7 @@ async def queue_msgs(ctx: commands.Context, chars, clean_text):
     for x in chars:
         if not x.get("char_id"): return
         try: chat = await client_voice.chat.fetch_chat(x["history_id"])
-        except: 
-            await ctx.reply(f"failed to fetch `{x['name']}` chat, please reset")
-            continue
+        except: continue
         turn = await client_voice.chat.send_message(x["char_id"], x["history_id"], clean_text)
         if turn.get_primary_candidate(): await add_task_to_queue(ctx, x, chat, turn)
         else: print(turn)

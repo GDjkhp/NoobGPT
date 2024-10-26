@@ -179,7 +179,7 @@ class ButtonAction(discord.ui.Button):
         
 class CogSus(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: commands.Bot = bot
 
     @commands.hybrid_command(description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["booru"]}')
     @app_commands.allowed_installs(guilds=True, users=True)
@@ -189,21 +189,21 @@ class CogSus(commands.Cog):
 
     @commands.command()
     async def r34(self, ctx: commands.Context, *, tags:str=None):
-        await R34(ctx, tags)
+        self.bot.loop.create_task(R34(ctx, tags))
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['booru']} gelbooru")
     @app_commands.describe(tags="Search tags (e.g. `hatsune miku, school uniform`)")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def gel(self, ctx: commands.Context, *, tags:str=None):
-        await GEL(ctx, tags)
+        self.bot.loop.create_task(GEL(ctx, tags))
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['booru']} safebooru")
     @app_commands.describe(tags="Search tags (e.g. `hatsune miku, school uniform`)")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def safe(self, ctx: commands.Context, *, tags:str=None):
-        await SAFE(ctx, tags)
+        self.bot.loop.create_task(SAFE(ctx, tags))
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogSus(bot))
