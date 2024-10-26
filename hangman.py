@@ -153,10 +153,10 @@ class ButtonChoice(discord.ui.Button):
         if self.id == "UPDATE":
             if interaction.user.id != host_id: 
                 return await interaction.response.send_message(f"Only <@{host_id}> can press this button.", ephemeral=True)
-            await interaction.response.edit_message(content="Message updated.", embed=None, view=None)
-            await interaction.followup.send(content=c2e(self.box),
-                                            embed=QuizEmbed(self.words, self.index, self.settings, self.players, self.ctx),
-                                            view=QuizView(self.ctx, self.words, self.index, self.box, self.dead, self.settings, self.players))
+            await interaction.response.send_message(content=c2e(self.box),
+                                                    embed=QuizEmbed(self.words, self.index, self.settings, self.players, self.ctx),
+                                                    view=QuizView(self.ctx, self.words, self.index, self.box, self.dead, self.settings, self.players))
+            await interaction.delete_original_response()
 
 def QuizEmbed(words: list, index: int, settings: dict, players: dict, ctx: commands.Context) -> discord.Embed:
     c = c_state(settings["result"])

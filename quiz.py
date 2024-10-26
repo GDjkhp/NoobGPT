@@ -301,10 +301,10 @@ class ButtonChoice(discord.ui.Button):
         if self.id == "UPDATE":
             if interaction.user.id != host_id: 
                 return await interaction.response.send_message(f"Only <@{host_id}> can press this button.", ephemeral=True)
-            await interaction.response.edit_message(content="Message updated.", embed=None, view=None)
-            return await interaction.followup.send(content=keysScore(self.players),
-                                                   embed=BuildQuestion(self.results, self.index, self.ctx, self.players, self.settings),
-                                                   view=QuizView(self.results, self.index, self.ctx, self.players, self.settings))
+            await interaction.response.send_message(content=keysScore(self.players),
+                                                    embed=BuildQuestion(self.results, self.index, self.ctx, self.players, self.settings),
+                                                    view=QuizView(self.results, self.index, self.ctx, self.players, self.settings))
+            return await interaction.delete_original_response()
             
         # solo lock
         if isinstance(self.ctx, commands.Context): real_player = self.ctx.author

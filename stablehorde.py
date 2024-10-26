@@ -76,7 +76,7 @@ class CancelButton(discord.ui.View):
         super().__init__(timeout=None)
         self.cancelled = False
 
-    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.danger, emoji="💀")
+    @discord.ui.button(style=discord.ButtonStyle.danger, emoji="💀")
     async def cancel_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.cancelled = True
         button.disabled = True

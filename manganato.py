@@ -76,7 +76,8 @@ class CancelButton(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        await interaction.response.edit_message(content="🤨", embed=None, view=None)
+        await interaction.response.defer()
+        await interaction.delete_original_response()
 
 class DisabledButton(discord.ui.Button):
     def __init__(self, e: str, r: int):
@@ -136,6 +137,7 @@ class SelectChoice(discord.ui.Select):
         await interaction.followup.send(embed=buildManga(selected, pagelimit, len(selected.chapter_list)),
                                         view=ChapterView(self.ctx, selected, selected.chapter_list, 0), 
                                         file=discord.File(io.BytesIO(file), filename='image.webp'))
+        await interaction.delete_original_response()
 
 # chapter
 class nextPageCH(discord.ui.Button):
@@ -153,6 +155,7 @@ class nextPageCH(discord.ui.Button):
         await interaction.followup.send(embed=buildManga(self.details, self.index+pagelimit, len(self.chapters)),
                                         view=ChapterView(self.ctx, self.details, self.chapters, self.index),
                                         file=discord.File(io.BytesIO(file), filename='image.webp'))
+        await interaction.delete_original_response()
 
 class ChapterView(discord.ui.View):
     def __init__(self, ctx: commands.Context, details: StoryPage, chapters: list[Chapter], index: int):
@@ -202,13 +205,15 @@ class ButtonChapter(discord.ui.Button):
         if not pages: 
             await interaction.followup.send(content="no pages found")
             file = await convert_to_webp(self.details.icon_url)
-            return await interaction.followup.send(view=ChapterView(self.ctx, self.details, self.chapters, (self.index//pagelimit)*pagelimit),
-                                                   embed=buildManga(self.details, (self.index//pagelimit)*pagelimit+pagelimit, len(self.chapters)),
-                                                   file=discord.File(io.BytesIO(file), filename='image.webp'))
-        file = await convert_to_webp(pages[0])
-        await interaction.followup.send(view=PageView(self.ctx, self.details, pages, self.index, 0, self.chapters),
-                                        embed=buildPage(pages, 0, self.chapters, self.index, self.details), 
-                                        file=discord.File(io.BytesIO(file), filename='image.webp'))
+            await interaction.followup.send(view=ChapterView(self.ctx, self.details, self.chapters, (self.index//pagelimit)*pagelimit),
+                                            embed=buildManga(self.details, (self.index//pagelimit)*pagelimit+pagelimit, len(self.chapters)),
+                                            file=discord.File(io.BytesIO(file), filename='image.webp'))
+        else:
+            file = await convert_to_webp(pages[0])
+            await interaction.followup.send(view=PageView(self.ctx, self.details, pages, self.index, 0, self.chapters),
+                                            embed=buildPage(pages, 0, self.chapters, self.index, self.details), 
+                                            file=discord.File(io.BytesIO(file), filename='image.webp'))
+        await interaction.delete_original_response()
 
 # page
 class nextPageReal(discord.ui.Button):
@@ -226,6 +231,7 @@ class nextPageReal(discord.ui.Button):
         await interaction.followup.send(embed=buildPage(self.pages, self.pagenumber, self.chapters, self.index, self.details),
                                         view=PageView(self.ctx, self.details, self.pages, self.index, self.pagenumber, self.chapters),
                                         file=discord.File(io.BytesIO(file), filename='image.webp'))
+        await interaction.delete_original_response()
 
 class PageView(discord.ui.View):
     def __init__(self, ctx: commands.Context, details: StoryPage, pages: list, index: int, pagenumber: int, chapters: list[Chapter]):
@@ -272,6 +278,7 @@ class ButtonPage(discord.ui.Button):
         await interaction.followup.send(view=PageView(self.ctx, self.details, self.pages, self.index, self.pagenumber, self.chapters, self.group),
                                         embed=buildPage(self.pages, self.pagenumber, self.chapters, self.index, self.details, self.group),
                                         file=discord.File(io.BytesIO(file), filename='image.webp'))
+        await interaction.delete_original_response()
 
 class ButtonBack(discord.ui.Button):
     def __init__(self, ctx: commands.Context, details: StoryPage, row: int, index: int, chapters: list[Chapter]):
@@ -288,6 +295,7 @@ class ButtonBack(discord.ui.Button):
         await interaction.followup.send(view=ChapterView(self.ctx, self.details, self.chapters, (self.index//pagelimit)*pagelimit), 
                                         embed=buildManga(self.details, (self.index//pagelimit)*pagelimit+pagelimit, len(self.chapters)),
                                         file=discord.File(io.BytesIO(file), filename='image.webp'))
+        await interaction.delete_original_response()
         
 class CogNato(commands.Cog):
     def __init__(self, bot):

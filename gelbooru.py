@@ -59,14 +59,15 @@ async def search_posts(ctx: commands.Context, arg: str, api: str):
     results = []
     page = 0
     view = CancelButton(ctx)
-    while len(results) < 25000: # hard limit
+    limit = 25000
+    while len(results) < limit:
         if view.cancelled: break
         if api == "safe": cached = await Gelbooru(api='https://safebooru.org/').search_posts(tags=tags, page=page)
         if api == "gel": cached = await Gelbooru().search_posts(tags=tags, page=page)
         if api == "r34": cached = await Gelbooru(api='https://api.rule34.xxx/').search_posts(tags=tags, page=page)
         if not cached: break
         results.extend(cached)
-        await message.edit(content=f"Searching posts with tags `{tags}`\nPlease wait…\n{len(results)} found", view=view)
+        await message.edit(content=f"Searching posts with tags `{tags}`\nPlease wait…\n{len(results)}/{limit} found", view=view)
         page+=1
     if not results: return await message.edit(content="**No results found**")
     await message.edit(content=None, embed = await BuildEmbed(tags, results, 0, api == "safe", [False, False], ctx), 
@@ -124,7 +125,8 @@ class ButtonEnd(discord.ui.Button):
     async def callback(self, interaction: discord.Interaction):
         if self.lock and interaction.user != self.ctx.author:
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can delete this message.", ephemeral=True)
-        await interaction.response.edit_message(content="🤨", view=None, embed=None)
+        await interaction.response.defer()
+        await interaction.delete_original_response()
 
 class CancelButton(discord.ui.View):
     def __init__(self, ctx: commands.Context):
@@ -132,7 +134,7 @@ class CancelButton(discord.ui.View):
         self.cancelled = False
         self.ctx = ctx
 
-    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.danger, emoji="💀")
+    @discord.ui.button(style=discord.ButtonStyle.danger, emoji="💀")
     async def cancel_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user != self.ctx.author:
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can cancel this message.", ephemeral=True)
@@ -185,11 +187,8 @@ class CogSus(commands.Cog):
     async def booru(self, ctx: commands.Context):
         await help_booru(ctx)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['booru']} rule34")
-    @app_commands.describe(tags="Search tags (e.g. `hatsune miku, school uniform`)")
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def rule(self, ctx: commands.Context, *, tags:str=None):
+    @commands.command()
+    async def r34(self, ctx: commands.Context, *, tags:str=None):
         await R34(ctx, tags)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['booru']} gelbooru")

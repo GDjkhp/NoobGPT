@@ -189,7 +189,7 @@ class QuizView(discord.ui.View):
             self.add_item(ButtonChoice("INPUT", ctx, words, index, dead, settings, players, history))
         if possible_games:
             self.add_item(ButtonChoice("LEAVE", ctx, words, index, dead, settings, players, history))
-            # self.add_item(ButtonChoice("UPDATE", ctx, words, index, dead, settings, players, history))
+            self.add_item(ButtonChoice("UPDATE", ctx, words, index, dead, settings, players, history))
 
 class ButtonChoice(discord.ui.Button):
     def __init__(self, id: str, ctx: commands.Context, words: list, index: int, dead: dict, settings: dict, players: dict, history: list):
@@ -238,11 +238,10 @@ class ButtonChoice(discord.ui.Button):
             return await interaction.response.send_modal(MyModal(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history))
         if self.id == "NEXT":
             game_reset(self.dead, self.settings, self.history)
-            await interaction.response.edit_message(view=None)
-            await interaction.followup.send(content=f"New game.",
-                                            embed=QuizEmbed(self.settings, self.index+1, self.words, self.players),
-                                            file=wordle_image(self.history, self.words[self.index+1]["word"].upper()),
-                                            view=QuizView(self.ctx, self.words, self.index+1, self.dead, self.settings, self.players, self.history))
+            await interaction.response.send_message(content=f"New game.",
+                                                    embed=QuizEmbed(self.settings, self.index+1, self.words, self.players),
+                                                    file=wordle_image(self.history, self.words[self.index+1]["word"].upper()),
+                                                    view=QuizView(self.ctx, self.words, self.index+1, self.dead, self.settings, self.players, self.history))
         if self.id == "UPDATE":
             if interaction.user.id != host_id: 
                 return await interaction.response.send_message(f"Only <@{host_id}> can press this button.", ephemeral=True)
@@ -250,6 +249,7 @@ class ButtonChoice(discord.ui.Button):
                                                     embed=QuizEmbed(self.settings, self.index, self.words, self.players),
                                                     file=wordle_image(self.history, self.words[self.index]["word"].upper()),
                                                     view=QuizView(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history))
+        await interaction.delete_original_response()
 
 class MyModal(discord.ui.Modal):
     def __init__(self, ctx: commands.Context, words: list, index: int, dead: dict, settings: dict, players: dict, history: list):
@@ -305,6 +305,7 @@ class MyModal(discord.ui.Modal):
                 await interaction.followup.send(embed=QuizEmbed(self.settings, self.index, self.words, self.players),
                                                 content=f"GAME OVER!\n{word}", view=None,
                                                 file=wordle_image(self.history, word))
+        await interaction.delete_original_response()
 
 async def brag_embed(server_scores, ctx: commands.Context, global_lead: bool) -> discord.Embed:
     e = discord.Embed(color=0x00ff00, title=ctx.guild if not global_lead else "GLOBAL", description="wordle prototype")

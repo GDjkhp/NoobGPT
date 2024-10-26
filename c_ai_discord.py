@@ -796,7 +796,8 @@ class CancelButton(discord.ui.Button):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
-        await interaction.response.edit_message(content="🤨", embed=None, view=None)
+        await interaction.response.defer()
+        await interaction.delete_original_response()
 
 class DeleteChoice(discord.ui.Select):
     def __init__(self, ctx: commands.Context, index: int, result: list):
