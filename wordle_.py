@@ -238,17 +238,19 @@ class ButtonChoice(discord.ui.Button):
             return await interaction.response.send_modal(MyModal(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history))
         if self.id == "NEXT":
             game_reset(self.dead, self.settings, self.history)
-            await interaction.response.send_message(content=f"New game.",
-                                                    embed=QuizEmbed(self.settings, self.index+1, self.words, self.players),
-                                                    file=wordle_image(self.history, self.words[self.index+1]["word"].upper()),
-                                                    view=QuizView(self.ctx, self.words, self.index+1, self.dead, self.settings, self.players, self.history))
+            await interaction.response.edit_message(view=None)
+            await interaction.followup.send(content=f"New game.",
+                                            embed=QuizEmbed(self.settings, self.index+1, self.words, self.players),
+                                            file=wordle_image(self.history, self.words[self.index+1]["word"].upper()),
+                                            view=QuizView(self.ctx, self.words, self.index+1, self.dead, self.settings, self.players, self.history))
         if self.id == "UPDATE":
             if interaction.user.id != host_id: 
                 return await interaction.response.send_message(f"Only <@{host_id}> can press this button.", ephemeral=True)
-            await interaction.response.send_message(content=f"Message updated.\n{format_hearts(self.dead)}",
-                                                    embed=QuizEmbed(self.settings, self.index, self.words, self.players),
-                                                    file=wordle_image(self.history, self.words[self.index]["word"].upper()),
-                                                    view=QuizView(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history))
+            await interaction.response.edit_message(view=None)
+            await interaction.followup.send(content=f"Message updated.\n{format_hearts(self.dead)}",
+                                            embed=QuizEmbed(self.settings, self.index, self.words, self.players),
+                                            file=wordle_image(self.history, self.words[self.index]["word"].upper()),
+                                            view=QuizView(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history))
         await interaction.delete_original_response()
 
 class MyModal(discord.ui.Modal):

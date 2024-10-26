@@ -123,95 +123,95 @@ async def generate(ctx: commands.Context | discord.Interaction, prompt: str=None
     settings = f"{model} ({width}x{height}, {steps} steps, {sampler_name})"
     final_submit_dict = await request_data.get_submit_dict()
     async with aiohttp.ClientSession() as session:
+        submit_results = None
         async with session.post(f'https://aihorde.net/api/v2/generate/async', 
                                 json=final_submit_dict, headers=headers) as submit_req:
             if submit_req.status == 202: submit_results = await submit_req.json()
-            else:
-                if isinstance(ctx, commands.Context):
-                    return await info.edit("error", view=None)
-                if isinstance(ctx, discord.Interaction):
-                    return await ctx.edit_original_response("error", view=None)
-            req_id = submit_results.get('id')
-            is_done = False
-            retry = 0
-            results_json = None
-            count_emoji = 0
-            while not is_done:
-                if view.cancelled:
-                    async with session.delete(f'https://aihorde.net/api/v2/generate/status/{req_id}') as retrieve_req:
-                        if retrieve_req.status == 200:
-                            results_json = await retrieve_req.json()
-                            if isinstance(ctx, commands.Context):
-                                return await info.edit(content="**Generation cancelled**", view=None)
-                            if isinstance(ctx, discord.Interaction):
-                                return await ctx.edit_original_response(content="**Generation cancelled**", view=None)
-                async with session.get(f'https://aihorde.net/api/v2/generate/check/{req_id}') as chk_req:
-                    if chk_req.status == 200: chk_results = await chk_req.json()
-                    else: 
+        if not submit_results:
+            if isinstance(ctx, commands.Context):
+                return await info.edit(content="error", view=None)
+            if isinstance(ctx, discord.Interaction):
+                return await ctx.edit_original_response(content="error", view=None)
+        req_id = submit_results.get('id')
+        is_done = False
+        results_json = None
+        count_emoji = 0
+        while not is_done:
+            if view.cancelled:
+                async with session.delete(f'https://aihorde.net/api/v2/generate/status/{req_id}') as retrieve_req:
+                    if retrieve_req.status == 200:
                         if isinstance(ctx, commands.Context):
-                            return await info.edit("error", view=None)
+                            return await info.edit(content="**Generation cancelled**", view=None)
                         if isinstance(ctx, discord.Interaction):
-                            return await ctx.edit_original_response("error", view=None)
-                    check = [
-                        f"**Queue Position: {chk_results.get('queue_position')} ({chk_results.get('wait_time')}s remaining)**",
-                        settings,
-                        f"{chk_results.get('finished')}/{n} {emoji_peak[count_emoji]}",
-                    ]
-                    if isinstance(ctx, commands.Context):
-                        await info.edit(content="\n".join(check))
-                    if isinstance(ctx, discord.Interaction):
-                        await ctx.edit_original_response(content="\n".join(check))
-                    is_done = chk_results['done']
-                    count_emoji+=1
-                    if count_emoji == len(emoji_peak): count_emoji=0
-                    await asyncio.sleep(3)
-            if not view.cancelled:
-                async with session.get(f'https://aihorde.net/api/v2/generate/status/{req_id}') as retrieve_req:
-                    if retrieve_req.status == 200: results_json = await retrieve_req.json()
-            if not results_json:
+                            return await ctx.edit_original_response(content="**Generation cancelled**", view=None)
+            chk_results = None
+            async with session.get(f'https://aihorde.net/api/v2/generate/check/{req_id}') as chk_req:
+                if chk_req.status == 200: chk_results = await chk_req.json()
+            if not chk_results:
                 if isinstance(ctx, commands.Context):
-                    return await info.edit("error", view=None)
+                    return await info.edit(content="error", view=None)
                 if isinstance(ctx, discord.Interaction):
-                    return await ctx.edit_original_response("error", view=None)
-            if results_json['faulted']:
-                if "source_image" in final_submit_dict:
-                    final_submit_dict["source_image"] = f"img2img request with size: {len(final_submit_dict['source_image'])}"
-                print(f"Something went wrong when generating the request. Please contact the horde administrator with your request details: {final_submit_dict}")
+                    return await ctx.edit_original_response(content="error", view=None)
+            check = [
+                f"**Queue Position: {chk_results.get('queue_position')} ({chk_results.get('wait_time')}s remaining)**",
+                settings,
+                f"{chk_results.get('finished')}/{n} {emoji_peak[count_emoji]}",
+            ]
+            if isinstance(ctx, commands.Context):
+                await info.edit(content="\n".join(check))
+            if isinstance(ctx, discord.Interaction):
+                await ctx.edit_original_response(content="\n".join(check))
+            is_done = chk_results['done']
+            count_emoji+=1
+            if count_emoji == len(emoji_peak): count_emoji=0
+            await asyncio.sleep(3)
+        if not view.cancelled:
+            async with session.get(f'https://aihorde.net/api/v2/generate/status/{req_id}') as retrieve_req:
+                if retrieve_req.status == 200: results_json = await retrieve_req.json()
+        if not results_json:
+            if isinstance(ctx, commands.Context):
+                return await info.edit(content="error", view=None)
+            if isinstance(ctx, discord.Interaction):
+                return await ctx.edit_original_response(content="error", view=None)
+        if results_json['faulted']:
+            if "source_image" in final_submit_dict:
+                final_submit_dict["source_image"] = f"img2img request with size: {len(final_submit_dict['source_image'])}"
+            print(f"Something went wrong when generating the request. Please contact the horde administrator with your request details: {final_submit_dict}")
+            if isinstance(ctx, commands.Context):
+                return await info.edit(content="error", view=None)
+            if isinstance(ctx, discord.Interaction):
+                return await ctx.edit_original_response(content="error", view=None)
+        results = results_json['generations']
+        for iter in range(len(results)):
+            if final_submit_dict["r2"]:
+                try:
+                    async with session.get(results[iter]["img"]) as img:
+                        if img.status == 200:
+                            file = discord.File(BytesIO(await img.content.read()), f"{results[iter]['id']}.webp")
+                            if isinstance(ctx, commands.Context):
+                                await ctx.reply(file=file)
+                            if isinstance(ctx, discord.Interaction):
+                                await ctx.followup.send(file=file)
+                except: print("Received b64 again")
+            else:
+                b64img = results[iter]["img"]
+                base64_bytes = b64img.encode('utf-8')
+                img_bytes = base64.b64decode(base64_bytes)
+                file = discord.File(BytesIO(img_bytes), f"{results[iter]['id']}.webp")
                 if isinstance(ctx, commands.Context):
-                    return await info.edit("error", view=None)
+                    await ctx.reply(file=file)
                 if isinstance(ctx, discord.Interaction):
-                    return await ctx.edit_original_response("error", view=None)
-            results = results_json['generations']
-            for iter in range(len(results)):
-                if final_submit_dict["r2"]:
-                    try:
-                        async with session.get(results[iter]["img"]) as img:
-                            if img.status == 200:
-                                file = discord.File(BytesIO(await img.content.read()), f"{results[iter]['id']}.webp")
-                                if isinstance(ctx, commands.Context):
-                                    await ctx.reply(file=file)
-                                if isinstance(ctx, discord.Interaction):
-                                    await ctx.followup.send(file=file)
-                    except: print("Received b64 again")
-                else:
-                    b64img = results[iter]["img"]
-                    base64_bytes = b64img.encode('utf-8')
-                    img_bytes = base64.b64decode(base64_bytes)
-                    file = discord.File(BytesIO(img_bytes), f"{results[iter]['id']}.webp")
-                    if isinstance(ctx, commands.Context):
-                        await ctx.reply(file=file)
-                    if isinstance(ctx, discord.Interaction):
-                        await ctx.followup.send(file=file)
-            if not view.cancelled:
-                result_text = [
-                    f"**Took {round(time.time() * 1000)-old}ms**",
-                    settings,
-                    f"{chk_results.get('finished')}/{n}",
-                ]
-                if isinstance(ctx, commands.Context):
-                    await info.edit(content="\n".join(result_text), view=None)
-                if isinstance(ctx, discord.Interaction):
-                    await ctx.edit_original_response(content="\n".join(result_text), view=None)
+                    await ctx.followup.send(file=file)
+        if not view.cancelled:
+            result_text = [
+                f"**Took {round(time.time() * 1000)-old}ms**",
+                settings,
+                f"{chk_results.get('finished')}/{n}",
+            ]
+            if isinstance(ctx, commands.Context):
+                await info.edit(content="\n".join(result_text), view=None)
+            if isinstance(ctx, discord.Interaction):
+                await ctx.edit_original_response(content="\n".join(result_text), view=None)
 
 async def model_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     async with aiohttp.ClientSession() as session:
