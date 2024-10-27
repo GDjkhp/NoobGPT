@@ -1,9 +1,8 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
-import aiohttp
+from curl_cffi.requests import AsyncSession
 import base64
-from PIL import Image
 from io import BytesIO
 import os
 import asyncio
@@ -12,12 +11,13 @@ import random
 from util_discord import command_check, get_guild_prefix, description_helper
 
 emoji_peak = description_helper['peak']
+session = AsyncSession(impersonate='chrome110')
+headers = {"apikey": os.getenv("HORDE")}
 class RequestData(object):
     def __init__(self, prompt: str, model: str, n: int, nsfw: bool, width: int, height: int, steps: int, 
                  seed: str, seed_variation: int, sampler_name: str, karras: bool, tiling: bool, post_processing: str,
                  source_processing: str, source_image: discord.Attachment, source_mask: discord.Attachment):
         self.submit_prepared = False
-        self.api_key = os.getenv("HORDE")
         self.imgen_params = {
             "n": n,
             "width": width,
@@ -119,110 +119,106 @@ async def generate(ctx: commands.Context | discord.Interaction, prompt: str=None
     old = round(time.time() * 1000)
     if isinstance(ctx, commands.Context): info = await ctx.reply("**Queue Position: N/A**", view=view)
     if isinstance(ctx, discord.Interaction): await ctx.response.send_message("**Queue Position: N/A**", view=view)
-    headers = {"apikey": request_data.api_key}
     settings = f"{model} ({width}x{height}, {steps} steps, {sampler_name})"
     final_submit_dict = await request_data.get_submit_dict()
-    async with aiohttp.ClientSession() as session:
-        submit_results = None
-        async with session.post(f'https://aihorde.net/api/v2/generate/async', 
-                                json=final_submit_dict, headers=headers) as submit_req:
-            if submit_req.status == 202: submit_results = await submit_req.json()
-        if not submit_results:
+    submit_results = None
+    submit_req = await session.post(f'https://aihorde.net/api/v2/generate/async', json=final_submit_dict, headers=headers)
+    if submit_req.status_code == 202: submit_results = submit_req.json()
+    if not submit_results:
+        if isinstance(ctx, commands.Context):
+            return await info.edit(content="error", view=None)
+        if isinstance(ctx, discord.Interaction):
+            return await ctx.edit_original_response(content="error", view=None)
+    req_id = submit_results.get('id')
+    is_done = False
+    results_json = None
+    count_emoji = 0
+    while not is_done:
+        if view.cancelled:
+            retrieve_req = await session.delete(f'https://aihorde.net/api/v2/generate/status/{req_id}')
+            if retrieve_req.status_code == 200: results_json = retrieve_req.json()
+            if isinstance(ctx, commands.Context):
+                await info.edit(content="**Generation cancelled**", view=None)
+            if isinstance(ctx, discord.Interaction):
+                await ctx.edit_original_response(content="**Generation cancelled**", view=None)
+            break
+        chk_results = None
+        chk_req = await session.get(f'https://aihorde.net/api/v2/generate/check/{req_id}')
+        if chk_req.status_code == 200: chk_results = chk_req.json()
+        if not chk_results:
             if isinstance(ctx, commands.Context):
                 return await info.edit(content="error", view=None)
             if isinstance(ctx, discord.Interaction):
                 return await ctx.edit_original_response(content="error", view=None)
-        req_id = submit_results.get('id')
-        is_done = False
-        results_json = None
-        count_emoji = 0
-        while not is_done:
-            if view.cancelled:
-                async with session.delete(f'https://aihorde.net/api/v2/generate/status/{req_id}') as retrieve_req:
-                    if retrieve_req.status == 200: results_json = await retrieve_req.json()
-                if isinstance(ctx, commands.Context):
-                    await info.edit(content="**Generation cancelled**", view=None)
-                if isinstance(ctx, discord.Interaction):
-                    await ctx.edit_original_response(content="**Generation cancelled**", view=None)
-                break
-            chk_results = None
-            async with session.get(f'https://aihorde.net/api/v2/generate/check/{req_id}') as chk_req:
-                if chk_req.status == 200: chk_results = await chk_req.json()
-            if not chk_results:
-                if isinstance(ctx, commands.Context):
-                    return await info.edit(content="error", view=None)
-                if isinstance(ctx, discord.Interaction):
-                    return await ctx.edit_original_response(content="error", view=None)
-            check = [
-                f"**Queue Position: {chk_results.get('queue_position')} ({chk_results.get('wait_time')}s remaining)**",
-                settings,
-                f"{chk_results.get('finished')}/{n} {emoji_peak[count_emoji]}",
-            ]
+        check = [
+            f"**Queue Position: {chk_results.get('queue_position')} ({chk_results.get('wait_time')}s remaining)**",
+            settings,
+            f"{chk_results.get('finished')}/{n} {emoji_peak[count_emoji]}",
+        ]
+        if isinstance(ctx, commands.Context):
+            await info.edit(content="\n".join(check))
+        if isinstance(ctx, discord.Interaction):
+            await ctx.edit_original_response(content="\n".join(check))
+        is_done = chk_results['done']
+        count_emoji+=1
+        if count_emoji == len(emoji_peak): count_emoji=0
+        await asyncio.sleep(3)
+    if not view.cancelled:
+        retrieve_req = await session.get(f'https://aihorde.net/api/v2/generate/status/{req_id}')
+        if retrieve_req.status_code == 200: results_json = retrieve_req.json()
+    if not results_json:
+        if isinstance(ctx, commands.Context):
+            return await info.edit(content="error", view=None)
+        if isinstance(ctx, discord.Interaction):
+            return await ctx.edit_original_response(content="error", view=None)
+    if results_json['faulted']:
+        if "source_image" in final_submit_dict:
+            final_submit_dict["source_image"] = f"img2img request with size: {len(final_submit_dict['source_image'])}"
+        print(f"Something went wrong when generating the request. Please contact the horde administrator with your request details: {final_submit_dict}")
+        if isinstance(ctx, commands.Context):
+            return await info.edit(content="error", view=None)
+        if isinstance(ctx, discord.Interaction):
+            return await ctx.edit_original_response(content="error", view=None)
+    results = results_json['generations']
+    for iter in range(len(results)):
+        if final_submit_dict["r2"]:
+            try:
+                img = await session.get(results[iter]["img"])
+                if img.status_code == 200:
+                    file = discord.File(BytesIO(img.content), f"{results[iter]['id']}.webp")
+                    if isinstance(ctx, commands.Context):
+                        await ctx.reply(file=file)
+                    if isinstance(ctx, discord.Interaction):
+                        await ctx.followup.send(file=file)
+            except: print("Received b64 again")
+        else:
+            b64img = results[iter]["img"]
+            base64_bytes = b64img.encode('utf-8')
+            img_bytes = base64.b64decode(base64_bytes)
+            file = discord.File(BytesIO(img_bytes), f"{results[iter]['id']}.webp")
             if isinstance(ctx, commands.Context):
-                await info.edit(content="\n".join(check))
+                await ctx.reply(file=file)
             if isinstance(ctx, discord.Interaction):
-                await ctx.edit_original_response(content="\n".join(check))
-            is_done = chk_results['done']
-            count_emoji+=1
-            if count_emoji == len(emoji_peak): count_emoji=0
-            await asyncio.sleep(3)
-        if not view.cancelled:
-            async with session.get(f'https://aihorde.net/api/v2/generate/status/{req_id}') as retrieve_req:
-                if retrieve_req.status == 200: results_json = await retrieve_req.json()
-        if not results_json:
-            if isinstance(ctx, commands.Context):
-                return await info.edit(content="error", view=None)
-            if isinstance(ctx, discord.Interaction):
-                return await ctx.edit_original_response(content="error", view=None)
-        if results_json['faulted']:
-            if "source_image" in final_submit_dict:
-                final_submit_dict["source_image"] = f"img2img request with size: {len(final_submit_dict['source_image'])}"
-            print(f"Something went wrong when generating the request. Please contact the horde administrator with your request details: {final_submit_dict}")
-            if isinstance(ctx, commands.Context):
-                return await info.edit(content="error", view=None)
-            if isinstance(ctx, discord.Interaction):
-                return await ctx.edit_original_response(content="error", view=None)
-        results = results_json['generations']
-        for iter in range(len(results)):
-            if final_submit_dict["r2"]:
-                try:
-                    async with session.get(results[iter]["img"]) as img:
-                        if img.status == 200:
-                            file = discord.File(BytesIO(await img.content.read()), f"{results[iter]['id']}.webp")
-                            if isinstance(ctx, commands.Context):
-                                await ctx.reply(file=file)
-                            if isinstance(ctx, discord.Interaction):
-                                await ctx.followup.send(file=file)
-                except: print("Received b64 again")
-            else:
-                b64img = results[iter]["img"]
-                base64_bytes = b64img.encode('utf-8')
-                img_bytes = base64.b64decode(base64_bytes)
-                file = discord.File(BytesIO(img_bytes), f"{results[iter]['id']}.webp")
-                if isinstance(ctx, commands.Context):
-                    await ctx.reply(file=file)
-                if isinstance(ctx, discord.Interaction):
-                    await ctx.followup.send(file=file)
-        if not view.cancelled:
-            result_text = [
-                f"**Took {round(time.time() * 1000)-old}ms**",
-                settings,
-                f"{chk_results.get('finished')}/{n}",
-            ]
-            if isinstance(ctx, commands.Context):
-                await info.edit(content="\n".join(result_text), view=None)
-            if isinstance(ctx, discord.Interaction):
-                await ctx.edit_original_response(content="\n".join(result_text), view=None)
+                await ctx.followup.send(file=file)
+    if not view.cancelled:
+        result_text = [
+            f"**Took {round(time.time() * 1000)-old}ms**",
+            settings,
+            f"{chk_results.get('finished')}/{n}",
+        ]
+        if isinstance(ctx, commands.Context):
+            await info.edit(content="\n".join(result_text), view=None)
+        if isinstance(ctx, discord.Interaction):
+            await ctx.edit_original_response(content="\n".join(result_text), view=None)
 
 async def model_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
-    async with aiohttp.ClientSession() as session:
-        async with session.get("https://aihorde.net/api/v2/status/models") as response:
-            if response.status == 200:
-                data = await response.json()
-                models = [item["name"] for item in data]
-                return [
-                    app_commands.Choice(name=model, value=model) for model in models if current.lower() in model.lower()
-                ][:25]
+    response = await session.get("https://aihorde.net/api/v2/status/models")
+    if response.status_code == 200:
+        data = response.json()
+        models = [item["name"] for item in data]
+        return [
+            app_commands.Choice(name=model, value=model) for model in models if current.lower() in model.lower()
+        ][:25]
             
 async def mode_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     return [
@@ -267,27 +263,27 @@ class CogHorde(commands.Cog):
 
     @commands.command()
     async def stable(self, ctx: commands.Context):
-        self.bot.loop.create_task(generate(ctx, None, "stable_diffusion"))
+        await generate(ctx, None, "stable_diffusion")
 
     @commands.command()
     async def waifu(self, ctx: commands.Context):
-        self.bot.loop.create_task(generate(ctx, None, "waifu_diffusion"))
+        await generate(ctx, None, "waifu_diffusion")
 
     @commands.command()
     async def sdxl(self, ctx: commands.Context):
-        self.bot.loop.create_task(generate(ctx, None, "SDXL 1.0"))
+        await generate(ctx, None, "SDXL 1.0")
 
     @commands.command()
     async def dream(self, ctx: commands.Context):
-        self.bot.loop.create_task(generate(ctx, None, "Dreamshaper"))
+        await generate(ctx, None, "Dreamshaper")
 
     @commands.command()
     async def dreamxl(self, ctx: commands.Context):
-        self.bot.loop.create_task(generate(ctx, None, "DreamShaper XL"))
+        await generate(ctx, None, "DreamShaper XL")
 
     @commands.command()
     async def any(self, ctx: commands.Context):
-        self.bot.loop.create_task(generate(ctx, None, "Anything v5"))
+        await generate(ctx, None, "Anything v5")
 
     @app_commands.command(description=f"{description_helper['emojis']['ai']} stablehorde")
     @app_commands.describe(prompt="Text prompt", negative="Negative prompt", model="Image model", n="Number of images to generate",
@@ -304,9 +300,9 @@ class CogHorde(commands.Cog):
                     seed: str=get_random_seed(), seed_variation: int=1, sampler_name: str="k_euler_a", 
                     karras: bool=True, tiling: bool=False, post_processing: str=None,
                     source_processing: str="img2img", source_image: discord.Attachment=None, source_mask: discord.Attachment=None):
-        self.bot.loop.create_task(generate(ctx, prompt, model, negative, n, width, height, steps,
-                                           seed, seed_variation, sampler_name, karras, tiling, post_processing,
-                                           source_processing, source_image, source_mask))
+        await generate(ctx, prompt, model, negative, n, width, height, steps,
+                       seed, seed_variation, sampler_name, karras, tiling, post_processing,
+                       source_processing, source_image, source_mask)
 
     @commands.command()
     async def horde(self, ctx: commands.Context):

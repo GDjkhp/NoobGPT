@@ -189,21 +189,21 @@ class CogSus(commands.Cog):
 
     @commands.command()
     async def r34(self, ctx: commands.Context, *, tags:str=None):
-        self.bot.loop.create_task(R34(ctx, tags))
+        await R34(ctx, tags)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['booru']} gelbooru")
     @app_commands.describe(tags="Search tags (e.g. `hatsune miku, school uniform`)")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def gel(self, ctx: commands.Context, *, tags:str=None):
-        self.bot.loop.create_task(GEL(ctx, tags))
+        await GEL(ctx, tags)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['booru']} safebooru")
     @app_commands.describe(tags="Search tags (e.g. `hatsune miku, school uniform`)")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def safe(self, ctx: commands.Context, *, tags:str=None):
-        self.bot.loop.create_task(SAFE(ctx, tags))
+        await SAFE(ctx, tags)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogSus(bot))
