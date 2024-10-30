@@ -33,6 +33,7 @@ async def set_domain(ctx: commands.Context, arg: str):
 
 async def Sflix(ctx: commands.Context, arg: str):
     if await command_check(ctx, "tv", "media"): return await ctx.reply("command disabled", ephemeral=True)
+    await get_domain()
     msg = await ctx.reply(f"Searching `{arg}`\nPlease wait…")
     try:
         result = results(await searchQuery(arg)) 
