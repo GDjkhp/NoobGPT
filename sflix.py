@@ -10,13 +10,26 @@ from Crypto.Cipher import AES
 import hashlib
 import json
 from Crypto.Util.Padding import unpad
-from util_discord import command_check, description_helper
+from util_discord import command_check, description_helper, check_if_not_owner
+from util_database import myclient
+mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 
 client, client_cdn = HttpClient(), HttpClient()
 title, url, aid, mv_tv, poster = 0, 1, 2, 3, 4
 pagelimit = 12
-domain = "https://sflix.se"
+domain_sflix = "https://sflix.to"
 provider="https://gdjkhp.github.io/img/66356c25ce98cb12993249e21742b129.png"
+
+async def get_domain():
+    global domain_sfix
+    cursor = mycol.find()
+    data = await cursor.to_list(None)
+    domain_sfix = data[0]["sflix"]
+
+async def set_domain(ctx: commands.Context, arg: str):
+    await mycol.update_one({}, {"$set": {"sflix": arg}})
+    await get_domain()
+    await ctx.reply(domain_sfix)
 
 async def Sflix(ctx: commands.Context, arg: str):
     if await command_check(ctx, "tv", "media"): return await ctx.reply("command disabled", ephemeral=True)
@@ -29,7 +42,7 @@ async def Sflix(ctx: commands.Context, arg: str):
 
 # embed builders
 async def detail(result) -> list:
-    req = await client.get(f"{domain}{result[1]}")
+    req = await client.get(f"{domain_sfix}{result[1]}")
     soup = BS(req, "lxml")
     desc = soup.find("div", {"class": "description"}).get_text()
     items = soup.find("div", {"class": "elements"}).find_all("div", {"class": "row-line"})
@@ -89,7 +102,7 @@ def get_max_page(length):
 def parse(txt: str) -> str:
     return re.sub(r"\W+", "-", txt.lower())
 async def searchQuery(q) -> str:
-    res = await client.get(f"{domain}/search/{parse(q)}")
+    res = await client.get(f"{domain_sfix}/search/{parse(q)}")
     return res.text
 def results(html: str) -> list:
     soup = BS(html, "lxml")
@@ -146,7 +159,7 @@ class SelectChoice(discord.ui.Select):
                                                            ephemeral=True)
         await interaction.response.edit_message(view=None)
         if self.result[int(self.values[0])][mv_tv] == "TV":
-            r = await client.get(f"{domain}/ajax/v2/tv/seasons/{self.result[int(self.values[0])][aid]}")
+            r = await client.get(f"{domain_sfix}/ajax/v2/tv/seasons/{self.result[int(self.values[0])][aid]}")
             season_ids = [i["data-id"] for i in BS(r, "lxml").select(".dropdown-item")]
             embed = await buildSeasons(season_ids, self.result[int(self.values[0])])
             await interaction.edit_original_response(embed = embed, view = MyView2(self.ctx, self.result[int(self.values[0])], season_ids, 0))
@@ -174,7 +187,7 @@ class ButtonSelect(discord.ui.Button):
                                                            ephemeral=True)
         await interaction.response.edit_message(view=None)
         if self.result[mv_tv] == "TV":
-            r = await client.get(f"{domain}/ajax/v2/tv/seasons/{self.result[aid]}")
+            r = await client.get(f"{domain_sfix}/ajax/v2/tv/seasons/{self.result[aid]}")
             season_ids = [i["data-id"] for i in BS(r, "lxml").select(".dropdown-item")]
             embed = await buildSeasons(season_ids, self.result)
             await interaction.edit_original_response(embed = embed, view = MyView2(self.ctx, self.result, season_ids, 0))
@@ -236,7 +249,7 @@ class ButtonSelect2(discord.ui.Button):
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(view=None)
-        z = f"{domain}/ajax/v2/season/episodes/{self.season_id}"
+        z = f"{domain_sfix}/ajax/v2/season/episodes/{self.season_id}"
         rf = await client.get(z)
         episodes = [i["data-id"] for i in BS(rf, "lxml").select(".episode-item")]
         embed = await buildEpisodes(episodes, self.index, self.result)
@@ -335,15 +348,15 @@ class CancelButton(discord.ui.Button):
 
 # sflix functions
 async def server_id(mov_id: str) -> str:
-    req = await client.get(f"{domain}/ajax/movie/episodes/{mov_id}")
+    req = await client.get(f"{domain_sfix}/ajax/movie/episodes/{mov_id}")
     soup = BS(req, "lxml")
     return [i["data-id"] for i in soup.select(".link-item")][1]    
 async def ep_server_id(ep_id: str) -> str:
-    req = await client.get(f"{domain}/ajax/v2/episode/servers/{ep_id}/#servers-list")
+    req = await client.get(f"{domain_sfix}/ajax/v2/episode/servers/{ep_id}/#servers-list")
     soup = BS(req, "lxml")
     return [i["data-id"] for i in soup.select(".link-item")][1]
 async def get_link(thing_id: str) -> tuple:
-    res = await client.get(f"{domain}/ajax/sources/{thing_id}")
+    res = await client.get(f"{domain_sfix}/ajax/sources/{thing_id}")
     req = res.json()["link"]
     print(req)
     return req, rabbit_id(req)
@@ -412,6 +425,11 @@ def aes_decrypt(decryption_key, source_url):
 class CogSflix(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.command()
+    async def rflix(self, ctx: commands.Context, arg=None):
+        if check_if_not_owner(ctx): return
+        await set_domain(ctx, arg)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['tv']} sflix")
     @app_commands.describe(query="Search query")
