@@ -114,7 +114,7 @@ def results(html: str) -> list:
     ]
     title = [
         re.sub(
-            pattern="full|/tv/|/movie/|hd|watch|[0-9]{2,}",
+            pattern="full|/tv/|/movie/|hd|watch|free|[0-9]{2,}",
             repl="",
             string=" ".join(i.split("-")),
         )
