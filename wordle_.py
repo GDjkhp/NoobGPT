@@ -272,7 +272,7 @@ class MyModal(discord.ui.Modal):
         check_and_push(i, self.dead, word)
 
         if i == word: # you win
-            # leaderboard test
+            # TODO: leaderboard stats (win/loss, register server on first input)
             user_data = await mycol.find_one({"user": interaction.user.id})
             if not user_data:
                 await mycol.insert_one({
@@ -305,8 +305,7 @@ class MyModal(discord.ui.Modal):
             else: # you lose
                 self.settings["result"] = 0
                 await interaction.followup.send(embed=QuizEmbed(self.settings, self.index, self.words, self.players),
-                                                content=f"GAME OVER!\n{word}", view=None,
-                                                file=wordle_image(self.history, word))
+                                                content=f"GAME OVER!\n{word}", file=wordle_image(self.history, word))
         await interaction.delete_original_response()
 
 async def brag_embed(server_scores, ctx: commands.Context, global_lead: bool) -> discord.Embed:
