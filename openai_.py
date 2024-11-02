@@ -140,10 +140,10 @@ class CogOpenAI(commands.Cog):
     async def openai(self, ctx: commands.Context):
         await help_openai(ctx)
 
-    # PAWAN
-    @commands.command()
-    async def cosmosrp(self, ctx: commands.Context):
-        await chat(ctx, client_sus, "cosmosrp")
+    # PAWAN (vps not allowed)
+    # @commands.command()
+    # async def cosmosrp(self, ctx: commands.Context):
+    #     await chat(ctx, client_sus, "cosmosrp")
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogOpenAI(bot))
