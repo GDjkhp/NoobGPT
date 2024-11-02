@@ -72,12 +72,19 @@ class RequestData(object):
         return submit_dict
 
 class CancelButton(discord.ui.View):
-    def __init__(self):
+    def __init__(self, ctx: commands.Context | discord.Interaction):
         super().__init__(timeout=None)
         self.cancelled = False
+        self.ctx = ctx
 
     @discord.ui.button(style=discord.ButtonStyle.danger, emoji="💀")
     async def cancel_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if isinstance(self.ctx, commands.Context):
+            if interaction.user != self.ctx.author:
+                return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", ephemeral=True)
+        if isinstance(self.ctx, discord.Interaction):
+            if interaction.user != self.ctx.user:
+                return await interaction.response.send_message(f"Only <@{self.ctx.user.id}> can interact with this message.", ephemeral=True)
         self.cancelled = True
         button.disabled = True
         await interaction.response.edit_message(view=self)
@@ -115,7 +122,7 @@ async def generate(ctx: commands.Context | discord.Interaction, prompt: str=None
     request_data = RequestData(prompt, model, n, nsfw, width, height, steps,
                                seed, seed_variation, sampler_name, karras, tiling, post_processing,
                                source_processing, source_image, source_mask)
-    view = CancelButton()
+    view = CancelButton(ctx)
     old = round(time.time() * 1000)
     if isinstance(ctx, commands.Context): info = await ctx.reply("**Queue Position: N/A**", view=view)
     if isinstance(ctx, discord.Interaction): await ctx.response.send_message("**Queue Position: N/A**", view=view)

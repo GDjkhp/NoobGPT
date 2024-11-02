@@ -738,16 +738,16 @@ class CogPerplex(commands.Cog):
         await main_github(ctx, 9)
 
     # TODO: blackbox
-    @commands.command()
-    async def flux(self, ctx: commands.Context):
-        await main_blackbox(ctx, 0, None, True)
+    # @commands.command()
+    # async def flux(self, ctx: commands.Context):
+    #     await main_blackbox(ctx, 0, None, True)
 
-    @app_commands.command(name="flux", description=f"{description_helper['emojis']['ai']} flux")
-    @app_commands.describe(prompt="Text prompt")
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def flux_slash(self, ctx: discord.Interaction, prompt: str):
-        await main_blackbox(ctx, 0, prompt, True)
+    # @app_commands.command(name="flux", description=f"{description_helper['emojis']['ai']} flux")
+    # @app_commands.describe(prompt="Text prompt")
+    # @app_commands.allowed_installs(guilds=True, users=True)
+    # @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    # async def flux_slash(self, ctx: discord.Interaction, prompt: str):
+    #     await main_blackbox(ctx, 0, prompt, True)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogPerplex(bot))
