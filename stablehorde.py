@@ -292,7 +292,7 @@ class CogHorde(commands.Cog):
     async def any(self, ctx: commands.Context):
         await generate(ctx, None, "Anything v5")
 
-    @app_commands.command(description=f"{description_helper['emojis']['ai']} stablehorde")
+    @app_commands.command(name="dream", description=f"{description_helper['emojis']['ai']} stablehorde")
     @app_commands.describe(prompt="Text prompt", negative="Negative prompt", model="Image model", n="Number of images to generate",
                            width="Image width", height="Image height", steps="Number of steps", post_processing="Post-processing method",
                            seed="Generation seed", seed_variation="Generation seed increment value", sampler_name="Sampling method",
@@ -302,11 +302,11 @@ class CogHorde(commands.Cog):
     @app_commands.autocomplete(model=model_auto, source_processing=mode_auto, sampler_name=sample_auto, post_processing=post_auto)
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def dream(self, ctx: discord.Interaction, prompt: str, negative: str=None, model: str="DreamShaper XL",
-                    n: int=1, width: int=64*8, height: int=64*8, steps: int=30,
-                    seed: str=get_random_seed(), seed_variation: int=1, sampler_name: str="k_euler_a", 
-                    karras: bool=True, tiling: bool=False, post_processing: str=None,
-                    source_processing: str="img2img", source_image: discord.Attachment=None, source_mask: discord.Attachment=None):
+    async def dream_slash(self, ctx: discord.Interaction, prompt: str, negative: str=None, model: str="DreamShaper XL",
+                          n: int=1, width: int=64*8, height: int=64*8, steps: int=30,
+                          seed: str=get_random_seed(), seed_variation: int=1, sampler_name: str="k_euler_a",
+                          karras: bool=True, tiling: bool=False, post_processing: str=None,
+                          source_processing: str="img2img", source_image: discord.Attachment=None, source_mask: discord.Attachment=None):
         await generate(ctx, prompt, model, negative, n, width, height, steps,
                        seed, seed_variation, sampler_name, karras, tiling, post_processing,
                        source_processing, source_image, source_mask)

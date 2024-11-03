@@ -8,7 +8,7 @@ import os
 from util_discord import command_check, get_guild_prefix
 
 client = AsyncOpenAI(api_key=os.getenv('OPENAI'))
-client_sus = AsyncOpenAI(api_key=os.getenv('PAWAN'), base_url="https://api.pawan.krd/cosmosrp/v1")
+# client_sus = AsyncOpenAI(api_key=os.getenv('PAWAN'), base_url="https://api.pawan.krd/cosmosrp/v1")
 
 # ugly
 def strip_dash(text: str, prefix: str):

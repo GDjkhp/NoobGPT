@@ -32,7 +32,7 @@ class HelpViewMoosic(discord.ui.View):
     def __init__(self, ctx: commands.Context, thumb: str=None):
         super().__init__(timeout=None)
         self.add_item(ButtonSelect("PLAYER", "⏯️", 0, ctx, thumb, discord.ButtonStyle.success))
-        self.add_item(ButtonSelect("QUEUE", "🔀", 0, ctx, thumb, discord.ButtonStyle.primary))
+        self.add_item(ButtonSelect("QUEUE", "🔀", 0, ctx, thumb, discord.ButtonStyle.danger))
 
 class ButtonSelect(discord.ui.Button):
     def __init__(self, l: str, e: str, row: int, ctx: commands.Context, thumb: str, s: discord.ButtonStyle):
