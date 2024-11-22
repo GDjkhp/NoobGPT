@@ -162,7 +162,7 @@
         "the power",
         "DO NOT OPEN!",
         "damn son, where'd you find this?",
-        "Random r = new Random(),",
+        "Random r = new Random();",
         "Telltale Games are Back!",
         "rip digital chocolate",
         "making you insane since 2023",
@@ -303,6 +303,7 @@
         "why did the chicken cross the road?",
         "PC Master Race",
         "you've watched too much TV",
+        "you've watched too much anime",
         "enlarge your... MEMORY!",
         "digital works has no value",
         "pass out the sauce",
@@ -638,7 +639,8 @@
         "https://bot-hosting.net/?aff=729554186777133088",
         "https://myanimelist.net/profile/GDjkhp",
         "https://jkhp.newgrounds.com",
-        "Use async ctx.typing() to indicate the bot is working on it."
+        "Use async ctx.typing() to indicate the bot is working on it.",
+        "i regret writing these splash texts"
     ],
     "insults from thoughtcatalog.com": [
         "If your brain was dynamite, there wouldn\u2019t be enough to blow your hat off.",
@@ -749,7 +751,6 @@
         "I find the fact that you\u2019ve lived this long both surprising and disappointing.",
         "I forgot the world revolves around you. My apologies, how silly of me.",
         "I have seen people like you. But I had to pay admission.",
-        "I hope your next blowjob is from a shark.",
         "I know you are, but what am I?",
         "I like the way you try.",
         "I look ugly? Good. I was trying to look like you today.",
