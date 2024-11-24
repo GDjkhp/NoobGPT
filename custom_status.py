@@ -56,7 +56,7 @@ async def silly_activities(bot: commands.Bot):
                 strings.append(random.choice(splashes))
                 await bot.change_presence(activity=discord.CustomActivity(name=random.choice(strings)), 
                                           status=discord.Status.dnd)
-            except Exception as e: print(e)
+            except Exception as e: print(f"Exception in silly_activities: {e}")
         await asyncio.sleep(10)
 
 def kv_embed(kv: dict):
