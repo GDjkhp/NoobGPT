@@ -25,7 +25,7 @@ async def the_real_delete(url: str):
             return response
         
 def read_json_file(file_path):
-    with open(file_path, 'r') as json_file:
+    with open(file_path, 'r', encoding='utf-8') as json_file:
         data = json.load(json_file)
     return data
 
@@ -54,8 +54,7 @@ async def silly_activities(bot: commands.Bot):
                             strings.append(data["data"]["kv"][key])
                 splashes = read_json_file("./res/mandatory_settings_and_splashes.json")["some funny splashes you can modify"]
                 strings.append(random.choice(splashes))
-                await bot.change_presence(activity=discord.CustomActivity(name=random.choice(strings)), 
-                                          status=discord.Status.dnd)
+                await bot.change_presence(activity=discord.CustomActivity(name=random.choice(strings)), status=discord.Status.dnd)
             except Exception as e: print(f"Exception in silly_activities: {e}")
         await asyncio.sleep(10)
 
