@@ -35,11 +35,14 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
         if isinstance(ctx, discord.Interaction):
             return await ctx.response.send_message("command disabled", ephemeral=True)
 
+    if isinstance(ctx, discord.Interaction): 
+        await ctx.response.send_message("Loading…")
+
     if not await check_if_dj(ctx):
         if isinstance(ctx, commands.Context):
             return await ctx.reply("not a disc jockey")
         if isinstance(ctx, discord.Interaction):
-            return await ctx.response.send_message("not a disc jockey")
+            return await ctx.edit_original_response(content="not a disc jockey")
         
     vc = ctx.guild.voice_client
     if isinstance(ctx, commands.Context):
@@ -47,18 +50,16 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
             return await ctx.reply(f'Join the voice channel with the bot first.')
     if isinstance(ctx, discord.Interaction):
         if not ctx.user.voice or (vc and not ctx.user.voice.channel == vc.channel):
-            return await ctx.response.send_message(f'Join the voice channel with the bot first.')
+            return await ctx.edit_original_response(content=f'Join the voice channel with the bot first.')
         
     if not search:
         p = await get_guild_prefix(ctx)
         if isinstance(ctx, commands.Context):
             return await ctx.reply(f"usage: `{p}play <query>`")
         if isinstance(ctx, discord.Interaction):
-            return await ctx.response.send_message(f"usage: `{p}play <query>`")
+            return await ctx.edit_original_response(content=f"usage: `{p}play <query>`")
         
     try:
-        if isinstance(ctx, discord.Interaction): 
-            await ctx.response.send_message("Loading…")
         tracks = await wavelink.Playable.search(search)
     except Exception as e:
         if isinstance(ctx, commands.Context):
@@ -187,11 +188,14 @@ async def queue_search(bot: commands.Bot, ctx: commands.Context | discord.Intera
         if isinstance(ctx, discord.Interaction):
             return await ctx.response.send_message("command disabled", ephemeral=True)
 
+    if isinstance(ctx, discord.Interaction):
+        await ctx.response.send_message("Loading…")
+
     if not await check_if_dj(ctx):
         if isinstance(ctx, commands.Context):
             return await ctx.reply("not a disc jockey")
         if isinstance(ctx, discord.Interaction):
-            return await ctx.response.send_message("not a disc jockey")
+            return await ctx.edit_original_response(content="not a disc jockey")
     
     vc = ctx.guild.voice_client
     if isinstance(ctx, commands.Context):
@@ -199,18 +203,16 @@ async def queue_search(bot: commands.Bot, ctx: commands.Context | discord.Intera
             return await ctx.reply(f'Join the voice channel with the bot first.')
     if isinstance(ctx, discord.Interaction):
         if not ctx.user.voice or (vc and not ctx.user.voice.channel == vc.channel):
-            return await ctx.response.send_message(f'Join the voice channel with the bot first.')
+            return await ctx.edit_original_response(content=f'Join the voice channel with the bot first.')
 
     if not search:
         p = await get_guild_prefix(ctx)
         if isinstance(ctx, commands.Context):
             return await ctx.reply(f"usage: `{p}search <query>`")
         if isinstance(ctx, discord.Interaction):
-            return await ctx.response.send_message(f"usage: `{p}search <query>`")
+            return await ctx.edit_original_response(content=f"usage: `{p}search <query>`")
     
-    try: 
-        if isinstance(ctx, discord.Interaction):
-            await ctx.response.send_message("Loading…")
+    try:
         tracks = await wavelink.Playable.search(search, source=source)
     except Exception as e:
         if isinstance(ctx, commands.Context):
