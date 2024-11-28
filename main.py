@@ -43,12 +43,6 @@ class NoobGPT(commands.Bot):
         self.loop.create_task(earn_xp(self, message))
         await self.process_commands(message)
 
-    # stckovrflw (imporved)
-    async def on_command_error(self, ctx, error):
-        if isinstance(error, commands.CommandNotFound):
-            return
-        print(f"{self.user.name}: {error}")
-
     async def setup_hook(self):
         self.loop.create_task(silly_activities(self))
         self.loop.create_task(main_gde(self))
@@ -102,12 +96,6 @@ class Moosic(commands.Bot):
 
     async def on_guild_remove(self, guild: discord.Guild):
         print(f"{self.user.name}: Left {guild.name} ({guild.id})")
-
-    # stckovrflw (imporved)
-    async def on_command_error(self, ctx, error):
-        if isinstance(error, commands.CommandNotFound):
-            return
-        print(f"{self.user.name}: {error}")
 
     async def setup_hook(self):
         self.loop.create_task(silly_activities(self))
