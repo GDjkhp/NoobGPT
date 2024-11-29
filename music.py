@@ -263,7 +263,7 @@ class MusicUtil(commands.Cog):
     async def stats(self, ctx: commands.Context):
         stat_list = [
             f"serving {len(self.bot.users)} users in {len(self.bot.guilds)} guilds",
-            f"will return in {round(self.bot.latency*1000)}ms",
+            f"will return in {round(self.bot.latency * 1000) if self.bot.latency != float('inf') else '♾️'}ms",
             f"{len(self.bot.tree.get_commands())} application commands found"
         ]
         await ctx.reply("\n".join(stat_list))
