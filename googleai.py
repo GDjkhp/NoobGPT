@@ -111,7 +111,6 @@ async def json_data(msg: discord.Message, prefix: str):
     return {"contents": messagesArray}
 
 async def json_data_slash(prompt: str, image: discord.Attachment):
-    base64_data = None
     if image:
         image_data = await image.read()
         base64_data = base64.b64encode(image_data).decode('utf-8')
@@ -126,7 +125,7 @@ async def json_data_slash(prompt: str, image: discord.Attachment):
                         "mime_type": mime,
                         "data": base64_data
                     }
-                } if base64_data else None
+                } if image else None
             ]
         }
     ]

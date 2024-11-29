@@ -35,7 +35,7 @@ async def silly_activities(bot: commands.Bot):
             try:
                 strings = [
                     f"serving {len(bot.users)} users in {len(bot.guilds)} guilds",
-                    f"will return in {round(bot.latency*1000)}ms",
+                    f"will return in {round(bot.latency * 1000) if bot.latency != float('inf') else '♾️'}ms",
                     time.strftime("%A, %d %B %Y"),
                     "🔴 = stable 🟢 = unstable",
                     "RADIO ONSEN EUTOPIA",
