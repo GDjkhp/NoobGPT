@@ -79,6 +79,7 @@ def get_ydl_opts(arg):
     audio_formats = ["mp3", "m4a"]
     video_formats = ["mp4", "webm"]
     options = {
+        'cookiefile': 'cookies.txt',
         'outtmpl': '%(title).200s.%(ext)s',
         'noplaylist': True,
         'match_filter': checkSize,
