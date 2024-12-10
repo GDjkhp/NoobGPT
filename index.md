@@ -4,10 +4,9 @@
 
 <img src="https://gdjkhp.github.io/img/tama-anim-merge.gif" width=256>
 
-A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you.
+## A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you.
 
 <div align="center">
-<h2>Usage</h2>
 <h3><a href="https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=633731823291392&scope=applications.commands%20bot">Add to server</a>, <a href="https://discord.com/oauth2/authorize?client_id=1090254079609020447">install as user</a>, or <a href="discord://discord.com/users/1090254079609020447">send a direct message</a> to start using.</h3>
 <a href="discord://discord.com/users/1090254079609020447">
 <img style="background-color: black;" src="https://discord.c99.nl/widget/theme-4/1090254079609020447.png" alt="Discord RPC isn't working!" title="Click here to visit my Discord Profile!">
@@ -81,10 +80,10 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 
 ## Moosic
 <img src="https://gdjkhp.github.io/img/baka.jpg" width=256>
-<h3>grass is greenr on the othr side</h3>
+
+## grass is greenr on the othr side
 
 <div align="center">
-<h2>Usage</h2>
 <h3><a href="https://discord.com/api/oauth2/authorize?client_id=1073823671392686162&permissions=412588788736&scope=applications.commands%20bot">Add to server</a> to start using.</h3>
 <a href="discord://discord.com/users/1073823671392686162">
 <img style="background-color: black;" src="https://discord.c99.nl/widget/theme-4/1073823671392686162.png" alt="Discord RPC isn't working!" title="Click here to visit my Discord Profile!">
