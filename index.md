@@ -1,7 +1,5 @@
-<script src="script.js"></script>
-<div style="position: relative;" markdown="1">
-<link rel="stylesheet" href="style.css">
-
+<script src="https://gdjkhp.github.io/scripts/noob.js"></script>
+<link rel="stylesheet" href="https://gdjkhp.github.io/styles/style_cursor.css">
 <img src="https://gdjkhp.github.io/img/tama-anim-merge.gif" width=256>
 
 ## A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you.
@@ -215,4 +213,3 @@ Required privilaged gateway intents: Server members and message content
 Bot by GDjkhp
 <br>
 © The Karakters Kompany, 2024
-</div>
