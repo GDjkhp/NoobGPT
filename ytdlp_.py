@@ -6,6 +6,7 @@ import os
 import asyncio
 import time
 from util_discord import command_check, description_helper
+from api_gdrive import DriveUploader
 
 async def YTDLP(ctx: commands.Context | discord.Interaction, arg1: str, arg2: str):
     if await command_check(ctx, "ytdlp", "media"):
@@ -43,12 +44,21 @@ async def YTDLP(ctx: commands.Context | discord.Interaction, arg1: str, arg2: st
             await asyncio.to_thread(ydl.download, [arg2])
             if os.path.isfile(filename):
                 try:
-                    file = discord.File(filename)
+                    uploader = DriveUploader('./res/token.json')
+                    results = await asyncio.to_thread(uploader.batch_upload, [filename], folder_in_drive='NOOBGPT', make_public=True, recursive=True)
+                    link = None
+                    for result in results:
+                        link = f"[result.get('name')]({result.get('link')})"
+                        break
+                    if not results: link = "[rickroll placeholder](https://youtube.com/watch?v=dQw4w9WgXcQ)"
+                    # file = discord.File(filename)
                     if isinstance(ctx, commands.Context):
-                        await ctx.reply(file=file)
+                        # await ctx.reply(file=file)
+                        await ctx.reply(link)
                         await msg.edit(content=f"`{filename}` has been prepared successfully!\nTook {round(time.time() * 1000)-old}ms")
                     if isinstance(ctx, discord.Interaction):
-                        await ctx.followup.send(file=file)
+                        # await ctx.followup.send(file=file)
+                        await ctx.followup.send(link)
                         await ctx.edit_original_response(content=f"`{filename}` has been prepared successfully!\nTook {round(time.time() * 1000)-old}ms")
                 except:
                     error_message = f"Error: An error occurred while cooking `{filename}`\nFile too large!"
@@ -79,10 +89,10 @@ def get_ydl_opts(arg):
     audio_formats = ["mp3", "m4a"]
     video_formats = ["mp4", "webm"]
     options = {
-        'cookiefile': 'cookies.txt',
+        'cookiefile': './res/cookies.txt',
         'outtmpl': '%(title).200s.%(ext)s',
         'noplaylist': True,
-        'match_filter': checkSize,
+        # 'match_filter': checkSize,
     }
     if arg in audio_formats:
         options.update({

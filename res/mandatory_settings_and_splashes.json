@@ -26,7 +26,8 @@
             "manga": "Read comics originating in Japan.",
             "booru": "A form of imageboard where images are categorized with tags.",
             "ytdlp": "yt-dlp is a feature-rich command-line audio/video downloader with support for thousands of sites.",
-            "cobalt": "cobalt is a media downloader that doesn't piss you off."
+            "cobalt": "cobalt pissed me off.",
+            "deez": "Streamrip is a scriptable stream downloader for Deezer."
         },
         "utils": {
             "config": "Control bot commands.",

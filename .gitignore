@@ -4,5 +4,7 @@ test.py
 test2.py
 meeseeks.py
 cookies.txt
+config.toml
+token.json
 synsets.json
 synsets_wordle.json
