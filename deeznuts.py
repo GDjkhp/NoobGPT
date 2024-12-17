@@ -6,8 +6,7 @@ from streamrip.rip.parse_url import parse_url
 from discord.ext import commands
 from discord import app_commands
 import discord
-from concurrent.futures import ThreadPoolExecutor # new hack
-from api_gdrive import DriveUploader
+from api_gdrive import AsyncDriveUploader
 from util_discord import description_helper, command_check, check_if_not_owner
 from util_database import myclient
 mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
@@ -65,10 +64,8 @@ async def cook_deez(ctx: commands.Context, links: str):
     await client.session.close()
 
     await info.edit(content="Uploading to Google Drive. This may take a while.")
-    uploader = DriveUploader('./res/token.json')
-    with ThreadPoolExecutor() as pool:
-        bot: commands.Bot = ctx.bot
-        results = await bot.loop.run_in_executor(pool, uploader.batch_upload, [str(ctx.author.id)], 'NOOBGPT', True, True)
+    uploader = AsyncDriveUploader('./res/token.json')
+    results = await uploader.batch_upload([str(ctx.author.id)], 'NOOBGPT', True, True)
     collect_urls = []
     for result in results:
         if result['type'] == 'folder':
@@ -83,13 +80,20 @@ async def cook_deez(ctx: commands.Context, links: str):
 
 def folder_printer(result, ctx: commands.Context, collect_urls: list):
     if result['name'] != "__artwork": # check if not artwork folder
-        if result['name'] == str(ctx.author.id) and not sub_root_cheeks(result): # check if sub-root folder
-            data = {"label": "Root", "url": result.get('link', link_null), "emoji": "🫚",
-                    "name": "Root", "size": result['size_human_readable']}
-        else: # album folder
-            data = {"label": len(collect_urls), "url": result.get('link', link_null), "emoji": None,
-                    "name": result['name'], "size": result['size_human_readable']}
-        collect_urls.append(data)
+        if result['name'] != str(ctx.author.id): # album folder
+            collect_urls.append(
+                {
+                    "label": str(len(collect_urls)), "url": result.get('link', link_null), "emoji": None,
+                    "name": result['name'], "size": result['size_human_readable']
+                }
+            )
+        elif not sub_root_cheeks(result): # check if sub-root folder
+            collect_urls.append(
+                {
+                    "label": "Root", "url": result.get('link', link_null), "emoji": "🫚",
+                    "name": "Root", "size": result['size_human_readable']
+                }
+            )
 
     # print(f"Folder: {result['name']}")
     # print(f"Public Link: {result.get('link', 'No link')}")

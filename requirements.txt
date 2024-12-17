@@ -17,5 +17,5 @@ ffmpeg-python
 lxml
 pydub
 git+https://github.com/Xtr4F/PyCharacterAI
-google-api-python-client
+aiogoogle
 streamrip

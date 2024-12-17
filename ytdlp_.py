@@ -5,9 +5,8 @@ import discord
 import os
 import asyncio
 import time
-from concurrent.futures import ThreadPoolExecutor # new hack
 from util_discord import command_check, description_helper
-from api_gdrive import DriveUploader
+from api_gdrive import AsyncDriveUploader
 
 async def YTDLP(ctx: commands.Context | discord.Interaction, arg1: str, arg2: str):
     if await command_check(ctx, "ytdlp", "media"):
@@ -45,23 +44,17 @@ async def YTDLP(ctx: commands.Context | discord.Interaction, arg1: str, arg2: st
             await asyncio.to_thread(ydl.download, [arg2]) # old hack
             if os.path.isfile(filename):
                 try:
-                    uploader = DriveUploader('./res/token.json')
-                    with ThreadPoolExecutor() as pool:
-                        bot: commands.Bot = ctx.bot
-                        results = await bot.loop.run_in_executor(pool, uploader.batch_upload, [filename], 'NOOBGPT', True, True)
-                    link = None
-                    for result in results:
-                        link = f"[{result.get('name')}]({result.get('link')})"
-                        break
-                    if not results: link = "[rickroll placeholder](https://youtube.com/watch?v=dQw4w9WgXcQ)" # should be impossible
+                    uploader = AsyncDriveUploader('./res/token.json')
+                    results = await uploader.batch_upload([filename], 'NOOBGPT', True, True)
+                    links = [{'label': 'Download', 'emoji': '⬇️', 'url': results[0].get('link')}]
                     # file = discord.File(filename)
                     if isinstance(ctx, commands.Context):
                         # await ctx.reply(file=file)
-                        await ctx.reply(link)
+                        await ctx.reply(filename, view=LinksView(links, ctx))
                         await msg.edit(content=f"`{filename}` has been prepared successfully!\nTook {round(time.time() * 1000)-old}ms")
                     if isinstance(ctx, discord.Interaction):
                         # await ctx.followup.send(file=file)
-                        await ctx.followup.send(link)
+                        await ctx.followup.send(filename, view=LinksView(links, ctx))
                         await ctx.edit_original_response(content=f"`{filename}` has been prepared successfully!\nTook {round(time.time() * 1000)-old}ms")
                 except:
                     error_message = f"Error: An error occurred while cooking `{filename}`\nFile too large!"
@@ -82,6 +75,25 @@ async def YTDLP(ctx: commands.Context | discord.Interaction, arg1: str, arg2: st
                 await msg.edit(content=error_message)
             if isinstance(ctx, discord.Interaction):
                 await ctx.edit_original_response(content=error_message)
+
+class CancelButton(discord.ui.Button):
+    def __init__(self, ctx: commands.Context):
+        super().__init__(emoji="❌", style=discord.ButtonStyle.success)
+        self.ctx = ctx
+    
+    async def callback(self, interaction: discord.Interaction):
+        if interaction.user != self.ctx.author: 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
+                                                           ephemeral=True)
+        await interaction.response.defer()
+        await interaction.delete_original_response()
+
+class LinksView(discord.ui.View):
+    def __init__(self, links: list, ctx: commands.Context):
+        super().__init__(timeout=None)
+        for x in links[:24]:
+            self.add_item(discord.ui.Button(style=discord.ButtonStyle.link, url=x['url'], label=x['label'], emoji=x['emoji']))
+        self.add_item(CancelButton(ctx))
 
 def checkSize(info, *, incomplete):
     filesize = info.get('filesize') if info.get('filesize') else info.get('filesize_approx')
