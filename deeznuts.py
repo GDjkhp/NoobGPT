@@ -1,5 +1,4 @@
-import asyncio
-import os
+import shutil
 from streamrip.config import Config
 from streamrip.db import Dummy, Database
 from streamrip.client import DeezerClient
@@ -7,6 +6,7 @@ from streamrip.rip.parse_url import parse_url
 from discord.ext import commands
 from discord import app_commands
 import discord
+from concurrent.futures import ThreadPoolExecutor # new hack
 from api_gdrive import DriveUploader
 from util_discord import description_helper, command_check, check_if_not_owner
 from util_database import myclient
@@ -31,6 +31,7 @@ async def cook_deez(ctx: commands.Context, links: str):
     client = DeezerClient(config)
     db = Database(downloads=Dummy(), failed=Dummy())
     await client.login()
+    if not links: return await info.edit(content=":(")
     urls = links.split()
     par, dl, er = 0, 0, 0
     queue = [
@@ -65,8 +66,9 @@ async def cook_deez(ctx: commands.Context, links: str):
 
     await info.edit(content="Uploading to Google Drive. This may take a while.")
     uploader = DriveUploader('./res/token.json')
-    results = await asyncio.to_thread(uploader.batch_upload, [str(ctx.author.id)], folder_in_drive='NOOBGPT',
-                                      make_public=True, recursive=True)
+    with ThreadPoolExecutor() as pool:
+        bot: commands.Bot = ctx.bot
+        results = await bot.loop.run_in_executor(pool, uploader.batch_upload, [str(ctx.author.id)], 'NOOBGPT', True, True)
     collect_urls = []
     for result in results:
         if result['type'] == 'folder':
@@ -75,17 +77,17 @@ async def cook_deez(ctx: commands.Context, links: str):
         #     print(f"File: {result['name']}")
         #     print(f"Public Link: {result.get('link', 'No link')}")
         # print("---")
-    os.remove(f"./{ctx.author.id}")
+    shutil.rmtree(f"./{ctx.author.id}")
     await info.edit(content="i'm done.", view=LinksView(collect_urls, ctx),
                     embed=blud_folded_under_zero_pressure(ctx, collect_urls))
 
 def folder_printer(result, ctx: commands.Context, collect_urls: list):
     if result['name'] != "__artwork": # check if not artwork folder
-        if result['name'] == str(ctx.author.id) and not result['name'] in result.get('files', []): # check if sub-root folder
+        if result['name'] == str(ctx.author.id) and not sub_root_cheeks(result): # check if sub-root folder
             data = {"label": "Root", "url": result.get('link', link_null), "emoji": "🫚",
                     "name": "Root", "size": result['size_human_readable']}
         else: # album folder
-            data = {"label": len(collect_urls)+1, "url": result.get('link', link_null), "emoji": None,
+            data = {"label": len(collect_urls), "url": result.get('link', link_null), "emoji": None,
                     "name": result['name'], "size": result['size_human_readable']}
         collect_urls.append(data)
 
@@ -107,8 +109,14 @@ def blud_folded_under_zero_pressure(ctx: commands.Context, url_list: list) -> di
     for url in url_list:
         if url['name'] != "Root": 
             e.add_field(name=url['name'], value=url['size'], inline=False)
-        else: e.set_footer(text=url['size'])
+        else: e.set_footer(text=f"Total size: {url['size']}")
     return e
+
+def sub_root_cheeks(folder):
+    for f in folder.get('files', []):
+        if folder['name'] == f['name']:
+            return True
+    return False
 
 class CancelButton(discord.ui.Button):
     def __init__(self, ctx: commands.Context):

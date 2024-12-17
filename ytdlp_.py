@@ -5,6 +5,7 @@ import discord
 import os
 import asyncio
 import time
+from concurrent.futures import ThreadPoolExecutor # new hack
 from util_discord import command_check, description_helper
 from api_gdrive import DriveUploader
 
@@ -41,16 +42,18 @@ async def YTDLP(ctx: commands.Context | discord.Interaction, arg1: str, arg2: st
                 await msg.edit(content=f"Preparing `{filename}`\nLet me cook.")
             if isinstance(ctx, discord.Interaction):
                 await ctx.edit_original_response(content=f"Preparing `{filename}`\nLet me cook.")
-            await asyncio.to_thread(ydl.download, [arg2])
+            await asyncio.to_thread(ydl.download, [arg2]) # old hack
             if os.path.isfile(filename):
                 try:
                     uploader = DriveUploader('./res/token.json')
-                    results = await asyncio.to_thread(uploader.batch_upload, [filename], folder_in_drive='NOOBGPT', make_public=True, recursive=True)
+                    with ThreadPoolExecutor() as pool:
+                        bot: commands.Bot = ctx.bot
+                        results = await bot.loop.run_in_executor(pool, uploader.batch_upload, [filename], 'NOOBGPT', True, True)
                     link = None
                     for result in results:
-                        link = f"[result.get('name')]({result.get('link')})"
+                        link = f"[{result.get('name')}]({result.get('link')})"
                         break
-                    if not results: link = "[rickroll placeholder](https://youtube.com/watch?v=dQw4w9WgXcQ)"
+                    if not results: link = "[rickroll placeholder](https://youtube.com/watch?v=dQw4w9WgXcQ)" # should be impossible
                     # file = discord.File(filename)
                     if isinstance(ctx, commands.Context):
                         # await ctx.reply(file=file)
