@@ -152,6 +152,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * <https://github.com/Xtr4F/PyCharacterAI>
 * <https://github.com/jiaaro/pydub>
 * <https://github.com/omarryhan/aiogoogle>
+* <https://github.com/nathom/streamrip>
 
 ### Sites
 * <https://openai.com>
