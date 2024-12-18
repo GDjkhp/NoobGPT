@@ -1,3 +1,4 @@
+import os
 import shutil
 from streamrip.config import Config
 from streamrip.db import Dummy, Database
@@ -25,7 +26,8 @@ async def cook_deez(ctx: commands.Context, links: str):
     if await command_check(ctx, "deez", "media"): return await ctx.reply("command disabled", ephemeral=True)
     info = await ctx.reply("Logging in")
     config = Config("./res/config.toml")
-    config.session.downloads.folder = f"./{ctx.author.id}"
+    directory = f"./{ctx.author.id}"
+    config.session.downloads.folder = directory
     config.session.deezer.arl = await get_deez()
     client = DeezerClient(config)
     db = Database(downloads=Dummy(), failed=Dummy())
@@ -58,23 +60,27 @@ async def cook_deez(ctx: commands.Context, links: str):
             queue[1] = f"Downloaded: {dl}/{len(urls)}"
         except Exception as e:
             # give up, let go, go fuck yourself and go die
-            print(f"Exception in cook_deez: {e}")
+            print(f"Exception in cook_deez -> deezer: {e}")
             er += 1
             queue[2] = f"Errors: {er}/{len(urls)}"
     await client.session.close()
 
+    if not os.path.isdir(directory): return await info.edit(content=":(")
     await info.edit(content="Uploading to Google Drive. This may take a while.")
-    uploader = AsyncDriveUploader('./res/token.json')
-    results = await uploader.batch_upload([str(ctx.author.id)], 'NOOBGPT', True, True)
-    collect_urls = []
-    for result in results:
-        if result['type'] == 'folder':
-            folder_printer(result, ctx, collect_urls)
-        # else:
-        #     print(f"File: {result['name']}")
-        #     print(f"Public Link: {result.get('link', 'No link')}")
-        # print("---")
-    shutil.rmtree(f"./{ctx.author.id}")
+    try:
+        uploader = AsyncDriveUploader('./res/token.json')
+        results = await uploader.batch_upload([str(ctx.author.id)], 'NOOBGPT', True, True)
+        collect_urls = []
+        for result in results:
+            if result['type'] == 'folder':
+                folder_printer(result, ctx, collect_urls)
+            # else:
+            #     print(f"File: {result['name']}")
+            #     print(f"Public Link: {result.get('link', 'No link')}")
+            # print("---")
+    except Exception as e:
+        print(f"Exception in cook_deez -> gdrive: {e}")
+    shutil.rmtree(directory)
     await info.edit(content="i'm done.", view=LinksView(collect_urls, ctx),
                     embed=blud_folded_under_zero_pressure(ctx, collect_urls))
 

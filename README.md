@@ -10,10 +10,16 @@
 </div>
 
 ## Source Code
-Requires `Python 3.10+`, `requirements.txt` packages, `.env` for secret keys, and a running [MongoDB](https://www.mongodb.com) instance.
 * <https://github.com/GDjkhp/level-up-loser-python-branch>
 
 Host your bots here: [Bot-Hosting.net](https://bot-hosting.net/?aff=729554186777133088)
+
+### Requirements
+* `Python 3.10+`, `requirements.txt` packages, `.env` for secret keys.
+* A running [MongoDB](https://www.mongodb.com) instance. [How do I find my MongoDB connection string?](https://www.mongodb.com/resources/products/fundamentals/mongodb-connection-string)
+* A `cookie.txt` for downloading YouTube videos. [How do I pass cookies to yt-dlp?](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp)
+* Google Cloud Console OAuth 2.0 User and Client credentials + `.../auth/drive.file` scope. [Generate token.json with quickstart.](https://developers.google.com/docs/api/quickstart/python)
+
 ## Support
 Feature requests, contributions, and improvements are welcome!
 <br>
@@ -48,6 +54,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-mistral` Mistral AI is a French company selling artificial intelligence products.
 * `-claude` Anthropic is an AI safety and research company that's working to build reliable, interpretable, and steerable AI systems.
 * `-cai` Character.ai is an American neural language model chatbot service that can generate human-like text responses and participate in contextual conversation.
+* `-horde` AI Horde is a crowdsourced distributed cluster of image generation workers and text generation workers.
 
 ## Games 🎲
 * `-aki (optional: category = [people/animals/objects] [language])` Play a guessing game of [Akinator](https://akinator.com).
@@ -61,9 +68,10 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-tv` Watch TV shows and movies.
 * `-anime` Watch animated works originating in Japan.
 * `-manga` Read comics originating in Japan.
+* `-booru` A form of imageboard where images are categorized with tags.
 * `-ytdlp (optional: format = [mp3/m4a]) [link]` Download or convert a YouTube video under 25MB discord limit using [yt-dlp](https://github.com/yt-dlp/yt-dlp). See [supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md).
 * `-cob [link]` [cobalt](https://cobalt.tools) is a media downloader that doesn't piss you off. See [supported sites](https://github.com/wukko/cobalt?tab=readme-ov-file#supported-services).
-* `-booru` A form of imageboard where images are categorized with tags.
+* `deez [link]` Streamrip is a scriptable stream downloader for Deezer.
     
 ## Utils 🔧
 * `-config` Customize how the bot works.
@@ -143,6 +151,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * <https://github.com/kkroening/ffmpeg-python>
 * <https://github.com/Xtr4F/PyCharacterAI>
 * <https://github.com/jiaaro/pydub>
+* <https://github.com/omarryhan/aiogoogle>
 
 ### Sites
 * <https://openai.com>
@@ -165,6 +174,8 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * <https://manganato.com>
 * <https://www.crummy.com/software/BeautifulSoup>
 * <https://github.com/marketplace/models>
+* <https://www.blackbox.ai>
+* <https://stablehorde.net>
 
 ### Special Thanks
 * `jaicraft` ~~Perplexity, Claude~~, Mistral access
@@ -183,9 +194,10 @@ NoobGPT and Moosic are licensed under the [Do What The Fuck You Want To Public L
 
 ### Data collection
 Required privilaged gateway intents: Server members and message content
-* Only IDs are collected. Server and user IDs are collected by default in order to save your settings. Yes, this includes booru collections.
-* Webhooks are collected in order for Character.AI to work. This is optional. Everything else are required.
+* Only IDs are collected. Server and user IDs are collected by default in order to save your settings. Yes, this includes your booru collections.
+* Only generated webhooks are collected in order for Character.AI to work. This is optional. Everything else are required.
 * You can wipe your user and server data. DM gdjkhp for a complete data wipe. GDPR is real.
+* Google Drive data retention policy: DO NOT ABUSE THE SYSTEM. All your generated files will be deleted after a while to save space. When? I decide. Download them immediately. Only generated files are collected.
 
 | **items**   | **accessed** | **collected** |
 | :---------- | :----------: | :-----------: |
@@ -204,13 +216,13 @@ Required privilaged gateway intents: Server members and message content
 | banner      | ✅           | ❌           |
 | **message** | ✅           | ❌           |
 | content     | ✅           | ❌           |
-| files       | ✅           | ❌           |
+| files       | ✅           | ✅           |
 | embeds      | ✅           | ❌           |
 | links       | ✅           | ❌           |
 | reactions   | ❌           | ❌           |
 
 ### Use AI responsibly ⚠
-<marquee>Content generated by AI services, including your inputs, are managed and collected by them. Read their terms of services and privacy policies before using. Proceed with caution and happy prompting!</marquee>
+<marquee>Content generated by AI services, including your inputs, are managed and collected by them. Read their terms of services and privacy policies before using them. Proceed with caution and happy prompting!</marquee>
 <br>
 <br>
 Bot by GDjkhp

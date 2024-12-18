@@ -110,7 +110,7 @@ async def start_bot(bot: commands.Bot, token: str):
 
 async def main():
     await asyncio.gather(
-        start_bot(NoobGPT(), os.getenv("TOKEN")),
+        start_bot(NoobGPT(), os.getenv("NOOBGPT")),
         start_bot(Moosic(), os.getenv("MOOSIC"))
     )
 
