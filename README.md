@@ -71,7 +71,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-booru` A form of imageboard where images are categorized with tags.
 * `-ytdlp (optional: format = [mp3/m4a]) [link]` Download or convert a YouTube video under 25MB discord limit using [yt-dlp](https://github.com/yt-dlp/yt-dlp). See [supported sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md).
 * `-cob [link]` [cobalt](https://cobalt.tools) is a media downloader that doesn't piss you off. See [supported sites](https://github.com/wukko/cobalt?tab=readme-ov-file#supported-services).
-* `deez [link]` Streamrip is a scriptable stream downloader for Deezer.
+* `-deez [link]` Streamrip is a scriptable stream downloader for Deezer.
     
 ## Utils 🔧
 * `-config` Customize how the bot works.
