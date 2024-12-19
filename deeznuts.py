@@ -8,7 +8,7 @@ from discord.ext import commands
 from discord import app_commands
 import discord
 from api_gdrive import AsyncDriveUploader
-from util_discord import description_helper, command_check, check_if_not_owner
+from util_discord import description_helper, command_check, check_if_not_owner, get_guild_prefix
 from util_database import myclient
 mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 link_null = "https://youtube.com/watch?v=dQw4w9WgXcQ"
@@ -24,16 +24,53 @@ async def set_deez(ctx: commands.Context, arg: str):
 
 async def cook_deez(ctx: commands.Context, links: str):
     if await command_check(ctx, "deez", "media"): return await ctx.reply("command disabled", ephemeral=True)
+    if not links: return await ctx.reply(":(")
+    urls = links.split()
+    if urls[0]=="arlc" and len(urls)==1: # fuck you i can read messages
+        try:
+            if ctx.message.reference: # check reply
+                referenced_message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+                urls.append(referenced_message.content)
+            else: # check msg history (desperate)
+                messages = [message async for message in ctx.history(limit=2)]
+                if len(messages) == 2:
+                    referenced_message = messages[0]
+                    if f"{await get_guild_prefix(ctx)}arlc" in referenced_message.content:
+                        referenced_message = messages[1]
+                    urls.append(referenced_message.content)
+                else: return ctx.reply("maybe i'm blind")
+        except Exception as e:
+            print(f"Exception in arlc: {e}")
+            return await ctx.reply("**Error! :(**")
     info = await ctx.reply("Logging in")
+    deez_arl = await get_deez()
+    session_arl = urls[1] if urls[0]=='arlc' and len(urls)==2 else deez_arl
     config = Config("./res/config.toml")
     directory = f"./{ctx.author.id}"
     config.session.downloads.folder = directory
-    config.session.deezer.arl = await get_deez()
+    config.session.deezer.arl = session_arl
     client = DeezerClient(config)
     db = Database(downloads=Dummy(), failed=Dummy())
-    await client.login()
-    if not links: return await info.edit(content=":(")
-    urls = links.split()
+    try:
+        await client.login()
+    except Exception as e:
+        the_string = "log-in failed. arl expired."
+        print(the_string)
+        return await info.edit(content=the_string)
+    if urls[0]=="arlc":
+        user_data = client.client.gw.get_user_data()
+        family = user_data["USER"]["MULTI_ACCOUNT"]["ENABLED"] and not user_data["USER"]["MULTI_ACCOUNT"]["IS_SUB_ACCOUNT"]
+        f_plan = "Family" if family else "Premium"
+        c_info = client.client.current_user
+        the_info = [
+            f"Name: {c_info['name']} {'(Current ARL)' if session_arl==deez_arl else ''}",
+            f"Plan: Deezer {f_plan}",
+            f"Country: {c_info['country']}",
+            f"HQ: {'✅' if c_info['can_stream_hq'] else '❌'}",
+            f"Lossless: {'✅' if c_info['can_stream_lossless'] else '❌'}",
+        ]
+        await client.session.close()
+        return await info.edit(content="\n".join(the_info))
     par, dl, er = 0, 0, 0
     queue = [
         f"Parsed: {par}/{len(urls)}",
@@ -162,6 +199,13 @@ class CogDeez(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def deez(self, ctx: commands.Context, *, links:str=None):
         await cook_deez(ctx, links)
+
+    @commands.hybrid_command(description=f"{description_helper['emojis']['media']} Deezer ARL checker")
+    @app_commands.describe(arl="ARL")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def arlc(self, ctx: commands.Context, arl:str=''):
+        await cook_deez(ctx, f"arlc {arl}")
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogDeez(bot))
