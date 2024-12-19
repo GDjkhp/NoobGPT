@@ -590,7 +590,7 @@ async def voice_message_hack(audio, buffer: io.BytesIO, file_size: int, ctx: com
     async with aiohttp.ClientSession() as session:
         # Step 1: Request upload URL
         headers = {
-            "Authorization": f"Bot {os.getenv('TOKEN')}",
+            "Authorization": f"Bot {os.getenv('NOOBGPT')}",
             "Content-Type": "application/json"
         }
         data = {
