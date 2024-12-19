@@ -36,7 +36,7 @@ async def cook_deez(ctx: commands.Context, links: str):
                 if len(messages) == 2:
                     use_ref = True
                     referenced_message = messages[0]
-                    if f"{await get_guild_prefix(ctx)}arlc" in referenced_message.content and len(messages[1])==192: # magic number -> len(arl)
+                    if f"{await get_guild_prefix(ctx)}arlc" in referenced_message.content and len(messages[1].content)==192: # magic number -> len(arl)
                         referenced_message = messages[1]
                     else: use_ref = False
                     if use_ref: urls.append(referenced_message.content)
