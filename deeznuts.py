@@ -34,10 +34,13 @@ async def cook_deez(ctx: commands.Context, links: str):
             else: # check msg history (desperate)
                 messages = [message async for message in ctx.history(limit=2)]
                 if len(messages) == 2:
+                    use_ref = True
                     referenced_message = messages[0]
-                    if f"{await get_guild_prefix(ctx)}arlc" in referenced_message.content:
+                    if f"{await get_guild_prefix(ctx)}arlc" in referenced_message.content and len(messages[1])==192: # magic number -> len(arl)
                         referenced_message = messages[1]
-                    urls.append(referenced_message.content)
+                    else: use_ref = False
+                    if use_ref: urls.append(referenced_message.content)
+                    else: urls.append(await get_deez()) # check current arl
                 else: return ctx.reply("maybe i'm blind")
         except Exception as e:
             print(f"Exception in arlc: {e}")
@@ -55,17 +58,20 @@ async def cook_deez(ctx: commands.Context, links: str):
         await client.login()
     except Exception as e:
         the_string = "log-in failed. arl expired."
-        print(the_string)
+        await client.session.close()
+        if deez_arl==session_arl: print(the_string)
         return await info.edit(content=the_string)
     if urls[0]=="arlc":
         user_data = client.client.gw.get_user_data()
-        family = user_data["USER"]["MULTI_ACCOUNT"]["ENABLED"] and not user_data["USER"]["MULTI_ACCOUNT"]["IS_SUB_ACCOUNT"]
+        family = user_data["USER"]["MULTI_ACCOUNT"]["ENABLED"]
         f_plan = "Family" if family else "Premium"
         c_info = client.client.current_user
         the_info = [
-            f"Name: {c_info['name']} {'(Current ARL)' if session_arl==deez_arl else ''}",
+            f"Name: {c_info['name']}{' (Current ARL)' if session_arl==deez_arl else ''}",
             f"Plan: Deezer {f_plan}",
             f"Country: {c_info['country']}",
+            f"Expiry Date: {user_data['USER']['TRY_AND_BUY']['DATE_END'][:10]}",
+            f"Explicit: {'✅' if user_data['USER']['EXPLICIT_CONTENT_LEVEL']=='explicit_display' else '❌'}",
             f"HQ: {'✅' if c_info['can_stream_hq'] else '❌'}",
             f"Lossless: {'✅' if c_info['can_stream_lossless'] else '❌'}",
         ]

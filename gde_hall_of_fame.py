@@ -66,15 +66,20 @@ async def main_gde(client_discord: commands.Bot):
     old_data = await req_real(api)
     if old_data: print("mee6 api ok")
     while True:
-        await asyncio.sleep(delay)
-        new_data = await req_real(api)
-        if new_data:
-            server_members = get_server_members(client_discord, gde_guild_id)
-            msgs = check_level_up(old_data, new_data, server_members)
-            if msgs:
-                channel = client_discord.get_channel(gde_channel_id)
-                await channel.send("\n".join(msgs))
-            old_data = new_data
+        try:
+            await asyncio.sleep(delay)
+            new_data = await req_real(api)
+            if new_data:
+                server_members = get_server_members(client_discord, gde_guild_id)
+                msgs = check_level_up(old_data, new_data, server_members)
+                if msgs:
+                    channel = client_discord.get_channel(gde_channel_id)
+                    await channel.send("\n".join(msgs))
+                old_data = new_data
+        except Exception as e:
+            print(f"Exception in main_gde: {e}")
+            await asyncio.sleep(delay)
+            old_data = await req_real(api) # fuckup
 
 # styx bot
 api2 = f"{api}&page=1" # rank 1001+
@@ -103,17 +108,22 @@ async def main_rob(client_discord: commands.Bot):
     old_data = await req_real(api2)
     if old_data: print("mee6 api2 ok")
     while True:
-        await asyncio.sleep(delay)
-        new_data = await req_real(api2)
-        if new_data:
-            msgs = check_robert(old_data, new_data)
-            if msgs:
-                channel = client_discord.get_channel(styx_channel_id)
-                await channel.send("\n".join(msgs))
-                print("robtop in chat")
-                await asyncio.sleep(3600) # 1 hour
-                new_data = await req_real(api2)
-            old_data = new_data
+        try:
+            await asyncio.sleep(delay)
+            new_data = await req_real(api2)
+            if new_data:
+                msgs = check_robert(old_data, new_data)
+                if msgs:
+                    channel = client_discord.get_channel(styx_channel_id)
+                    await channel.send("\n".join(msgs))
+                    print("robtop in chat")
+                    await asyncio.sleep(3600) # 1 hour
+                    new_data = await req_real(api2)
+                old_data = new_data
+        except Exception as e:
+            print(f"Exception in main_rob: {e}")
+            await asyncio.sleep(delay)
+            old_data = await req_real(api2) # fuckup
 
 def build_attachments(message: discord.Message) -> str:
     if message.attachments:
