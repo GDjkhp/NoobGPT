@@ -19,3 +19,4 @@ pydub
 git+https://github.com/Xtr4F/PyCharacterAI
 aiogoogle
 streamrip
+reportlab
