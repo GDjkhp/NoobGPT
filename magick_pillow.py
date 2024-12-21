@@ -13,7 +13,7 @@ from util_discord import description_helper, command_check
 
 supported_formats = {
     'png', 'webp', 'jpeg', 'jpg', 'gif', 
-    'bmp', 'tiff', 'tif', 'pdf', 'svg',
+    'bmp', 'tiff', 'pdf', 'svg',
     # 'ico', 'avif', 'apng', 
 }
 # Formats that can handle animation
@@ -200,7 +200,7 @@ def process_images(images: list[Image.Image], format: str) -> Union[io.BytesIO, 
                 img = background
             img.save(output, format='JPEG', quality=95)
 
-        elif format == 'tiff' or format == 'tif':
+        elif format == 'tiff':
             img.save(output, format='TIFF', compression='lzw')
         
         elif format == 'ico': # bug: windows can't read (corrupted)
