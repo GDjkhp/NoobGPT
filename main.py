@@ -58,6 +58,7 @@ class NoobGPT(commands.Bot):
         await self.load_extension('manganato')
         await self.load_extension('mangadex')
         await self.load_extension('ytdlp_')
+        await self.load_extension('magick_pillow')
         # await self.load_extension('cobalt')
         await self.load_extension('deeznuts')
         await self.load_extension('quoteport')
