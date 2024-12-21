@@ -9,11 +9,16 @@ from util_discord import command_check, description_helper
 from api_gdrive import AsyncDriveUploader
 
 async def ytdlp_thumb(ctx: commands.Context, url: str):
+    if await command_check(ctx, "thumb", "media"):
+        return await ctx.reply("command disabled", ephemeral=True)
     if not url:
         return await ctx.reply("Please provide a YouTube URL!")
     info = await ctx.reply("checking url")
-    with YoutubeDL() as ydl:
-        res = await asyncio.to_thread(ydl.extract_info, url, download=False)
+    with YoutubeDL({'cookiefile': './res/cookies.txt'}) as ydl:
+        try:
+            res = await asyncio.to_thread(ydl.extract_info, url, download=False)
+        except:
+            return await info.edit(content=":(")
         thumbnail_url = res.get('thumbnail')
         if not thumbnail_url:
             return await info.edit(content="Couldn't fetch the thumbnail. Is this a valid YouTube URL?")
@@ -167,7 +172,7 @@ class CogYT(commands.Cog):
     async def ytdlp_m4a(self, ctx: discord.Interaction, link: str = None):
         await YTDLP(ctx, "m4a", link)
         
-    @commands.hybrid_command(description=f'{description_helper["emojis"]["media"]} Get YouTube video thumbnail')
+    @commands.hybrid_command(description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["thumb"]}')
     @app_commands.describe(url="YouTube video URL")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)

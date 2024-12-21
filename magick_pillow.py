@@ -4,16 +4,17 @@ import discord
 from discord import app_commands
 import io
 import aiohttp
-import os
-from typing import Union, List
+from typing import Union
 from urllib.parse import urlparse
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
 from reportlab.lib.pagesizes import A4
+from util_discord import description_helper, command_check
 
 supported_formats = {
     'png', 'webp', 'jpeg', 'jpg', 'svg', 'gif', 'apng', 
-    'avif', 'bmp', 'ico', 'tiff', 'tif', 'pdf'
+    'bmp', 'tiff', 'tif', 'pdf',
+    # 'ico', 'avif'
 }
 # Formats that can handle animation
 animated_formats = {'gif', 'apng', 'webp'}
@@ -24,7 +25,9 @@ special_formats = {
     'pdf': {'compress': True}
 }
 
-async def img_converter(ctx: commands.Context, format: str, images: str = None):
+async def img_converter(ctx: commands.Context, format: str, image: discord.Attachment | str, images: str):
+    if await command_check(ctx, "img", "media"):
+        return await ctx.reply("command disabled", ephemeral=True)
     if format == "help":
         formats_list = ", ".join(sorted(supported_formats))
         await ctx.send(f"Supported formats: {formats_list}\nYou can provide multiple images as attachments or URLs (space-separated)")
@@ -39,15 +42,29 @@ async def img_converter(ctx: commands.Context, format: str, images: str = None):
     # Collect all images from attachments and URLs
     image_data_list = []
     
-    # Check attachments
+    # Handle the primary image parameter
+    if isinstance(image, discord.Attachment):
+        if image.content_type.startswith('image/'):
+            image_data_list.append(await image.read())
+    elif image and is_valid_image_url(image):
+        try:
+            image_data = await download_image(image)
+            image_data_list.append(image_data)
+        except:
+            await ctx.send(f"Failed to download image from {image}")
+
+    # Check additional attachments
     if ctx.message.attachments:
         for attachment in ctx.message.attachments:
+            # Skip the first attachment if it was already processed
+            if isinstance(image, discord.Attachment) and attachment.id == image.id:
+                continue
             if attachment.content_type.startswith('image/'):
                 image_data_list.append(await attachment.read())
             else:
                 await ctx.send(f"Skipping {attachment.filename} as it's not an image.")
 
-    # Check URLs if provided
+    # Check additional URLs if provided
     if images:
         urls = images.split()
         for url in urls:
@@ -122,7 +139,7 @@ def is_animated(img: Image.Image) -> bool:
     finally:
         img.seek(0)
         
-def convert_multiple_to_pdf(images: List[Image.Image]) -> io.BytesIO:
+def convert_multiple_to_pdf(images: list[Image.Image]) -> io.BytesIO:
     output = io.BytesIO()
     # Use A4 as default page size
     c = canvas.Canvas(output, pagesize=A4)
@@ -167,7 +184,7 @@ def convert_multiple_to_pdf(images: List[Image.Image]) -> io.BytesIO:
     output.seek(0)
     return output
         
-def process_images(images: List[Image.Image], format: str) -> Union[io.BytesIO, List[io.BytesIO]]:
+def process_images(images: list[Image.Image], format: str) -> Union[io.BytesIO, list[io.BytesIO]]:
     if format == 'pdf':
         return convert_multiple_to_pdf(images)
     
@@ -183,11 +200,11 @@ def process_images(images: List[Image.Image], format: str) -> Union[io.BytesIO, 
                 img = background
             img.save(output, format='JPEG', quality=95)
         
-        elif format == 'ico':
-            img.save(output, format='ICO', sizes=special_formats['ico']['sizes'])
+        # elif format == 'ico':
+        #     img.save(output, format='ICO', sizes=special_formats['ico']['sizes'])
         
-        elif format == 'avif':
-            img.save(output, format='AVIF', quality=special_formats['avif']['quality'])
+        # elif format == 'avif':
+        #     img.save(output, format='AVIF', quality=special_formats['avif']['quality'])
         
         elif format == 'tiff' or format == 'tif':
             img.save(output, format='TIFF', compression='lzw')
@@ -239,19 +256,20 @@ class ImageConverter(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.hybrid_command(description="Convert an image to a different format.")
-    @app_commands.describe(image="Image source (Can be an uploaded attachment or URL)", format="Output format")
+    @commands.hybrid_command(description=f'{description_helper["media"]["img"]}')
+    @app_commands.describe(image="Image source", images="Image sources (Only URLs are supported)", format="Output format")
     @app_commands.autocomplete(format=fmt_auto)
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def convert_image(
+    async def img(
         self,
         ctx: commands.Context,
-        format: str,
+        format: str = "png",
+        image: discord.Attachment = None,
         *,
         images: str = None
     ):
-        await img_converter(ctx, format, images)
+        await img_converter(ctx, format, image, images)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(ImageConverter(bot))
