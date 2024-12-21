@@ -12,9 +12,9 @@ from reportlab.lib.pagesizes import A4
 from util_discord import description_helper, command_check
 
 supported_formats = {
-    'png', 'webp', 'jpeg', 'jpg', 'svg', 'gif', 'apng', 
-    'bmp', 'tiff', 'tif', 'pdf',
-    # 'ico', 'avif'
+    'png', 'webp', 'jpeg', 'jpg', 'gif', 
+    'bmp', 'tiff', 'tif', 'pdf', 'svg',
+    # 'ico', 'avif', 'apng', 
 }
 # Formats that can handle animation
 animated_formats = {'gif', 'apng', 'webp'}
@@ -199,17 +199,17 @@ def process_images(images: list[Image.Image], format: str) -> Union[io.BytesIO, 
                 background.paste(img, mask=img.split()[-1])
                 img = background
             img.save(output, format='JPEG', quality=95)
-        
-        # elif format == 'ico':
-        #     img.save(output, format='ICO', sizes=special_formats['ico']['sizes'])
-        
-        # elif format == 'avif':
-        #     img.save(output, format='AVIF', quality=special_formats['avif']['quality'])
-        
+
         elif format == 'tiff' or format == 'tif':
             img.save(output, format='TIFF', compression='lzw')
         
-        elif format == 'apng':
+        elif format == 'ico': # bug: windows can't read (corrupted)
+            img.save(output, format='ICO', sizes=special_formats['ico']['sizes'])
+        
+        elif format == 'avif': # no support (see pillow-avif-plugin)
+            img.save(output, format='AVIF', quality=special_formats['avif']['quality'])
+
+        elif format == 'apng': # cannot access local variable 'colors' where it is not associated with a value (gif -> apng)
             if is_animated(img):
                 frames = []
                 try:
