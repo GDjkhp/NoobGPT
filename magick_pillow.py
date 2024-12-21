@@ -12,7 +12,7 @@ from reportlab.lib.pagesizes import A4
 from util_discord import description_helper, command_check
 
 supported_formats = {
-    'png', 'webp', 'jpeg', 'jpg', 'gif', 
+    'png', 'webp', 'jpeg', 'gif', 
     'bmp', 'tiff', 'pdf', 'svg',
     # 'ico', 'avif', 'apng', 
 }
@@ -193,7 +193,7 @@ def process_images(images: list[Image.Image], format: str) -> Union[io.BytesIO, 
     for img in images:
         output = io.BytesIO()
         
-        if format in ['jpeg', 'jpg']:
+        if format == 'jpeg':
             if img.mode in ('RGBA', 'LA'):
                 background = Image.new('RGB', img.size, (255, 255, 255))
                 background.paste(img, mask=img.split()[-1])
