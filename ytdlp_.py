@@ -58,34 +58,35 @@ async def YTDLP(ctx: commands.Context | discord.Interaction, arg1: str, arg2: st
             if isinstance(ctx, discord.Interaction):
                 await ctx.edit_original_response(content=f"Preparing `{filename}`\nLet me cook.")
             await asyncio.to_thread(ydl.download, [arg2]) # old hack
-            if os.path.isfile(filename):
-                try:
-                    uploader = AsyncDriveUploader('./res/token.json')
-                    results = await uploader.batch_upload([filename], 'NOOBGPT', True, True)
-                    links = [{'label': 'Download', 'emoji': '⬇️', 'url': results[0].get('link')}]
-                    # file = discord.File(filename)
-                    if isinstance(ctx, commands.Context):
-                        # await ctx.reply(file=file)
-                        await ctx.reply(filename, view=LinksView(links, ctx))
-                        await msg.edit(content=f"`{filename}` has been prepared successfully!\nTook {round(time.time() * 1000)-old}ms")
-                    if isinstance(ctx, discord.Interaction):
-                        # await ctx.followup.send(file=file)
-                        await ctx.followup.send(filename, view=LinksView(links, ctx))
-                        await ctx.edit_original_response(content=f"`{filename}` has been prepared successfully!\nTook {round(time.time() * 1000)-old}ms")
-                except:
-                    error_message = f"Error: An error occurred while cooking `{filename}`\nFile too large!"
-                    if isinstance(ctx, commands.Context):
-                        await msg.edit(content=error_message)
-                    if isinstance(ctx, discord.Interaction):
-                        await ctx.edit_original_response(content=error_message)
-                os.remove(filename)
-            else:
-                error_message = f"Error: An error occurred while cooking `{filename}`"
+            if not os.path.isfile(filename):
+                error_message = f"An error occurred while cooking `{filename}`\nFilename not found!"
+                if isinstance(ctx, commands.Context):
+                    return await msg.edit(content=error_message)
+                if isinstance(ctx, discord.Interaction):
+                    return await ctx.edit_original_response(content=error_message)
+            try:
+                uploader = AsyncDriveUploader('./res/token.json')
+                results = await uploader.batch_upload([filename], 'NOOBGPT', True, True)
+                links = [{'label': 'Download', 'emoji': '⬇️', 'url': results[0].get('link')}]
+                # file = discord.File(filename)
+                if isinstance(ctx, commands.Context):
+                    # await ctx.reply(file=file)
+                    await ctx.reply(filename, view=LinksView(links, ctx))
+                    await msg.edit(content=f"`{filename}` has been prepared successfully!\nTook {round(time.time() * 1000)-old}ms")
+                if isinstance(ctx, discord.Interaction):
+                    # await ctx.followup.send(file=file)
+                    await ctx.followup.send(filename, view=LinksView(links, ctx))
+                    await ctx.edit_original_response(content=f"`{filename}` has been prepared successfully!\nTook {round(time.time() * 1000)-old}ms")
+            except Exception as e:
+                print(f"Exception in ytdlp_ -> gdrive: {e}")
+                error_message = f"An error occurred while cooking `{filename}`\nGoogle Drive failed to upload files!"
                 if isinstance(ctx, commands.Context):
                     await msg.edit(content=error_message)
                 if isinstance(ctx, discord.Interaction):
                     await ctx.edit_original_response(content=error_message)
+            os.remove(filename)
         except Exception as e:
+            print(f"Exception in ytdlp_ -> ydl: {e}")
             error_message = f"**Error! :(**\n{str(e)}"
             if isinstance(ctx, commands.Context):
                 await msg.edit(content=error_message)
