@@ -107,10 +107,9 @@ async def cook_deez(ctx: commands.Context, links: str):
             er += 1
             queue[2] = f"Errors: {er}/{len(urls)}"
     await client.session.close()
-
     if not os.path.isdir(directory): return await info.edit(content=":(")
-    await info.edit(content="Uploading to Google Drive. This may take a while.")
     try:
+        await info.edit(content="Uploading to Google Drive. This may take a while.")
         uploader = AsyncDriveUploader('./res/token.json')
         results = await uploader.batch_upload([str(ctx.author.id)], 'NOOBGPT', True, True)
         collect_urls = []
@@ -121,11 +120,12 @@ async def cook_deez(ctx: commands.Context, links: str):
             #     print(f"File: {result['name']}")
             #     print(f"Public Link: {result.get('link', 'No link')}")
             # print("---")
+            await info.edit(content="i'm done.", view=LinksView(collect_urls, ctx),
+                            embed=blud_folded_under_zero_pressure(ctx, collect_urls))
     except Exception as e:
         print(f"Exception in cook_deez -> gdrive: {e}")
+        await info.edit(content="gdrive session expired")
     shutil.rmtree(directory)
-    await info.edit(content="i'm done.", view=LinksView(collect_urls, ctx),
-                    embed=blud_folded_under_zero_pressure(ctx, collect_urls))
 
 def folder_printer(result, ctx: commands.Context, collect_urls: list):
     if result['name'] != "__artwork": # check if not artwork folder
