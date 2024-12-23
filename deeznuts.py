@@ -120,8 +120,8 @@ async def cook_deez(ctx: commands.Context, links: str):
             #     print(f"File: {result['name']}")
             #     print(f"Public Link: {result.get('link', 'No link')}")
             # print("---")
-            await info.edit(content="i'm done.", view=LinksView(collect_urls, ctx),
-                            embed=blud_folded_under_zero_pressure(ctx, collect_urls))
+        await info.edit(content="i'm done.", view=LinksView(collect_urls, ctx),
+                        embed=blud_folded_under_zero_pressure(ctx, collect_urls))
     except Exception as e:
         print(f"Exception in cook_deez -> gdrive: {e}")
         await info.edit(content="gdrive session expired")
