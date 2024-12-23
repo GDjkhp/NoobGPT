@@ -18,7 +18,7 @@ Host your bots here: [Bot-Hosting.net](https://bot-hosting.net/?aff=729554186777
 * `Python 3.10+`, `requirements.txt` packages, `.env` for secret keys.
 * A running [MongoDB](https://www.mongodb.com) instance. [How do I find my MongoDB connection string?](https://www.mongodb.com/resources/products/fundamentals/mongodb-connection-string)
 * A `cookie.txt` for downloading YouTube videos. [How do I pass cookies to yt-dlp?](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp)
-* Google Cloud Console OAuth 2.0 User and Client credentials + `.../auth/drive.file` scope. [Generate token.json with quickstart.](https://developers.google.com/docs/api/quickstart/python)
+* Google Cloud Console OAuth 2.0 User and Client credentials (Production) + `.../auth/drive.file` scope. [Generate token.json with quickstart.](https://developers.google.com/docs/api/quickstart/python)
 
 ## Support
 Feature requests, contributions, and improvements are welcome!
