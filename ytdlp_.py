@@ -8,6 +8,10 @@ import time
 from util_discord import command_check, description_helper
 from api_gdrive import AsyncDriveUploader
 
+audio_formats = ["mp3", "m4a"]
+video_formats = ["mp4", "webm"]
+formats = ['mp3', 'm4a', "mp4", "webm"]
+
 async def ytdlp_thumb(ctx: commands.Context, url: str):
     if await command_check(ctx, "thumb", "media"):
         return await ctx.reply("command disabled", ephemeral=True)
@@ -16,13 +20,12 @@ async def ytdlp_thumb(ctx: commands.Context, url: str):
     info = await ctx.reply("checking url")
     with YoutubeDL({'cookiefile': './res/cookies.txt'}) as ydl:
         try:
-            res = await asyncio.to_thread(ydl.extract_info, url, download=False)
+            res = ydl.extract_info(url, download=False)
         except:
             return await info.edit(content=":(")
-        thumbnail_url = res.get('thumbnail')
-        if not thumbnail_url:
+        if not res.get('thumbnail'):
             return await info.edit(content="Couldn't fetch the thumbnail. Is this a valid YouTube URL?")
-        await info.edit(content=thumbnail_url)
+        await info.edit(content=res.get('thumbnail'))
 
 async def YTDLP(ctx: commands.Context | discord.Interaction, arg1: str, arg2: str):
     if await command_check(ctx, "ytdlp", "media"):
@@ -34,7 +37,6 @@ async def YTDLP(ctx: commands.Context | discord.Interaction, arg1: str, arg2: st
     old = round(time.time() * 1000)
     if not arg1:
         arg1, arg2 = "mp3", "dQw4w9WgXcQ"
-    formats = ['mp3', 'm4a']
     if arg2 and arg1 not in formats:
         if isinstance(ctx, commands.Context):
             return await ctx.reply(f"Unsupported format :(\nAvailable conversion formats: `{formats}`")
@@ -53,10 +55,11 @@ async def YTDLP(ctx: commands.Context | discord.Interaction, arg1: str, arg2: st
             # fixme: broken if generic
             info_dict = ydl.extract_info(arg2, download=False)
             filename = ydl.prepare_filename(info_dict) if not arg1 else f"{os.path.splitext(ydl.prepare_filename(info_dict))[0]}.{arg1}"
+            prepare_txt = f"Preparing `{filename}`\nLet me cook."
             if isinstance(ctx, commands.Context):
-                await msg.edit(content=f"Preparing `{filename}`\nLet me cook.")
+                await msg.edit(content=prepare_txt)
             if isinstance(ctx, discord.Interaction):
-                await ctx.edit_original_response(content=f"Preparing `{filename}`\nLet me cook.")
+                await ctx.edit_original_response(content=prepare_txt)
             await asyncio.to_thread(ydl.download, [arg2]) # old hack
             if not os.path.isfile(filename):
                 error_message = f"An error occurred while cooking `{filename}`\nFilename not found!"
@@ -69,14 +72,16 @@ async def YTDLP(ctx: commands.Context | discord.Interaction, arg1: str, arg2: st
                 results = await uploader.batch_upload([filename], 'NOOBGPT', True, True)
                 links = [{'label': 'Download', 'emoji': '⬇️', 'url': results[0].get('link')}]
                 # file = discord.File(filename)
+                res_txt = f"`{filename}` has been prepared successfully!\nTook {round(time.time() * 1000)-old}ms"
+                dl_embed = ytdlp_embed(ctx, info_dict, filename)
                 if isinstance(ctx, commands.Context):
                     # await ctx.reply(file=file)
-                    await ctx.reply(filename, view=LinksView(links, ctx))
-                    await msg.edit(content=f"`{filename}` has been prepared successfully!\nTook {round(time.time() * 1000)-old}ms")
+                    await ctx.reply(embed=dl_embed, view=LinksView(links, ctx))
+                    await msg.edit(content=res_txt)
                 if isinstance(ctx, discord.Interaction):
                     # await ctx.followup.send(file=file)
-                    await ctx.followup.send(filename, view=LinksView(links, ctx))
-                    await ctx.edit_original_response(content=f"`{filename}` has been prepared successfully!\nTook {round(time.time() * 1000)-old}ms")
+                    await ctx.followup.send(embed=dl_embed, view=LinksView(links, ctx))
+                    await ctx.edit_original_response(content=res_txt)
             except Exception as e:
                 print(f"Exception in ytdlp_ -> gdrive: {e}")
                 error_message = f"An error occurred while cooking `{filename}`\nGoogle Drive failed to upload files!"
@@ -92,6 +97,34 @@ async def YTDLP(ctx: commands.Context | discord.Interaction, arg1: str, arg2: st
                 await msg.edit(content=error_message)
             if isinstance(ctx, discord.Interaction):
                 await ctx.edit_original_response(content=error_message)
+
+def ytdlp_embed(ctx: commands.Context, info: dict, filename: str):
+    e = discord.Embed(color=0xff0033, description=info.get('channel'), title=info.get('title'))
+    e.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
+    e.set_thumbnail(url=info.get('thumbnail'))
+
+    e.add_field(name="Upload date", value=info.get('upload_date'))
+    e.add_field(name="Duration", value=info.get('duration_string'))
+    e.add_field(name="FPS", value=info.get('fps'))
+
+    e.add_field(name="View count", value=info.get('view_count'))
+    e.add_field(name="Comment count", value=info.get('comment_count'))
+    e.add_field(name="Like count", value=info.get('like_count'))
+    
+    e.add_field(name="Format", value=info.get('format'))
+    e.add_field(name="Video codec", value=info.get('vcodec'))
+    e.add_field(name="Audio codec", value=info.get('acodec'))
+
+    e.add_field(name="Extractor", value=info.get('extractor'))
+    e.add_field(name="Extension", value=filename.split('.')[-1])
+    e.add_field(name="File size", value=format_file_size(os.path.getsize(filename)))
+    return e
+
+def format_file_size(size_bytes):
+    for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+        if size_bytes < 1024.0:
+            return f"{size_bytes:.2f} {unit}"
+        size_bytes /= 1024.0
 
 class CancelButton(discord.ui.Button):
     def __init__(self, ctx: commands.Context):
@@ -118,8 +151,6 @@ def checkSize(info, *, incomplete):
         return f'File too large! {filesize} bytes'
 
 def get_ydl_opts(arg):
-    audio_formats = ["mp3", "m4a"]
-    video_formats = ["mp4", "webm"]
     options = {
         'cookiefile': './res/cookies.txt',
         'outtmpl': '%(title).200s.%(ext)s',
@@ -135,10 +166,10 @@ def get_ydl_opts(arg):
                 'preferredquality': '320',
             }]
         })
-    elif arg in video_formats: # disabled
+    elif arg in video_formats:
         options.update({
             'postprocessors': [{
-                'key': 'FFmpegVideoConvertor',
+                'key': 'FFmpegVideoRemuxer',
                 'preferedformat': arg,
             }]
         })
