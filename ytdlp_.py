@@ -27,12 +27,8 @@ async def ytdlp_thumb(ctx: commands.Context, url: str):
             return await info.edit(content="Couldn't fetch the thumbnail. Is this a valid YouTube URL?")
         await info.edit(content=res.get('thumbnail'))
 
-async def YTDLP(ctx: commands.Context | discord.Interaction, arg1: str, arg2: str):
-    if await command_check(ctx, "ytdlp", "media"):
-        if isinstance(ctx, commands.Context):
-            return await ctx.reply("command disabled", ephemeral=True)
-        if isinstance(ctx, discord.Interaction):
-            return await ctx.response.send_message("command disabled", ephemeral=True)
+async def YTDLP(ctx: commands.Context, arg1: str, arg2: str):
+    if await command_check(ctx, "ytdlp", "media"): return await ctx.reply("command disabled", ephemeral=True)
     # async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
     old = round(time.time() * 1000)
     url, format = None, None
@@ -52,15 +48,9 @@ async def YTDLP(ctx: commands.Context | discord.Interaction, arg1: str, arg2: st
             url = arg_list[0]
         else:
             format_error = f"Unsupported format :(\nAvailable conversion formats: `{formats}`"
-            if isinstance(ctx, commands.Context):
-                return await ctx.reply(format_error)
-            if isinstance(ctx, discord.Interaction):
-                return await ctx.response.send_message(format_error)
+            return await ctx.reply(format_error)
     ydl_opts = get_ydl_opts(format)
-    if isinstance(ctx, commands.Context):
-        msg = await ctx.reply("Cooking…")
-    if isinstance(ctx, discord.Interaction):
-        await ctx.response.send_message("Cooking…")
+    msg = await ctx.reply("Cooking…")
 
     with YoutubeDL(ydl_opts) as ydl:
         try:
@@ -68,17 +58,11 @@ async def YTDLP(ctx: commands.Context | discord.Interaction, arg1: str, arg2: st
             info_dict = await asyncio.to_thread(ydl.extract_info, url, download=False)
             filename = ydl.prepare_filename(info_dict) if not format else f"{os.path.splitext(ydl.prepare_filename(info_dict))[0]}.{format}"
             prepare_txt = f"Preparing `{filename}`\nLet me cook."
-            if isinstance(ctx, commands.Context):
-                await msg.edit(content=prepare_txt)
-            if isinstance(ctx, discord.Interaction):
-                await ctx.edit_original_response(content=prepare_txt)
+            await msg.edit(content=prepare_txt)
             await asyncio.to_thread(ydl.download, [url])
             if not os.path.isfile(filename):
                 error_message = f"An error occurred while cooking `{filename}`\nFilename not found!"
-                if isinstance(ctx, commands.Context):
-                    return await msg.edit(content=error_message)
-                if isinstance(ctx, discord.Interaction):
-                    return await ctx.edit_original_response(content=error_message)
+                return await msg.edit(content=error_message)
             try:
                 uploader = AsyncDriveUploader('./res/token.json')
                 results = await uploader.batch_upload([filename], 'NOOBGPT', True, True)
@@ -86,29 +70,17 @@ async def YTDLP(ctx: commands.Context | discord.Interaction, arg1: str, arg2: st
                 # file = discord.File(filename)
                 res_txt = f"`{filename}` has been prepared successfully!\nTook {round(time.time() * 1000)-old}ms"
                 dl_embed = ytdlp_embed(ctx, info_dict, filename)
-                if isinstance(ctx, commands.Context):
-                    # await ctx.reply(file=file)
-                    await ctx.reply(embed=dl_embed, view=LinksView(links, ctx))
-                    await msg.edit(content=res_txt)
-                if isinstance(ctx, discord.Interaction):
-                    # await ctx.followup.send(file=file)
-                    await ctx.followup.send(embed=dl_embed, view=LinksView(links, ctx))
-                    await ctx.edit_original_response(content=res_txt)
+                await ctx.reply(embed=dl_embed, view=LinksView(links, ctx))
+                await msg.edit(content=res_txt)
             except Exception as e:
                 print(f"Exception in ytdlp_ -> gdrive: {e}")
                 error_message = f"An error occurred while cooking `{filename}`\nGoogle Drive failed to upload files!"
-                if isinstance(ctx, commands.Context):
-                    await msg.edit(content=error_message)
-                if isinstance(ctx, discord.Interaction):
-                    await ctx.edit_original_response(content=error_message)
+                await msg.edit(content=error_message)
             os.remove(filename)
         except Exception as e:
             print(f"Exception in ytdlp_ -> ydl: {e}")
             error_message = f"**Error! :(**\n{str(e)}"
-            if isinstance(ctx, commands.Context):
-                await msg.edit(content=error_message)
-            if isinstance(ctx, discord.Interaction):
-                await ctx.edit_original_response(content=error_message)
+            await msg.edit(content=error_message)
 
 def ytdlp_embed(ctx: commands.Context, info: dict, filename: str):
     e = discord.Embed(color=0xff0033, description=info.get('channel'), title=info.get('title'))
@@ -120,8 +92,8 @@ def ytdlp_embed(ctx: commands.Context, info: dict, filename: str):
     e.add_field(name="FPS", value=info.get('fps'))
 
     e.add_field(name="View count", value=info.get('view_count'))
-    e.add_field(name="Comment count", value=info.get('comment_count'))
     e.add_field(name="Like count", value=info.get('like_count'))
+    e.add_field(name="Comment count", value=info.get('comment_count'))
     
     e.add_field(name="Video codec", value=info.get('vcodec'))
     e.add_field(name="Audio codec", value=info.get('acodec'))
@@ -194,16 +166,12 @@ class CogYT(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    async def ytdlp(self, ctx: commands.Context, arg1: str = None, arg2: str = None):
-        await YTDLP(ctx, arg1, arg2)
-
-    @app_commands.command(name="ytdlp", description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["ytdlp"]}'[:100])
+    @commands.hybrid_command(description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["ytdlp"]}'[:100])
     @app_commands.describe(link="Source URL", format="Output format")
     @app_commands.autocomplete(format=fmt_auto)
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def ytdlp_basic(self, ctx: discord.Interaction, link: str = None, format: str = None):
+    async def ytdlp(self, ctx: commands.Context, link: str = None, format: str = None):
         await YTDLP(ctx, link, format)
         
     @commands.hybrid_command(description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["thumb"]}')
