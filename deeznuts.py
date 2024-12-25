@@ -64,13 +64,14 @@ async def cook_deez(ctx: commands.Context, links: str):
     if urls[0]=="arlc":
         user_data = client.client.gw.get_user_data()
         family = user_data["USER"]["MULTI_ACCOUNT"]["ENABLED"]
-        f_plan = "Family" if family else "Premium"
+        expire = user_data['USER']['TRY_AND_BUY']['DATE_END'][:10]
+        f_plan = "Family" if family else "Premium" if expire != "0000-00-00" else "Free"
         c_info = client.client.current_user
         the_info = [
             f"Name: {c_info['name']}{' (Current ARL)' if session_arl==deez_arl else ''}",
             f"Plan: Deezer {f_plan}",
             f"Country: {c_info['country']}",
-            f"Expiry Date: {user_data['USER']['TRY_AND_BUY']['DATE_END'][:10]}",
+            f"Expiry Date: {expire}",
             f"Explicit: {'✅' if user_data['USER']['EXPLICIT_CONTENT_LEVEL']=='explicit_display' else '❌'}",
             f"HQ: {'✅' if c_info['can_stream_hq'] else '❌'}",
             f"Lossless: {'✅' if c_info['can_stream_lossless'] else '❌'}",
