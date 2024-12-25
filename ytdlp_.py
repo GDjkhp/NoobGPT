@@ -8,9 +8,9 @@ import time
 from util_discord import command_check, description_helper
 from api_gdrive import AsyncDriveUploader
 
-audio_formats = ["mp3", "m4a"]
-video_formats = ["mp4", "webm"]
-formats = ['mp3', 'm4a', "mp4", "webm"]
+audio_formats = ['aiff', 'alac', 'flac', 'm4a', 'mka', 'mp3', 'ogg', 'opus', 'wav']
+video_formats = ['avi', 'flv', 'mkv', 'mov', 'mp4', 'webm']
+formats = audio_formats + video_formats
 
 async def ytdlp_thumb(ctx: commands.Context, url: str):
     if await command_check(ctx, "thumb", "media"):
@@ -20,7 +20,7 @@ async def ytdlp_thumb(ctx: commands.Context, url: str):
     info = await ctx.reply("checking url")
     with YoutubeDL({'cookiefile': './res/cookies.txt'}) as ydl:
         try:
-            res = ydl.extract_info(url, download=False)
+            res = await asyncio.to_thread(ydl.extract_info, url, download=False)
         except:
             return await info.edit(content=":(")
         if not res.get('thumbnail'):
@@ -35,16 +35,28 @@ async def YTDLP(ctx: commands.Context | discord.Interaction, arg1: str, arg2: st
             return await ctx.response.send_message("command disabled", ephemeral=True)
     # async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
     old = round(time.time() * 1000)
-    if not arg1:
-        arg1, arg2 = "mp3", "dQw4w9WgXcQ"
-    if arg2 and arg1 not in formats:
-        if isinstance(ctx, commands.Context):
-            return await ctx.reply(f"Unsupported format :(\nAvailable conversion formats: `{formats}`")
-        if isinstance(ctx, discord.Interaction):
-            return await ctx.response.send_message(f"Unsupported format :(\nAvailable conversion formats: `{formats}`")
-    elif not arg2:
-        arg2, arg1 = arg1, None
-    ydl_opts = get_ydl_opts(arg1)
+    url, format = None, None
+    arg_list = []
+    if arg1: arg_list.append(arg1)
+    if arg2: arg_list.append(arg2)
+    if not arg_list:
+        url, format = "dQw4w9WgXcQ", "mp3"
+    elif len(arg_list) == 1:
+        url = arg_list[0]
+    else:
+        if arg_list[0] in formats: 
+            format = arg_list[0]
+            url = arg_list[1]
+        elif arg_list[1] in formats: 
+            format = arg_list[1]
+            url = arg_list[0]
+        else:
+            format_error = f"Unsupported format :(\nAvailable conversion formats: `{formats}`"
+            if isinstance(ctx, commands.Context):
+                return await ctx.reply(format_error)
+            if isinstance(ctx, discord.Interaction):
+                return await ctx.response.send_message(format_error)
+    ydl_opts = get_ydl_opts(format)
     if isinstance(ctx, commands.Context):
         msg = await ctx.reply("Cooking…")
     if isinstance(ctx, discord.Interaction):
@@ -52,15 +64,15 @@ async def YTDLP(ctx: commands.Context | discord.Interaction, arg1: str, arg2: st
 
     with YoutubeDL(ydl_opts) as ydl:
         try:
-            # fixme: broken if generic
-            info_dict = ydl.extract_info(arg2, download=False)
-            filename = ydl.prepare_filename(info_dict) if not arg1 else f"{os.path.splitext(ydl.prepare_filename(info_dict))[0]}.{arg1}"
+            # FIXME: broken if generic
+            info_dict = await asyncio.to_thread(ydl.extract_info, url, download=False)
+            filename = ydl.prepare_filename(info_dict) if not format else f"{os.path.splitext(ydl.prepare_filename(info_dict))[0]}.{format}"
             prepare_txt = f"Preparing `{filename}`\nLet me cook."
             if isinstance(ctx, commands.Context):
                 await msg.edit(content=prepare_txt)
             if isinstance(ctx, discord.Interaction):
                 await ctx.edit_original_response(content=prepare_txt)
-            await asyncio.to_thread(ydl.download, [arg2]) # old hack
+            await asyncio.to_thread(ydl.download, [url])
             if not os.path.isfile(filename):
                 error_message = f"An error occurred while cooking `{filename}`\nFilename not found!"
                 if isinstance(ctx, commands.Context):
@@ -111,14 +123,19 @@ def ytdlp_embed(ctx: commands.Context, info: dict, filename: str):
     e.add_field(name="Comment count", value=info.get('comment_count'))
     e.add_field(name="Like count", value=info.get('like_count'))
     
-    e.add_field(name="Format", value=info.get('format'))
     e.add_field(name="Video codec", value=info.get('vcodec'))
     e.add_field(name="Audio codec", value=info.get('acodec'))
+    e.add_field(name="Format", value=info.get('format'))
 
     e.add_field(name="Extractor", value=info.get('extractor'))
     e.add_field(name="Extension", value=filename.split('.')[-1])
     e.add_field(name="File size", value=format_file_size(os.path.getsize(filename)))
     return e
+
+async def fmt_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    return [
+        app_commands.Choice(name=fmt, value=fmt) for fmt in formats if current.lower() in fmt.lower()
+    ]
 
 def format_file_size(size_bytes):
     for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
@@ -159,11 +176,9 @@ def get_ydl_opts(arg):
     }
     if arg in audio_formats:
         options.update({
-            'format': 'm4a/bestaudio/best',
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': arg,
-                'preferredquality': '320',
             }]
         })
     elif arg in video_formats:
@@ -184,25 +199,12 @@ class CogYT(commands.Cog):
         await YTDLP(ctx, arg1, arg2)
 
     @app_commands.command(name="ytdlp", description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["ytdlp"]}'[:100])
-    @app_commands.describe(link="Video link")
+    @app_commands.describe(link="Source URL", format="Output format")
+    @app_commands.autocomplete(format=fmt_auto)
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def ytdlp_basic(self, ctx: discord.Interaction, link: str = None):
-        await YTDLP(ctx, link, None)
-
-    @app_commands.command(name="ytdlp-mp3", description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["ytdlp"]}'[:100])
-    @app_commands.describe(link="Video link")
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def ytdlp_mp3(self, ctx: discord.Interaction, link: str = None):
-        await YTDLP(ctx, "mp3", link)
-
-    @app_commands.command(name="ytdlp-m4a", description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["ytdlp"]}'[:100])
-    @app_commands.describe(link="Video link")
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def ytdlp_m4a(self, ctx: discord.Interaction, link: str = None):
-        await YTDLP(ctx, "m4a", link)
+    async def ytdlp_basic(self, ctx: discord.Interaction, link: str = None, format: str = None):
+        await YTDLP(ctx, link, format)
         
     @commands.hybrid_command(description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["thumb"]}')
     @app_commands.describe(url="YouTube video URL")
