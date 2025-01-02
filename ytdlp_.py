@@ -142,7 +142,7 @@ def checkSize(info, *, incomplete):
 def get_ydl_opts(arg):
     options = {
         'cookiefile': './res/cookies.txt',
-        'outtmpl': '%(title).200s.%(ext)s',
+        'outtmpl': '%(title).100s.%(ext)s',
         'noplaylist': True,
         # 'match_filter': checkSize,
     }
