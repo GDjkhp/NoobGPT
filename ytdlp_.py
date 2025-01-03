@@ -83,7 +83,7 @@ async def YTDLP(ctx: commands.Context, arg1: str, arg2: str):
             await msg.edit(content=error_message)
 
 def ytdlp_embed(ctx: commands.Context, info: dict, filename: str):
-    e = discord.Embed(color=0xff0033, description=info.get('channel'), title=info.get('title'))
+    e = discord.Embed(color=0xff0033, description=info.get('channel'), title=info.get('title')[:256])
     e.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
     e.set_thumbnail(url=info.get('thumbnail'))
 
