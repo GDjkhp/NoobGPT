@@ -325,17 +325,18 @@ async def main_perplexity(ctx: commands.Context | discord.Interaction, model: in
         await ctx.edit_original_response(content=f"{models[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
 async def main_github(ctx: commands.Context | discord.Interaction,
-                      model: int, prompt: str=None, image: discord.Attachment=None):
+                      model: int, prompt: str=None, image: discord.Attachment=None, debug: bool=True):
     if await command_check(ctx, "github", "ai"):
         if isinstance(ctx, commands.Context):
             return await ctx.reply("command disabled", ephemeral=True)
         if isinstance(ctx, discord.Interaction):
             return await ctx.response.send_message("command disabled", ephemeral=True)
     # async with ctx.typing():
-    if isinstance(ctx, commands.Context):
-        msg = await ctx.reply(f"{models_github[model]}\nGenerating response…")
-    if isinstance(ctx, discord.Interaction):
-        await ctx.response.send_message(f"{models_github[model]}\nGenerating response…")
+    if debug:
+        if isinstance(ctx, commands.Context):
+            msg = await ctx.reply(f"{models_github[model]}\nGenerating response…")
+        if isinstance(ctx, discord.Interaction):
+            await ctx.response.send_message(f"{models_github[model]}\nGenerating response…")
     old = round(time.time() * 1000)
     try:
         url = "https://models.inference.ai.azure.com/chat/completions"
@@ -344,6 +345,7 @@ async def main_github(ctx: commands.Context | discord.Interaction,
         response = await make_request(models_github[model], messages, url, key) # spicy
         text = response["choices"][0]["message"]["content"]
         if not text or text == "":
+            if not debug: return
             if isinstance(ctx, commands.Context):
                 return await msg.edit(content=f"**Error! :(**\nEmpty response.")
             if isinstance(ctx, discord.Interaction):
@@ -361,26 +363,29 @@ async def main_github(ctx: commands.Context | discord.Interaction,
     except Exception as e:
         # bruh = response["detail"][0]["msg"] if response and response.get("detail") else e
         print(e)
+        if not debug: return
         if isinstance(ctx, commands.Context):
             return await msg.edit(content=f"**Error! :(**")
         if isinstance(ctx, discord.Interaction):
             return await ctx.edit_original_response(content=f"**Error! :(**")
+    if not debug: return
     if isinstance(ctx, commands.Context):
         await msg.edit(content=f"{models_github[model]}\n**Took {round(time.time() * 1000)-old}ms**")
     if isinstance(ctx, discord.Interaction):
         await ctx.edit_original_response(content=f"{models_github[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
-async def main_groq(ctx: commands.Context | discord.Interaction, model: int, prompt: str=None):
+async def main_groq(ctx: commands.Context | discord.Interaction, model: int, prompt: str=None, debug: bool=True):
     if await command_check(ctx, "groq", "ai"):
         if isinstance(ctx, commands.Context):
             return await ctx.reply("command disabled", ephemeral=True)
         if isinstance(ctx, discord.Interaction):
             return await ctx.response.send_message("command disabled", ephemeral=True)
     # async with ctx.typing():
-    if isinstance(ctx, commands.Context):
-        msg = await ctx.reply(f"{models_groq[model]}\nGenerating response…")
-    if isinstance(ctx, discord.Interaction):
-        await ctx.response.send_message(f"{models_groq[model]}\nGenerating response…")
+    if debug:
+        if isinstance(ctx, commands.Context):
+            msg = await ctx.reply(f"{models_groq[model]}\nGenerating response…")
+        if isinstance(ctx, discord.Interaction):
+            await ctx.response.send_message(f"{models_groq[model]}\nGenerating response…")
     old = round(time.time() * 1000)
     try:
         url = "https://api.groq.com/openai/v1/chat/completions"
@@ -389,6 +394,7 @@ async def main_groq(ctx: commands.Context | discord.Interaction, model: int, pro
         response = await make_request(models_groq[model], messages, url, key) # spicy
         text = response["choices"][0]["message"]["content"]
         if not text or text == "":
+            if not debug: return
             if isinstance(ctx, commands.Context):
                 return await msg.edit(content=f"**Error! :(**\nEmpty response.")
             if isinstance(ctx, discord.Interaction):
@@ -406,10 +412,12 @@ async def main_groq(ctx: commands.Context | discord.Interaction, model: int, pro
     except Exception as e:
         # bruh = response["detail"][0]["msg"] if response and response.get("detail") else e
         print(e)
+        if not debug: return
         if isinstance(ctx, commands.Context):
             return await msg.edit(content=f"**Error! :(**")
         if isinstance(ctx, discord.Interaction):
             return await ctx.edit_original_response(content=f"**Error! :(**")
+    if not debug: return
     if isinstance(ctx, commands.Context):
         await msg.edit(content=f"{models_groq[model]}\n**Took {round(time.time() * 1000)-old}ms**")
     if isinstance(ctx, discord.Interaction):
@@ -458,23 +466,25 @@ async def main_anthropic(ctx: commands.Context | discord.Interaction, model: int
     if isinstance(ctx, discord.Interaction):
         await ctx.edit_original_response(content=f"{models_claude[model]}\n**Took {round(time.time() * 1000)-old}ms**")
 
-async def main_mistral(ctx: commands.Context | discord.Interaction, model: int, prompt: str=None):
+async def main_mistral(ctx: commands.Context | discord.Interaction, model: int, prompt: str=None, debug: bool=True):
     if await command_check(ctx, "mistral", "ai"):
         if isinstance(ctx, commands.Context):
             return await ctx.reply("command disabled", ephemeral=True)
         if isinstance(ctx, discord.Interaction):
             return await ctx.response.send_message("command disabled", ephemeral=True)
     # async with ctx.typing():
-    if isinstance(ctx, commands.Context):
-        msg = await ctx.reply(f"{models_mistral[model]}\nGenerating response…")
-    if isinstance(ctx, discord.Interaction):
-        await ctx.response.send_message(f"{models_mistral[model]}\nGenerating response…")
+    if debug:
+        if isinstance(ctx, commands.Context):
+            msg = await ctx.reply(f"{models_mistral[model]}\nGenerating response…")
+        if isinstance(ctx, discord.Interaction):
+            await ctx.response.send_message(f"{models_mistral[model]}\nGenerating response…")
     old = round(time.time() * 1000)
     try:
         messages = await loopMsg(ctx.message, await get_guild_prefix(ctx)) if not prompt else await loopMsgSlash(prompt)
         response = await make_request_mistral(models_mistral[model], messages, True if model == 6 else False)
         text = response["choices"][0]["message"]["content"]
         if not text or text == "":
+            if not debug: return
             if isinstance(ctx, commands.Context):
                 return await msg.edit(content=f"**Error! :(**\nEmpty response.")
             if isinstance(ctx, discord.Interaction):
@@ -491,10 +501,12 @@ async def main_mistral(ctx: commands.Context | discord.Interaction, model: int, 
                     await ctx.send(chunk)
     except Exception as e:
         print(e)
+        if not debug: return
         if isinstance(ctx, commands.Context):
             return await msg.edit(content=f"**Error! :(**")
         if isinstance(ctx, discord.Interaction):
             return await ctx.edit_original_response(content=f"**Error! :(**")
+    if not debug: return
     if isinstance(ctx, commands.Context):
         await msg.edit(content=f"{models_mistral[model]}\n**Took {round(time.time() * 1000)-old}ms**")
     if isinstance(ctx, discord.Interaction):
