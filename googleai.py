@@ -175,43 +175,46 @@ async def req_real(url, json, headers, palm):
                 return get_text_palm(await response.json()) if palm else get_text(await response.json())
             else: print(await response.content.read())
 
-models = [
-    "text-bison-001", # dead
+models_google = [
+    # "text-bison-001", # dead
     "gemini-1.5-pro",
     "gemini-1.5-flash",
 ]
 
-async def GEMINI_REST(ctx: commands.Context | discord.Interaction, model: int, palm: bool,
-                      prompt: str=None, image: discord.Attachment=None, debug: bool=True):
+async def GEMINI_REST(ctx: commands.Context | discord.Interaction, model: str, prompt: str=None, image: discord.Attachment=None,
+                      debug: bool=True, palm: bool=False):
     if await command_check(ctx, "googleai", "ai"):
+        warn = "command disabled"
         if isinstance(ctx, commands.Context):
-            return await ctx.reply("command disabled", ephemeral=True)
+            return await ctx.reply(warn, ephemeral=True)
         if isinstance(ctx, discord.Interaction):
-            return await ctx.response.send_message("command disabled", ephemeral=True)
+            return await ctx.response.send_message(warn, ephemeral=True)
     # async with ctx.typing():
     if debug:
+        nfo = f"{model}\nGenerating response…"
         if isinstance(ctx, commands.Context):
-            msg = await ctx.reply(f"{models[model]}\nGenerating response…")
+            msg = await ctx.reply(nfo)
         if isinstance(ctx, discord.Interaction):
-            await ctx.response.send_message(f"{models[model]}\nGenerating response…")
+            await ctx.response.send_message(nfo)
     old = round(time.time() * 1000)
     text = None
     prefix = await get_guild_prefix(ctx)
     # rewrite
     if palm:
-        proxy = palm_proxy(f"{models[model]}:generateText")
+        proxy = palm_proxy(f"{model}:generateText")
         payload = json_data_palm(strip_dash(ctx.message.content, prefix), not ctx.channel.nsfw)
     else:
-        proxy = palm_proxy(f"{models[model]}:generateContent")
+        proxy = palm_proxy(f"{model}:generateContent")
         payload = await json_data(ctx.message, prefix) if not prompt else await json_data_slash(prompt, image)
     text = await req_real(proxy, payload, headers, palm)
     # silly
     if not text:
         if not debug: return
+        err = f"**Error! :(**\nEmpty response."
         if isinstance(ctx, commands.Context):
-            return await msg.edit(content=f"**Error! :(**")
+            return await msg.edit(content=err)
         if isinstance(ctx, discord.Interaction):
-            return await ctx.edit_original_response(content=f"**Error! :(**")
+            return await ctx.edit_original_response(content=err)
     chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
     replyFirst = True
     for chunk in chunks:
@@ -223,17 +226,18 @@ async def GEMINI_REST(ctx: commands.Context | discord.Interaction, model: int, p
             else:
                 await ctx.send(chunk)
     if not debug: return
+    done = f"{model}\n**Took {round(time.time() * 1000)-old}ms**"
     if isinstance(ctx, commands.Context):
-        await msg.edit(content=f"{models[model]}\n**Took {round(time.time() * 1000)-old}ms**")
+        await msg.edit(content=done)
     if isinstance(ctx, discord.Interaction):
-        await ctx.edit_original_response(content=f"{models[model]}\n**Took {round(time.time() * 1000)-old}ms**")
+        await ctx.edit_original_response(content=done)
 
 async def help_google(ctx: commands.Context):
     if await command_check(ctx, "googleai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     p = await get_guild_prefix(ctx)
     text  = [
-        f"`{p}gemini` {models[1]}",
-        f"`{p}flash` {models[2]}",
+        f"`{p}gemini` {models_google[0]}",
+        f"`{p}flash` {models_google[1]}",
         # f"`{p}palm` {models[0]}"
     ]
     await ctx.reply("\n".join(text))
@@ -248,25 +252,25 @@ class CogGoogle(commands.Cog):
 
     @commands.command(aliases=["ge"]) # alias
     async def gemini(self, ctx: commands.Context):
-        await GEMINI_REST(ctx, 1, False)
+        await GEMINI_REST(ctx, models_google[0])
 
-    @app_commands.command(name="gemini", description=f"{description_helper['emojis']['ai']} {models[1]}")
+    @app_commands.command(name="gemini", description=f"{description_helper['emojis']['ai']} {models_google[0]}")
     @app_commands.describe(prompt="Text prompt")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def gemini_slash(self, ctx: discord.Interaction, prompt: str, image: discord.Attachment=None):
-        await GEMINI_REST(ctx, 1, False, prompt, image)
+        await GEMINI_REST(ctx, models_google[0], prompt, image)
 
     @commands.command()
     async def flash(self, ctx: commands.Context):
-        await GEMINI_REST(ctx, 2, False)
+        await GEMINI_REST(ctx, models_google[1])
 
-    @app_commands.command(name="flash", description=f"{description_helper['emojis']['ai']} {models[2]}")
+    @app_commands.command(name="flash", description=f"{description_helper['emojis']['ai']} {models_google[1]}")
     @app_commands.describe(prompt="Text prompt")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def flash_slash(self, ctx: discord.Interaction, prompt: str, image: discord.Attachment=None):
-        await GEMINI_REST(ctx, 2, False, prompt, image)
+        await GEMINI_REST(ctx, models_google[1], prompt, image)
 
     @commands.command()
     async def googleai(self, ctx: commands.Context):

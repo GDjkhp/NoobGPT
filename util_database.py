@@ -1,7 +1,7 @@
 import motor.motor_asyncio as db_client, os
 myclient = db_client.AsyncIOMotorClient(os.getenv('MONGO'))
 
-# level + insult + music
+# level + insult + music + ai
 mycol2 = myclient["utils"]["nodeports"]
 async def add_database2(server_id: int):
     data = {
@@ -9,6 +9,7 @@ async def add_database2(server_id: int):
         "prefix": "-",
         "bot_master_role": 0,
         "bot_dj_role": 0,
+        "ai_mode": "",
         "insult_module": True,
         "insult_default": True,
         "xp_module": False,
@@ -83,3 +84,6 @@ async def set_prefix(server_id: int, p):
 
 async def set_master_role(server_id: int, data):
     await mycol2.update_one({"guild":server_id}, {"$set": {"bot_master_role": data}})
+
+async def set_ai_mode(server_id: int, b):
+    await mycol2.update_one({"guild":server_id}, {"$set": {"ai_mode": b}})

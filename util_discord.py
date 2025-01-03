@@ -24,7 +24,7 @@ available_categories=["ai", "games", "media", "utils"]
 ai_commands=["openai", "googleai", "petals", "perplex", "groq", "github", "mistral", "claude", "c.ai", "blackbox", "pawan", "horde"]
 games_commands=["aki", "tic", "hang", "quiz", "word", "rps"]
 media_commands=["anime", "manga", "tv", "ytdlp", "cob", "booru", "music", "deez", "thumb", "img"]
-utils_commands=["quote", "weather", "av", "ban", "halp", "legal", "xp", "insult"]
+utils_commands=["quote", "weather", "av", "ban", "halp", "legal", "xp", "insult", "aimode"]
 available_commands = ai_commands + games_commands + media_commands + utils_commands
 
 def category_to_commands(cat: str, commands: list):
@@ -51,8 +51,9 @@ async def config_commands(ctx: commands.Context):
 async def set_prefix_cmd(ctx: commands.Context, arg: str):
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     if not arg: return await ctx.reply(f"usage: `{await get_guild_prefix(ctx)}prefix <prefix>`")
-    db = await get_database2(ctx.guild.id) # nonsense
-    await set_prefix(ctx.guild.id, arg)
+    id = ctx.guild.id if ctx.guild else ctx.channel.id
+    db = await get_database2(id) # nonsense
+    await set_prefix(id, arg)
     await ctx.reply(f"prefix has been set to `{arg}`")
 
 async def add_master_user(ctx: commands.Context, arg: str):
@@ -226,6 +227,7 @@ async def command_check(ctx: commands.Context, com: str, cat: str):
         return True
 
 async def check_if_master_or_admin(ctx: commands.Context):
+    if ctx.author.id == int(os.getenv("OWNER")): return True # GODMODE
     if not ctx.guild: return True # dm support
     db = await get_database2(ctx.guild.id)
     check = db.get("bot_master_role") and ctx.guild.get_role(db["bot_master_role"]) in ctx.author.roles
