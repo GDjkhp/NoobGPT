@@ -7,6 +7,7 @@ import random
 import re
 from util_database import *
 from util_discord import command_check, check_if_master_or_admin, description_helper, get_guild_prefix
+from respond_mode import ted_talk_response
 
 mycol_players = myclient["utils"]["xp_players"]
 path="./res/mandatory_settings_and_splashes.json"
@@ -23,14 +24,19 @@ async def detect_mentions(message: discord.Message, bot: commands.Bot):
     except:
         print("Exception in detect_mentions")
     if ref_msg and ref_msg.author == bot.user: return True
+    # EXPERIMENT: FOR AI USE ONLY
+    every_noobgpt_case_first_pass = ["NoobGPT", "NOOBGPT", "noobgpt"]
+    for x in every_noobgpt_case_first_pass:
+        if x in message.content: return True
 
 async def insult_user(bot: commands.Bot, msg: discord.Message):
     db = await get_database2(msg.guild.id if msg.guild else msg.channel.id)
-    if not db["insult_module"]: return
-
     if await detect_mentions(msg, bot):
-        # ctx = await bot.get_context(msg) # context hack
+        ctx = await bot.get_context(msg) # context hack
         # async with ctx.typing():
+        if db.get("ai_mode") and db["ai_mode"]:
+            return await ted_talk_response(ctx, db["ai_mode"]) # ignore roast when ai is activated
+        if not db["insult_module"]: return
         the_list = db["roasts"] if db["roasts"] else read_json_file(path)["insults from thoughtcatalog.com"]
         text = random.choice(the_list)
         await msg.reply(text)
