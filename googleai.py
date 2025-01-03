@@ -181,17 +181,19 @@ models = [
     "gemini-1.5-flash",
 ]
 
-async def GEMINI_REST(ctx: commands.Context | discord.Interaction, model: int, palm: bool, prompt: str=None, image: discord.Attachment=None):
+async def GEMINI_REST(ctx: commands.Context | discord.Interaction, model: int, palm: bool,
+                      prompt: str=None, image: discord.Attachment=None, debug: bool=True):
     if await command_check(ctx, "googleai", "ai"):
         if isinstance(ctx, commands.Context):
             return await ctx.reply("command disabled", ephemeral=True)
         if isinstance(ctx, discord.Interaction):
             return await ctx.response.send_message("command disabled", ephemeral=True)
     # async with ctx.typing():
-    if isinstance(ctx, commands.Context):
-        msg = await ctx.reply(f"{models[model]}\nGenerating response…")
-    if isinstance(ctx, discord.Interaction):
-        await ctx.response.send_message(f"{models[model]}\nGenerating response…")
+    if debug:
+        if isinstance(ctx, commands.Context):
+            msg = await ctx.reply(f"{models[model]}\nGenerating response…")
+        if isinstance(ctx, discord.Interaction):
+            await ctx.response.send_message(f"{models[model]}\nGenerating response…")
     old = round(time.time() * 1000)
     text = None
     prefix = await get_guild_prefix(ctx)
@@ -205,6 +207,7 @@ async def GEMINI_REST(ctx: commands.Context | discord.Interaction, model: int, p
     text = await req_real(proxy, payload, headers, palm)
     # silly
     if not text:
+        if not debug: return
         if isinstance(ctx, commands.Context):
             return await msg.edit(content=f"**Error! :(**")
         if isinstance(ctx, discord.Interaction):
@@ -219,6 +222,7 @@ async def GEMINI_REST(ctx: commands.Context | discord.Interaction, model: int, p
                 await ctx.reply(chunk)
             else:
                 await ctx.send(chunk)
+    if not debug: return
     if isinstance(ctx, commands.Context):
         await msg.edit(content=f"{models[model]}\n**Took {round(time.time() * 1000)-old}ms**")
     if isinstance(ctx, discord.Interaction):
