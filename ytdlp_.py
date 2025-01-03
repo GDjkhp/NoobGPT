@@ -145,20 +145,29 @@ def get_ydl_opts(arg):
         'outtmpl': '%(title).100s.%(ext)s',
         'noplaylist': True,
         # 'match_filter': checkSize,
+        'writesubtitles': True,
+        'postprocessors': [
+            {
+                'key': 'FFmpegMetadata',
+                'add_infojson': 'if_exists',
+                'add_metadata': True,
+                'add_chapters': True,
+            },
+            {
+                'key': 'FFmpegEmbedSubtitle',
+                'already_have_subtitle': False,
+            },
+        ],
     }
     if arg in audio_formats:
-        options.update({
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': arg,
-            }]
+        options['postprocessors'].append({
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': arg,
         })
     elif arg in video_formats:
-        options.update({
-            'postprocessors': [{
-                'key': 'FFmpegVideoRemuxer',
-                'preferedformat': arg,
-            }]
+        options['postprocessors'].append({
+            'key': 'FFmpegVideoRemuxer',
+            'preferedformat': arg,
         })
     return options
 
