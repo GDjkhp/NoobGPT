@@ -69,7 +69,7 @@ class NoobGPT(commands.Bot):
         await self.load_extension('perplexity')
         await self.load_extension('openai_')
         await self.load_extension('googleai')
-        await self.load_extension('petals')
+        # await self.load_extension('petals')
         await self.load_extension('c_ai_discord')
         await self.load_extension('tictactoe')
         await self.load_extension('aki')
