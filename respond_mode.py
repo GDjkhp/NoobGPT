@@ -52,7 +52,7 @@ def fix_num(num):
 async def model_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     return [
         app_commands.Choice(name=model, value=model) for model in models_master if current.lower() in model.lower()
-    ]
+    ][:25]
 
 class AIModeCog(commands.Cog):
     def __init__(self, bot):
