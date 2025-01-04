@@ -27,11 +27,12 @@ async def detect_mentions(message: discord.Message, bot: commands.Bot, db: dict)
     if ref_msg and ref_msg.author == bot.user: return True
     # EXPERIMENT: FOR AI USE ONLY
     if db.get("ai_mode") and db["ai_mode"]:
-        if db.get("ai_rate") and db["ai_rate"]:
-            if generate_random_bool(db["ai_rate"]): return True
-            every_noobgpt_case_first_pass = ["NoobGPT", "NOOBGPT", "noobgpt"]
-            for x in every_noobgpt_case_first_pass:
-                if x in message.content: return True
+        if db.get("ai_rate"):
+            if db["ai_rate"]:
+                if generate_random_bool(db["ai_rate"]): return True
+                every_noobgpt_case_first_pass = ["NoobGPT", "NOOBGPT", "noobgpt"]
+                for x in every_noobgpt_case_first_pass:
+                    if x in message.content: return True
 
 async def insult_user(bot: commands.Bot, msg: discord.Message):
     db = await get_database2(msg.guild.id if msg.guild else msg.channel.id)
