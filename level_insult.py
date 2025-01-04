@@ -15,6 +15,7 @@ path="./res/mandatory_settings_and_splashes.json"
 # noobgpt sucks without insults they said
 async def detect_mentions(message: discord.Message, bot: commands.Bot, db: dict):
     if message.author.bot: return False
+    if message.content and message.content.startswith(db["prefix"]): return False
     if message.mentions:
         if bot.user in message.mentions: return True
     ref_msg = None
