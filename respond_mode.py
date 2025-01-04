@@ -13,7 +13,8 @@ async def ai_respond_mode(ctx: commands.Context, model: str):
     id = ctx.guild.id if ctx.guild else ctx.channel.id
     db = await get_database2(id) # please be good
 
-    if not model in models_master: return await ctx.reply(f"Model not found.\n\nAvailable models:\n```{'\n'.join(models_master)}```")
+    model_collect = '\n'.join(models_master)
+    if not model in models_master: return await ctx.reply(f"Model not found.\n\nAvailable models:\n```{model_collect}```")
     if model != "off":
         await set_ai_mode(id, model)
         await ctx.reply(f"`{model}` has been set as my default response mode. talk to me and see what happens.")
