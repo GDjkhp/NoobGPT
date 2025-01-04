@@ -16,7 +16,7 @@ async def ai_respond_mode(ctx: commands.Context, model: str):
     if not model in models_master: return await ctx.reply(f"Model not found.\n\nAvailable models:\n```{'\n'.join(models_master)}```")
     if model != "off":
         await set_ai_mode(id, model)
-        await ctx.reply(f"{model} has been set as my default response mode. talk to me and see what happens.")
+        await ctx.reply(f"`{model}` has been set as my default response mode. talk to me and see what happens.")
     else:
         await set_ai_mode(id, "") # tsundere mode
         await ctx.reply(f"ai response mode has been disabled. talk to me and i'll roast you instead.")
