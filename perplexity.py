@@ -100,6 +100,11 @@ models_mistral=[
     "mistral-medium-latest", # mm
     "mistral-large-latest", # ml
     "codestral-latest", # mcode
+    "pixtral-large-latest",
+    "ministral-3b-latest",
+    "ministral-8b-latest",
+    "pixtral-12b-2409",
+    "open-mistral-nemo",
 ]
 models_groq=[
     "llama-3.1-405b-reasoning", # l31405
@@ -110,6 +115,8 @@ models_groq=[
     "mixtral-8x7b-32768", # mix7b
     "gemma-7b-it", # g7b
     "gemma2-9b-it", # g29b
+    "llama-3.3-70b-versatile",
+    "llama-guard-3-8b",
 ]
 models_github=[
     "gpt-4o",
@@ -119,9 +126,13 @@ models_github=[
     "Meta-Llama-3-1-405B-Instruct",
     "Meta-Llama-3-1-70B-Instruct",
     "Meta-Llama-3-1-8B-Instruct",
-    "AI21-Jamba-Instruct",
+    "AI21-Jamba-1.5-Mini",
     "Cohere-command-r",
     "Cohere-command-r-plus",
+    "Cohere-command-r-08-2024",
+    "Cohere-command-r-plus-08-2024",
+    "Ministral-3B",
+    "Mistral-Large-2411",
     "Mistral-large",
     "Mistral-large-2407",
     "Mistral-Nemo",
@@ -133,6 +144,12 @@ models_github=[
     "Phi-3-small-128k-instruct",
     "Phi-3-small-8k-instruct",
     "Phi-3.5-mini-instruct",
+    "Phi-3.5-MoE-instruct",
+    "Phi-3.5-vision-instruct",
+    "Llama-3.2-11B-Vision-Instruct",
+    "Llama-3.2-90B-Vision-Instruct",
+    "Llama-3.3-70B-Instruct",
+    "AI21-Jamba-1.5-Large",
 ]
 models_black=[
     None, # default
@@ -397,7 +414,7 @@ async def main_groq(ctx: commands.Context | discord.Interaction, model: str, pro
     try:
         url = "https://api.groq.com/openai/v1/chat/completions"
         key = os.getenv('GROQ')
-        messages = await loopMsg(ctx.message, await get_guild_prefix(ctx)) if not prompt else await loopMsgSlash(prompt)
+        messages = await loopMsgGH(ctx.message, await get_guild_prefix(ctx)) if not prompt else await loopMsgSlash(prompt)
         response = await make_request(model, messages, url, key) # spicy
         text = response["choices"][0]["message"]["content"]
         if not text or text == "":
@@ -492,7 +509,7 @@ async def main_mistral(ctx: commands.Context | discord.Interaction, model: str, 
             await ctx.response.send_message(nfo)
     old = round(time.time() * 1000)
     try:
-        messages = await loopMsg(ctx.message, await get_guild_prefix(ctx)) if not prompt else await loopMsgSlash(prompt)
+        messages = await loopMsgGH(ctx.message, await get_guild_prefix(ctx)) if not prompt else await loopMsgSlash(prompt)
         response = await make_request_mistral(model, messages, True if model == models_mistral[6] else False)
         text = response["choices"][0]["message"]["content"]
         if not text or text == "":
