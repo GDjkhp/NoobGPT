@@ -34,6 +34,7 @@
         "utils": {
             "config": "Control bot commands.",
             "insult": "Toggle insults.",
+            "aimode": "Toggle AI response mode.",
             "xp": "Toggle XP leveling system.",
             "quote": "Make it a quote.",
             "weather": "Check the current weather.",
