@@ -13,7 +13,7 @@ mycol_players = myclient["utils"]["xp_players"]
 path="./res/mandatory_settings_and_splashes.json"
 
 # noobgpt sucks without insults they said
-async def detect_mentions(message: discord.Message, bot: commands.Bot):
+async def detect_mentions(message: discord.Message, bot: commands.Bot, db: dict):
     if message.author.bot: return False
     if message.mentions:
         if bot.user in message.mentions: return True
@@ -25,13 +25,16 @@ async def detect_mentions(message: discord.Message, bot: commands.Bot):
         print("Exception in detect_mentions")
     if ref_msg and ref_msg.author == bot.user: return True
     # EXPERIMENT: FOR AI USE ONLY
-    every_noobgpt_case_first_pass = ["NoobGPT", "NOOBGPT", "noobgpt"]
-    for x in every_noobgpt_case_first_pass:
-        if x in message.content: return True
+    if db.get("ai_mode") and db["ai_mode"]:
+        if db.get("ai_rate") and db["ai_rate"]:
+            if generate_random_bool(db["ai_rate"]): return True
+            every_noobgpt_case_first_pass = ["NoobGPT", "NOOBGPT", "noobgpt"]
+            for x in every_noobgpt_case_first_pass:
+                if x in message.content: return True
 
 async def insult_user(bot: commands.Bot, msg: discord.Message):
     db = await get_database2(msg.guild.id if msg.guild else msg.channel.id)
-    if await detect_mentions(msg, bot):
+    if await detect_mentions(msg, bot, db):
         ctx = await bot.get_context(msg) # context hack
         # async with ctx.typing():
         if db.get("ai_mode") and db["ai_mode"]:
@@ -418,6 +421,11 @@ async def help_level(ctx: commands.Context):
     await ctx.reply("\n".join(text))
 
 # utils
+def generate_random_bool(num):
+    chance = num / 100 # convert number to probability
+    result = random.random()
+    return result < chance
+
 async def assign_roles_logic(message: discord.Message, level: int, db_fake_roles: list):
     highest_level_role = None
     for r in db_fake_roles:
