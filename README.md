@@ -156,8 +156,17 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 
 ### Sites
 * <https://openai.com>
-* <https://anitaku.so>
-* <https://actvid.rs>
+* <https://character.ai>
+* <https://mistral.ai>
+* <https://www.perplexity.ai>
+* <https://claude.ai>
+* <https://groq.com>
+* <https://github.com/marketplace/models>
+* <https://www.blackbox.ai>
+* <https://stablehorde.net>
+* <https://bard.google.com>
+* <https://ai.google.dev>
+* <https://console.cloud.google.com>
 * <https://akinator.com>
 * <https://opentdb.com>
 * <https://the-trivia-api.com>
@@ -165,21 +174,17 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * <https://wordnet.princeton.edu>
 * <https://reddit.com/r/place>
 * <https://mongodb.com>
-* <https://bard.google.com>
-* <https://ai.google.dev>
-* <https://sflix.se>
 * <https://cobalt.tools>
-* <https://character.ai>
 * <https://animepahe.ru>
+* <https://actvid.rs>
+* <https://anitaku.bz>
+* <https://sflix2.to>
 * <https://mangadex.org>
 * <https://manganato.com>
 * <https://www.crummy.com/software/BeautifulSoup>
-* <https://github.com/marketplace/models>
-* <https://www.blackbox.ai>
-* <https://stablehorde.net>
 
 ### Special Thanks
-* `jaicraft` ~~Perplexity, Claude~~, Mistral access
+* `jaicraft` ~~Perplexity, Claude~~, Mistral, Groq access
 <!-- * `aychelletroller` OpenAI access -->
 
 ## Legal
