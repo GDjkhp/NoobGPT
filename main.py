@@ -2,10 +2,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import os
+from datetime import datetime
 import discord
 from discord.ext import commands
-from level_insult import *
-from datetime import datetime
+import wavelink
 
 discord.utils.setup_logging()
 intents = discord.Intents.default()
@@ -14,11 +14,11 @@ intents.message_content = True
 intents.members = True
 mentions = discord.AllowedMentions(everyone=False, users=True, roles=True, replied_user=True)
 
+from level_insult import *
 from gde_hall_of_fame import *
 from c_ai_discord import *
 from custom_status import *
 from music import setup_hook_music
-import wavelink
 
 class NoobGPT(commands.Bot):
     def __init__(self):
