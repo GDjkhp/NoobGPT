@@ -71,7 +71,7 @@ async def petalsWebsocket(ctx: commands.Context, arg: str, model: int):
                             if text != "": 
                                 await send(ctx, text)
                                 await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms**\nLength: {len(text)}")
-                            else: await msg.edit(content=f"**Error! :(**\nEmpty response.\n{PETALS()}")
+                            else: await msg.edit(content=f"**Error! :(**\nEmpty response.\n{PETALS(ctx)}")
                             await ws.close()
                     else:
                         print("Error:", data.get("traceback"))
@@ -84,10 +84,10 @@ async def petalsWebsocket(ctx: commands.Context, arg: str, model: int):
                             await send(ctx, text)
                             await msg.edit(content=f"**Took {round(time.time() * 1000)-old}ms and got interrupted with an error.**\n{error_message}\nLength: {len(text)}")
                         else: 
-                            await msg.edit(content=f"**Error! :(**\n{error_message}\n{PETALS()}")
+                            await msg.edit(content=f"**Error! :(**\n{error_message}\n{PETALS(ctx)}")
                         await ws.close()
         except:
-            await msg.edit(content=f"**Error! :(**\nConnection timed out.\n{PETALS()}")
+            await msg.edit(content=f"**Error! :(**\nConnection timed out.\n{PETALS(ctx)}")
 
 async def send(ctx: commands.Context, text: str):
     chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]

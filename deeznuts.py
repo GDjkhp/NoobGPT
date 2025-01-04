@@ -158,13 +158,15 @@ def folder_printer(result, ctx: commands.Context, collect_urls: list):
 def arlc_embed(ctx: commands.Context, arl_name: str, the_info: list):
     e = discord.Embed(color=0x8000ff, title=arl_name, description="\n".join(the_info))
     e.set_thumbnail(url="https://gdjkhp.github.io/img/kagura-yay-hd.gif")
-    e.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
+    if ctx.author.avatar: e.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
+    else: e.set_author(name=ctx.author)
     return e
             
 def blud_folded_under_zero_pressure(ctx: commands.Context, url_list: list) -> discord.Embed:
     e = discord.Embed(color=0x8000ff, title="deezdownloader9000", description="by GDjkhp")
     e.set_thumbnail(url="https://gdjkhp.github.io/img/kagura-yay-hd.gif")
-    e.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
+    if ctx.author.avatar: e.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
+    else: e.set_author(name=ctx.author)
     for url in url_list:
         if url['name'] != "Root": 
             e.add_field(name=url['name'], value=url['size'], inline=False)

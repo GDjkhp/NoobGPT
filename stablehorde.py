@@ -87,7 +87,7 @@ class CancelButton(discord.ui.View):
                 return await interaction.response.send_message(f"Only <@{self.ctx.user.id}> can interact with this message.", ephemeral=True)
         self.cancelled = True
         button.disabled = True
-        await interaction.response.edit_message(view=self)
+        await interaction.response.edit_message(content="**Generation cancelled**", view=self)
 
 # ugly
 def strip_dash(text: str, prefix: str):
@@ -169,7 +169,7 @@ async def generate(ctx: commands.Context | discord.Interaction, prompt: str=None
         is_done = chk_results['done']
         count_emoji+=1
         if count_emoji == len(emoji_peak): count_emoji=0
-        await asyncio.sleep(3)
+        await asyncio.sleep(10)
     if not view.cancelled:
         retrieve_req = await session.get(f'https://aihorde.net/api/v2/generate/status/{req_id}')
         if retrieve_req.status_code == 200: results_json = retrieve_req.json()
@@ -263,6 +263,25 @@ async def help_horde(ctx: commands.Context):
         f"`{p}any` Anything v5",
     ]
     await ctx.reply("\n".join(text))
+
+async def watchmojo_top_5(ctx: commands.Context):
+    response = await session.get("https://aihorde.net/api/v2/status/models")
+    if response.status_code == 200:
+        data = response.json()
+        sorted_jobs = sorted(data, key=lambda x: (-x["jobs"], x["name"]))
+        top_5 = sorted_jobs[:5]
+        await ctx.reply(embed=top_list_embed(ctx, top_5))
+    else: await ctx.reply("error")
+
+def top_list_embed(ctx: commands.Context, top_5: list):
+    e = discord.Embed(color=0x85ea2d, title="stablehorde", description=f"{description_helper['ai']['horde']}")
+    e.set_footer(text="Note: Use /dream for more available models and settings")
+    e.set_thumbnail(url="https://stablehorde.net/assets/img/front-image.png")
+    if ctx.author.avatar: e.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
+    else: e.set_author(name=ctx.author)
+    for model in top_5:
+        e.add_field(name=f"{model['name']}", value=f"Jobs: {model['jobs']}\nETA: {model['eta']}", inline=False)
+    return e
                 
 class CogHorde(commands.Cog):
     def __init__(self, bot):
@@ -292,7 +311,7 @@ class CogHorde(commands.Cog):
     async def any(self, ctx: commands.Context):
         await generate(ctx, None, "Anything v5")
 
-    @app_commands.command(name="dream", description=f"{description_helper['emojis']['ai']} stablehorde")
+    @app_commands.command(name="dream", description=f"{description_helper['emojis']['ai']} {description_helper['ai']['horde']}"[:100])
     @app_commands.describe(prompt="Text prompt", negative="Negative prompt", model="Image model", n="Number of images to generate",
                            width="Image width", height="Image height", steps="Number of steps", post_processing="Post-processing method",
                            seed="Generation seed", seed_variation="Generation seed increment value", sampler_name="Sampling method",
@@ -314,6 +333,12 @@ class CogHorde(commands.Cog):
     @commands.command()
     async def horde(self, ctx: commands.Context):
         await help_horde(ctx)
+
+    @commands.hybrid_command(description=f"{description_helper['emojis']['ai']} Get the most popular stablehorde models")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def hordestats(self, ctx: commands.Context):
+        await watchmojo_top_5(ctx)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogHorde(bot))
