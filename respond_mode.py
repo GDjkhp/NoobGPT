@@ -107,7 +107,7 @@ class AIModeCog(commands.Cog):
     @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Set AI mode mention setting")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def airate(self, ctx: commands.Context):
+    async def aimention(self, ctx: commands.Context):
         await ai_respond_mention(ctx)
 
 async def setup(bot: commands.Bot):
