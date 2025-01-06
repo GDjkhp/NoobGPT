@@ -7,15 +7,16 @@ import random
 import re
 from util_database import *
 from util_discord import command_check, check_if_master_or_admin, description_helper, get_guild_prefix
-from respond_mode import ted_talk_response
+from respond_mode import ted_talk_response, detect_ai_respond
 
 mycol_players = myclient["utils"]["xp_players"]
 path="./res/mandatory_settings_and_splashes.json"
 
 # noobgpt sucks without insults they said
 async def detect_mentions(message: discord.Message, bot: commands.Bot, db: dict):
-    if message.author.bot: return False
-    if message.content and message.content.startswith(db["prefix"]): return False
+    if message.author.bot: return
+    if not db["insult_module"]: return
+    if message.content and message.content.startswith(db["prefix"]): return
     if message.mentions:
         if bot.user in message.mentions: return True
     ref_msg = None
@@ -25,22 +26,14 @@ async def detect_mentions(message: discord.Message, bot: commands.Bot, db: dict)
     except:
         print("Exception in detect_mentions")
     if ref_msg and ref_msg.author == bot.user: return True
-    # EXPERIMENT: FOR AI USE ONLY
-    if db.get("ai_mode") and db["ai_mode"]:
-        if db.get("ai_rate") and generate_random_bool(db["ai_rate"]): return True
-        # when 0, use mention only
-        every_noobgpt_case_first_pass = ["NoobGPT", "NOOBGPT", "noobgpt"]
-        for x in every_noobgpt_case_first_pass:
-            if x in message.content: return True
 
 async def insult_user(bot: commands.Bot, msg: discord.Message):
     db = await get_database2(msg.guild.id if msg.guild else msg.channel.id)
+    if detect_ai_respond(msg, db):
+        return await ted_talk_response(ctx, db["ai_mode"]) # highjack and ignore roast when ai is activated
     if await detect_mentions(msg, bot, db):
         ctx = await bot.get_context(msg) # context hack
         # async with ctx.typing():
-        if db.get("ai_mode") and db["ai_mode"]: 
-            return await ted_talk_response(ctx, db["ai_mode"]) # ignore roast when ai is activated
-        if not db["insult_module"]: return
         the_list = db["roasts"] if db["roasts"] else read_json_file(path)["insults from thoughtcatalog.com"]
         text = random.choice(the_list)
         await msg.reply(text)
@@ -422,11 +415,6 @@ async def help_level(ctx: commands.Context):
     await ctx.reply("\n".join(text))
 
 # utils
-def generate_random_bool(num):
-    chance = num / 100 # convert number to probability
-    result = random.random()
-    return result < chance
-
 async def assign_roles_logic(message: discord.Message, level: int, db_fake_roles: list):
     highest_level_role = None
     for r in db_fake_roles:

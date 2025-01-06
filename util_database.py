@@ -11,6 +11,7 @@ async def add_database2(server_id: int):
         "bot_dj_role": 0,
         "ai_mode": "",
         "ai_rate": 1,
+        "ai_mention": True,
         "insult_module": True,
         "insult_default": True,
         "xp_module": False,
@@ -91,3 +92,6 @@ async def set_ai_mode(server_id: int, b):
 
 async def set_ai_rate(server_id: int, b):
     await mycol2.update_one({"guild":server_id}, {"$set": {"ai_rate": b}})
+
+async def set_ai_mention(server_id: int, b: bool):
+    await mycol2.update_one({"guild":server_id}, {"$set": {"ai_mention": b}})
