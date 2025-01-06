@@ -84,7 +84,8 @@ async def YTDLP(ctx: commands.Context, arg1: str, arg2: str):
 
 def ytdlp_embed(ctx: commands.Context, info: dict, filename: str):
     e = discord.Embed(color=0xff0033, description=info.get('channel'), title=info.get('title')[:256])
-    e.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
+    if ctx.author.avatar: e.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
+    else: e.set_author(name=ctx.author)
     e.set_thumbnail(url=info.get('thumbnail'))
 
     e.add_field(name="Upload date", value=info.get('upload_date'))
