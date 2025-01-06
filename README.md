@@ -74,9 +74,9 @@ Collection of random and unique stuff I came up with, mostly games and useful to
     
 ## Utils 🔧
 * `-config` Customize how the bot works.
-* `-insult` Toggle insults.
-* `-aimode` Toggle AI response mode.
-* `-xp` Toggle XP levelling system.
+* `-insult` Toggle insults. Use `-insulthelp` for more info.
+* `-aimode [model]` Toggle AI response mode. Use `-aimode` for list of models.
+* `-xp` Toggle XP levelling system. Use `-xphelp` for more info.
 * `-quote` Reply to a message to make it a quote.
 * `-weather [query]` Check weather forecast using [weather-api](https://github.com/robertoduessmann/weather-api).
 * `-avatar [userid]` Return a user's Discord profile avatar.
