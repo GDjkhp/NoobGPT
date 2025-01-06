@@ -27,18 +27,18 @@ async def detect_mentions(message: discord.Message, bot: commands.Bot, db: dict)
     if ref_msg and ref_msg.author == bot.user: return True
     # EXPERIMENT: FOR AI USE ONLY
     if db.get("ai_mode") and db["ai_mode"]:
-        if db.get("ai_rate") and db["ai_rate"]:
-            if generate_random_bool(db["ai_rate"]): return True
-            every_noobgpt_case_first_pass = ["NoobGPT", "NOOBGPT", "noobgpt"]
-            for x in every_noobgpt_case_first_pass:
-                if x in message.content: return True
+        if db.get("ai_rate") and generate_random_bool(db["ai_rate"]): return True
+        # when 0, use mention only
+        every_noobgpt_case_first_pass = ["NoobGPT", "NOOBGPT", "noobgpt"]
+        for x in every_noobgpt_case_first_pass:
+            if x in message.content: return True
 
 async def insult_user(bot: commands.Bot, msg: discord.Message):
     db = await get_database2(msg.guild.id if msg.guild else msg.channel.id)
     if await detect_mentions(msg, bot, db):
         ctx = await bot.get_context(msg) # context hack
         # async with ctx.typing():
-        if db.get("ai_mode") and db["ai_mode"] and db.get("ai_rate") and db["ai_rate"]: # ignore when 0
+        if db.get("ai_mode") and db["ai_mode"]: 
             return await ted_talk_response(ctx, db["ai_mode"]) # ignore roast when ai is activated
         if not db["insult_module"]: return
         the_list = db["roasts"] if db["roasts"] else read_json_file(path)["insults from thoughtcatalog.com"]
