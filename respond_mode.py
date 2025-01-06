@@ -1,11 +1,24 @@
+import random
 import discord
 from discord import app_commands
 from discord.ext import commands
 from util_discord import command_check, check_if_master_or_admin, description_helper
-from util_database import set_ai_mode, get_database2, set_ai_rate
+from util_database import get_database2, set_ai_mode, set_ai_rate, set_ai_mention
 from googleai import models_google, GEMINI_REST
 from perplexity import models_mistral, models_groq, models_github, main_mistral, main_groq, main_github
 models_master = models_google + models_mistral + models_groq + models_github + ["off"]
+
+def detect_ai_respond(message: discord.Message, db: dict):
+    if db.get("ai_mode") and db["ai_mode"]:
+        if db.get("ai_rate") and generate_random_bool(db["ai_rate"]): return True
+        if db.get("ai_mention") and db["ai_mention"]:
+            return dumb_str_compare_with_nick(message) # when 0, use mention only
+
+def dumb_str_compare_with_nick(message: discord.Message):
+    name_table = ["noobgpt"]
+    if message.author.nick: name_table.append(message.author.nick.lower())
+    for name in name_table:
+        if name.lower() in message.content.lower(): return True
 
 async def ai_respond_mode(ctx: commands.Context, model: str):
     if await command_check(ctx, "aimode", "utils"): return
@@ -32,7 +45,7 @@ async def ted_talk_response(ctx: commands.Context, model):
             await main_groq(ctx, model, debug=False)
         if model in models_github:
             await main_github(ctx, model, debug=False)
-            
+
 async def ai_respond_rate(ctx: commands.Context, rate: str):
     if await command_check(ctx, "aimode", "utils"): return
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
@@ -45,12 +58,27 @@ async def ai_respond_rate(ctx: commands.Context, rate: str):
     adv_info = f"ai response mode rate is now set to `{rate}%`"
     if rate == 0: adv_info += "\ni will only respond to mentions"
     await ctx.reply(adv_info)
-    
+
+async def ai_respond_mention(ctx: commands.Context):
+    if await command_check(ctx, "aimode", "utils"): return
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
+    id = ctx.guild.id if ctx.guild else ctx.channel.id
+    db = await get_database2(id) # i need this
+
+    b = db["ai_mention"] if db.get("ai_mention") else False
+    await set_ai_mention(id, not b)
+    await ctx.reply(f"ai mode mention is now {not b}")
+
 def fix_num(num):
     num = int(num)
     if num < 0: num = 0
     elif num > 100: num = 100
     return num
+
+def generate_random_bool(num):
+    chance = num / 100 # convert number to probability
+    result = random.random()
+    return result < chance
 
 async def model_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     return [
@@ -75,6 +103,12 @@ class AIModeCog(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def airate(self, ctx: commands.Context, rate: str="1"):
         await ai_respond_rate(ctx, rate)
+        
+    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Set AI mode mention setting")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def airate(self, ctx: commands.Context):
+        await ai_respond_mention(ctx)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(AIModeCog(bot))
