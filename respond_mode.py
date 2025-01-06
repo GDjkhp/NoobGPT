@@ -16,9 +16,11 @@ def detect_ai_respond(message: discord.Message, db: dict):
 
 def dumb_str_compare_with_nick(message: discord.Message):
     name_table = ["noobgpt"]
-    if message.guild and message.author.nick: name_table.append(message.author.nick.lower())
+    if message.guild:
+        user: discord.Member = message.author
+        if user.nick: name_table.append(user.nick.lower())
     for name in name_table:
-        if name.lower() in message.content.lower(): return True
+        if name in message.content.lower(): return True
 
 async def ai_respond_mode(ctx: commands.Context, model: str):
     if await command_check(ctx, "aimode", "utils"): return
