@@ -17,7 +17,7 @@ def detect_ai_respond(message: discord.Message, db: dict):
 def dumb_str_compare_with_nick(message: discord.Message):
     name_table = ["noobgpt"]
     if message.guild:
-        user: discord.Member = message.author
+        user: discord.Member = message.guild.me
         if user.nick: name_table.append(user.nick.lower())
     for name in name_table:
         if name in message.content.lower(): return True
