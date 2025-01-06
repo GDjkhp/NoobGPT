@@ -42,7 +42,9 @@ async def ai_respond_rate(ctx: commands.Context, rate: str):
     if not rate.isdigit(): return await ctx.reply("not a digit :(")
     rate = fix_num(rate)
     await set_ai_rate(id, rate)
-    await ctx.reply(f"ai response mode rate is now set to `{rate}%`")
+    adv_info = f"ai response mode rate is now set to `{rate}%`"
+    if rate == 0: adv_info += "\ni will only respond to mentions"
+    await ctx.reply(adv_info)
     
 def fix_num(num):
     num = int(num)
