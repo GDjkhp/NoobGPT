@@ -67,7 +67,7 @@ async def ai_respond_mention(ctx: commands.Context):
 
     b = db["ai_mention"] if db.get("ai_mention") else False
     await set_ai_mention(id, not b)
-    await ctx.reply(f"ai mode mention is now {not b}")
+    await ctx.reply(f"ai mode mention is now `{not b}`")
 
 def fix_num(num):
     num = int(num)

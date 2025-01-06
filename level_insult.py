@@ -29,10 +29,10 @@ async def detect_mentions(message: discord.Message, bot: commands.Bot, db: dict)
 
 async def insult_user(bot: commands.Bot, msg: discord.Message):
     db = await get_database2(msg.guild.id if msg.guild else msg.channel.id)
+    ctx = await bot.get_context(msg) # context hack
     if detect_ai_respond(msg, db):
         return await ted_talk_response(ctx, db["ai_mode"]) # highjack and ignore roast when ai is activated
     if await detect_mentions(msg, bot, db):
-        ctx = await bot.get_context(msg) # context hack
         # async with ctx.typing():
         the_list = db["roasts"] if db["roasts"] else read_json_file(path)["insults from thoughtcatalog.com"]
         text = random.choice(the_list)
