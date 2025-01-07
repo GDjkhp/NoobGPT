@@ -8,6 +8,7 @@ import re
 from util_database import *
 from util_discord import command_check, check_if_master_or_admin, description_helper, get_guild_prefix
 from respond_mode import ted_talk_response, detect_ai_respond
+from c_ai_discord import generate_random_bool, fix_num
 
 mycol_players = myclient["utils"]["xp_players"]
 path="./res/mandatory_settings_and_splashes.json"
@@ -18,6 +19,7 @@ async def detect_mentions(message: discord.Message, bot: commands.Bot, db: dict)
     if message.content and message.content.startswith(db["prefix"]): return
     if message.mentions:
         if bot.user in message.mentions: return True
+
     ref_msg = None
     msg_id = message.reference.message_id if message.reference and message.reference.message_id else None
     try:
@@ -26,13 +28,17 @@ async def detect_mentions(message: discord.Message, bot: commands.Bot, db: dict)
         print("Exception in detect_mentions")
     if ref_msg and ref_msg.author == bot.user: return True
 
+    if not db.get("ai_mode") and db["ai_mode"]: return
+    if db.get("ai_rate") and generate_random_bool(db["ai_rate"]): return True
+    if db.get("ai_mention") and db["ai_mention"]:
+        return dumb_str_compare_with_nick(message) # when 0, use mention only
+
 async def insult_user(bot: commands.Bot, msg: discord.Message):
     db = await get_database2(msg.guild.id if msg.guild else msg.channel.id)
     if not await detect_mentions(msg, bot, db): return
 
     ctx = await bot.get_context(msg) # context hack
-    # async with ctx.typing():
-    if detect_ai_respond(msg, db):
+    if db.get("ai_mode") and db["ai_mode"]:
         return await ted_talk_response(ctx, db["ai_mode"]) # highjack and ignore roast when ai is activated
 
     if db["insult_module"]:
@@ -417,6 +423,14 @@ async def help_level(ctx: commands.Context):
     await ctx.reply("\n".join(text))
 
 # utils
+def dumb_str_compare_with_nick(message: discord.Message):
+    name_table = ["noobgpt"]
+    if message.guild:
+        user: discord.Member = message.guild.me
+        if user.nick: name_table.append(user.nick.lower())
+    for name in name_table:
+        if name in message.content.lower(): return True
+
 async def assign_roles_logic(message: discord.Message, level: int, db_fake_roles: list):
     highest_level_role = None
     for r in db_fake_roles:
