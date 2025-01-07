@@ -7,7 +7,7 @@ import random
 import re
 from util_database import *
 from util_discord import command_check, check_if_master_or_admin, description_helper, get_guild_prefix
-from respond_mode import ted_talk_response, detect_ai_respond
+from respond_mode import ted_talk_response
 from c_ai_discord import generate_random_bool, fix_num
 
 mycol_players = myclient["utils"]["xp_players"]
@@ -41,10 +41,10 @@ async def insult_user(bot: commands.Bot, msg: discord.Message):
     if db.get("ai_mode") and db["ai_mode"]:
         return await ted_talk_response(ctx, db["ai_mode"]) # highjack and ignore roast when ai is activated
 
-    if db["insult_module"]:
-        the_list = db["roasts"] if db["roasts"] else read_json_file(path)["insults from thoughtcatalog.com"]
-        text = random.choice(the_list)
-        await msg.reply(text)
+    if not db["insult_module"]: return
+    the_list = db["roasts"] if db["roasts"] else read_json_file(path)["insults from thoughtcatalog.com"]
+    text = random.choice(the_list)
+    await msg.reply(text)
 
 # noobgpt sucks without leveling system they said
 async def earn_xp(bot: commands.Bot, msg: discord.Message):
