@@ -28,7 +28,7 @@ async def detect_mentions(message: discord.Message, bot: commands.Bot, db: dict)
         print("Exception in detect_mentions")
     if ref_msg and ref_msg.author == bot.user: return True
 
-    if not db.get("ai_mode") and db["ai_mode"]: return
+    if not (db.get("ai_mode") and db["ai_mode"]): return
     if db.get("ai_rate") and generate_random_bool(db["ai_rate"]): return True
     if db.get("ai_mention") and db["ai_mention"]:
         return dumb_str_compare_with_nick(message) # when 0, use mention only
