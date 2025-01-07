@@ -15,7 +15,6 @@ path="./res/mandatory_settings_and_splashes.json"
 # noobgpt sucks without insults they said
 async def detect_mentions(message: discord.Message, bot: commands.Bot, db: dict):
     if message.author.bot: return
-    if not db["insult_module"]: return
     if message.content and message.content.startswith(db["prefix"]): return
     if message.mentions:
         if bot.user in message.mentions: return True
@@ -29,11 +28,14 @@ async def detect_mentions(message: discord.Message, bot: commands.Bot, db: dict)
 
 async def insult_user(bot: commands.Bot, msg: discord.Message):
     db = await get_database2(msg.guild.id if msg.guild else msg.channel.id)
+    if not await detect_mentions(msg, bot, db): return
+
     ctx = await bot.get_context(msg) # context hack
+    # async with ctx.typing():
     if detect_ai_respond(msg, db):
         return await ted_talk_response(ctx, db["ai_mode"]) # highjack and ignore roast when ai is activated
-    if await detect_mentions(msg, bot, db):
-        # async with ctx.typing():
+
+    if db["insult_module"]:
         the_list = db["roasts"] if db["roasts"] else read_json_file(path)["insults from thoughtcatalog.com"]
         text = random.choice(the_list)
         await msg.reply(text)
