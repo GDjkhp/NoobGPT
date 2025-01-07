@@ -7,20 +7,7 @@ from util_database import get_database2, set_ai_mode, set_ai_rate, set_ai_mentio
 from googleai import models_google, GEMINI_REST
 from perplexity import models_mistral, models_groq, models_github, main_mistral, main_groq, main_github
 models_master = models_google + models_mistral + models_groq + models_github + ["off"]
-
-def detect_ai_respond(message: discord.Message, db: dict):
-    if db.get("ai_mode") and db["ai_mode"]:
-        if db.get("ai_rate") and generate_random_bool(db["ai_rate"]): return True
-        if db.get("ai_mention") and db["ai_mention"]:
-            return dumb_str_compare_with_nick(message) # when 0, use mention only
-
-def dumb_str_compare_with_nick(message: discord.Message):
-    name_table = ["noobgpt"]
-    if message.guild:
-        user: discord.Member = message.guild.me
-        if user.nick: name_table.append(user.nick.lower())
-    for name in name_table:
-        if name in message.content.lower(): return True
+from c_ai_discord import fix_num
 
 async def ai_respond_mode(ctx: commands.Context, model: str):
     if await command_check(ctx, "aimode", "utils"): return
@@ -70,17 +57,6 @@ async def ai_respond_mention(ctx: commands.Context):
     b = db["ai_mention"] if db.get("ai_mention") else False
     await set_ai_mention(id, not b)
     await ctx.reply(f"ai mode mention is now `{not b}`")
-
-def fix_num(num):
-    num = int(num)
-    if num < 0: num = 0
-    elif num > 100: num = 100
-    return num
-
-def generate_random_bool(num):
-    chance = num / 100 # convert number to probability
-    result = random.random()
-    return result < chance
 
 async def model_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     return [
