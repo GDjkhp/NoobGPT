@@ -240,7 +240,7 @@ async def the_real_req_black(url: str, payload: dict, headers: dict = None):
             else: print(text.decode())
 
 async def make_request_black(model: str, messages: list, image: bool=False):
-    url = "https://www.blackbox.ai/api/chat"
+    url = "https://api.blackbox.ai/api/chat"
     payload = {
         "messages": messages,
         "agentMode": {
@@ -314,7 +314,7 @@ async def main_perplexity(ctx: commands.Context | discord.Interaction, model: in
         messages = await loopMsg(ctx.message, await get_guild_prefix(ctx))
         response = await make_request(models[model], messages, url, key) # spicy
         text = response["choices"][0]["message"]["content"]
-        if not text or text == "":
+        if not text:
             if isinstance(ctx, commands.Context):
                 return await msg.edit(content=f"**Error! :(**\nEmpty response.")
             if isinstance(ctx, discord.Interaction):
@@ -363,7 +363,7 @@ async def main_github(ctx: commands.Context | discord.Interaction,
         messages = await loopMsgGH(ctx.message, await get_guild_prefix(ctx)) if not prompt else await loopMsgSlash(prompt, image)
         response = await make_request(model, messages, url, key) # spicy
         text = response["choices"][0]["message"]["content"]
-        if not text or text == "":
+        if not text:
             if not debug: return
             err = f"**Error! :(**\nEmpty response."
             if isinstance(ctx, commands.Context):
@@ -417,7 +417,7 @@ async def main_groq(ctx: commands.Context | discord.Interaction, model: str, pro
         messages = await loopMsgGH(ctx.message, await get_guild_prefix(ctx)) if not prompt else await loopMsgSlash(prompt)
         response = await make_request(model, messages, url, key) # spicy
         text = response["choices"][0]["message"]["content"]
-        if not text or text == "":
+        if not text:
             if not debug: return
             err = f"**Error! :(**\nEmpty response."
             if isinstance(ctx, commands.Context):
@@ -466,7 +466,7 @@ async def main_anthropic(ctx: commands.Context | discord.Interaction, model: int
         messages = await loopMsg(ctx.message, await get_guild_prefix(ctx))
         response = await make_request_claude(models_claude[model], messages) # spicy
         text = response["content"][0]["text"]
-        if not text or text == "":
+        if not text:
             if isinstance(ctx, commands.Context):
                 return await msg.edit(content=f"**Error! :(**\nEmpty response.")
             if isinstance(ctx, discord.Interaction):
@@ -512,7 +512,7 @@ async def main_mistral(ctx: commands.Context | discord.Interaction, model: str, 
         messages = await loopMsgGH(ctx.message, await get_guild_prefix(ctx)) if not prompt else await loopMsgSlash(prompt)
         response = await make_request_mistral(model, messages, True if model == models_mistral[6] else False)
         text = response["choices"][0]["message"]["content"]
-        if not text or text == "":
+        if not text:
             if not debug: return
             err = f"**Error! :(**\nEmpty response."
             if isinstance(ctx, commands.Context):
@@ -566,7 +566,7 @@ async def main_blackbox(ctx: commands.Context | discord.Interaction, model: int,
             if isinstance(ctx, commands.Context): await ctx.reply(link)
         else:
             text = re.sub(r'^\$@\$\w+=.*\$', '', remove_lines(response.decode())) # not tested
-            if not text or text == "":
+            if not text:
                 if isinstance(ctx, commands.Context):
                     return await msg.edit(content=f"**Error! :(**\nEmpty response.")
                 if isinstance(ctx, discord.Interaction):
