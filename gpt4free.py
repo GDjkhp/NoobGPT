@@ -62,7 +62,7 @@ async def free_image(ctx: commands.Context | discord.Interaction, model: str,
                     if hey.content: prompt = f"{prompt}: {strip_dash(hey.content, p)}" # depth 1, dont you dare overload tokens
         if not prompt: prompt = "Generate something" # force
         b64 = await the_free_req_img(prompt, model)
-        file = discord.File(io.BytesIO(base64.b64decode(b64)))
+        file = discord.File(io.BytesIO(base64.b64decode(b64)), filename="image.jpeg")
         if isinstance(ctx, discord.Interaction): await ctx.followup.send(file=file)
         if isinstance(ctx, commands.Context): await ctx.reply(file=file)
     except Exception as e:
