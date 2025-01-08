@@ -1,4 +1,3 @@
-import random
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -27,13 +26,13 @@ async def ai_respond_mode(ctx: commands.Context, model: str):
 async def ted_talk_response(ctx: commands.Context, model):
     async with ctx.typing(): # users and discord itself will hate me for this
         if model in models_google:
-            await GEMINI_REST(ctx, model, debug=False)
+            return await GEMINI_REST(ctx, model, debug=False)
         if model in models_mistral:
-            await main_mistral(ctx, model, debug=False)
+            return await main_mistral(ctx, model, debug=False)
         if model in models_groq:
-            await main_groq(ctx, model, debug=False)
+            return await main_groq(ctx, model, debug=False)
         if model in models_github:
-            await main_github(ctx, model, debug=False)
+            return await main_github(ctx, model, debug=False)
 
 async def ai_respond_rate(ctx: commands.Context, rate: str):
     if await command_check(ctx, "aimode", "utils"): return

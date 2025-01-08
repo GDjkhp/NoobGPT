@@ -23,3 +23,5 @@ reportlab
 google-api-python-client
 google-auth-httplib2
 google-auth-oauthlib
+g4f[openai]
+g4f[image]

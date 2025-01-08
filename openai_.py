@@ -124,17 +124,17 @@ class CogOpenAI(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    async def ask(self, ctx: commands.Context):
-        await chat(ctx, client, "gpt-3.5-turbo")
+    # @commands.command()
+    # async def ask(self, ctx: commands.Context):
+    #     await chat(ctx, client, "gpt-3.5-turbo")
 
-    @commands.command()
-    async def imagine(self, ctx: commands.Context):
-        await image(ctx)
+    # @commands.command()
+    # async def imagine(self, ctx: commands.Context):
+    #     await image(ctx)
 
-    @commands.command()
-    async def gpt(self, ctx: commands.Context):
-        await gpt3(ctx)
+    # @commands.command()
+    # async def gpt(self, ctx: commands.Context):
+    #     await gpt3(ctx)
 
     @commands.command()
     async def openai(self, ctx: commands.Context):

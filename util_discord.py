@@ -21,7 +21,7 @@ async def copypasta(ctx: commands.Context):
 
 # shit deed
 available_categories=["ai", "games", "media", "utils"]
-ai_commands=["openai", "googleai", "petals", "perplex", "groq", "github", "mistral", "claude", "c.ai", "blackbox", "pawan", "horde"]
+ai_commands=["openai", "googleai", "petals", "perplex", "groq", "github", "mistral", "claude", "c.ai", "blackbox", "pawan", "horde", "g4f"]
 games_commands=["aki", "tic", "hang", "quiz", "word", "rps"]
 media_commands=["anime", "manga", "tv", "ytdlp", "cob", "booru", "music", "deez", "thumb", "img"]
 utils_commands=["quote", "weather", "av", "ban", "halp", "legal", "xp", "insult", "aimode"]
@@ -212,6 +212,7 @@ async def toggle_global_cat(server_id: int, cat: str):
 
 # public code for everyone to share, free to use
 description_helper = read_json_file("./res/mandatory_settings_and_splashes.json")["help_wanted_dictionaries_dead_or_alive"]
+model_helper = read_json_file("./res/mandatory_settings_and_splashes.json")["gpt4u"]
 
 def check_if_not_owner(ctx: commands.Context): # does not support interactions, deal with it
     return ctx.author.id != int(os.getenv("OWNER"))
