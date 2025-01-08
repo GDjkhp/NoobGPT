@@ -79,6 +79,7 @@ class NoobGPT(commands.Bot):
         await self.load_extension('rps_game')
         await self.load_extension("stablehorde")
         await self.load_extension("respond_mode")
+        await self.load_extension("gpt4free")
         await self.load_extension('help')
 
 class Moosic(commands.Bot):
