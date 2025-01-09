@@ -10,11 +10,14 @@ this is also proof that I DO NOT LOG ANY OF THESE MESSAGES and i only process th
 import discord
 from discord import app_commands
 from discord.ext import commands
-from util_database import myclient
+from util_database import myclient, get_database2, set_log_channel
 mycol = myclient["utils"]["1989"]
 
 async def message_snitcher(msg: discord.Message):
+    if not msg.guild: return
     if msg.author.bot: return
+    db = await get_database2(msg.guild.id)
+    if not (db.get("log_mode") and db["log_mode"] and db.get("log_channel") and db["log_channel"]): return
     if "guild activated logger": "take the channel and send a message on message edit/delete/nono"
 
 async def message_warden(msg: discord.Message):
@@ -27,6 +30,9 @@ async def message_creditor(msg: discord.Message):
     if "message is helpful and positive": "+1 social credit score"
 
 # utils
+def update_msg_embed():
+    e = discord.Embed()
+
 async def add_player_db(user_id: int):
     data = {
         "user_id": user_id,
@@ -57,6 +63,10 @@ async def set_player_consent(user_id: int, data):
 class TiananmenSquare1989Cog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.command()
+    async def get(self, ctx: commands.Context):
+        print(await get_player_db(ctx.author.id))
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(TiananmenSquare1989Cog(bot))

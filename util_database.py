@@ -14,6 +14,7 @@ async def add_database2(server_id: int):
         "ai_mention": True,
         "log_mode": False,
         "log_delete_msg": False,
+        "log_channel": 0,
         "insult_module": True,
         "insult_default": True,
         "xp_module": False,
@@ -103,3 +104,6 @@ async def set_log_mode(server_id: int, b: bool):
 
 async def set_log_delete_msg(server_id: int, b: bool):
     await mycol2.update_one({"guild":server_id}, {"$set": {"log_delete_msg": b}})
+
+async def set_log_channel(server_id: int, b: bool):
+    await mycol2.update_one({"guild":server_id}, {"$set": {"log_channel": b}})
