@@ -44,6 +44,7 @@ async def loopMsgSlash(prompt: str, image: discord.Attachment=None):
 async def loopMsgGH(message: discord.Message, prefix: str):
     role = "assistant" if message.author.bot else "user"
     content = message.content if message.author.bot else strip_dash(message.content, prefix)
+    if not content: content = "?" # i can't read this message :(
     
     # vision support?
     base64_data = None

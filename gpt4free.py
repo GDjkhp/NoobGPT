@@ -42,7 +42,7 @@ async def free_image(ctx: commands.Context | discord.Interaction, model: str,
             return await ctx.response.send_message(warn, ephemeral=True)
     # async with ctx.typing():
     if debug:
-        nfo = f"{model}\nGenerating response…"
+        nfo = f"{model}\nGenerating image…"
         if isinstance(ctx, commands.Context):
             msg = await ctx.reply(nfo)
         if isinstance(ctx, discord.Interaction):
@@ -155,7 +155,7 @@ class GPT4UCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.command(name="gpt", description=f"{description_helper['emojis']['ai']} GPT4Free Text Completion")
+    @app_commands.command(name="ask", description=f"{description_helper['emojis']['ai']} GPT4Free Text Completion")
     @app_commands.describe(model="Large language model")
     @app_commands.autocomplete(model=model_txt_auto)
     @app_commands.allowed_installs(guilds=True, users=True)
@@ -171,8 +171,8 @@ class GPT4UCog(commands.Cog):
     async def imagine_slash(self, ctx: discord.Interaction, prompt: str, model: str="flux"):
         await free_image(ctx, model, prompt)
 
-    @commands.command()
-    async def gpt(self, ctx: commands.Context):
+    @commands.command(aliases=["gpt"])
+    async def ask(self, ctx: commands.Context):
         await free_text(ctx, "gpt-4o")
 
     @commands.command()
