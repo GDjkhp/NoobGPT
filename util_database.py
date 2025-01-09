@@ -1,7 +1,7 @@
 import motor.motor_asyncio as db_client, os
 myclient = db_client.AsyncIOMotorClient(os.getenv('MONGO'))
 
-# level + insult + music + ai
+# level + insult + music + ai + log
 mycol2 = myclient["utils"]["nodeports"]
 async def add_database2(server_id: int):
     data = {
@@ -12,6 +12,8 @@ async def add_database2(server_id: int):
         "ai_mode": "",
         "ai_rate": 1,
         "ai_mention": True,
+        "log_mode": False,
+        "log_delete_msg": False,
         "insult_module": True,
         "insult_default": True,
         "xp_module": False,
@@ -95,3 +97,9 @@ async def set_ai_rate(server_id: int, b):
 
 async def set_ai_mention(server_id: int, b: bool):
     await mycol2.update_one({"guild":server_id}, {"$set": {"ai_mention": b}})
+
+async def set_log_mode(server_id: int, b: bool):
+    await mycol2.update_one({"guild":server_id}, {"$set": {"log_mode": b}})
+
+async def set_log_delete_msg(server_id: int, b: bool):
+    await mycol2.update_one({"guild":server_id}, {"$set": {"log_delete_msg": b}})
