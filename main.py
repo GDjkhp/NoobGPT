@@ -25,7 +25,7 @@ noobgpt_modules = [
     "tictactoe", "aki", "hangman", "quiz", "wordle_", "rps_game",
     "gelbooru", "deeznuts", "sflix", "kissasian", "ytdlp_", "magick_pillow", # "cobalt",
     "gogoanime", "animepahe", "manganato", "mangadex",
-    "util_discord", "custom_status", "util_member", "level_insult", "respond_mode", "quoteport", "weather", "help",
+    "util_discord", "custom_status", "util_member", "level_insult", "util_message", "respond_mode", "quoteport", "weather", "help",
 ]
 moosic_modules = [
     "util_discord", "youtubeplayer", "music",
@@ -55,6 +55,12 @@ class NoobGPT(commands.Bot):
         self.loop.create_task(insult_user(self, message))
         self.loop.create_task(earn_xp(self, message))
         await self.process_commands(message)
+
+    async def on_raw_message_edit(payload: discord.RawMessageUpdateEvent):
+        return
+    
+    async def on_raw_message_delete(payload: discord.RawMessageDeleteEvent):
+        return
 
     async def setup_hook(self):
         self.loop.create_task(silly_activities(self))
