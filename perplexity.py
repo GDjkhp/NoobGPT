@@ -33,18 +33,23 @@ async def loopMsg(message: discord.Message, prefix: str):
     return previousMessages + base_data
 
 async def loopMsgSlash(prompt: str, image: discord.Attachment=None):
-    data = [{"role": "user", "content": prompt}]
-    if image:
-        image_data = await image.read()
-        base64_data = base64.b64encode(image_data).decode('utf-8')
-        # data[0]["data"]={"imageBase64": f"data:image/jpeg;base64,{base64_data}"} # blackbox
-        data[0]["content"]+=[{"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_data}"}}] # openai/github
-    return data
+    if not image:
+        return [{"role": "user", "content": prompt}]
+    
+    image_data = await image.read()
+    base64_data = base64.b64encode(image_data).decode('utf-8')
+    return [{
+        "role": "user",
+        "content": [
+            {"type": "text", "text": prompt},
+            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_data}"}}
+        ]
+    }]
 
 async def loopMsgGH(message: discord.Message, prefix: str):
     role = "assistant" if message.author.bot else "user"
     content = message.content if message.author.bot else strip_dash(message.content, prefix)
-    if not content: content = "?" # i can't read this message :(
+    if not content: content = "?" # maybe image only, i can't read this message :(
     
     # vision support?
     base64_data = None
@@ -52,15 +57,17 @@ async def loopMsgGH(message: discord.Message, prefix: str):
         attachment = message.attachments[0]
         image_data = await attachment.read()
         base64_data = base64.b64encode(image_data).decode('utf-8')
-        content = "What’s in this image?" if content and content.startswith(prefix) else content
-    content = "Hello!" if content and content.startswith(prefix) else content # if none is supplied
+        content = "What's in this image?" if content and content.startswith(prefix) else content
+    content = "Hello!" if content and content.startswith(prefix) else content
 
+    # Create base message with string content for non-image messages
     base_data = [{
-        "role": role, 
-        "content": [{"type": "text", "text": content}]
+        "role": role,
+        "content": content if not base64_data else [
+            {"type": "text", "text": content},
+            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_data}"}}
+        ]
     }]
-    if base64_data:
-        base_data[0]["content"]+=[{"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_data}"}}]
 
     if not message.reference: return base_data
     try:
@@ -229,7 +236,7 @@ async def the_real_req(url: str, payload: dict, headers: dict = None):
     async with aiohttp.ClientSession() as session:
         async with session.post(url, json=payload, headers=headers) as response:
             if response.status == 200:
-                return await response.json()
+                return await response.json() # FIXME: investigate dms returning content nonetype
             else: print(await response.content.read())
 
 async def the_real_req_black(url: str, payload: dict, headers: dict = None):
