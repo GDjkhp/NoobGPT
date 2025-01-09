@@ -1,12 +1,12 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+from c_ai_discord import fix_num
 from util_discord import command_check, check_if_master_or_admin, description_helper
 from util_database import get_database2, set_ai_mode, set_ai_rate, set_ai_mention
 from googleai import models_google, GEMINI_REST
 from perplexity import models_mistral, models_groq, models_github, main_mistral, main_groq, main_github
 models_master = models_google + models_mistral + models_groq + models_github + ["off"]
-from c_ai_discord import fix_num
 
 async def ai_respond_mode(ctx: commands.Context, model: str):
     if await command_check(ctx, "aimode", "utils"): return

@@ -20,6 +20,17 @@ from c_ai_discord import *
 from custom_status import *
 from music import setup_hook_music
 
+noobgpt_modules = [
+    "c_ai_discord", "stablehorde", "gpt4free", "perplexity", "openai_", "googleai", # "petals",
+    "tictactoe", "aki", "hangman", "quiz", "wordle_", "rps_game",
+    "gelbooru", "deeznuts", "sflix", "kissasian", "ytdlp_", "magick_pillow", # "cobalt",
+    "gogoanime", "animepahe", "manganato", "mangadex",
+    "util_discord", "custom_status", "util_member", "level_insult", "respond_mode", "quoteport", "weather", "help",
+]
+moosic_modules = [
+    "util_discord", "youtubeplayer", "music",
+]
+
 class NoobGPT(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix = get_prefix, intents = intents, 
@@ -49,38 +60,8 @@ class NoobGPT(commands.Bot):
         self.loop.create_task(silly_activities(self))
         self.loop.create_task(main_gde(self))
         self.loop.create_task(main_rob(self))
-        await self.load_extension('custom_status')
-        await self.load_extension('util_discord')
-        await self.load_extension('util_member')
-        await self.load_extension('level_insult')
-        await self.load_extension('sflix')
-        await self.load_extension('kissasian')
-        await self.load_extension('gogoanime')
-        await self.load_extension('animepahe')
-        await self.load_extension('manganato')
-        await self.load_extension('mangadex')
-        await self.load_extension('ytdlp_')
-        await self.load_extension('magick_pillow')
-        # await self.load_extension('cobalt')
-        await self.load_extension('deeznuts')
-        await self.load_extension('quoteport')
-        await self.load_extension('weather')
-        await self.load_extension('gelbooru')
-        await self.load_extension('perplexity')
-        await self.load_extension('openai_')
-        await self.load_extension('googleai')
-        # await self.load_extension('petals')
-        await self.load_extension('c_ai_discord')
-        await self.load_extension('tictactoe')
-        await self.load_extension('aki')
-        await self.load_extension('hangman')
-        await self.load_extension('quiz')
-        await self.load_extension('wordle_')
-        await self.load_extension('rps_game')
-        await self.load_extension("stablehorde")
-        await self.load_extension("respond_mode")
-        await self.load_extension("gpt4free")
-        await self.load_extension('help')
+        for module in noobgpt_modules:
+            await self.load_extension(module)
 
 class Moosic(commands.Bot):
     def __init__(self):
@@ -106,9 +87,8 @@ class Moosic(commands.Bot):
     async def setup_hook(self):
         self.loop.create_task(silly_activities(self))
         self.loop.create_task(setup_hook_music(self))
-        await self.load_extension('youtubeplayer')
-        await self.load_extension('music')
-        await self.load_extension('util_discord')
+        for module in moosic_modules:
+            await self.load_extension(module)
 
 async def start_bot(bot: commands.Bot, token: str):
     await bot.start(token)

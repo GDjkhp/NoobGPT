@@ -8,7 +8,7 @@ import re
 from util_database import *
 from util_discord import command_check, check_if_master_or_admin, description_helper, get_guild_prefix
 from respond_mode import ted_talk_response
-from c_ai_discord import generate_random_bool, fix_num
+from c_ai_discord import generate_random_bool
 
 mycol_players = myclient["utils"]["xp_players"]
 path="./res/mandatory_settings_and_splashes.json"
@@ -28,7 +28,7 @@ async def detect_mentions(message: discord.Message, bot: commands.Bot, db: dict)
         print("Exception in detect_mentions")
     if ref_msg and ref_msg.author == bot.user: return True
 
-    if not (db.get("ai_mode") and db["ai_mode"]): return
+    if not (db.get("ai_mode") and db["ai_mode"]): return # gatekeep mentions to ai for now
     if db.get("ai_rate") and generate_random_bool(db["ai_rate"]): return True
     if db.get("ai_mention") and db["ai_mention"]:
         return dumb_str_compare_with_nick(message) # when 0, use mention only
