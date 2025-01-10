@@ -62,7 +62,7 @@ async def loopMsgGH(message: discord.Message, prefix: str):
 
     # Create base message with string content for non-image messages
     base_data = [{
-        "role": role,
+        "role": "user" if base64_data else role,
         "content": content if not base64_data else [
             {"type": "text", "text": content},
             {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_data}"}}
