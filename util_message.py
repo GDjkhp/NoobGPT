@@ -30,7 +30,7 @@ async def message_snitcher(before: discord.Message, after: discord.Message,
 
     if after:
         content = f"{after.jump_url}\n<t:{round(after.edited_at.timestamp())}:F>"
-    else: content = f"{before.channel.jump_url}\n<t:{round(datetime.now())}:F>"
+    else: content = f"{before.channel.jump_url}\n<t:{round(datetime.now().timestamp())}:F>"
     await chan.send(content=content, embed=update_msg_embed(before, after, title, desc, col))
 
 async def message_warden(bot: commands.Bot, msg: discord.Message): # automod ripoff
