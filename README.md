@@ -47,7 +47,6 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 
 * `-openai` OpenAI is an AI research and deployment company. Our mission is to ensure that artificial general intelligence benefits all of humanity.
 * `-googleai` Google AI is a division of Google dedicated to artificial intelligence.
-* `-petals` Run large language models at home, BitTorrent‑style.
 * `-perplex` Perplexity AI unlocks the power of knowledge with information discovery and sharing.
 * `-groq` The LPU™ Inference Engine by Groq is a hardware and software platform that delivers exceptional compute speed, quality, and energy efficiency.
 * `-github` If you want to develop a generative AI application, you can use GitHub Models to find and experiment with AI models for free.
@@ -79,8 +78,9 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-xp` Toggle XP levelling system. Use `-xphelp` for more info.
 * `-quote` Reply to a message to make it a quote.
 * `-weather [query]` Check weather forecast using [weather-api](https://github.com/robertoduessmann/weather-api).
-* `-avatar [userid]` Return a user's Discord profile avatar.
-* `-banner [userid]` Return a user's Discord profile banner.
+* `-log [channel_id]` Set a message logger channel.
+* `-avatar [user_id]` Return a user's Discord profile avatar.
+* `-banner [user_id]` Return a user's Discord profile banner.
 
 ## Moosic
 <img src="https://gdjkhp.github.io/img/baka.jpg" width=256>
@@ -154,6 +154,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * <https://github.com/googleapis/google-api-python-client>
 * <https://github.com/omarryhan/aiogoogle>
 * <https://github.com/nathom/streamrip>
+* <https://github.com/xtekky/gpt4free>
 
 ### Sites
 * <https://openai.com>
