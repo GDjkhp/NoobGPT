@@ -42,8 +42,8 @@ async def node_list():
 
 async def set_dj_role(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "music", "media"): return
-    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin", ephemeral=True)
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_roles:
         return await ctx.reply("**manage roles permission is disabled :(**")

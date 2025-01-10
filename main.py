@@ -19,6 +19,7 @@ from gde_hall_of_fame import *
 from c_ai_discord import *
 from custom_status import *
 from music import setup_hook_music
+from util_message import message_snitcher
 
 noobgpt_modules = [
     "c_ai_discord", "stablehorde", "gpt4free", "perplexity", "openai_", "googleai", # "petals",
@@ -56,11 +57,15 @@ class NoobGPT(commands.Bot):
         self.loop.create_task(earn_xp(self, message))
         await self.process_commands(message)
 
-    async def on_raw_message_edit(payload: discord.RawMessageUpdateEvent):
-        return
+    async def on_message_edit(self, before: discord.Message, after: discord.Message):
+        self.loop.create_task(
+            message_snitcher(before, after,"Message updated", f"#{before.channel}", 0x00ff00)
+        )
     
-    async def on_raw_message_delete(payload: discord.RawMessageDeleteEvent):
-        return
+    async def on_message_delete(self, message: discord.Message):
+        self.loop.create_task(
+            message_snitcher(message, None, "Message deleted", f"#{message.channel}", 0xff0000)
+        )
 
     async def setup_hook(self):
         self.loop.create_task(silly_activities(self))

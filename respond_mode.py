@@ -9,8 +9,8 @@ from perplexity import models_mistral, models_groq, models_github, main_mistral,
 models_master = models_google + models_mistral + models_groq + models_github + ["off"]
 
 async def ai_respond_mode(ctx: commands.Context, model: str):
-    if await command_check(ctx, "aimode", "utils"): return
-    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
+    if await command_check(ctx, "aimode", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin", ephemeral=True)
     id = ctx.guild.id if ctx.guild else ctx.channel.id
     db = await get_database2(id) # please be good
 
@@ -35,8 +35,8 @@ async def ted_talk_response(ctx: commands.Context, model):
             return await main_github(ctx, model, debug=False)
 
 async def ai_respond_rate(ctx: commands.Context, rate: str):
-    if await command_check(ctx, "aimode", "utils"): return
-    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
+    if await command_check(ctx, "aimode", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin", ephemeral=True)
     id = ctx.guild.id if ctx.guild else ctx.channel.id
     db = await get_database2(id) # please be good
     
@@ -49,7 +49,7 @@ async def ai_respond_rate(ctx: commands.Context, rate: str):
 
 async def ai_respond_mention(ctx: commands.Context):
     if await command_check(ctx, "aimode", "utils"): return
-    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin", ephemeral=True)
     id = ctx.guild.id if ctx.guild else ctx.channel.id
     db = await get_database2(id) # i need this
 
