@@ -76,6 +76,7 @@ def strip_dash(text: str, prefix: str):
 async def loopMsg(message: discord.Message, prefix: str):
     role = "model" if message.author.bot else "user"
     content = message.content if message.author.bot else strip_dash(message.content, prefix)
+    if not content: content = "?" # maybe image only, i can't read this message :(
     content = "Hello!" if content and content.startswith(prefix) else content
     base64_data, mime = None, None
     if len(message.attachments) > 0:
@@ -85,7 +86,7 @@ async def loopMsg(message: discord.Message, prefix: str):
         mime = attachment.content_type
     base_data = [
         {
-            "role": role, 
+            "role": role, # check if only user supports images, see perplexity line 65
             "parts": [
                 {"text": content},
                 {
