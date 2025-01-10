@@ -36,6 +36,7 @@
             "xp": "Toggle XP leveling system.",
             "quote": "Make it a quote.",
             "weather": "Check the current weather.",
+            "log": "Set a message logger channel.",
             "avatar": "Return a user's Discord profile avatar.",
             "banner": "Return a user's Discord profile banner."
         },

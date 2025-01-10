@@ -63,28 +63,28 @@ async def create_embed(color: int, ctx: commands.Context, title: str, desc: str=
     return emby
 
 async def ai_embed(ctx: commands.Context, thumb: str) -> discord.Embed:
-    emby = await create_embed(0x00ff00, ctx, "AI 🤖", thumb=thumb)
+    emby = await create_embed(0x00ff00, ctx, "🤖 AI", thumb=thumb)
     prefix = await get_guild_prefix(ctx)
     for key in list(description_helper["ai"]):
         emby.add_field(name=f'`{prefix}{key}`', value=description_helper["ai"][key], inline=False)
     return emby
 
 async def games_embed(ctx: commands.Context, thumb: str) -> discord.Embed:
-    emby = await create_embed(0x00ffff, ctx, "Games 🎲", thumb=thumb)
+    emby = await create_embed(0x00ffff, ctx, "🎲 Games", thumb=thumb)
     prefix = await get_guild_prefix(ctx)
     for key in list(description_helper["games"]):
         emby.add_field(name=f'`{prefix}{key}`', value=description_helper["games"][key], inline=False)
     return emby
     
 async def media_embed(ctx: commands.Context, thumb: str) -> discord.Embed:
-    emby = await create_embed(0xff0000, ctx, "Media 💽", thumb=thumb)
+    emby = await create_embed(0xff0000, ctx, "💽 Media", thumb=thumb)
     prefix = await get_guild_prefix(ctx)
     for key in list(description_helper["media"]):
         emby.add_field(name=f'`{prefix}{key}`', value=description_helper["media"][key], inline=False)
     return emby
 
 async def utils_embed(ctx: commands.Context, thumb: str) -> discord.Embed:
-    emby = await create_embed(0x0000ff, ctx, "Utils 🔧", thumb=thumb)
+    emby = await create_embed(0x0000ff, ctx, "🔧 Utils", thumb=thumb)
     prefix = await get_guild_prefix(ctx)
     for key in list(description_helper["utils"]):
         emby.add_field(name=f'`{prefix}{key}`', value=description_helper["utils"][key], inline=False)
@@ -94,14 +94,14 @@ async def utils_embed(ctx: commands.Context, thumb: str) -> discord.Embed:
     return emby
 
 async def player_embed(ctx: commands.Context, thumb: str) -> discord.Embed:
-    emby = await create_embed(0x00ff00, ctx, "Player ⏯️", thumb=thumb)
+    emby = await create_embed(0x00ff00, ctx, "⏯️ Player", thumb=thumb)
     prefix = await get_guild_prefix(ctx)
     for key in list(description_helper["player"]):
         emby.add_field(name=f'`{prefix}{key}`', value=description_helper["player"][key], inline=False)
     return emby
 
 async def queue_embed(ctx: commands.Context, thumb: str) -> discord.Embed:
-    emby = await create_embed(0x0000ff, ctx, "Queue 🔀", thumb=thumb)
+    emby = await create_embed(0x0000ff, ctx, "🔀 Queue", thumb=thumb)
     prefix = await get_guild_prefix(ctx)
     for key in list(description_helper["queue"]):
         emby.add_field(name=f'`{prefix}{key}`', value=description_helper["queue"][key], inline=False)

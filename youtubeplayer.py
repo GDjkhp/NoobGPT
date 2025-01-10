@@ -431,6 +431,8 @@ async def mode_rec_auto(interaction: discord.Interaction, current: str) -> list[
         app_commands.Choice(name=mode, value=mode) for mode in ["partial", "enabled", "disabled"] if current.lower() in mode.lower()
     ]
 
+# TODO: min_music for noobgpt (only essential commands)
+# list np dj play pause-resume stop skip autoplay shuffle remove clear volume
 class YouTubePlayer(commands.Cog):
     def __init__(self, bot):
         self.bot = bot

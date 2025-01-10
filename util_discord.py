@@ -21,10 +21,10 @@ async def copypasta(ctx: commands.Context):
 
 # shit deed
 available_categories=["ai", "games", "media", "utils"]
-ai_commands=["openai", "googleai", "petals", "perplex", "groq", "github", "mistral", "claude", "c.ai", "blackbox", "pawan", "horde", "g4f"]
+ai_commands=["openai", "googleai", "perplex", "groq", "github", "mistral", "claude", "c.ai", "horde", "g4f"]
 games_commands=["aki", "tic", "hang", "quiz", "word", "rps"]
 media_commands=["anime", "manga", "tv", "ytdlp", "cob", "booru", "music", "deez", "thumb", "img"]
-utils_commands=["quote", "weather", "av", "ban", "halp", "legal", "xp", "insult", "aimode"]
+utils_commands=["quote", "weather", "av", "ban", "halp", "legal", "xp", "insult", "aimode", "log"]
 available_commands = ai_commands + games_commands + media_commands + utils_commands
 
 def category_to_commands(cat: str, commands: list):
@@ -49,7 +49,7 @@ async def config_commands(ctx: commands.Context):
     await ctx.reply("\n".join(text))
 
 async def set_prefix_cmd(ctx: commands.Context, arg: str):
-    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin", ephemeral=True)
     if not arg: return await ctx.reply(f"usage: `{await get_guild_prefix(ctx)}prefix <prefix>`")
     id = ctx.guild.id if ctx.guild else ctx.channel.id
     db = await get_database2(id) # nonsense
@@ -91,11 +91,12 @@ async def create_bot_master_role(ctx: commands.Context):
     await ctx.reply(f"<@&{role.id}> role added")
 
 async def command_enable(ctx: commands.Context, com: str):
-    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin", ephemeral=True)
     if not com: return await ctx.reply(f"execute `{await get_guild_prefix(ctx)}halp` to view commands")
     if not com in available_commands and not com in available_categories:
         return await ctx.reply("😩")
-    db = await get_database(ctx.guild.id if ctx.guild else ctx.channel.id)
+    id = ctx.guild.id if ctx.guild else ctx.channel.id
+    db = await get_database(id)
     if not db["channel_mode"]: return await ctx.reply("channel_mode is disabled")
     if com in db["disabled_commands"] or com in db["disabled_categories"]:
         return await ctx.reply(f"`{com}` was disabled server-wide (enable `{com}` first)")
@@ -110,7 +111,7 @@ async def command_enable(ctx: commands.Context, com: str):
             "id": ctx.channel.id,
             "commands": []
         }
-    else: await pull_channel(ctx.guild.id, chan_deets)
+    else: await pull_channel(id, chan_deets)
 
     if com in available_commands:
         if com in chan_deets["commands"]:
@@ -123,25 +124,27 @@ async def command_enable(ctx: commands.Context, com: str):
         category_to_commands(com, chan_deets["commands"]) # enable all
         res = "enabled"
 
-    await push_channel(ctx.guild.id, chan_deets)
+    await push_channel(id, chan_deets)
     await ctx.reply(f"`{com}` has been {res}")
 
 async def command_disable(ctx: commands.Context, com: str):
-    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin", ephemeral=True)
     if not com: return await ctx.reply(f"execute `{await get_guild_prefix(ctx)}halp` to view commands")
     if not com in available_commands and not com in available_categories:
         return await ctx.reply("😩")
-    db = await get_database(ctx.guild.id if ctx.guild else ctx.channel.id) # nonsense
+    id = ctx.guild.id if ctx.guild else ctx.channel.id
+    db = await get_database(id) # nonsense
     if com in available_commands:
-        res = await toggle_global_command(ctx.guild.id, com)
+        res = await toggle_global_command(id, com)
     if com in available_categories: 
-        res = await toggle_global_cat(ctx.guild.id, com)
+        res = await toggle_global_cat(id, com)
     await ctx.reply(f"`{com}` has been {res} server-wide")
 
 async def command_channel_mode(ctx: commands.Context):
-    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
-    db = await get_database(ctx.guild.id if ctx.guild else ctx.channel.id)
-    await set_mode(ctx.guild.id, not db["channel_mode"])
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin", ephemeral=True)
+    id = ctx.guild.id if ctx.guild else ctx.channel.id
+    db = await get_database(id)
+    await set_mode(id, not db["channel_mode"])
     await ctx.reply(f'channel mode is now set to {not db["channel_mode"]}')
 
 async def command_view(ctx: commands.Context):

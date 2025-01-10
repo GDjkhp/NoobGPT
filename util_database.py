@@ -12,8 +12,10 @@ async def add_database2(server_id: int):
         "ai_mode": "",
         "ai_rate": 1,
         "ai_mention": True,
-        "log_mode": False,
-        "log_delete_msg": False,
+        "log_mode": False, # social credit system
+        "log_notify_mode": "", # social credit system: dm, ephemeral
+        "log_notify_gearbot": "", # dm, ephemeral
+        "log_delete_msg": False, # requires manage messages
         "log_channel": 0,
         "insult_module": True,
         "insult_default": True,
@@ -107,3 +109,6 @@ async def set_log_delete_msg(server_id: int, b: bool):
 
 async def set_log_channel(server_id: int, b: bool):
     await mycol2.update_one({"guild":server_id}, {"$set": {"log_channel": b}})
+
+async def set_log_notify(server_id: int, b):
+    await mycol2.update_one({"guild":server_id}, {"$set": {"log_notify_mode": b}})
