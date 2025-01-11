@@ -6,7 +6,8 @@ from util_discord import command_check, check_if_master_or_admin, description_he
 from util_database import get_database2, set_ai_mode, set_ai_rate, set_ai_mention
 from googleai import models_google, GEMINI_REST
 from perplexity import models_mistral, models_groq, models_github, main_mistral, main_groq, main_github
-models_master = models_google + models_mistral + models_groq + models_github + ["off"]
+from gpt4free import models_image, free_image
+models_master = models_google + models_mistral + models_groq + models_github + models_image + ["off"]
 
 async def ai_respond_mode(ctx: commands.Context, model: str):
     if await command_check(ctx, "aimode", "utils"): return await ctx.reply("command disabled", ephemeral=True)
@@ -33,6 +34,8 @@ async def ted_talk_response(ctx: commands.Context, model):
             return await main_groq(ctx, model, debug=False)
         if model in models_github:
             return await main_github(ctx, model, debug=False)
+        if model in models_image:
+            return await free_image(ctx, model, debug=False)
 
 async def ai_respond_rate(ctx: commands.Context, rate: str):
     if await command_check(ctx, "aimode", "utils"): return await ctx.reply("command disabled", ephemeral=True)

@@ -229,6 +229,15 @@ async def voice_channel_connector(ctx: commands.Context | discord.Interaction):
     vc = await member.voice.channel.connect(cls=wavelink.Player, self_deaf=True)
     return vc
 
+def check_bot_conflict(ctx: commands.Context | discord.Interaction):
+    if isinstance(ctx, commands.Context):
+        member = ctx.author
+    if isinstance(ctx, discord.Interaction):
+        member = ctx.user
+    moosic = member.guild.get_member(1073823671392686162)
+    if moosic:
+        if moosic != member: return True
+
 class MusicUtil(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot

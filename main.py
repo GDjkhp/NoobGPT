@@ -24,9 +24,10 @@ from util_message import message_snitcher
 noobgpt_modules = [
     "c_ai_discord", "stablehorde", "gpt4free", "perplexity", "openai_", "googleai", # "petals",
     "tictactoe", "aki", "hangman", "quiz", "wordle_", "rps_game",
-    "gelbooru", "deeznuts", "sflix", "kissasian", "ytdlp_", "magick_pillow", # "cobalt",
+    "gelbooru", "deeznuts", "sflix", "ytdlp_", "magick_pillow", "min_music", # "cobalt", "kissasian",
     "gogoanime", "animepahe", "manganato", "mangadex",
-    "util_discord", "custom_status", "util_member", "level_insult", "util_message", "respond_mode", "quoteport", "weather", "help",
+    "custom_status", "level_insult", "respond_mode", "quoteport", "help", # "weather",
+    "util_discord", "util_member", "util_message",
 ]
 moosic_modules = [
     "util_discord", "youtubeplayer", "music",
@@ -107,7 +108,7 @@ async def start_bot(bot: commands.Bot, token: str):
 async def main():
     await asyncio.gather(
         start_bot(NoobGPT(), os.getenv("NOOBGPT")),
-        start_bot(Moosic(), os.getenv("MOOSIC"))
+        start_bot(Moosic(), os.getenv("MOOSIC")),
     )
 
 if __name__ == "__main__":
