@@ -10,7 +10,7 @@ from Crypto.Cipher import AES
 import hashlib
 import json
 from Crypto.Util.Padding import unpad
-from util_discord import command_check, description_helper, check_if_not_owner
+from util_discord import command_check, description_helper, check_if_not_owner, get_guild_prefix
 from util_database import myclient
 mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 
@@ -19,6 +19,15 @@ title, url, aid, mv_tv, poster = 0, 1, 2, 3, 4
 pagelimit = 12
 domain_sflix = "https://sflix.to"
 provider="https://gdjkhp.github.io/img/66356c25ce98cb12993249e21742b129.png"
+
+async def help_tv(ctx: commands.Context):
+    if await command_check(ctx, "tv", "media"): return await ctx.reply("command disabled", ephemeral=True)
+    p = await get_guild_prefix(ctx)
+    sources = [
+        f"`{p}flix` sflix",
+        # f"`{p}kiss` kissasian",
+    ]
+    await ctx.reply("\n".join(sources))
 
 async def get_domain():
     global domain_sfix
@@ -438,6 +447,12 @@ class CogSflix(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def flix(self, ctx: commands.Context, *, query:str=None):
         await Sflix(ctx, query)
+
+    @commands.hybrid_command(description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["tv"]}')
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def tv(self, ctx: commands.Context):
+        await help_tv(ctx)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogSflix(bot))

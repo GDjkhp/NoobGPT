@@ -10,12 +10,6 @@ BASE_URL = "https://kissasian.lu"
 provider="https://gdjkhp.github.io/img/kissasian.png"
 pagelimit=12
 
-async def help_tv(ctx: commands.Context):
-    if await command_check(ctx, "tv", "media"): return await ctx.reply("command disabled", ephemeral=True)
-    p = await get_guild_prefix(ctx)
-    sources = [f"`{p}flix` sflix", f"`{p}kiss` kissasian"]
-    await ctx.reply("\n".join(sources))
-
 async def kiss_search(ctx: commands.Context, arg: str):
     if await command_check(ctx, "tv", "media"): return await ctx.reply("command disabled", ephemeral=True)
     return await ctx.reply("KISSASIAN down?????????\nOMG NOOOOOOOOOO!!!!!!!!!")
@@ -357,12 +351,6 @@ class CogKiss(commands.Cog):
     @commands.command()
     async def kiss(self, ctx: commands.Context, *, query:str=None):
         await kiss_search(ctx, query)
-
-    @commands.hybrid_command(description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["tv"]}')
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def tv(self, ctx: commands.Context):
-        await help_tv(ctx)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogKiss(bot))
