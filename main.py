@@ -70,6 +70,7 @@ class NoobGPT(commands.Bot):
 
     async def setup_hook(self):
         self.loop.create_task(silly_activities(self))
+        self.loop.create_task(setup_hook_music(self))
         self.loop.create_task(main_gde(self))
         self.loop.create_task(main_rob(self))
         for module in noobgpt_modules:
