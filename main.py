@@ -68,6 +68,9 @@ class NoobGPT(commands.Bot):
             message_snitcher(message, None, "Message deleted", f"#{message.channel}", 0xff0000)
         )
 
+    async def on_wavelink_node_ready(self, payload: wavelink.NodeReadyEventPayload):
+        print(f"{self.user.name}: {payload.node} | Resumed: {payload.resumed}")
+
     async def setup_hook(self):
         self.loop.create_task(silly_activities(self))
         self.loop.create_task(setup_hook_music(self))
@@ -89,7 +92,7 @@ class Moosic(commands.Bot):
         print(":)")
 
     async def on_wavelink_node_ready(self, payload: wavelink.NodeReadyEventPayload):
-        print(f"{payload.node} | Resumed: {payload.resumed}")
+        print(f"{self.user.name}: {payload.node} | Resumed: {payload.resumed}")
 
     async def on_guild_join(self, guild: discord.Guild):
         print(f"{self.user.name}: Joined {guild.name} ({guild.id})")
