@@ -27,6 +27,12 @@ media_commands=["anime", "manga", "tv", "ytdlp", "cob", "booru", "music", "deez"
 utils_commands=["quote", "weather", "av", "ban", "halp", "legal", "xp", "insult", "aimode", "log"]
 available_commands = ai_commands + games_commands + media_commands + utils_commands
 
+async def catcom_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    catcoms = available_categories+available_commands
+    return [
+        app_commands.Choice(name=catcom, value=catcom) for catcom in catcoms if current.lower() in catcom.lower()
+    ][:25]
+
 def category_to_commands(cat: str, commands: list):
     y = []
     if cat == "ai":    y = ai_commands
@@ -40,7 +46,7 @@ async def config_commands(ctx: commands.Context):
     p = await get_guild_prefix(ctx)
     text = [
         f"`{p}view` View disabled commands",
-        f"`{p}botmaster [user id]` Adds bot master role to a user",
+        f"`{p}botmaster [user_id]` Adds bot master role to a user",
         f"`{p}prefix [prefix]` Change bot command prefix",
         f"`{p}channel` Toggle channel mode, where you can set specific commands per channel",
         f"`{p}toggle [command]` Toggle command. Requires channel mode",
@@ -259,6 +265,7 @@ class DiscordUtil(commands.Cog):
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Toggle command. Requires channel mode")
     @app_commands.describe(command="Command you want to enable")
+    @app_commands.autocomplete(command=catcom_auto)
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def toggle(self, ctx: commands.Context, command:str=None):
@@ -266,6 +273,7 @@ class DiscordUtil(commands.Cog):
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Disable command server-wide")
     @app_commands.describe(command="Command you want to disable")
+    @app_commands.autocomplete(command=catcom_auto)
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def disable(self, ctx: commands.Context, command:str=None):

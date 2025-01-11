@@ -86,7 +86,7 @@ async def loopMsg(message: discord.Message, prefix: str):
         mime = attachment.content_type
     base_data = [
         {
-            "role": role, # check if only user supports images, see perplexity line 65
+            "role": role, # check if only user supports images, see perplexity line 65 (update: it doesnt matter)
             "parts": [
                 {"text": content},
                 {

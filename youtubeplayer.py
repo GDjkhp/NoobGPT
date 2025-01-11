@@ -13,6 +13,7 @@ async def music_help(ctx: commands.Context):
 # player commands
 async def music_summon(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
+    if check_bot_conflict(ctx): return await ctx.reply("use moosic instead :)", ephemeral=True)
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not ctx.author.voice:
         return await ctx.reply(f'Join a voice channel first.')
@@ -29,6 +30,9 @@ async def music_summon(ctx: commands.Context):
 
 async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interaction, search: str):
     if not ctx.guild: return await ctx.reply("not supported")
+    if check_bot_conflict(ctx):
+        if isinstance(ctx, commands.Context): return await ctx.reply("use moosic instead :)", ephemeral=True)
+        if isinstance(ctx, discord.Interaction): return await ctx.response.send_message("use moosic instead :)", ephemeral=True)
     if await command_check(ctx, "music", "media"):
         if isinstance(ctx, commands.Context):
             return await ctx.reply("command disabled", ephemeral=True)
@@ -106,6 +110,7 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
 
 async def music_pause(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
+    if check_bot_conflict(ctx): return await ctx.reply("use moosic instead :)", ephemeral=True)
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
     vc: wavelink.Player = ctx.voice_client
@@ -119,6 +124,7 @@ async def music_pause(ctx: commands.Context):
 
 async def music_resume(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
+    if check_bot_conflict(ctx): return await ctx.reply("use moosic instead :)", ephemeral=True)
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
     vc: wavelink.Player = ctx.voice_client
@@ -132,6 +138,7 @@ async def music_resume(ctx: commands.Context):
 
 async def music_skip(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
+    if check_bot_conflict(ctx): return await ctx.reply("use moosic instead :)", ephemeral=True)
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
     vc: wavelink.Player = ctx.voice_client
@@ -148,6 +155,7 @@ async def music_skip(ctx: commands.Context):
 
 async def music_stop(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
+    if check_bot_conflict(ctx): return await ctx.reply("use moosic instead :)", ephemeral=True)
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
     vc: wavelink.Player = ctx.voice_client
@@ -161,6 +169,7 @@ async def music_stop(ctx: commands.Context):
 
 async def music_nowplaying(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
+    if check_bot_conflict(ctx): return await ctx.reply("use moosic instead :)", ephemeral=True)
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     vc: wavelink.Player = ctx.voice_client
     if not vc: return await ctx.reply("voice client not found")
@@ -168,6 +177,7 @@ async def music_nowplaying(ctx: commands.Context):
 
 async def music_volume(ctx: commands.Context, value: str):
     if not ctx.guild: return await ctx.reply("not supported")
+    if check_bot_conflict(ctx): return await ctx.reply("use moosic instead :)", ephemeral=True)
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     vc: wavelink.Player = ctx.voice_client
     if not vc: return await ctx.reply("voice client not found")
@@ -182,6 +192,9 @@ async def music_volume(ctx: commands.Context, value: str):
 # queue commands
 async def queue_search(bot: commands.Bot, ctx: commands.Context | discord.Interaction, search: str, source: str="ytmsearch:"):
     if not ctx.guild: return await ctx.reply("not supported")
+    if check_bot_conflict(ctx):
+        if isinstance(ctx, commands.Context): return await ctx.reply("use moosic instead :)", ephemeral=True)
+        if isinstance(ctx, discord.Interaction): return await ctx.response.send_message("use moosic instead :)", ephemeral=True)
     if await command_check(ctx, "music", "media"): 
         if isinstance(ctx, commands.Context):
             return await ctx.reply("command disabled", ephemeral=True)
@@ -233,6 +246,7 @@ async def queue_search(bot: commands.Bot, ctx: commands.Context | discord.Intera
 
 async def queue_list(ctx: commands.Context, page: str):
     if not ctx.guild: return await ctx.reply("not supported")
+    if check_bot_conflict(ctx): return await ctx.reply("use moosic instead :)", ephemeral=True)
     if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     vc: wavelink.Player = ctx.voice_client
@@ -262,6 +276,7 @@ async def queue_list(ctx: commands.Context, page: str):
 
 async def queue_loop(ctx: commands.Context, mode: str):
     if not ctx.guild: return await ctx.reply("not supported")
+    if check_bot_conflict(ctx): return await ctx.reply("use moosic instead :)", ephemeral=True)
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
     vc: wavelink.Player = ctx.voice_client
@@ -285,6 +300,7 @@ async def queue_loop(ctx: commands.Context, mode: str):
 
 async def queue_autoplay(ctx: commands.Context, mode: str):
     if not ctx.guild: return await ctx.reply("not supported")
+    if check_bot_conflict(ctx): return await ctx.reply("use moosic instead :)", ephemeral=True)
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
     vc: wavelink.Player = ctx.voice_client
@@ -308,6 +324,7 @@ async def queue_autoplay(ctx: commands.Context, mode: str):
 
 async def queue_shuffle(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
+    if check_bot_conflict(ctx): return await ctx.reply("use moosic instead :)", ephemeral=True)
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey")
     vc: wavelink.Player = ctx.voice_client
@@ -322,6 +339,7 @@ async def queue_shuffle(ctx: commands.Context):
 
 async def queue_reset(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
+    if check_bot_conflict(ctx): return await ctx.reply("use moosic instead :)", ephemeral=True)
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     vc: wavelink.Player = ctx.voice_client
     if not vc: return await ctx.reply("voice client not found")
@@ -332,6 +350,7 @@ async def queue_reset(ctx: commands.Context):
 
 async def queue_remove(ctx: commands.Context, index: str):
     if not ctx.guild: return await ctx.reply("not supported")
+    if check_bot_conflict(ctx): return await ctx.reply("use moosic instead :)", ephemeral=True)
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     vc: wavelink.Player = ctx.voice_client
     if not vc: return await ctx.reply("voice client not found")
@@ -345,6 +364,7 @@ async def queue_remove(ctx: commands.Context, index: str):
 
 async def queue_replace(ctx: commands.Context, index: str, query: str):
     if not ctx.guild: return await ctx.reply("not supported")
+    if check_bot_conflict(ctx): return await ctx.reply("use moosic instead :)", ephemeral=True)
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     vc: wavelink.Player = ctx.voice_client
     if not vc: return await ctx.reply("voice client not found")
@@ -363,6 +383,7 @@ async def queue_replace(ctx: commands.Context, index: str, query: str):
 
 async def queue_swap(ctx: commands.Context, init: str, dest: str):
     if not ctx.guild: return await ctx.reply("not supported")
+    if check_bot_conflict(ctx): return await ctx.reply("use moosic instead :)", ephemeral=True)
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     vc: wavelink.Player = ctx.voice_client
     if not vc: return await ctx.reply("voice client not found")
@@ -380,6 +401,7 @@ async def queue_swap(ctx: commands.Context, init: str, dest: str):
 
 async def queue_peek(ctx: commands.Context, index: str):
     if not ctx.guild: return await ctx.reply("not supported")
+    if check_bot_conflict(ctx): return await ctx.reply("use moosic instead :)", ephemeral=True)
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     vc: wavelink.Player = ctx.voice_client
     if not vc: return await ctx.reply("voice client not found")
@@ -393,6 +415,7 @@ async def queue_peek(ctx: commands.Context, index: str):
 
 async def queue_move(ctx: commands.Context, init: str, dest: str):
     if not ctx.guild: return await ctx.reply("not supported")
+    if check_bot_conflict(ctx): return await ctx.reply("use moosic instead :)", ephemeral=True)
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     vc: wavelink.Player = ctx.voice_client
     if not vc: return await ctx.reply("voice client not found")
@@ -431,8 +454,6 @@ async def mode_rec_auto(interaction: discord.Interaction, current: str) -> list[
         app_commands.Choice(name=mode, value=mode) for mode in ["partial", "enabled", "disabled"] if current.lower() in mode.lower()
     ]
 
-# TODO: min_music for noobgpt (only essential commands)
-# list np dj play pause-resume stop skip autoplay shuffle remove clear volume
 class YouTubePlayer(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
