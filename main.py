@@ -24,7 +24,7 @@ from util_message import message_snitcher
 noobgpt_modules = [
     "c_ai_discord", "stablehorde", "gpt4free", "perplexity", "openai_", "googleai", # "petals",
     "tictactoe", "aki", "hangman", "quiz", "wordle_", "rps_game",
-    "gelbooru", "deeznuts", "sflix", "ytdlp_", "magick_pillow", "min_music", # "cobalt", "kissasian",
+    "gelbooru", "deeznuts", "sflix", "ytdlp_", "magick_pillow", # "min_music", # "cobalt", "kissasian",
     "gogoanime", "animepahe", "manganato", "mangadex",
     "custom_status", "level_insult", "respond_mode", "quoteport", "help", # "weather",
     "util_discord", "util_member", "util_message",
@@ -73,7 +73,7 @@ class NoobGPT(commands.Bot):
 
     async def setup_hook(self):
         self.loop.create_task(silly_activities(self))
-        self.loop.create_task(setup_hook_music(self))
+        # self.loop.create_task(setup_hook_music(self))
         self.loop.create_task(main_gde(self))
         self.loop.create_task(main_rob(self))
         for module in noobgpt_modules:

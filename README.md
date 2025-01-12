@@ -155,6 +155,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * <https://github.com/omarryhan/aiogoogle>
 * <https://github.com/nathom/streamrip>
 * <https://github.com/xtekky/gpt4free>
+* <https://github.com/debakarr/kisskh-dl>
 
 ### Sites
 * <https://openai.com>
