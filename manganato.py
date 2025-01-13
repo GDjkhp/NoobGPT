@@ -275,8 +275,8 @@ class ButtonPage(discord.ui.Button):
         # if interaction.message.attachments: await interaction.message.remove_attachments(interaction.message.attachments[0])
         await interaction.response.defer()
         file = await convert_to_webp(self.pages[self.pagenumber])
-        await interaction.followup.send(view=PageView(self.ctx, self.details, self.pages, self.index, self.pagenumber, self.chapters, self.group),
-                                        embed=buildPage(self.pages, self.pagenumber, self.chapters, self.index, self.details, self.group),
+        await interaction.followup.send(view=PageView(self.ctx, self.details, self.pages, self.index, self.pagenumber, self.chapters),
+                                        embed=buildPage(self.pages, self.pagenumber, self.chapters, self.index, self.details),
                                         file=discord.File(io.BytesIO(file), filename='image.webp'))
         await interaction.delete_original_response()
 
