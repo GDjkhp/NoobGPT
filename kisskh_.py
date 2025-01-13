@@ -118,7 +118,10 @@ class KissKHApi:
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
                 if response.status == 200:
-                    return await response.json()
+                    content_type = None
+                    if response.content_type == "image/png":
+                        content_type = "image/png"
+                    return await response.json(content_type=content_type)
 
     async def get_episode_ids(self, drama_id: int) -> Dict[int, int]:
         """Get episode ids for a specific drama
