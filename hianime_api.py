@@ -11,7 +11,7 @@ pagelimit=12
 async def hi_search(ctx: commands.Context, arg: str):
     if await command_check(ctx, "tv", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not arg: return await ctx.reply(f"usage: `{await get_guild_prefix(ctx)}aniwatch <query>`")
-    results = await req(f"{aniwatch}/v2/hianime/search?q={arg}")
+    results = await req(f"{aniwatch}/api/v2/hianime/search?q={arg}")
     if not results["data"]["animes"]: return await ctx.reply("none found")
     await ctx.reply(embed=buildSearch(arg, results["data"]["animes"], 0), view=SearchView(ctx, arg, results["data"]["animes"], 0))
 
