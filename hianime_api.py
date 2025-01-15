@@ -186,7 +186,7 @@ def buildAniwatch(details: dict) -> discord.Embed:
     embed.set_footer(text="Note: Play .m3u8 files with VLC/MPV media player :)")
     return embed
 
-class CogKisskh(commands.Cog):
+class CogAniwatch(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -198,4 +198,4 @@ class CogKisskh(commands.Cog):
         await hi_search(ctx, query)
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(CogKisskh(bot))
+    await bot.add_cog(CogAniwatch(bot))
