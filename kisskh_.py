@@ -1,6 +1,5 @@
 import aiohttp
-from typing import Any, Dict, List, Optional
-from urllib.parse import urljoin
+from typing import Any, Dict, List
 from pydantic import BaseModel, Field, RootModel
 
 class Episode(BaseModel):
@@ -73,9 +72,11 @@ class Sub(RootModel):
         return len(self.root)
 
 class KissKHApi:
-    def __init__(self):
-        self.base_url = "https://kisskh.id/api/"
-        self.session = None
+    def __init__(self, url: str):
+        self.base_url = url
+
+    def set_base_url(self, url: str):
+        self.base_url = url
 
     def _drama_api_url(self, drama_id: int) -> str:
         """API endpoint for drama details
@@ -83,7 +84,7 @@ class KissKHApi:
         :param drama_id: drama id
         :return: api url for a specific drama
         """
-        return urljoin(self.base_url, f"DramaList/Drama/{drama_id}")
+        return f"{self.base_url}/DramaList/Drama/{drama_id}"
 
     def _search_api_url(self, query: str) -> str:
         """API endpoint for drama search details
@@ -91,7 +92,7 @@ class KissKHApi:
         :param query: search string
         :return: api url to get search result
         """
-        return urljoin(self.base_url, f"DramaList/Search?q={query}")
+        return f"{self.base_url}/DramaList/Search?q={query}"
 
     def _subtitle_api_url(self, episode_id: int) -> str:
         """API endpoint for subtitles
@@ -99,7 +100,7 @@ class KissKHApi:
         :param episode_id: episode id
         :return: api url for subtitles for a specific episode
         """
-        return urljoin(self.base_url, f"Sub/{episode_id}")
+        return f"{self.base_url}/Sub/{episode_id}"
 
     def _stream_api_url(self, episode_id: int) -> str:
         """API endpoint for stream url
@@ -107,7 +108,7 @@ class KissKHApi:
         :param episode_id: episode id
         :return: api url for getting stream video details
         """
-        return urljoin(self.base_url, f"DramaList/Episode/{episode_id}.png?err=false&ts=&time=")
+        return f"{self.base_url}/DramaList/Episode/{episode_id}.png?err=false&ts=&time="
 
     async def _request(self, url: str):
         """Helper for all the request call
@@ -173,24 +174,6 @@ class KissKHApi:
         stream_api_url = self._stream_api_url(episode_id)
         response = await self._request(stream_api_url)
         return response.get("Video")
-
-    async def get_drama_by_query(self, query: str) -> Optional[DramaInfo]:
-        """Select specific drama from a search query
-
-        :param query: search string
-        :return: information for drama which is selected
-        """
-        dramas = await self.search_dramas_by_query(query=query)
-        if len(dramas) == 0:
-            return None
-
-        user_selection = 0
-        while user_selection < 1 or user_selection > len(dramas) + 1:
-            for index, drama in enumerate(dramas, start=1):
-                print(f"{index}. {drama.title}")
-            user_selection = int(input("Select a drama from above: "))
-
-        return dramas[user_selection - 1]
     
     async def get_drama(self, drama_id: int):
         drama_api_url = self._drama_api_url(drama_id=drama_id)

@@ -25,6 +25,7 @@ async def help_tv(ctx: commands.Context):
     p = await get_guild_prefix(ctx)
     sources = [
         f"`{p}flix` sflix",
+        f"`{p}kiss` kisskh",
         # f"`{p}kiss` kissasian",
     ]
     await ctx.reply("\n".join(sources))
