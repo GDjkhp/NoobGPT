@@ -348,9 +348,9 @@ class CogKiss(commands.Cog):
     # @app_commands.describe(query="Search query")
     # @app_commands.allowed_installs(guilds=True, users=True)
     # @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    @commands.command()
-    async def kiss(self, ctx: commands.Context, *, query:str=None):
-        await kiss_search(ctx, query)
+    # @commands.command()
+    # async def kiss(self, ctx: commands.Context, *, query:str=None):
+    #     await kiss_search(ctx, query)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogKiss(bot))
