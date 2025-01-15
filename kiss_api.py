@@ -83,7 +83,7 @@ class SelectChoice(discord.ui.Select):
         i, self.result, self.ctx = index, result, ctx
         while i < len(result): 
             if (i < index+pagelimit): self.add_option(label=f"[{i + 1}] {result[i].title}"[:100], value=i, 
-                                                      description=result[i].id[:100])
+                                                      description=str(result[i].id)[:100])
             if (i == index+pagelimit): break
             i += 1
 
