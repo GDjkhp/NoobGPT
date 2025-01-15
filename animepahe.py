@@ -23,7 +23,11 @@ provider="https://gdjkhp.github.io/img/apdoesnthavelogotheysaidapistooplaintheys
 async def help_anime(ctx: commands.Context):
     if await command_check(ctx, "anime", "media"): return await ctx.reply("command disabled", ephemeral=True)
     p = await get_guild_prefix(ctx)
-    sources = [f"`{p}gogo` gogoanime", f"`{p}pahe` animepahe"]
+    sources = [
+        f"`{p}gogo` gogoanime",
+        f"`{p}pahe` animepahe",
+        f"`{p}aniwatch` hianime",
+    ]
     await ctx.reply("\n".join(sources))
 
 async def new_req_old(url: str, headers: dict, json_mode: bool):

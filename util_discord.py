@@ -151,7 +151,7 @@ async def command_channel_mode(ctx: commands.Context):
     id = ctx.guild.id if ctx.guild else ctx.channel.id
     db = await get_database(id)
     await set_mode(id, not db["channel_mode"])
-    await ctx.reply(f'channel mode is now set to {not db["channel_mode"]}')
+    await ctx.reply(f'channel mode is now set to `{not db["channel_mode"]}`')
 
 async def command_view(ctx: commands.Context):
     db = await get_database(ctx.guild.id if ctx.guild else ctx.channel.id)
