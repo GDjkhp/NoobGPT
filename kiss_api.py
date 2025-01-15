@@ -171,12 +171,12 @@ def buildSearch(arg: str, result: kisskh_.Search, index: int) -> discord.Embed:
 
 def buildKiss(details: kisskh_.Drama) -> discord.Embed:
     desc = [
-        f"**Description:** {details.description}",
-        f"**Release Date:** {details.release_date}",
-        f"**Country:** {details.country}",
-        f"**Status:** {details.status}",
         f"**Type:** {details.type}",
         f"**Episodes:** {details.episodes_count}",
+        f"**Country:** {details.country}",
+        f"**Release Date:** {details.release_date}",
+        f"**Status:** {details.status}",
+        f"\n{details.description}",
     ]
     embed = discord.Embed(title=details.title, description="\n".join(desc), color=0x00ff00)
     embed.set_thumbnail(url=provider)
