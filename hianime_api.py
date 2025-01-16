@@ -6,6 +6,7 @@ import aiohttp
 from util_discord import command_check, get_guild_prefix, description_helper
 aniwatch = os.getenv("ANIWATCH")
 provider="https://gdjkhp.github.io/img/hi.png"
+ubel="https://gdjkhp.github.io/ubel/?url="
 pagelimit=12
 
 async def hi_search(ctx: commands.Context, arg: str):
@@ -133,16 +134,18 @@ class ButtonEpisode(discord.ui.Button):
                                                            ephemeral=True)
         await interaction.response.defer()
         msg_content = f"{self.details['jname']}: Episode {self.details['episodes'][self.index]['number']}"
-        link = await req(f'{aniwatch}/api/v2/hianime/episode/sources?animeEpisodeId={self.details["episodes"][self.index]["episodeId"]}')
-        link_dub = await req(f'{aniwatch}/api/v2/hianime/episode/sources?animeEpisodeId={self.details["episodes"][self.index]["episodeId"]}&category=dub')
-        link_raw = await req(f'{aniwatch}/api/v2/hianime/episode/sources?animeEpisodeId={self.details["episodes"][self.index]["episodeId"]}&category=raw')
+        stream_source = f"{aniwatch}/api/v2/hianime/episode/sources?animeEpisodeId="
+        link = await req(f'{stream_source}{self.details["episodes"][self.index]["episodeId"]}')
+        link_dub = await req(f'{stream_source}{self.details["episodes"][self.index]["episodeId"]}&category=dub')
+        link_raw = await req(f'{stream_source}{self.details["episodes"][self.index]["episodeId"]}&category=raw')
         subs = []
         for s in link["data"]["tracks"]:
             if s["kind"] == "captions": subs.append(s)
+        sub_param = ";".join(f"{s['label']};{s['file']}" for s in subs)
         links = []
-        if link: links.append({"SUB": link["data"]["sources"][0]["url"]})
-        if link_dub: links.append({"DUB": link_dub["data"]["sources"][0]["url"]})
-        if link_raw: links.append({"RAW": link_raw["data"]["sources"][0]["url"]})
+        if link: links.append({"SUB": f'{ubel}{link["data"]["sources"][0]["url"]}&subtitles={sub_param}'})
+        if link_dub: links.append({"DUB": f'{ubel}{link_dub["data"]["sources"][0]["url"]}&subtitles={sub_param}'})
+        if link_raw: links.append({"RAW": f'{ubel}{link_raw["data"]["sources"][0]["url"]}&subtitles={sub_param}'})
         if subs:
             for s in subs: links.append({f'{s["label"]} sub': s["file"]})
         await interaction.followup.send(msg_content, view=WatchView(links), ephemeral=True)
