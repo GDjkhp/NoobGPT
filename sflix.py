@@ -24,7 +24,7 @@ async def help_tv(ctx: commands.Context):
     if await command_check(ctx, "tv", "media"): return await ctx.reply("command disabled", ephemeral=True)
     p = await get_guild_prefix(ctx)
     sources = [
-        f"`{p}flix` sflix",
+        # f"`{p}flix` sflix",
         f"`{p}kiss` kisskh",
         # f"`{p}kiss` kissasian",
     ]
@@ -43,6 +43,7 @@ async def set_domain(ctx: commands.Context, arg: str):
 
 async def Sflix(ctx: commands.Context, arg: str):
     if await command_check(ctx, "tv", "media"): return await ctx.reply("command disabled", ephemeral=True)
+    return await ctx.reply("sflix is retiring!\nreplacement in the works -> `https://vidlink.pro`")
     await get_domain()
     msg = await ctx.reply(f"Searching `{arg}`\nPlease wait…")
     try:

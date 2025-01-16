@@ -141,7 +141,7 @@ class ButtonEpisode(discord.ui.Button):
         subs = []
         for s in link["data"]["tracks"]:
             if s["kind"] == "captions": subs.append(s)
-        sub_param = ";".join(f"{s['label']};{s['file']}" for s in subs)
+        sub_param = ";".join(f"{s['label']};{s['file']}" for s in subs[:1])
         links = []
         if link: links.append({"SUB": f'{ubel}{link["data"]["sources"][0]["url"]}&subtitles={sub_param}'})
         if link_dub: links.append({"DUB": f'{ubel}{link_dub["data"]["sources"][0]["url"]}&subtitles={sub_param}'})
@@ -186,7 +186,7 @@ def buildAniwatch(details: dict) -> discord.Embed:
     embed = discord.Embed(title=details["jname"], description="\n".join(desc), color=0x00ff00)
     embed.set_thumbnail(url=provider)
     embed.set_image(url=details["poster"])
-    embed.set_footer(text="Note: Play .m3u8 files with VLC/MPV media player :)")
+    embed.set_footer(text="Note: Ads now removed with Übel Web Player :)")
     return embed
 
 class CogAniwatch(commands.Cog):
