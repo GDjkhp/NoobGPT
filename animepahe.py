@@ -19,6 +19,7 @@ session = AsyncSession(impersonate='chrome110')
 headers = {"cookie": os.getenv('PAHE')}
 pagelimit=12
 provider="https://gdjkhp.github.io/img/apdoesnthavelogotheysaidapistooplaintheysaid.png"
+base="https://animepahe.ru"
 
 async def help_anime(ctx: commands.Context):
     if await command_check(ctx, "anime", "media"): return await ctx.reply("command disabled", ephemeral=True)
@@ -77,7 +78,7 @@ def buildAnime(details: dict) -> discord.Embed:
 async def pahe_search(ctx: commands.Context, arg: str):
     if await command_check(ctx, "anime", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not arg: return await ctx.reply(f"usage: `{await get_guild_prefix(ctx)}pahe <query>`")
-    results = await new_req(f"https://animepahe.ru/api?m=search&q={arg.replace(' ', '+')}", headers, True)
+    results = await new_req(f"{base}/api?m=search&q={arg.replace(' ', '+')}", headers, True)
     if not results: return await ctx.reply("none found")
     await ctx.reply(embed=buildSearch(arg, results["data"], 0), view=SearchView(ctx, arg, results["data"], 0))
 
@@ -146,15 +147,15 @@ class SelectChoice(discord.ui.Select):
                                                            ephemeral=True)
         await interaction.response.edit_message(view=None)
         selected = self.result[int(self.values[0])]
-        r_search = await new_req(f"https://animepahe.ru/api?m=release&id={selected['session']}&sort=episode_asc&page=1", headers, True)
+        r_search = await new_req(f"{base}/api?m=release&id={selected['session']}&sort=episode_asc&page=1", headers, True)
         if not r_search.get('data'): return await interaction.edit_original_response(content="no episodes found", embed=None)
-        req = await new_req(f"https://animepahe.ru/play/{selected['session']}/{r_search['data'][0]['session']}", headers, False)
+        req = await new_req(f"{base}/play/{selected['session']}/{r_search['data'][0]['session']}", headers, False)
         soup = soupify(req)
         items = soup.find("div", {"class": "clusterize-scroll"}).findAll("a")
         urls = [items[i].get("href") for i in range(len(items))]
         ep_texts = [items[i].text for i in range(len(items))]
 
-        req = await new_req(f"https://animepahe.ru/anime/{selected['session']}", headers, False)
+        req = await new_req(f"{base}/anime/{selected['session']}", headers, False)
         soup = soupify(req)
         details = soup.find("div", {"class": "anime-info"}).findAll("p")
         external = soup.find("p", {"class": "external-links"}).findAll("a")
@@ -214,7 +215,7 @@ class ButtonEpisode(discord.ui.Button):
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.defer()
-        req = await new_req(f"https://animepahe.ru{self.url_session}", headers, False)
+        req = await new_req(f"{base}{self.url_session}", headers, False)
         soup = soupify(req)
         items = soup.find("div", {"id": "pickDownload"}).findAll("a")
         urls = [items[i].get("href") for i in range(len(items))]
