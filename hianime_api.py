@@ -166,45 +166,29 @@ async def req(url: str):
         async with session.get(url) as response:
             if response.status == 200:
                 return await response.json()
-            
-def get_language_flag(language_code: str):
-    language_to_flag = {
-        'ar': '🇸🇦',  # Arabic - Saudi Arabia flag
-        'en': '🇬🇧',  # English - UK flag
-        'fr': '🇫🇷',  # French flag
-        'de': '🇩🇪',  # German flag
-        'it': '🇮🇹',  # Italian flag
-        'pt': '🇧🇷',  # Portuguese - Brazil flag
-        'ru': '🇷🇺',  # Russian flag
-        'es': '🇪🇸',  # Spanish flag
-        'es-419': '🇲🇽'  # Spanish (Latin America) - Mexico flag
-    }
-    
-    return language_to_flag.get(language_code.lower(), '🎞️')
 
 def get_subtitle_flags(subtitle_text: str):
     text = subtitle_text.lower().strip()
-    
     if 'arabic' in text:
-        return get_language_flag('ar')
+        return '🇸🇦'
     elif 'english' in text:
-        return get_language_flag('en')
+        return '🇬🇧'
     elif 'french' in text:
-        return get_language_flag('fr')
+        return '🇫🇷'
     elif 'german' in text:
-        return get_language_flag('de')
+        return '🇩🇪'
     elif 'italian' in text:
-        return get_language_flag('it')
+        return '🇮🇹'
     elif 'portuguese' in text and 'brazil' in text:
-        return get_language_flag('pt')
+        return '🇧🇷'
     elif 'russian' in text:
-        return get_language_flag('ru')
+        return '🇷🇺'
     elif 'spanish' in text and 'latin_america' in text:
-        return get_language_flag('es-419')
+        return '🇪🇸'
     elif 'spanish' in text:
-        return get_language_flag('es')
+        return '🇲🇽'
     else:
-        return '🎞️'
+        return '🏳️'
 
 def buildSearch(arg: str, result, index: int) -> discord.Embed:
     embed = discord.Embed(title=f"Search results: `{arg}`", description=f"{len(result)} found", color=0x00ff00)
