@@ -31,43 +31,65 @@ class AsyncDriveUploader:
         async with Aiogoogle(user_creds=self.user, client_creds=self.client) as aiogoogle:
             drive_v3 = await aiogoogle.discover('drive', 'v3')
             
+            # Escape special characters in folder name for the query
+            # Based on Google Drive API query requirements
+            def escape_query_string(s):
+                # Characters that need to be escaped in Drive API queries
+                special_chars = ["\\", "'", '"', "\r", "\n", "\t"]
+                escaped = s
+                # Escape backslash first to avoid double escaping
+                escaped = escaped.replace("\\", "\\\\")
+                # Escape other special characters
+                for char in special_chars[1:]:
+                    escaped = escaped.replace(char, "\\" + char)
+                return escaped
+            
+            escaped_name = escape_query_string(folder_name)
+            
             # Build query to find folder
-            query = [f"name='{folder_name}'", "mimeType='application/vnd.google-apps.folder'"]
+            query = [f"name='{escaped_name}'", "mimeType='application/vnd.google-apps.folder'"]
             if parent_folder_id:
                 query.append(f"'{parent_folder_id}' in parents")
             
-            # Search for existing folder
-            results = await aiogoogle.as_user(
-                drive_v3.files.list(
-                    q=' and '.join(query),
-                    spaces='drive'
+            try:
+                # Search for existing folder
+                results = await aiogoogle.as_user(
+                    drive_v3.files.list(
+                        q=' and '.join(query),
+                        spaces='drive'
+                    )
                 )
-            )
-            
-            folders = results.get('files', [])
-            
-            # If folder exists, return its ID
-            if folders:
-                return folders[0]['id']
-            
-            # If folder doesn't exist, create it
-            folder_metadata = {
-                'name': folder_name,
-                'mimeType': 'application/vnd.google-apps.folder'
-            }
-            
-            # Add parent if specified
-            if parent_folder_id:
-                folder_metadata['parents'] = [parent_folder_id]
-            
-            folder = await aiogoogle.as_user(
-                drive_v3.files.create(
-                    json=folder_metadata, 
-                    fields='id'
+                
+                folders = results.get('files', [])
+                
+                # If folder exists, return its ID
+                if folders:
+                    return folders[0]['id']
+                
+                # If folder doesn't exist, create it
+                folder_metadata = {
+                    'name': folder_name,  # Use original unescaped name for creation
+                    'mimeType': 'application/vnd.google-apps.folder'
+                }
+                
+                # Add parent if specified
+                if parent_folder_id:
+                    folder_metadata['parents'] = [parent_folder_id]
+                
+                folder = await aiogoogle.as_user(
+                    drive_v3.files.create(
+                        json=folder_metadata, 
+                        fields='id'
+                    )
                 )
-            )
-            
-            return folder['id']
+                
+                return folder['id']
+                
+            except Exception as e:
+                print(f"Error in get_or_create_folder: {e}")
+                print(f"Failed folder name: {folder_name}")
+                print(f"Escaped query: {' and '.join(query)}")
+                raise
 
     async def make_public_with_link(self, file_or_folder_id):
         """
