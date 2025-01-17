@@ -16,7 +16,7 @@ yt-dlp
 ffmpeg-python
 lxml
 pydub
-git+https://github.com/Xtr4F/PyCharacterAI
+PyCharacterAI
 aiogoogle
 streamrip
 reportlab
