@@ -723,7 +723,7 @@ class SelectChoice(discord.ui.Select):
         try:
             chat, turn = await client_voice.chat.create_chat(selected["external_id"])
         except Exception as e:
-            print(f"{e}: {chat}, {turn}")
+            print(e)
             return await interaction.edit_original_response(content="an error occured")
 
         # proper checking
@@ -865,7 +865,7 @@ class ResetAllButton(discord.ui.Button):
                 chat, turn = await client_voice.chat.create_chat(selected["char_id"])
             except Exception as e:
                 count -= 1
-                print(f"{e}: {chat}, {turn}")
+                print(e)
                 errors.append(f"an error occured resetting `{selected['name']}`")
                 continue
 
@@ -1114,7 +1114,7 @@ class ResetChoice(discord.ui.Select):
         try:
             chat, turn = await client_voice.chat.create_chat(selected["char_id"])
         except Exception as e: 
-            print(f"{e}: {chat}, {turn}")
+            print(e)
             return await interaction.edit_original_response(content="an error occured")
 
         await reset_method(self.ctx, selected, chat)
