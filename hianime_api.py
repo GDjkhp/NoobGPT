@@ -138,16 +138,17 @@ class ButtonEpisode(discord.ui.Button):
         link = await req(f'{stream_source}{self.details["episodes"][self.index]["episodeId"]}')
         link_dub = await req(f'{stream_source}{self.details["episodes"][self.index]["episodeId"]}&category=dub')
         link_raw = await req(f'{stream_source}{self.details["episodes"][self.index]["episodeId"]}&category=raw')
-        subs = []
-        for s in link["data"]["tracks"]:
-            if s["kind"] == "captions": subs.append(s)
-        sub_param = ";".join(f"{s['label']};{s['file']}" for s in subs[:1])
         links = []
-        if link: links.append({"SUB": f'{ubel}{link["data"]["sources"][0]["url"]}&subtitles={sub_param}'})
-        if link_dub: links.append({"DUB": f'{ubel}{link_dub["data"]["sources"][0]["url"]}&subtitles={sub_param}'})
-        if link_raw: links.append({"RAW": f'{ubel}{link_raw["data"]["sources"][0]["url"]}&subtitles={sub_param}'})
-        if subs:
-            for s in subs: links.append({f'{s["label"]} sub': s["file"]})
+        sub_param = "&subtitles="
+        for s in link["data"]["tracks"]:
+            if s["kind"] == "captions":
+                if s.get("default"):
+                    sub_param += f"{s['label']};{s['file']}"
+                if link: links.append(
+                    {f"{s['label'].upper()} SUB": f'{ubel}{link["data"]["sources"][0]["url"]}&subtitles={s["file"]}'}
+                )
+        if link_dub: links.append({"ENGLISH DUB": f'{ubel}{link_dub["data"]["sources"][0]["url"]}{sub_param}'})
+        if link_raw: links.append({"RAW": f'{ubel}{link_raw["data"]["sources"][0]["url"]}'})
         await interaction.followup.send(msg_content, view=WatchView(links), ephemeral=True)
 
 class WatchView(discord.ui.View):
@@ -155,7 +156,7 @@ class WatchView(discord.ui.View):
         super().__init__(timeout=None)
         for x in links[:25]:
             for k, v in x.items():
-                self.add_item(discord.ui.Button(style=discord.ButtonStyle.link, url=v, label=k))
+                self.add_item(discord.ui.Button(style=discord.ButtonStyle.link, url=v, label=k, emoji="🎞️"))
 
 # utils
 def get_max_page(length):
@@ -186,7 +187,7 @@ def buildAniwatch(details: dict) -> discord.Embed:
     embed = discord.Embed(title=details["jname"], description="\n".join(desc), color=0x00ff00)
     embed.set_thumbnail(url=provider)
     embed.set_image(url=details["poster"])
-    embed.set_footer(text="Note: Ads now removed with Übel Web Player :)")
+    embed.set_footer(text="Powered by Übel Web Player :)")
     return embed
 
 class CogAniwatch(commands.Cog):
