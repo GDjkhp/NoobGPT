@@ -476,12 +476,19 @@ async def mode_auto(interaction: discord.Interaction, current: str) -> list[app_
 async def search_char(text: str, list_type: str):
     if list_type == "trending": 
         res = await client.character.trending()
-        return res["trending_characters"]
-    if list_type == "recommended":
+        characters = res["trending_characters"]
+    elif list_type == "recommended":
         res = await client.character.recommended()
-        return res["recommended_characters"]
-    res = await client.character.search(text)
-    return res["characters"]
+        characters = res["recommended_characters"]
+    else:
+        res = await client.character.search(text)
+        characters = res["characters"]
+    sorted_characters = sorted(
+        characters,
+        key=lambda x: x.get('participant__num_interactions', 0),
+        reverse=True
+    )
+    return sorted_characters
 async def search_char_id(text: str):
     chat = await client.chat.new_chat(text)
     return [
