@@ -139,15 +139,13 @@ class ButtonEpisode(discord.ui.Button):
         link_dub = await req(f'{stream_source}{self.details["episodes"][self.index]["episodeId"]}&category=dub')
         link_raw = await req(f'{stream_source}{self.details["episodes"][self.index]["episodeId"]}&category=raw')
         links = []
-        sub_param = "&subtitles="
+        # sub_param = "&subtitles="
         for s in link["data"]["tracks"]:
             if s["kind"] == "captions":
-                if s.get("default"):
-                    sub_param += f"{s['label']};{s['file']}"
-                if link: links.append(
-                    {f"{s['label'].upper()} SUB": f'{ubel}{link["data"]["sources"][0]["url"]}&subtitles={s["file"]}'}
-                )
-        if link_dub: links.append({"ENGLISH DUB": f'{ubel}{link_dub["data"]["sources"][0]["url"]}{sub_param}'})
+                # if s.get("default"):
+                #     sub_param += f"{s['label']};{s['file']}"
+                if link: links.append({f"{s['label'].upper()} SUB": f'{ubel}{link["data"]["sources"][0]["url"]}&subtitles={s["file"]}'})
+        if link_dub: links.append({"ENGLISH DUB": f'{ubel}{link_dub["data"]["sources"][0]["url"]}'})
         if link_raw: links.append({"RAW": f'{ubel}{link_raw["data"]["sources"][0]["url"]}'})
         await interaction.followup.send(msg_content, view=WatchView(links), ephemeral=True)
 
@@ -156,7 +154,7 @@ class WatchView(discord.ui.View):
         super().__init__(timeout=None)
         for x in links[:25]:
             for k, v in x.items():
-                self.add_item(discord.ui.Button(style=discord.ButtonStyle.link, url=v, label=k, emoji="🎞️"))
+                self.add_item(discord.ui.Button(style=discord.ButtonStyle.link, url=v, label=k, emoji=get_subtitle_flags(k)))
 
 # utils
 def get_max_page(length):
@@ -168,6 +166,45 @@ async def req(url: str):
         async with session.get(url) as response:
             if response.status == 200:
                 return await response.json()
+            
+def get_language_flag(language_code: str):
+    language_to_flag = {
+        'ar': '🇸🇦',  # Arabic - Saudi Arabia flag
+        'en': '🇬🇧',  # English - UK flag
+        'fr': '🇫🇷',  # French flag
+        'de': '🇩🇪',  # German flag
+        'it': '🇮🇹',  # Italian flag
+        'pt': '🇧🇷',  # Portuguese - Brazil flag
+        'ru': '🇷🇺',  # Russian flag
+        'es': '🇪🇸',  # Spanish flag
+        'es-419': '🇲🇽'  # Spanish (Latin America) - Mexico flag
+    }
+    
+    return language_to_flag.get(language_code.lower(), '🎞️')
+
+def get_subtitle_flags(subtitle_text: str):
+    text = subtitle_text.lower().strip()
+    
+    if 'arabic' in text:
+        return get_language_flag('ar')
+    elif 'english' in text:
+        return get_language_flag('en')
+    elif 'french' in text:
+        return get_language_flag('fr')
+    elif 'german' in text:
+        return get_language_flag('de')
+    elif 'italian' in text:
+        return get_language_flag('it')
+    elif 'portuguese' in text and 'brazil' in text:
+        return get_language_flag('pt')
+    elif 'russian' in text:
+        return get_language_flag('ru')
+    elif 'spanish' in text and 'latin_america' in text:
+        return get_language_flag('es-419')
+    elif 'spanish' in text:
+        return get_language_flag('es')
+    else:
+        return '🎞️'
 
 def buildSearch(arg: str, result, index: int) -> discord.Embed:
     embed = discord.Embed(title=f"Search results: `{arg}`", description=f"{len(result)} found", color=0x00ff00)
