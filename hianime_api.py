@@ -1,4 +1,5 @@
 import os
+from urllib.parse import quote_plus
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -144,7 +145,7 @@ class ButtonEpisode(discord.ui.Button):
             if s["kind"] == "captions":
                 # if s.get("default"):
                 #     sub_param += f"{s['label']};{s['file']}"
-                if link: links.append({f"{s['label'].upper()} SUB": f'{ubel}{link["data"]["sources"][0]["url"]}&subtitles={s["label"]};{s["file"]}'})
+                if link: links.append({f"{s['label'].upper()} SUB": f'{ubel}{link["data"]["sources"][0]["url"]}&subtitles={quote_plus(s["label"])};{s["file"]}'})
         if link_dub: links.append({"ENGLISH DUB": f'{ubel}{link_dub["data"]["sources"][0]["url"]}'})
         if link_raw: links.append({"RAW": f'{ubel}{link_raw["data"]["sources"][0]["url"]}'})
         await interaction.followup.send(msg_content, view=WatchView(links), ephemeral=True)
