@@ -71,8 +71,8 @@ class SelectChoice(discord.ui.Select):
         super().__init__(placeholder=f"{min(index + pagelimit, len(result))}/{len(result)} found")
         i, self.result, self.ctx = index, result, ctx
         while i < len(result): 
-            if (i < index+pagelimit): self.add_option(label=f"[{i + 1}] {result[i]['jname']}"[:100], value=i, 
-                                                      description=result[i]['name'][:100])
+            if (i < index+pagelimit): self.add_option(label=f"[{i + 1}] {result[i]['name']}"[:100], value=i, 
+                                                      description=f"{result[i]['episodes']['sub']} episode/s")
             if (i == index+pagelimit): break
             i += 1
 
