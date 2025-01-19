@@ -8,7 +8,7 @@ mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 kiss = "https://kisskh.id"
 kiss_api = kisskh_.KissKHApi(kiss)
 provider="https://gdjkhp.github.io/img/kisskh.png"
-ubel="https://gdjkhp.github.io/ubel/?url="
+ubel="https://gdjkhp.github.io/ubel/?url=" # it works on my machine
 pagelimit=12
 
 async def get_domain():
@@ -149,7 +149,7 @@ class ButtonEpisode(discord.ui.Button):
         await interaction.response.defer()
         link = await kiss_api.get_stream_url(self.details.episodes[self.index].id)
         msg_content = f"{self.details.title}: Episode {self.details.episodes[self.index].number}"
-        await interaction.followup.send(msg_content, view=WatchView([f"{ubel}{link}"]), ephemeral=True)
+        await interaction.followup.send(msg_content, view=WatchView([link]), ephemeral=True)
 
 class WatchView(discord.ui.View):
     def __init__(self, links: list):
@@ -184,7 +184,7 @@ def buildKiss(details: kisskh_.Drama) -> discord.Embed:
     embed = discord.Embed(title=details.title, description="\n".join(desc), color=0x00ff00)
     embed.set_thumbnail(url=provider)
     embed.set_image(url=details.thumbnail)
-    embed.set_footer(text="Powered by Übel Web Player :)")
+    embed.set_footer(text="Note: Play .m3u8 files with VLC/MPV media player :)")
     return embed
 
 class CogKisskh(commands.Cog):
