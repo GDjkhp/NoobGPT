@@ -84,7 +84,7 @@ class KissKHApi:
         :param drama_id: drama id
         :return: api url for a specific drama
         """
-        return f"{self.base_url}/DramaList/Drama/{drama_id}"
+        return f"{self.base_url}/api/DramaList/Drama/{drama_id}"
 
     def _search_api_url(self, query: str) -> str:
         """API endpoint for drama search details
@@ -92,7 +92,7 @@ class KissKHApi:
         :param query: search string
         :return: api url to get search result
         """
-        return f"{self.base_url}/DramaList/Search?q={query}"
+        return f"{self.base_url}/api/DramaList/Search?q={query}"
 
     def _subtitle_api_url(self, episode_id: int) -> str:
         """API endpoint for subtitles
@@ -100,7 +100,7 @@ class KissKHApi:
         :param episode_id: episode id
         :return: api url for subtitles for a specific episode
         """
-        return f"{self.base_url}/Sub/{episode_id}"
+        return f"{self.base_url}/api/Sub/{episode_id}"
 
     def _stream_api_url(self, episode_id: int) -> str:
         """API endpoint for stream url
@@ -108,7 +108,7 @@ class KissKHApi:
         :param episode_id: episode id
         :return: api url for getting stream video details
         """
-        return f"{self.base_url}/DramaList/Episode/{episode_id}.png?err=false&ts=&time="
+        return f"{self.base_url}/api/DramaList/Episode/{episode_id}.png?err=false&ts=&time="
 
     async def _request(self, url: str):
         """Helper for all the request call
