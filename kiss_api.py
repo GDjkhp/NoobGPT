@@ -8,7 +8,7 @@ mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 kiss = "https://kisskh.id"
 kiss_api = kisskh_.KissKHApi(kiss)
 provider="https://gdjkhp.github.io/img/kisskh.png"
-ubel="https://gdjkhp.github.io/ubel/?url=" # it works on my machine
+ubel="https://gdjkhp.github.io/ubel/?url=" # FIXME: it works on my machine
 pagelimit=12
 
 async def get_domain():
