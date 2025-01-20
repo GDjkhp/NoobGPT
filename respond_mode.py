@@ -20,14 +20,14 @@ async def ai_respond_mode(ctx: commands.Context, model: str):
             current = db["ai_mode"]
         final_text = build_help(current) + [
             "# Get started",
-            "`-aimode <model>` setup ai",
-            "* Use `-aimode off` to disable AI response (reverts to `-insult`)",
-            "`-airate <0-100>` set response rate",
-            "* `0` = mute",
-            "* `100` = always respond",
-            "`-aimention` set response mention",
-            "* `True` = always active: read message, if name/nickname mentioned in text, respond",
-            "* `False` = respond only on pings",
+            "* `-aimode <model>` setup ai",
+            "  * Use `-aimode off` to disable AI response (reverts to `-insult`)\n",
+            "* `-airate <0-100>` set response rate",
+            "  * `0` = mute",
+            "  * `100` = always respond\n",
+            "* `-aimention` set response mention",
+            "  * `True` = always active: read message, if name/nickname mentioned in text, respond",
+            "  * `False` = respond only on pings",
         ]
         return await ctx.reply("\n".join(final_text))
     if model != "off":

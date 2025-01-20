@@ -455,15 +455,15 @@ async def c_help(ctx: commands.Context):
         f"`{p}cvmode` set voice mode",
         f"`{p}cvonly` set voice only",
         "# Get started",
-        f"setup: `{p}cchan` -> `{p}cadd <query>`",
-        f"stop: `{p}crate 0`",
-        f"delete all chars: `{p}cdel` -> `💀`",
-        f"reset all chars: `{p}cres` -> `💀`",
-        f"set all char_message_rate: `{p}cedit <rate>` -> `💀`",
-        "channel_mode: `True` = read specific channels, `False` = read all channels",
-        "admin_approval: `True` = disables most commands, `False` = enables all commands",
-        "voicehook: `True` = send as file, `False` = send as voice message",
-        f"you can also setup forums and threads per character with `{p}cchan` -> `{p}cedit 100`"
+        f"* setup: `{p}cchan` -> `{p}cadd <query>`",
+        f"* stop: `{p}crate 0`",
+        f"* delete all chars: `{p}cdel` -> `💀`",
+        f"* reset all chars: `{p}cres` -> `💀`",
+        f"* set all char_message_rate: `{p}cedit <rate>` -> `💀`",
+        "* channel_mode: `True` = read specific channels, `False` = read all channels",
+        "* admin_approval: `True` = disables most commands, `False` = enables all commands",
+        "* voicehook: `True` = send as file, `False` = send as voice message",
+        f"* you can also setup forums and threads per character with `{p}cchan` -> `{p}cedit 100`"
     ]
     await ctx.reply("\n".join(text))
 
