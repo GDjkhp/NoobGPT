@@ -6,17 +6,30 @@ from util_discord import command_check, check_if_master_or_admin, description_he
 from util_database import get_database2, set_ai_mode, set_ai_rate, set_ai_mention
 from googleai import models_google, GEMINI_REST
 from perplexity import models_mistral, models_groq, models_github, main_mistral, main_groq, main_github
-from gpt4free import models_image, models_text, free_image, free_text
+from gpt4free import models_image, models_text, free_image, free_text, build_help
 models_master = models_text + models_image + ["off"]
 
 async def ai_respond_mode(ctx: commands.Context, model: str):
     if await command_check(ctx, "aimode", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin", ephemeral=True)
     id = ctx.guild.id if ctx.guild else ctx.channel.id
-    db = await get_database2(id) # please be good
-
-    model_collect = '\n* '.join(models_master)
-    if not model in models_master: return await ctx.reply(f"# Available models\n```md\n* {model_collect}```")
+    db = await get_database2(id)
+    if not model in models_master:
+        current = None
+        if db.get("ai_mode") and db["ai_mode"]:
+            current = db["ai_mode"]
+        final_text = build_help(current) + [
+            "# Get started",
+            "`-aimode <model>` setup ai",
+            "* Use `-aimode off` to disable AI response (reverts to `-insult`)",
+            "`-airate <0-100>` set response rate",
+            "* `0` = mute",
+            "* `100` = always respond",
+            "`-aimention` set response mention",
+            "* `True` = always active: read message, if name/nickname mentioned in text, respond",
+            "* `False` = respond only on pings",
+        ]
+        return await ctx.reply("\n".join(final_text))
     if model != "off":
         await set_ai_mode(id, model)
         await ctx.reply(f"`{model}` has been set as my default response mode. talk to me and see what happens.")

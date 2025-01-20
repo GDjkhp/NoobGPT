@@ -28,8 +28,8 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 ## Donate
 [Paypal](https://paypal.me/GDjkhp) • [Patreon](https://www.patreon.com/GDjkhp) • [Fiverr](https://www.fiverr.com/gdjkhp/develop-host-and-maintain-your-discord-bot) • [Top.gg](https://top.gg/bot/1090254079609020447)
 <details><summary><b>Why you should invest on NoobGPT?</b></summary>
-<img src="https://gdjkhp.github.io/img/tenor.gif">
 <h3>Running this bot cost me nothing so far!</h3>
+<img src="https://gdjkhp.github.io/img/tenor.gif">
 </details>
 
 ## Bot Commands
@@ -55,6 +55,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-claude` Anthropic is an AI safety and research company that's working to build reliable, interpretable, and steerable AI systems.
 * `-cai` Character.ai is an American neural language model chatbot service that can generate human-like text responses and participate in contextual conversation.
 * `-horde` AI Horde is a crowdsourced distributed cluster of image generation workers and text generation workers.
+* `-g4f` gpt4free serves as a PoC (proof of concept), demonstrating the development of an API package with multi-provider requests, with features like timeouts, load balance and flow control.
 
 ## Games 🎲
 * `-aki (optional: category = [people/animals/objects] [language])` Play a guessing game of [Akinator](https://akinator.com).
@@ -210,6 +211,7 @@ NoobGPT and Moosic are licensed under the [Do What The Fuck You Want To Public L
 
 ## Data collection
 ### List of Accessed/Collected Discord Objects
+
 | **object**  | **accessed** | **collected** |
 | :---------- | :----------: | :-----------: |
 | **server**  | ✅           | ✅           |

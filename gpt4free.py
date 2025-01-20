@@ -140,6 +140,32 @@ def noobgpt_cleaner(ctx: commands.Context, text: str):
     for name in name_table:
         if name in text: mod_text = mod_text.replace(name, "")
     return mod_text
+
+def build_help(current: str=None):
+    def format_model(model: str) -> str:
+        if current and model.lower() == current.lower():
+            return f"> {model}"
+        return f"* {model}"
+    model_collect_text = '\n'.join(format_model(model) for model in models_text)
+    model_collect_image = '\n'.join(format_model(model) for model in models_image)
+    help_thing = [
+        "# Text models",
+        f"```md\n{model_collect_text}\n```",
+        "# Image models",
+        f"```md\n{model_collect_image}\n```",
+    ]
+    return help_thing
+
+async def g4f_help(ctx: commands.Context):
+    if await command_check(ctx, "g4f", "ai"): return await ctx.reply("command disabled", ephemeral=True)
+    final_text = build_help() + [
+        "# Get started",
+        "`-ask <prompt>` text generation (defaults to `gpt-4o`)",
+        "`-imagine <prompt>` image generation (defaults to `flux`)",
+        "Use `/ask` and `/imagine` to switch models",
+        "Check out `-aimode` to set up AI responses on mentions",
+    ]
+    await ctx.reply("\n".join(final_text))
     
 async def model_img_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     return [
@@ -178,6 +204,10 @@ class GPT4UCog(commands.Cog):
     @commands.command()
     async def imagine(self, ctx: commands.Context):
         await free_image(ctx, "flux")
+
+    @commands.hybrid_command(description=f'{description_helper["emojis"]["ai"]} {description_helper["ai"]["g4f"]}'[:100])
+    async def g4f(self, ctx: commands.Context):
+        await g4f_help(ctx)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(GPT4UCog(bot))
