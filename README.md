@@ -3,7 +3,7 @@
 ## A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you.
 
 <div align="center">
-<h3><a href="https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=633731823291392&scope=applications.commands%20bot">Add to server</a>, <a href="https://discord.com/oauth2/authorize?client_id=1090254079609020447">install as user</a>, or <a href="discord://discord.com/users/1090254079609020447">send a direct message</a> to start using it.</h3>
+<h3><a href="https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=633731823291392&scope=applications.commands%20bot">Add to server</a>, <a href="https://discord.com/oauth2/authorize?client_id=1090254079609020447">install as user</a>, or <a href="discord://discord.com/users/1090254079609020447">send a direct message</a></h3>
 <a href="discord://discord.com/users/1090254079609020447">
 <img style="background-color: black;" src="https://discord.c99.nl/widget/theme-4/1090254079609020447.png" alt="Discord RPC isn't working!" title="Click here to visit my Discord Profile!">
 </a>
@@ -12,7 +12,7 @@
 ## Source Code
 * <https://github.com/GDjkhp/level-up-loser-python-branch>
 
-Host your bots here: [Bot-Hosting.net](https://bot-hosting.net/?aff=729554186777133088)
+Host your bots for free: [Bot-Hosting.net](https://bot-hosting.net/?aff=729554186777133088)
 
 ### Requirements
 * `Python 3.10+`, `requirements.txt` packages, `.env` for secret keys.
@@ -29,6 +29,7 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 [Paypal](https://paypal.me/GDjkhp) • [Patreon](https://www.patreon.com/GDjkhp) • [Fiverr](https://www.fiverr.com/gdjkhp/develop-host-and-maintain-your-discord-bot) • [Top.gg](https://top.gg/bot/1090254079609020447)
 <details><summary><b>Why you should invest on NoobGPT?</b></summary>
 <img src="https://gdjkhp.github.io/img/tenor.gif">
+<h3>Running this bot cost me nothing so far!</h3>
 </details>
 
 ## Bot Commands
@@ -88,7 +89,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 ## grass is greenr on the othr side
 
 <div align="center">
-<h3><a href="https://discord.com/api/oauth2/authorize?client_id=1073823671392686162&permissions=412588788736&scope=applications.commands%20bot">Add to server</a> to start using it.</h3>
+<h3><a href="https://discord.com/api/oauth2/authorize?client_id=1073823671392686162&permissions=412588788736&scope=applications.commands%20bot">Add to server</a></h3>
 <a href="discord://discord.com/users/1073823671392686162">
 <img style="background-color: black;" src="https://discord.c99.nl/widget/theme-4/1073823671392686162.png" alt="Discord RPC isn't working!" title="Click here to visit my Discord Profile!">
 </a>
@@ -156,6 +157,10 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * <https://github.com/nathom/streamrip>
 * <https://github.com/xtekky/gpt4free>
 * <https://github.com/debakarr/kisskh-dl>
+* <https://github.com/ghoshRitesh12/aniwatch-api>
+* <https://github.com/videojs/video.js>
+* <https://github.com/videojs/themes>
+* <https://github.com/GDjkhp/ubel>
 
 ### Sites
 * <https://openai.com>
@@ -181,7 +186,9 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * <https://animepahe.ru>
 * <https://actvid.rs>
 * <https://anitaku.bz>
-* <https://sflix2.to>
+* <https://sflix.to>
+* <https://hianime.to>
+* <https://kisskh.id>
 * <https://mangadex.org>
 * <https://manganato.com>
 * <https://www.crummy.com/software/BeautifulSoup>
@@ -201,14 +208,9 @@ NoobGPT and Moosic are licensed under the [Do What The Fuck You Want To Public L
 * Music: Manage roles, join and speak in voice channels
 * Character.AI: Manage roles, manage webhooks, and send voice messages
 
-### Data collection
-Required privilaged gateway intents: Server members and message content
-* Only IDs are collected. Server and user IDs are collected by default in order to save your settings. Yes, this includes your booru collections.
-* Only generated webhooks are collected in order for Character.AI to work. This is optional. Everything else are required.
-* You can wipe your user and server data. DM gdjkhp for a complete data wipe. GDPR is real.
-* Google Drive data retention policy: DO NOT ABUSE THE SYSTEM. All your generated files will be deleted after a while to save space. When? I decide. Download them immediately. Only generated files are collected.
-
-| **items**   | **accessed** | **collected** |
+## Data collection
+### List of Accessed/Collected Discord Objects
+| **object**  | **accessed** | **collected** |
 | :---------- | :----------: | :-----------: |
 | **server**  | ✅           | ✅           |
 | channels    | ✅           | ✅           |
@@ -220,15 +222,23 @@ Required privilaged gateway intents: Server members and message content
 | audit       | ❌           | ❌           |
 | events      | ❌           | ❌           |
 | insights    | ❌           | ❌           |
+| ----------- | ------------ | ------------- |
 | **user**    | ✅           | ✅           |
 | avatar      | ✅           | ❌           |
 | banner      | ✅           | ❌           |
+| ----------- | ------------ | ------------- |
 | **message** | ✅           | ❌           |
 | content     | ✅           | ❌           |
 | files       | ✅           | ✅           |
 | embeds      | ✅           | ❌           |
 | links       | ✅           | ❌           |
 | reactions   | ❌           | ❌           |
+
+Required privilaged gateway intents: **Server members and message content**
+* Only IDs are collected. Server and user IDs are collected by default in order to save your settings. Yes, this includes your booru collections.
+* Only generated webhooks are collected in order for Character.AI to work. This is optional. Everything else are required.
+* You can wipe your user and server data. DM gdjkhp for a complete data wipe. GDPR is real.
+* Google Drive data retention policy: DO NOT ABUSE THE SYSTEM. All your generated files will be deleted after a while to save space. When? I decide. Download them immediately. Only generated files are collected.
 
 ### Use AI responsibly ⚠
 <marquee>Content generated by AI services, including your inputs, are managed and collected by them. Read their terms of services and privacy policies before using them. Proceed with caution and happy prompting!</marquee>
