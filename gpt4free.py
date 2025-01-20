@@ -162,8 +162,9 @@ async def g4f_help(ctx: commands.Context):
         "# Get started",
         "`-ask <prompt>` text generation (defaults to `gpt-4o`)",
         "`-imagine <prompt>` image generation (defaults to `flux`)",
-        "Use `/ask` and `/imagine` to switch models",
-        "Check out `-aimode` to set up AI responses on mentions",
+        "# Advanced",
+        "* Use `/ask` and `/imagine` to switch models",
+        "* Check out `-aimode` to set up AI responses on mentions",
     ]
     await ctx.reply("\n".join(final_text))
     
