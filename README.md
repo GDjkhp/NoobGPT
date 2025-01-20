@@ -211,7 +211,6 @@ NoobGPT and Moosic are licensed under the [Do What The Fuck You Want To Public L
 
 ## Data collection
 ### List of Accessed/Collected Discord Objects
-
 | **object**  | **accessed** | **collected** |
 | :---------- | :----------: | :-----------: |
 | **server**  | ✅           | ✅           |
