@@ -223,11 +223,11 @@ NoobGPT and Moosic are licensed under the [Do What The Fuck You Want To Public L
 | audit       | ❌           | ❌           |
 | events      | ❌           | ❌           |
 | insights    | ❌           | ❌           |
-| -=========- | -==========- | -===========- |
+| ___________ | ____________ | _____________ |
 | **user**    | ✅           | ✅           |
 | avatar      | ✅           | ❌           |
 | banner      | ✅           | ❌           |
-| -=========- | -==========- | -===========- |
+| ___________ | ____________ | _____________ |
 | **message** | ✅           | ❌           |
 | content     | ✅           | ❌           |
 | files       | ✅           | ✅           |
