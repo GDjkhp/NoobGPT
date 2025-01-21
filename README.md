@@ -195,19 +195,16 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * <https://www.crummy.com/software/BeautifulSoup>
 
 ### Special Thanks
-* `jaicraft` ~~Perplexity, Claude~~, Mistral, Groq access
-<!-- * `aychelletroller` OpenAI access -->
+* `NoobGPT#5766` for developing itself 🤨
+* `bridgetown`, `ppiece`, `revizgd`, `itzcata`, `craftip`, `darkgamma`, `jkrt2`, `realstyx`, `ambientamend`, `vitalworm`, `gojowashere`, `hikari`, `zephryx`, `khaenbyhimself`, `laxergd`, and everyone i forgot to mention for all the silly ideas and chaos 🤝
+* `jaicraft`, `aychelletroller`, `_youraverageperson`, and more for providing AI access 🤖
+* `ausbitbank` for AI image generation ideas and making [arty](https://peakd.com/@ausbitbank/our-new-stable-diffusion-discord-bot) 🎨
+* `fc_clint`, `dryleechseed`, `chimed`, `sky47`, `shiro`, `wychee`, `horyx`, `stantheills` and all the filipino pride chicken reading this 🇵🇭
+* `A group chat/GDSBB`, `Geometry Dash Extras`, `GDShrimp`, `Khaens' Kingdom`, `The Bot Appreciation Society`, `IVO`, `ausbit's stuff and things`, `GDS general-english-3`, `WORM CULT`, `SickoMenu` and all the servers for letting me in 👋
 
 ## Legal
 ### License
 NoobGPT and Moosic are licensed under the [Do What The Fuck You Want To Public License](http://www.wtfpl.net)
-
-### Permissions
-[Click here to see the full list of permissions](https://discordlookup.com/permissions-calculator/633731823291392)
-* All: Read and send messages, files, embeds and links
-* XP: Manage roles
-* Music: Manage roles, join and speak in voice channels
-* Character.AI: Manage roles, manage webhooks, and send voice messages
 
 ## Data collection
 Required privilaged gateway intents: **Server members and message content**
@@ -216,7 +213,14 @@ Required privilaged gateway intents: **Server members and message content**
 * You can wipe your user and server data. DM gdjkhp for a complete data wipe. GDPR is real.
 * Google Drive data retention policy: DO NOT ABUSE THE SYSTEM. All your generated files will be deleted after a while to save space. When? I decide. Download them immediately. Only generated files are collected.
 
-## List of Accessed/Collected Discord Objects
+## Permissions
+[Click here to see the full list of permissions](https://discordlookup.com/permissions-calculator/633731823291392)
+* All: Read and send messages, files, embeds and links
+* XP: Manage roles
+* Music: Manage roles, join and speak in voice channels
+* Character.AI: Manage roles, manage webhooks, and send voice messages
+
+## Discord object requirements
 ### Server
 
 | **object**  | **accessed** | **collected** |
