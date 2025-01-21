@@ -247,4 +247,4 @@ Required privilaged gateway intents: **Server members and message content**
 <br>
 Bot by GDjkhp
 <br>
-© The Karakters Kompany, 2024
+© The Karakters Kompany, 2025
