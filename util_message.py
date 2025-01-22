@@ -68,6 +68,9 @@ async def exceute_log_channel(ctx: commands.Context, chan_id: str):
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin", ephemeral=True)
     chan = None
     if chan_id:
+        if chan_id == "off":
+            await set_log_channel(ctx.guild.id, 0)
+            return await ctx.reply("message logging has been disabled!")
         if not chan_id.isdigit(): return await ctx.reply("not a digit :(")
         chan = ctx.guild.get_channel(int(chan_id))
     if not chan: chan = ctx.channel
