@@ -220,7 +220,7 @@ Required privilaged gateway intents: **Server members and message content**
 * Music: Manage roles, join and speak in voice channels
 * Character.AI: Manage roles, manage webhooks, and send voice messages
 
-## Discord object requirements
+## Discord Object Requirements
 ### Server
 
 | **object**  | **accessed** | **collected** |
