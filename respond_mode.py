@@ -38,6 +38,7 @@ async def ai_respond_mode(ctx: commands.Context, model: str):
         await ctx.reply(f"ai response mode has been disabled. talk to me and i'll roast you instead.")
 
 async def ted_talk_response(ctx: commands.Context, model):
+    if await command_check(ctx, "g4f", "ai"):  return
     async with ctx.typing(): # users and discord itself will hate me for this
         if model in models_text:
             return await free_text(ctx, model, debug=False)
