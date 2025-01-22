@@ -196,7 +196,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 
 ### Special Thanks
 * `NoobGPT#5766` for developing itself 🤨
-* `bridgetown`, `ppiece`, `revizgd`, `itzcata`, `craftip`, `darkgamma`, `jkrt2`, `realstyx`, `ambientamend`, `vitalworm`, `gojowashere`, `hikari`, `zephryx`, `khaenbyhimself`, `laxergd`, and everyone i forgot to mention for all the silly ideas and chaos 🤝
+* `bridgetown`, `ppiece`, `revizgd`, `itzcata`, `craftip`, `darkgamma`, `jkrt2`, `realstyx`, `ambientamend`, `vitalworm`, `gojowashere`, `misshxkari`, `zephryx`, `khaenbyhimself`, `laxergd`, and everyone i forgot to mention for all the silly ideas and chaos 🤝
 * `jaicraft`, `aychelletroller`, `_youraverageperson`, and more for providing AI access 🤖
 * `ausbitbank` for AI image generation ideas and making [arty](https://peakd.com/@ausbitbank/our-new-stable-diffusion-discord-bot) 🎨
 * `fc_clint`, `dryleechseed`, `chimed`, `sky47`, `shiro`, `wychee`, `horyx`, `stantheills` and all the filipino pride chicken reading this 🇵🇭
