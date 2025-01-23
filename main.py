@@ -34,9 +34,10 @@ moosic_modules = [
 ]
 
 class NoobGPT(commands.Bot):
-    def __init__(self):
+    def __init__(self, token):
         super().__init__(command_prefix = get_prefix, intents = intents, 
                          help_command = None, allowed_mentions = mentions)
+        self.token = token
 
     async def on_ready(self):
         print(f"{self.user.name} (c) {datetime.now().year} The Karakters Kompany. All rights reserved.")
@@ -110,8 +111,11 @@ async def start_bot(bot: commands.Bot, token: str):
     await bot.start(token)
 
 async def main():
+    original = os.getenv("NOOBGPT")
+    alt = os.getenv("KAGURA")
     await asyncio.gather(
-        start_bot(NoobGPT(), os.getenv("NOOBGPT")),
+        start_bot(NoobGPT(original), original),
+        start_bot(NoobGPT(alt), alt),
         start_bot(Moosic(), os.getenv("MOOSIC")),
     )
 
