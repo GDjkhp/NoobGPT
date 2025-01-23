@@ -37,20 +37,21 @@ class NoobGPT(commands.Bot):
     def __init__(self, token):
         super().__init__(command_prefix = get_prefix, intents = intents, 
                          help_command = None, allowed_mentions = mentions)
-        self.token = token
+        self.token = os.getenv(token)
+        self.identifier = token
 
     async def on_ready(self):
-        print(f"{self.user.name} (c) {datetime.now().year} The Karakters Kompany. All rights reserved.")
+        print(f"{self.identifier} (c) {datetime.now().year} The Karakters Kompany. All rights reserved.")
         print("Running for the following servers:")
         for number, guild in enumerate(self.guilds, 1):
             print(f"{number}. {guild} ({guild.id})")
         print(":)")
 
     async def on_guild_join(self, guild: discord.Guild):
-        print(f"{self.user.name}: Joined {guild.name} ({guild.id})")
+        print(f"{self.identifier}: Joined {guild.name} ({guild.id})")
 
     async def on_guild_remove(self, guild: discord.Guild):
-        print(f"{self.user.name}: Left {guild.name} ({guild.id})")
+        print(f"{self.identifier}: Left {guild.name} ({guild.id})")
 
     async def on_message(self, message: discord.Message):
         # self.loop.create_task(main_styx(self, message))
@@ -70,7 +71,7 @@ class NoobGPT(commands.Bot):
         )
 
     async def on_wavelink_node_ready(self, payload: wavelink.NodeReadyEventPayload):
-        print(f"{self.user.name}: {payload.node} | Resumed: {payload.resumed}")
+        print(f"{self.identifier}: {payload.node} | Resumed: {payload.resumed}")
 
     async def setup_hook(self):
         self.loop.create_task(silly_activities(self))
@@ -81,25 +82,27 @@ class NoobGPT(commands.Bot):
             await self.load_extension(module)
 
 class Moosic(commands.Bot):
-    def __init__(self):
+    def __init__(self, token):
         super().__init__(command_prefix = get_prefix, intents = intents, 
                          help_command = None, allowed_mentions = mentions)
+        self.token = os.getenv(token)
+        self.identifier = token
 
     async def on_ready(self):
-        print(f"{self.user.name} (c) {datetime.now().year} The Karakters Kompany. All rights reserved.")
+        print(f"{self.identifier} (c) {datetime.now().year} The Karakters Kompany. All rights reserved.")
         print("Running for the following servers:")
         for number, guild in enumerate(self.guilds, 1):
             print(f"{number}. {guild} ({guild.id})")
         print(":)")
 
     async def on_wavelink_node_ready(self, payload: wavelink.NodeReadyEventPayload):
-        print(f"{self.user.name}: {payload.node} | Resumed: {payload.resumed}")
+        print(f"{self.identifier}: {payload.node} | Resumed: {payload.resumed}")
 
     async def on_guild_join(self, guild: discord.Guild):
-        print(f"{self.user.name}: Joined {guild.name} ({guild.id})")
+        print(f"{self.identifier}: Joined {guild.name} ({guild.id})")
 
     async def on_guild_remove(self, guild: discord.Guild):
-        print(f"{self.user.name}: Left {guild.name} ({guild.id})")
+        print(f"{self.identifier}: Left {guild.name} ({guild.id})")
 
     async def setup_hook(self):
         self.loop.create_task(silly_activities(self))
@@ -107,16 +110,14 @@ class Moosic(commands.Bot):
         for module in moosic_modules:
             await self.load_extension(module)
 
-async def start_bot(bot: commands.Bot, token: str):
-    await bot.start(token)
+async def start_bot(bot: commands.Bot):
+    await bot.start(bot.token)
 
 async def main():
-    original = os.getenv("NOOBGPT")
-    alt = os.getenv("KAGURA")
     await asyncio.gather(
-        start_bot(NoobGPT(original), original),
-        start_bot(NoobGPT(alt), alt),
-        start_bot(Moosic(), os.getenv("MOOSIC")),
+        start_bot(NoobGPT("NOOBGPT")),
+        start_bot(NoobGPT("KAGURA")),
+        start_bot(Moosic("MOOSIC")),
     )
 
 if __name__ == "__main__":
