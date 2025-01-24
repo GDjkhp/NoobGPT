@@ -75,7 +75,8 @@ class NoobGPT(commands.Bot):
 
     async def setup_hook(self):
         self.loop.create_task(silly_activities(self))
-        # self.loop.create_task(setup_hook_music(self))
+        if "min_music" in noobgpt_modules:
+            self.loop.create_task(setup_hook_music(self))
         if self.identifier == "NOOBGPT":
             self.loop.create_task(main_gde(self))
             self.loop.create_task(main_rob(self))
