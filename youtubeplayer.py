@@ -24,7 +24,7 @@ async def music_summon(ctx: commands.Context):
             if fixing: return await ctx.reply(content="Please try again later.")
             print("ChannelTimeoutException")
             msg=await ctx.reply(content="An error occured. Reconnecting…")
-            await setup_hook_music(ctx.bot)
+            await setup_hook_music([ctx.bot])
             return await msg.edit(content="Please re-run the command.")
         vc.autoplay = wavelink.AutoPlayMode.enabled
 
@@ -93,7 +93,7 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
             print("ChannelTimeoutException")
             if isinstance(ctx, discord.Interaction): await ctx.edit_original_response(content="An error occured. Reconnecting…")
             if isinstance(ctx, commands.Context): msg=await ctx.reply(content="An error occured. Reconnecting…")
-            await setup_hook_music(bot)
+            await setup_hook_music([bot])
             if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="Please re-run the command.")
             if isinstance(ctx, commands.Context): return await msg.edit(content="Please re-run the command.")
 

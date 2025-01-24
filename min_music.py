@@ -18,6 +18,11 @@ class YouTubePlayerMin(commands.Cog):
             embed = music_now_playing_embed(self.bot, vc.current)
             await vc.music_channel.send(embed=embed)
 
+    @commands.command(name="mreset")
+    async def reset(self, ctx: commands.Context):
+        if check_if_not_owner(ctx): return
+        await setup_hook_music([self.bot])
+
     # player
     @commands.command() # alias
     async def p(self, ctx: commands.Context, *, query: str=None):
