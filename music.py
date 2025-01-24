@@ -71,12 +71,13 @@ async def check_if_dj(ctx: commands.Context | discord.Interaction):
 def music_embed(title: str, description: str):
     return discord.Embed(title=title, description=description, color=0x00ff00)
 
-def music_now_playing_embed(track: wavelink.Playable):
+def music_now_playing_embed(bot: commands.Context, track: wavelink.Playable):
     embed = discord.Embed(title="🎵 Now playing", color=0x00ff00,
                           description=f"[{track.title}]({track.uri})" if track.uri else track.title)
     embed.add_field(name="Author", value=track.author, inline=False)
     if track.album.name: embed.add_field(name="Album", value=track.album.name, inline=False)
     embed.add_field(name="Duration", value=format_mil(track.length), inline=False)
+    embed.add_field(name="Requested by", value=requester_string(bot, track), inline=False)
 
     if track.artwork: embed.set_thumbnail(url=track.artwork)
     elif track.album.url: embed.set_thumbnail(url=track.album.url)
@@ -94,6 +95,10 @@ def music_now_playing_embed(track: wavelink.Playable):
         embed.set_author(name="Apple Music", icon_url="https://gdjkhp.github.io/img/applemoosic.png")
     else: print(track.source)
     return embed
+
+def requester_string(bot: commands.Bot, track: wavelink.Playable):
+    if dict(track.extras).get("requester"): return f"<@{track.extras.requester}>"
+    return f"<@{bot.user.id}>"
 
 def filter_embed(title: str, description: str, filter: dict):
     e = discord.Embed(title=title, description=description, color=0x00ff00)

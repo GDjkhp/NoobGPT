@@ -15,7 +15,7 @@ class YouTubePlayerMin(commands.Cog):
         vc: wavelink.Player = payload.player
         if not vc: return
         if not vc.queue.mode == wavelink.QueueMode.loop:
-            embed = music_now_playing_embed(vc.current)
+            embed = music_now_playing_embed(self.bot, vc.current)
             await vc.music_channel.send(embed=embed)
 
     # player
