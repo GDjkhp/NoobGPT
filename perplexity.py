@@ -638,12 +638,12 @@ class CogPerplex(commands.Cog):
     async def mx22b(self, ctx: commands.Context):
         await main_mistral(ctx, models_mistral[2])
 
-    @app_commands.command(name="mixtral", description=f"{description_helper['emojis']['ai']} {models_mistral[2]}")
-    @app_commands.describe(prompt="Text prompt")
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def mx22b_slash(self, ctx: discord.Interaction, prompt: str):
-        await main_mistral(ctx, models_mistral[2], prompt)
+    # @app_commands.command(name="mixtral", description=f"{description_helper['emojis']['ai']} {models_mistral[2]}")
+    # @app_commands.describe(prompt="Text prompt")
+    # @app_commands.allowed_installs(guilds=True, users=True)
+    # @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    # async def mx22b_slash(self, ctx: discord.Interaction, prompt: str):
+    #     await main_mistral(ctx, models_mistral[2], prompt)
 
     @commands.command()
     async def ms(self, ctx: commands.Context):
@@ -657,12 +657,12 @@ class CogPerplex(commands.Cog):
     async def ml(self, ctx: commands.Context):
         await main_mistral(ctx, models_mistral[5])
 
-    @app_commands.command(name="mistral", description=f"{description_helper['emojis']['ai']} {models_mistral[5]}")
-    @app_commands.describe(prompt="Text prompt")
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def ml_slash(self, ctx: discord.Interaction, prompt: str):
-        await main_mistral(ctx, 5, prompt)
+    # @app_commands.command(name="mistral", description=f"{description_helper['emojis']['ai']} {models_mistral[5]}")
+    # @app_commands.describe(prompt="Text prompt")
+    # @app_commands.allowed_installs(guilds=True, users=True)
+    # @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    # async def ml_slash(self, ctx: discord.Interaction, prompt: str):
+    #     await main_mistral(ctx, 5, prompt)
 
     @commands.command()
     async def mcode(self, ctx: commands.Context):
@@ -723,12 +723,12 @@ class CogPerplex(commands.Cog):
     async def l3170(self, ctx: commands.Context):
         await main_groq(ctx, models_groq[1])
 
-    @app_commands.command(name="llama", description=f"{description_helper['emojis']['ai']} {models_groq[1]}")
-    @app_commands.describe(prompt="Text prompt")
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def l3170_slash(self, ctx: discord.Interaction, prompt: str):
-        await main_groq(ctx, models_groq[1], prompt)
+    # @app_commands.command(name="llama", description=f"{description_helper['emojis']['ai']} {models_groq[1]}")
+    # @app_commands.describe(prompt="Text prompt")
+    # @app_commands.allowed_installs(guilds=True, users=True)
+    # @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    # async def l3170_slash(self, ctx: discord.Interaction, prompt: str):
+    #     await main_groq(ctx, models_groq[1], prompt)
 
     @commands.command()
     async def l318(self, ctx: commands.Context):
@@ -759,23 +759,23 @@ class CogPerplex(commands.Cog):
     async def gpt4o(self, ctx: commands.Context):
         await main_github(ctx, models_github[0])
 
-    @app_commands.command(name="gpt4o", description=f"{description_helper['emojis']['ai']} {models_github[0]}")
-    @app_commands.describe(prompt="Text prompt", image="Image prompt")
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def gpt4o_slash(self, ctx: discord.Interaction, prompt: str, image: discord.Attachment=None):
-        await main_github(ctx, models_github[0], prompt, image)
+    # @app_commands.command(name="gpt4o", description=f"{description_helper['emojis']['ai']} {models_github[0]}")
+    # @app_commands.describe(prompt="Text prompt", image="Image prompt")
+    # @app_commands.allowed_installs(guilds=True, users=True)
+    # @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    # async def gpt4o_slash(self, ctx: discord.Interaction, prompt: str, image: discord.Attachment=None):
+    #     await main_github(ctx, models_github[0], prompt, image)
 
     @commands.command()
     async def gpt4om(self, ctx: commands.Context):
         await main_github(ctx, models_github[1])
 
-    @app_commands.command(name="gpt4om", description=f"{description_helper['emojis']['ai']} {models_github[1]}")
-    @app_commands.describe(prompt="Text prompt", image="Image prompt")
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def gpt4om_slash(self, ctx: discord.Interaction, prompt: str, image: discord.Attachment=None):
-        await main_github(ctx, models_github[1], prompt, image)
+    # @app_commands.command(name="gpt4om", description=f"{description_helper['emojis']['ai']} {models_github[1]}")
+    # @app_commands.describe(prompt="Text prompt", image="Image prompt")
+    # @app_commands.allowed_installs(guilds=True, users=True)
+    # @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    # async def gpt4om_slash(self, ctx: discord.Interaction, prompt: str, image: discord.Attachment=None):
+    #     await main_github(ctx, models_github[1], prompt, image)
 
     @commands.command()
     async def ai21(self, ctx: commands.Context):

@@ -24,7 +24,7 @@ from util_message import message_snitcher
 noobgpt_modules = [
     "c_ai_discord", "stablehorde", "gpt4free", "perplexity", "openai_", "googleai", # "petals",
     "tictactoe", "aki", "hangman", "quiz", "wordle_", "rps_game",
-    "gelbooru", "deeznuts", "sflix", "ytdlp_", "magick_pillow", "kiss_api", "hianime_api", # "min_music", "cobalt", "kissasian",
+    "gelbooru", "deeznuts", "sflix", "ytdlp_", "magick_pillow", "kiss_api", "hianime_api", "min_music", # "cobalt", "kissasian",
     "gogoanime", "animepahe", "manganato", "mangadex",
     "custom_status", "level_insult", "respond_mode", "quoteport", "help", # "weather",
     "util_discord", "util_member", "util_message",
@@ -75,8 +75,6 @@ class NoobGPT(commands.Bot):
 
     async def setup_hook(self):
         self.loop.create_task(silly_activities(self))
-        if "min_music" in noobgpt_modules:
-            self.loop.create_task(setup_hook_music(self))
         if self.identifier == "NOOBGPT":
             self.loop.create_task(main_gde(self))
             self.loop.create_task(main_rob(self))
@@ -84,11 +82,12 @@ class NoobGPT(commands.Bot):
             await self.load_extension(module)
 
 class Moosic(commands.Bot):
-    def __init__(self, token):
+    def __init__(self, token, bots: list[commands.Bot]=None):
         super().__init__(command_prefix = get_prefix, intents = intents, 
                          help_command = None, allowed_mentions = mentions)
         self.token = os.getenv(token)
         self.identifier = token
+        self.bots = bots
 
     async def on_ready(self):
         print(f"{self.identifier} (c) {datetime.now().year} The Karakters Kompany. All rights reserved.")
@@ -108,7 +107,7 @@ class Moosic(commands.Bot):
 
     async def setup_hook(self):
         self.loop.create_task(silly_activities(self))
-        self.loop.create_task(setup_hook_music(self))
+        self.loop.create_task(setup_hook_music([self]+self.bots))
         for module in moosic_modules:
             await self.load_extension(module)
 
@@ -116,10 +115,13 @@ async def start_bot(bot: commands.Bot):
     await bot.start(bot.token)
 
 async def main():
+    official = NoobGPT("NOOBGPT")
+    bot_alt = NoobGPT("KAGURA")
+    bot_moo = Moosic("MOOSIC", [official, bot_alt])
     await asyncio.gather(
-        start_bot(NoobGPT("NOOBGPT")),
-        start_bot(NoobGPT("KAGURA")),
-        start_bot(Moosic("MOOSIC")),
+        start_bot(official),
+        start_bot(bot_alt),
+        start_bot(bot_moo),
     )
 
 if __name__ == "__main__":
