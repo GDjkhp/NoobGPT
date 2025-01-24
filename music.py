@@ -215,7 +215,7 @@ class SelectChoice(discord.ui.Select):
                 if fixing: return await interaction.edit_original_response(content="Please try again later.")
                 print("ChannelTimeoutException")
                 await interaction.edit_original_response(content="An error occured. Reconnecting…")
-                await setup_hook_music(self.bot)
+                await setup_hook_music([self.bot])
                 return await interaction.edit_original_response(content="Please re-run the command.")
             vc.autoplay = wavelink.AutoPlayMode.enabled
         else: vc: wavelink.Player = self.ctx.guild.voice_client
@@ -263,7 +263,7 @@ class MusicUtil(commands.Cog):
     @commands.command(name="mreset")
     async def reset(self, ctx: commands.Context):
         if check_if_not_owner(ctx): return
-        await setup_hook_music(self.bot)
+        await setup_hook_music([self.bot])
 
     @commands.command(name="msync")
     async def sync(self, ctx: commands.Context):
