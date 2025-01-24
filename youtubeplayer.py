@@ -77,6 +77,12 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
         if isinstance(ctx, discord.Interaction):
             return await ctx.edit_original_response(content='No results found.')
 
+    for track in tracks:
+        if isinstance(ctx, commands.Context):
+            track.extras = {"requester": ctx.author.id}
+        if isinstance(ctx, discord.Interaction):
+            track.extras = {"requester": ctx.user.id}
+
     if not ctx.guild.voice_client:
         try:
             vc = await voice_channel_connector(ctx)
@@ -173,7 +179,7 @@ async def music_nowplaying(ctx: commands.Context):
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     vc: wavelink.Player = ctx.voice_client
     if not vc: return await ctx.reply("voice client not found")
-    if vc.playing: await ctx.reply(embed=music_now_playing_embed(vc.current))
+    if vc.playing: await ctx.reply(embed=music_now_playing_embed(ctx.bot, vc.current))
 
 async def music_volume(ctx: commands.Context, value: str):
     if not ctx.guild: return await ctx.reply("not supported")
@@ -269,7 +275,7 @@ async def queue_list(ctx: commands.Context, page: str):
         page = 1
     index = page - 1  # page 1 = index 0
     queue_context = current_queue[index * items_per_page:(index + 1) * items_per_page]
-    queue_list = "\n".join([f"{i + 1 + (items_per_page * index)}. `{track.title}` ({format_mil(track.length)})" for i, track in enumerate(queue_context)])
+    queue_list = "\n".join([f"{i + 1 + (items_per_page * index)}. `{track.title}` ({format_mil(track.length)}) - {requester_string(ctx.bot, track)}" for i, track in enumerate(queue_context)])
     embed = music_embed("📜 Playlist", queue_list)
     embed.set_footer(text=f"Page {page}/{total_pages}, Queue: {len(current_queue)} ({format_mil(total)})")
     await ctx.reply(embed=embed)
@@ -463,7 +469,7 @@ class YouTubePlayer(commands.Cog):
         vc: wavelink.Player = payload.player
         if not vc: return
         if not vc.queue.mode == wavelink.QueueMode.loop:
-            embed = music_now_playing_embed(vc.current)
+            embed = music_now_playing_embed(self.bot, vc.current)
             await vc.music_channel.send(embed=embed)
 
     @commands.hybrid_command(description="How to use this bot")
