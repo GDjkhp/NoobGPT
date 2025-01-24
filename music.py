@@ -6,15 +6,16 @@ from util_database import myclient
 mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 fixing=False
 
-async def setup_hook_music(bot: commands.Bot):
+async def setup_hook_music(bots: list[commands.Bot]):
     global fixing
     fixing=True
     await wavelink.Pool.close()
     nodes = []
     data = await node_list()
-    for lava in data:
-        nodes.append(wavelink.Node(uri=lava["host"], password=lava["password"], retries=3600)) # 1 hour (1 retry = 60 secs)
-    await wavelink.Pool.connect(client=bot, nodes=nodes)
+    for bot in bots:
+        for lava in data:
+            nodes.append(wavelink.Node(client=bot, uri=lava["host"], password=lava["password"], retries=3600)) # 1 hour (1 retry = 60 secs)
+    await wavelink.Pool.connect(nodes=nodes)
     fixing=False
     print("setup_hook_music ok")
 

@@ -255,23 +255,23 @@ class CogGoogle(commands.Cog):
     async def gemini(self, ctx: commands.Context):
         await GEMINI_REST(ctx, models_google[0])
 
-    @app_commands.command(name="gemini", description=f"{description_helper['emojis']['ai']} {models_google[0]}")
-    @app_commands.describe(prompt="Text prompt")
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def gemini_slash(self, ctx: discord.Interaction, prompt: str, image: discord.Attachment=None):
-        await GEMINI_REST(ctx, models_google[0], prompt, image)
+    # @app_commands.command(name="gemini", description=f"{description_helper['emojis']['ai']} {models_google[0]}")
+    # @app_commands.describe(prompt="Text prompt")
+    # @app_commands.allowed_installs(guilds=True, users=True)
+    # @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    # async def gemini_slash(self, ctx: discord.Interaction, prompt: str, image: discord.Attachment=None):
+    #     await GEMINI_REST(ctx, models_google[0], prompt, image)
 
     @commands.command()
     async def flash(self, ctx: commands.Context):
         await GEMINI_REST(ctx, models_google[1])
 
-    @app_commands.command(name="flash", description=f"{description_helper['emojis']['ai']} {models_google[1]}")
-    @app_commands.describe(prompt="Text prompt")
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def flash_slash(self, ctx: discord.Interaction, prompt: str, image: discord.Attachment=None):
-        await GEMINI_REST(ctx, models_google[1], prompt, image)
+    # @app_commands.command(name="flash", description=f"{description_helper['emojis']['ai']} {models_google[1]}")
+    # @app_commands.describe(prompt="Text prompt")
+    # @app_commands.allowed_installs(guilds=True, users=True)
+    # @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    # async def flash_slash(self, ctx: discord.Interaction, prompt: str, image: discord.Attachment=None):
+    #     await GEMINI_REST(ctx, models_google[1], prompt, image)
 
     @commands.command()
     async def googleai(self, ctx: commands.Context):
