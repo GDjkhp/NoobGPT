@@ -4,13 +4,7 @@ import time
 import discord
 from discord import app_commands
 from util_discord import command_check, description_helper
-import asyncio
 from curl_cffi.requests import AsyncSession
-import sys
-if sys.platform == 'win32':
-    asyncio.set_event_loop_policy(
-        asyncio.WindowsSelectorEventLoopPolicy()
-    )
 session = AsyncSession(impersonate='chrome110')
 
 async def the_real_req(payload: dict):

@@ -6,14 +6,7 @@ import os
 import re
 from util_discord import command_check, description_helper, get_guild_prefix
 from curl_cffi.requests import AsyncSession
-import sys
-import asyncio
 from discord import app_commands
-
-if sys.platform == 'win32':
-    asyncio.set_event_loop_policy(
-        asyncio.WindowsSelectorEventLoopPolicy()
-    )
 
 session = AsyncSession(impersonate='chrome110')
 headers = {"cookie": os.getenv('PAHE')}

@@ -2,13 +2,6 @@ from contextlib import asynccontextmanager
 import websockets
 from curl_cffi.requests import AsyncSession
 import json
-import sys
-import asyncio
-
-if sys.platform == 'win32':
-    asyncio.set_event_loop_policy(
-        asyncio.WindowsSelectorEventLoopPolicy()
-    )
 
 class PyCAIError(Exception):
     pass

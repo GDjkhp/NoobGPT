@@ -6,6 +6,7 @@ from datetime import datetime
 import discord
 from discord.ext import commands
 import wavelink
+import sys
 
 discord.utils.setup_logging()
 intents = discord.Intents.default()
@@ -20,6 +21,10 @@ from c_ai_discord import *
 from custom_status import *
 from music import setup_hook_music
 from util_message import message_snitcher
+if sys.platform == 'win32':
+    asyncio.set_event_loop_policy(
+        asyncio.WindowsSelectorEventLoopPolicy()
+    )
 
 noobgpt_modules = [
     "c_ai_discord", "stablehorde", "gpt4free", "perplexity", "openai_", "googleai", # "petals",
