@@ -5,7 +5,7 @@ from youtubeplayer import *
 from util_discord import description_helper
 
 # min_music for noobgpt (only essential commands)
-# list np play pause resume stop skip autoplay shuffle remove clear dj repeat swap replace move playspot
+# list np play pause resume stop skip autoplay shuffle remove clear dj repeat swap replace move
 class YouTubePlayerMin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -44,12 +44,6 @@ class YouTubePlayerMin(commands.Cog):
     @app_commands.describe(query="Search query")
     @app_commands.autocomplete(query=search_auto)
     async def play(self, ctx: commands.Context, *, query:str=None):
-        await music_play(self.bot, ctx, query)
-
-    @app_commands.command(name="play-spotify", description=f"{description_helper['emojis']['music']} Play music (Spotify)")
-    @app_commands.describe(query="Search query")
-    @app_commands.autocomplete(query=search_auto_spotify)
-    async def play_spotify(self, ctx: discord.Interaction, *, query:str=None):
         await music_play(self.bot, ctx, query)
 
     @commands.command(aliases=['die', 'dc']) # alias
