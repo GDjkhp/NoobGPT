@@ -126,6 +126,7 @@ async def main():
     await asyncio.gather(
         start_bot(NoobGPT("NOOBGPT")),
         start_bot(NoobGPT("KAGURA")),
+        start_bot(NoobGPT("ZERO")),
         start_bot(Moosic("MOOSIC")),
     )
 
