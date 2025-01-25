@@ -6,18 +6,16 @@ from util_database import myclient
 mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 fixing=False
 
-async def setup_hook_music(bots: list[commands.Bot]):
+async def setup_hook_music(bot: commands.Bot):
     global fixing
     fixing=True
-    await wavelink.Pool.close()
     nodes = []
     data = await node_list()
-    for bot in bots:
-        for lava in data:
-            nodes.append(wavelink.Node(client=bot, uri=lava["host"], password=lava["password"], retries=3600, identifier=bot.node_id)) # 1 hour (1 retry = 60 secs)
+    for lava in data:
+        nodes.append(wavelink.Node(client=bot, uri=lava["host"], password=lava["password"], retries=3600, identifier=bot.node_id)) # 1 hour (1 retry = 60 secs)
     await wavelink.Pool.connect(nodes=nodes)
     fixing=False
-    print("setup_hook_music ok")
+    print(f"{bot.identifier}: setup_hook_music ok")
 
 async def view_nodes(ctx: commands.Context):
     data = await node_list()
@@ -215,7 +213,7 @@ class SelectChoice(discord.ui.Select):
                 if fixing: return await interaction.edit_original_response(content="Please try again later.")
                 print("ChannelTimeoutException")
                 await interaction.edit_original_response(content="An error occured. Reconnecting…")
-                await setup_hook_music([self.bot])
+                await setup_hook_music(self.bot)
                 return await interaction.edit_original_response(content="Please re-run the command.")
             vc.autoplay = wavelink.AutoPlayMode.enabled
         else: vc: wavelink.Player = self.ctx.guild.voice_client
@@ -265,7 +263,7 @@ class MusicUtil(commands.Cog):
     @commands.command(name="mreset")
     async def reset(self, ctx: commands.Context):
         if check_if_not_owner(ctx): return
-        await setup_hook_music([self.bot])
+        await setup_hook_music(self.bot)
 
     @commands.command(name="msync")
     async def sync(self, ctx: commands.Context):
