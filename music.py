@@ -14,7 +14,7 @@ async def setup_hook_music(bots: list[commands.Bot]):
     data = await node_list()
     for bot in bots:
         for lava in data:
-            nodes.append(wavelink.Node(client=bot, uri=lava["host"], password=lava["password"], retries=3600)) # 1 hour (1 retry = 60 secs)
+            nodes.append(wavelink.Node(client=bot, uri=lava["host"], password=lava["password"], retries=3600, identifier=bot.node_id)) # 1 hour (1 retry = 60 secs)
     await wavelink.Pool.connect(nodes=nodes)
     fixing=False
     print("setup_hook_music ok")
@@ -232,7 +232,9 @@ async def voice_channel_connector(ctx: commands.Context | discord.Interaction):
         member = ctx.author
     if isinstance(ctx, discord.Interaction):
         member = ctx.user
-    vc = await member.voice.channel.connect(cls=wavelink.Player, self_deaf=True)
+    node = wavelink.Pool.get_node(ctx.bot.node_id)
+    player = wavelink.Player(nodes=[node])
+    vc = await member.voice.channel.connect(cls=player, self_deaf=True)
     return vc
 
 def check_bot_conflict(ctx: commands.Context | discord.Interaction):
