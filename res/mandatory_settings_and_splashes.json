@@ -21,6 +21,7 @@
             "rps": "Play rock-paper-scissors."
         },
         "media": {
+            "music": "Listen to music in a voice channel.",
             "tv": "Watch TV shows and movies.",
             "anime": "Watch animated works originating in Japan.",
             "manga": "Read comics originating in Japan.",

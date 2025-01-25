@@ -82,6 +82,7 @@ class NoobGPT(commands.Bot):
 
     async def setup_hook(self):
         self.loop.create_task(silly_activities(self))
+        self.loop.create_task(setup_hook_music(self))
         if self.identifier == "NOOBGPT":
             self.loop.create_task(main_gde(self))
             self.loop.create_task(main_rob(self))
@@ -89,13 +90,12 @@ class NoobGPT(commands.Bot):
             await self.load_extension(module)
 
 class Moosic(commands.Bot):
-    def __init__(self, token, bots: list[commands.Bot]=None):
+    def __init__(self, token):
         super().__init__(command_prefix = get_prefix, intents = intents, 
                          help_command = None, allowed_mentions = mentions)
         self.token = os.getenv(token)
         self.identifier = token
         self.node_id = secrets.token_urlsafe(12)
-        self.bots = bots
 
     async def on_ready(self):
         print(f"{self.identifier} (c) {datetime.now().year} The Karakters Kompany. All rights reserved.")
@@ -115,7 +115,7 @@ class Moosic(commands.Bot):
 
     async def setup_hook(self):
         self.loop.create_task(silly_activities(self))
-        self.loop.create_task(setup_hook_music([self]+self.bots))
+        self.loop.create_task(setup_hook_music(self))
         for module in moosic_modules:
             await self.load_extension(module)
 
@@ -123,13 +123,10 @@ async def start_bot(bot: commands.Bot):
     await bot.start(bot.token)
 
 async def main():
-    official = NoobGPT("NOOBGPT")
-    bot_alt = NoobGPT("KAGURA")
-    bot_moo = Moosic("MOOSIC", [official, bot_alt])
     await asyncio.gather(
-        start_bot(official),
-        start_bot(bot_alt),
-        start_bot(bot_moo),
+        start_bot(NoobGPT("NOOBGPT")),
+        start_bot(NoobGPT("KAGURA")),
+        start_bot(Moosic("MOOSIC")),
     )
 
 if __name__ == "__main__":
