@@ -3,7 +3,7 @@
 ## A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you.
 
 <div align="center">
-<h3><a href="https://discord.com/api/oauth2/authorize?client_id=1090254079609020447&permissions=633731823291392&scope=applications.commands%20bot">Add to server</a>, <a href="https://discord.com/oauth2/authorize?client_id=1090254079609020447">install as user</a>, or <a href="discord://discord.com/users/1090254079609020447">send a direct message</a></h3>
+<h3><a href="https://discord.com/api/oauth2/authorize?client_id=1120259379715903508&permissions=633731823291392&scope=applications.commands%20bot">Add to server</a>, <a href="https://discord.com/oauth2/authorize?client_id=1090254079609020447">install as user</a>, or <a href="discord://discord.com/users/1090254079609020447">send a direct message</a></h3>
 <a href="discord://discord.com/users/1090254079609020447">
 <img style="background-color: black;" src="https://discord.c99.nl/widget/theme-4/1090254079609020447.png" alt="Discord RPC isn't working!" title="Click here to visit my Discord Profile!">
 </a>
@@ -66,12 +66,14 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-rps` Play rock-paper-scissors.
 
 ## Media 💽
+* `-music` Listen to music in a voice channel.
 * `-tv` Watch TV shows and movies.
 * `-anime` Watch animated works originating in Japan.
 * `-manga` Read comics originating in Japan.
 * `-booru` A form of imageboard where images are categorized with tags.
 * `-ytdlp (optional: format = [mp3/m4a]) [link]` yt-dlp is a feature-rich command-line audio/video downloader with support for [thousands of sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md).
 * `-deez [link]` Streamrip is a scriptable stream downloader for Deezer.
+* `-img [format] [attachments]` Convert an image to a different format with Pillow.
     
 ## Utils 🔧
 * `-config` Customize how the bot works.
