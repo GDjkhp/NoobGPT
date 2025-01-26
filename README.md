@@ -100,7 +100,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 
 ## Bot Commands
 ### Supports slash and prefix commands.
-* `-help` Show commands help page
+* `-music` Show commands help page
 
 ## Player commands
 * `-play <query>` Play music (Supports YouTube, Spotify, SoundCloud, Apple Music)
