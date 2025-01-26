@@ -59,18 +59,21 @@ class NoobGPT(commands.Bot):
         print(f"{self.identifier}: Left {guild.name} ({guild.id})")
 
     async def on_message(self, message: discord.Message):
-        # self.loop.create_task(main_styx(self, message))
-        self.loop.create_task(c_ai(self, message))
-        self.loop.create_task(insult_user(self, message))
-        self.loop.create_task(earn_xp(self, message))
+        if self.identifier != "MOOSIC":
+            # self.loop.create_task(main_styx(self, message))
+            self.loop.create_task(c_ai(self, message))
+            self.loop.create_task(insult_user(self, message))
+            self.loop.create_task(earn_xp(self, message))
         await self.process_commands(message)
 
     async def on_message_edit(self, before: discord.Message, after: discord.Message):
+        if self.identifier == "MOOSIC": return
         self.loop.create_task(
             message_snitcher(before, after,"Message updated", f"#{before.channel}", 0x00ff00)
         )
     
     async def on_message_delete(self, message: discord.Message):
+        if self.identifier == "MOOSIC": return
         self.loop.create_task(
             message_snitcher(message, None, "Message deleted", f"#{message.channel}", 0xff0000)
         )
@@ -84,36 +87,8 @@ class NoobGPT(commands.Bot):
         if self.identifier == "NOOBGPT":
             self.loop.create_task(main_gde(self))
             self.loop.create_task(main_rob(self))
-        for module in noobgpt_modules:
-            await self.load_extension(module)
-
-class Moosic(commands.Bot):
-    def __init__(self, token):
-        super().__init__(command_prefix = get_prefix, intents = intents, 
-                         help_command = None, allowed_mentions = mentions)
-        self.token = os.getenv(token)
-        self.identifier = token
-
-    async def on_ready(self):
-        print(f"{self.identifier} (c) {datetime.now().year} The Karakters Kompany. All rights reserved.")
-        print("Running for the following servers:")
-        for number, guild in enumerate(self.guilds, 1):
-            print(f"{number}. {guild} ({guild.id})")
-        print(":)")
-
-    async def on_wavelink_node_ready(self, payload: wavelink.NodeReadyEventPayload):
-        print(f"{self.identifier}: {payload.node} | Resumed: {payload.resumed}")
-
-    async def on_guild_join(self, guild: discord.Guild):
-        print(f"{self.identifier}: Joined {guild.name} ({guild.id})")
-
-    async def on_guild_remove(self, guild: discord.Guild):
-        print(f"{self.identifier}: Left {guild.name} ({guild.id})")
-
-    async def setup_hook(self):
-        self.loop.create_task(silly_activities(self))
-        self.loop.create_task(setup_hook_music(self))
-        for module in moosic_modules:
+        modules = moosic_modules if self.identifier == "MOOSIC" else noobgpt_modules
+        for module in modules:
             await self.load_extension(module)
 
 async def start_bot(bot: commands.Bot):
@@ -122,9 +97,9 @@ async def start_bot(bot: commands.Bot):
 async def main():
     await asyncio.gather(
         start_bot(NoobGPT("NOOBGPT")),
+        start_bot(NoobGPT("MOOSIC")),
         start_bot(NoobGPT("KAGURA")),
         start_bot(NoobGPT("ZERO")),
-        start_bot(Moosic("MOOSIC")),
     )
 
 if __name__ == "__main__":
