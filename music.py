@@ -1,3 +1,4 @@
+import secrets
 import wavelink
 from discord.ext import commands
 import discord
@@ -11,6 +12,7 @@ async def setup_hook_music(bot: commands.Bot):
     fixing=True
     nodes = []
     data = await node_list()
+    bot.node_id = secrets.token_urlsafe(12)
     for lava in data:
         nodes.append(wavelink.Node(client=bot, uri=lava["host"], password=lava["password"], retries=3600, identifier=bot.node_id)) # 1 hour (1 retry = 60 secs)
     await wavelink.Pool.connect(nodes=nodes)
@@ -264,6 +266,11 @@ class MusicUtil(commands.Cog):
     async def reset(self, ctx: commands.Context):
         if check_if_not_owner(ctx): return
         await setup_hook_music(self.bot)
+
+    @commands.command(name="mclose")
+    async def close(self, ctx: commands.Context):
+        if check_if_not_owner(ctx): return
+        await wavelink.Pool.close()
 
     @commands.command(name="msync")
     async def sync(self, ctx: commands.Context):

@@ -7,7 +7,6 @@ import discord
 from discord.ext import commands
 import wavelink
 import sys
-import secrets
 
 discord.utils.setup_logging()
 intents = discord.Intents.default()
@@ -45,7 +44,6 @@ class NoobGPT(commands.Bot):
                          help_command = None, allowed_mentions = mentions)
         self.token = os.getenv(token)
         self.identifier = token
-        self.node_id = secrets.token_urlsafe(12)
 
     async def on_ready(self):
         print(f"{self.identifier} (c) {datetime.now().year} The Karakters Kompany. All rights reserved.")
@@ -95,7 +93,6 @@ class Moosic(commands.Bot):
                          help_command = None, allowed_mentions = mentions)
         self.token = os.getenv(token)
         self.identifier = token
-        self.node_id = secrets.token_urlsafe(12)
 
     async def on_ready(self):
         print(f"{self.identifier} (c) {datetime.now().year} The Karakters Kompany. All rights reserved.")
