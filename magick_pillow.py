@@ -5,7 +5,6 @@ from discord import app_commands
 import io
 import aiohttp
 from typing import Union
-from urllib.parse import urlparse
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
 from reportlab.lib.pagesizes import A4
@@ -25,7 +24,7 @@ special_formats = {
     'pdf': {'compress': True}
 }
 
-async def img_converter(ctx: commands.Context, format: str, image: discord.Attachment | str, images: str):
+async def img_converter(ctx: commands.Context, format: str, images: str):
     if await command_check(ctx, "img", "media"):
         return await ctx.reply("command disabled", ephemeral=True)
     if format == "help":
@@ -41,24 +40,10 @@ async def img_converter(ctx: commands.Context, format: str, image: discord.Attac
 
     # Collect all images from attachments and URLs
     image_data_list = []
-    
-    # Handle the primary image parameter
-    if isinstance(image, discord.Attachment):
-        if image.content_type.startswith('image/'):
-            image_data_list.append(await image.read())
-    elif image and is_valid_image_url(image):
-        try:
-            image_data = await download_image(image)
-            image_data_list.append(image_data)
-        except:
-            await ctx.send(f"Failed to download image from {image}")
 
     # Check additional attachments
     if ctx.message.attachments:
         for attachment in ctx.message.attachments:
-            # Skip the first attachment if it was already processed
-            if isinstance(image, discord.Attachment) and attachment.id == image.id:
-                continue
             if attachment.content_type.startswith('image/'):
                 image_data_list.append(await attachment.read())
             else:
@@ -68,12 +53,11 @@ async def img_converter(ctx: commands.Context, format: str, image: discord.Attac
     if images:
         urls = images.split()
         for url in urls:
-            if is_valid_image_url(url):
-                try:
-                    image_data = await download_image(url)
-                    image_data_list.append(image_data)
-                except:
-                    await ctx.send(f"Failed to download image from {url}")
+            try:
+                image_data = await download_image(url)
+                image_data_list.append(image_data)
+            except:
+                await ctx.send(f"Failed to download image from {url}")
             else:
                 await ctx.send(f"Skipping invalid image URL: {url}")
 
@@ -120,15 +104,6 @@ async def download_image(url: str) -> bytes:
             if response.status != 200:
                 raise commands.BadArgument("Failed to download image from URL.")
             return await response.read()
-        
-def is_valid_image_url(url: str) -> bool:
-    try:
-        parsed = urlparse(url)
-        return bool(parsed.netloc) and bool(parsed.scheme) and any(
-            url.lower().endswith(f'.{fmt}') for fmt in supported_formats
-        )
-    except:
-        return False
     
 def is_animated(img: Image.Image) -> bool:
     try:
@@ -257,19 +232,12 @@ class ImageConverter(commands.Cog):
         self.bot = bot
 
     @commands.hybrid_command(description=f'{description_helper["media"]["img"]}')
-    @app_commands.describe(image="Image source", images="Image sources (Only URLs are supported)", format="Output format")
+    @app_commands.describe(images="Image sources (Only space-separated URLs are supported)", format="Output format")
     @app_commands.autocomplete(format=fmt_auto)
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def img(
-        self,
-        ctx: commands.Context,
-        format: str = "png",
-        image: discord.Attachment = None,
-        *,
-        images: str = None
-    ):
-        await img_converter(ctx, format, image, images)
+    async def img(self, ctx: commands.Context, format: str = "png", *, images: str = None):
+        await img_converter(ctx, format, images)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(ImageConverter(bot))
