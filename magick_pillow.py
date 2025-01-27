@@ -58,8 +58,6 @@ async def img_converter(ctx: commands.Context, format: str, images: str):
                 image_data_list.append(image_data)
             except:
                 await ctx.send(f"Failed to download image from {url}")
-            else:
-                await ctx.send(f"Skipping invalid image URL: {url}")
 
     if not image_data_list:
         await ctx.send("No valid images provided. Please attach images or provide valid image URLs.")
