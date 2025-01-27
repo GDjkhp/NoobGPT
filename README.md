@@ -81,7 +81,6 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-aimode [model]` Toggle AI response mode. Use `-aimode` for list of models.
 * `-xp` Toggle XP levelling system. Use `-xphelp` for more info.
 * `-quote` Reply to a message to make it a quote.
-* `-weather [query]` Check weather forecast using [weather-api](https://github.com/robertoduessmann/weather-api).
 * `-log [channel_id]` Set a message logger channel.
 * `-avatar [user_id]` Return a user's Discord profile avatar.
 * `-banner [user_id]` Return a user's Discord profile banner.
@@ -198,11 +197,11 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 
 ### Special Thanks
 * `NoobGPT#5766` for developing itself 🤨
-* `bridgetown`, `ppiece`, `revizgd`, `itzcata`, `craftip`, `darkgamma`, `jkrt2`, `realstyx`, `ambientamend`, `vitalworm`, `gojowashere`, `misshxkari`, `zephryx`, `khaenbyhimself`, `laxergd`, and everyone i forgot to mention for all the silly ideas and chaos 🤝
-* `jaicraft`, `aychelletroller`, `_youraverageperson`, and more for providing AI access 🤖
+* `bridgetown`, `ppiece`, `revizgd`, `itzcata`, `craftip`, `darkgamma`, `jkrt2`, `realstyx`, `ambientamend`, `vitalworm`, `gojowashere`, `misshxkari`, `zephryx`, `khaenbyhimself`, `laxergd`, `matahbey`, `qtemiii`, `asrielxl`, `youraveragevania`, `boaz3`, `aychelletroller`, `_youraverageperson`, and to everyone i forgot to mention for all the silly ideas and chaos 🤝
+* `jaicraft` for providing paid AI access 🤖
 * `ausbitbank` for AI image generation ideas and making [arty](https://peakd.com/@ausbitbank/our-new-stable-diffusion-discord-bot) 🎨
-* `fc_clint`, `dryleechseed`, `chimed`, `sky47`, `shiro`, `wychee`, `horyx`, `stantheills` and all the filipino pride chicken reading this 🇵🇭
-* `A group chat/GDSBB`, `Geometry Dash Extras`, `GDShrimp`, `Khaens' Kingdom`, `The Bot Appreciation Society`, `IVO`, `ausbit's stuff and things`, `GDS general-english-3`, `WORM CULT`, `SickoMenu` and all the servers for letting me in 👋
+* `fc_clint`, `dryleechseed`, `chimed`, `sky47`, `shiro`, `wychee`, `horyx`, `stantheills`, `antnio`, and to all the filipino pride chicken reading this 🇵🇭
+* `A group chat/GDSBB`, `Geometry Dash Extras`, `GDShrimp`, `Khaens' Kingdom`, `The Bot Appreciation Society`, `IVO`, `ausbit's stuff and things`, `GDS general-english-3`, `WORM CULT`, `SickoMenu`, and to all the servers for letting me in 👋
 
 ## Legal
 ### License
