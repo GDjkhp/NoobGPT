@@ -7,7 +7,6 @@ from PyCharacterAI.types import Chat, Turn, Voice
 from pydub import AudioSegment
 import aiohttp
 import asyncio
-import aiohttp
 import random
 import re
 from collections import defaultdict
