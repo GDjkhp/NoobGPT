@@ -15,8 +15,8 @@
 Host your bots for free: [Bot-Hosting.net](https://bot-hosting.net/?aff=729554186777133088)
 
 ### Requirements
-* `Python 3.10+`, `requirements.txt` packages, `.env` for secret keys.
-* A running [MongoDB](https://www.mongodb.com) instance. [How do I find my MongoDB connection string?](https://www.mongodb.com/resources/products/fundamentals/mongodb-connection-string)
+* [`Python 3.10+`](https://www.python.org/downloads), [`FFmpeg`](https://www.ffmpeg.org/download.html), [`requirements.txt`](http://gdjkhp.github.io/NoobGPT/requirements.txt) packages, [`.env`](https://gdjkhp.github.io/NoobGPT/example.env) for secret keys.
+* A running [`MongoDB`](https://www.mongodb.com) instance. [How do I find my MongoDB connection string?](https://www.mongodb.com/resources/products/fundamentals/mongodb-connection-string)
 * A `cookie.txt` for downloading YouTube videos. [How do I pass cookies to yt-dlp?](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp)
 * Google Cloud Console OAuth 2.0 User and Client credentials (Production) + `.../auth/drive.file` scope. [Generate token.json with quickstart.](https://developers.google.com/docs/api/quickstart/python)
 
@@ -26,7 +26,7 @@ Feature requests, contributions, and improvements are welcome!
 Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) or reach out [GDjkhp](discord://discord.com/users/729554186777133088)
 
 ## Donate
-[Paypal](https://paypal.me/GDjkhp) • [Patreon](https://www.patreon.com/GDjkhp) • [Fiverr](https://www.fiverr.com/gdjkhp/develop-host-and-maintain-your-discord-bot) • [Top.gg](https://top.gg/bot/1090254079609020447)
+[`Paypal`](https://paypal.me/GDjkhp) • [`Patreon`](https://www.patreon.com/GDjkhp) • [`Fiverr`](https://www.fiverr.com/gdjkhp/develop-host-and-maintain-your-discord-bot) • [`Top.gg`](https://top.gg/bot/1090254079609020447)
 <details><summary><b>Why you should invest on NoobGPT?</b></summary>
 <h3>Running this bot cost me nothing so far!</h3>
 <img src="https://gdjkhp.github.io/img/tenor.gif">
@@ -165,6 +165,12 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * <https://github.com/GDjkhp/ubel>
 
 ### Sites
+* <https://code.visualstudio.com>
+* <https://www.python.org>
+* <https://replit.com>
+* <https://bot-hosting.net>
+* <https://github.com>
+* <https://www.ffmpeg.org>
 * <https://openai.com>
 * <https://character.ai>
 * <https://mistral.ai>
