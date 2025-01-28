@@ -41,25 +41,27 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
 
     if isinstance(ctx, discord.Interaction): 
         await ctx.response.send_message("Loading…")
+    if isinstance(ctx, commands.Context):
+        msg = await ctx.reply("Loading…")
 
     if not await check_if_dj(ctx):
         if isinstance(ctx, commands.Context):
-            return await ctx.reply("not a disc jockey")
+            return await msg.edit(content="not a disc jockey")
         if isinstance(ctx, discord.Interaction):
             return await ctx.edit_original_response(content="not a disc jockey")
         
     vc = ctx.guild.voice_client
     if isinstance(ctx, commands.Context):
         if not ctx.author.voice or (vc and not ctx.author.voice.channel == vc.channel):
-            return await ctx.reply(f'Join the voice channel with the bot first.')
+            return await msg.edit(content='Join the voice channel with the bot first.')
     if isinstance(ctx, discord.Interaction):
         if not ctx.user.voice or (vc and not ctx.user.voice.channel == vc.channel):
-            return await ctx.edit_original_response(content=f'Join the voice channel with the bot first.')
+            return await ctx.edit_original_response(content='Join the voice channel with the bot first.')
         
     if not search:
         p = await get_guild_prefix(ctx)
         if isinstance(ctx, commands.Context):
-            return await ctx.reply(f"usage: `{p}play <query>`")
+            return await msg.edit(content=f"usage: `{p}play <query>`")
         if isinstance(ctx, discord.Interaction):
             return await ctx.edit_original_response(content=f"usage: `{p}play <query>`")
         
@@ -67,13 +69,13 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
         tracks = await wavelink.Playable.search(search)
     except Exception as e:
         if isinstance(ctx, commands.Context):
-            return await ctx.reply(f'Error :(\n{e}')
+            return await msg.edit(content=f'Error :(\n{e}')
         if isinstance(ctx, discord.Interaction):
             return await ctx.edit_original_response(content=f'Error :(\n{e}')
         
     if not tracks:
         if isinstance(ctx, commands.Context):
-            return await ctx.reply('No results found.')
+            return await msg.edit(content='No results found.')
         if isinstance(ctx, discord.Interaction):
             return await ctx.edit_original_response(content='No results found.')
 
@@ -89,10 +91,10 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
         except:
             if fixing: 
                 if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="Please try again later.")
-                if isinstance(ctx, commands.Context): return await ctx.reply(content="Please try again later.")
+                if isinstance(ctx, commands.Context): return await msg.edit(content="Please try again later.")
             print("ChannelTimeoutException")
             if isinstance(ctx, discord.Interaction): await ctx.edit_original_response(content="An error occured. Reconnecting…")
-            if isinstance(ctx, commands.Context): msg=await ctx.reply(content="An error occured. Reconnecting…")
+            if isinstance(ctx, commands.Context): await msg.edit(content="An error occured. Reconnecting…")
             await setup_hook_music(bot)
             if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="Please re-run the command.")
             if isinstance(ctx, commands.Context): return await msg.edit(content="Please re-run the command.")
@@ -110,7 +112,7 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
     if not vc.playing: await vc.play(vc.queue.get())
     embed = music_embed(text, desc)
     if isinstance(ctx, commands.Context):
-        await ctx.reply(embed=embed)
+        await msg.edit(content=None, embed=embed)
     if isinstance(ctx, discord.Interaction):
         await ctx.edit_original_response(embed=embed, content=None)
 
@@ -209,25 +211,27 @@ async def queue_search(bot: commands.Bot, ctx: commands.Context | discord.Intera
 
     if isinstance(ctx, discord.Interaction):
         await ctx.response.send_message("Loading…")
+    if isinstance(ctx, commands.Context):
+        msg = await ctx.reply("Loading…")
 
     if not await check_if_dj(ctx):
         if isinstance(ctx, commands.Context):
-            return await ctx.reply("not a disc jockey")
+            return await msg.edit(content="not a disc jockey")
         if isinstance(ctx, discord.Interaction):
             return await ctx.edit_original_response(content="not a disc jockey")
     
     vc = ctx.guild.voice_client
     if isinstance(ctx, commands.Context):
         if not ctx.author.voice or (vc and not ctx.author.voice.channel == vc.channel):
-            return await ctx.reply(f'Join the voice channel with the bot first.')
+            return await msg.edit(content='Join the voice channel with the bot first.')
     if isinstance(ctx, discord.Interaction):
         if not ctx.user.voice or (vc and not ctx.user.voice.channel == vc.channel):
-            return await ctx.edit_original_response(content=f'Join the voice channel with the bot first.')
+            return await ctx.edit_original_response(content='Join the voice channel with the bot first.')
 
     if not search:
         p = await get_guild_prefix(ctx)
         if isinstance(ctx, commands.Context):
-            return await ctx.reply(f"usage: `{p}search <query>`")
+            return await msg.edit(content=f"usage: `{p}search <query>`")
         if isinstance(ctx, discord.Interaction):
             return await ctx.edit_original_response(content=f"usage: `{p}search <query>`")
     
@@ -235,18 +239,18 @@ async def queue_search(bot: commands.Bot, ctx: commands.Context | discord.Intera
         tracks = await wavelink.Playable.search(search, source=source)
     except Exception as e:
         if isinstance(ctx, commands.Context):
-            return await ctx.reply(f'Error :(\n{e}')
+            return await msg.edit(content=f'Error :(\n{e}')
         if isinstance(ctx, discord.Interaction):
             return await ctx.edit_original_response(content=f'Error :(\n{e}')
     
     if not tracks:
         if isinstance(ctx, commands.Context):
-            return await ctx.reply('No results found.')
+            return await msg.edit(content='No results found.')
         if isinstance(ctx, discord.Interaction):
             return await ctx.edit_original_response(content='No results found.')
     
     if isinstance(ctx, commands.Context):
-        await ctx.reply(embed=search_embed(search, tracks, 0), view=SearchView(bot, ctx, search, tracks, 0))
+        await msg.edit(content=None, embed=search_embed(search, tracks, 0), view=SearchView(bot, ctx, search, tracks, 0))
     if isinstance(ctx, discord.Interaction):
         await ctx.edit_original_response(embed=search_embed(search, tracks, 0), view=SearchView(bot, ctx, search, tracks, 0), content=None)
 
