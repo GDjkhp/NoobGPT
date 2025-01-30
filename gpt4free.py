@@ -183,7 +183,7 @@ class GPT4UCog(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="ask", description=f"{description_helper['emojis']['ai']} GPT4Free Text Completion")
-    @app_commands.describe(model="Large language model")
+    @app_commands.describe(model="Large language model", prompt="Text prompt", image="Image prompt")
     @app_commands.autocomplete(model=model_txt_auto)
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
@@ -191,7 +191,7 @@ class GPT4UCog(commands.Cog):
         await free_text(ctx, model, prompt, image)
 
     @app_commands.command(name="imagine", description=f"{description_helper['emojis']['ai']} GPT4Free Image Generation")
-    @app_commands.describe(model="Image model")
+    @app_commands.describe(model="Text-to-Image model", prompt="Text prompt")
     @app_commands.autocomplete(model=model_img_auto)
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
