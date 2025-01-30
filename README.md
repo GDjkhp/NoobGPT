@@ -17,7 +17,7 @@ Host your bots for free: [Bot-Hosting.net](https://bot-hosting.net/?aff=72955418
 ### Requirements
 * [`Python 3.10+`](https://www.python.org/downloads), [`FFmpeg`](https://www.ffmpeg.org/download.html), [`requirements.txt`](http://gdjkhp.github.io/NoobGPT/requirements.txt) packages, [`.env`](https://gdjkhp.github.io/NoobGPT/example.env) for secret keys.
 * A running [`MongoDB`](https://www.mongodb.com) instance. [How do I find my MongoDB connection string?](https://www.mongodb.com/resources/products/fundamentals/mongodb-connection-string)
-* A `cookie.txt` for downloading YouTube videos. [How do I pass cookies to yt-dlp?](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp)
+* A `cookies.txt` for downloading YouTube videos. [How do I pass cookies to yt-dlp?](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp)
 * Google Cloud Console OAuth 2.0 User and Client credentials (Production) + `.../auth/drive.file` scope. [Generate token.json with quickstart.](https://developers.google.com/docs/api/quickstart/python)
 
 ## Support
@@ -44,6 +44,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 <a href="https://gemini.google.com"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/gemini.png"></a>
 <a href="https://mistral.ai"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/mistral.png"></a>
 <a href="https://www.anthropic.com"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/idGmbIn6Mx_logos.png"></a>
+<a href="https://www.deepseek.com"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/deepseek.png"></a>
 <a href="https://c.ai"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/Character.AI.png"></a>
 
 * `-openai` OpenAI is an AI research and deployment company. Our mission is to ensure that artificial general intelligence benefits all of humanity.
