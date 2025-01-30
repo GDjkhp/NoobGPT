@@ -312,7 +312,7 @@ class CogHorde(commands.Cog):
         await generate(ctx, None, "Anything v5")
 
     @app_commands.command(name="dream", description=f"{description_helper['emojis']['ai']} {description_helper['ai']['horde']}"[:100])
-    @app_commands.describe(prompt="Text prompt", negative="Negative prompt", model="Image model", n="Number of images to generate",
+    @app_commands.describe(prompt="Text prompt", negative="Negative prompt", model="Text-to-Image model", n="Number of images to generate",
                            width="Image width", height="Image height", steps="Number of steps", post_processing="Post-processing method",
                            seed="Generation seed", seed_variation="Generation seed increment value", sampler_name="Sampling method",
                            karras="Karras noise scheduling tweaks", tiling="Stitch together seamlessly",
