@@ -148,9 +148,12 @@ class CancelButton(discord.ui.Button):
         self.ctx = ctx
     
     async def callback(self, interaction: discord.Interaction):
-        if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
-                                                           ephemeral=True)
+        if isinstance(self.ctx, commands.Context):
+            if interaction.user != self.ctx.author:
+                return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", ephemeral=True)
+        if isinstance(self.ctx, discord.Interaction):
+            if interaction.user != self.ctx.user:
+                return await interaction.response.send_message(f"Only <@{self.ctx.user.id}> can interact with this message.", ephemeral=True)
         await interaction.response.defer()
         await interaction.delete_original_response()
 
@@ -184,9 +187,12 @@ class nextPage(discord.ui.Button):
         self.result, self.index, self.arg, self.ctx, self.bot = result, index, arg, ctx, bot
     
     async def callback(self, interaction: discord.Interaction):
-        if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
-                                                           ephemeral=True)
+        if isinstance(self.ctx, commands.Context):
+            if interaction.user != self.ctx.author:
+                return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", ephemeral=True)
+        if isinstance(self.ctx, discord.Interaction):
+            if interaction.user != self.ctx.user:
+                return await interaction.response.send_message(f"Only <@{self.ctx.user.id}> can interact with this message.", ephemeral=True)
         await interaction.response.edit_message(embed=search_embed(self.arg, self.result, self.index), 
                                                 view=SearchView(self.bot, self.ctx, self.arg, self.result, self.index))
 
