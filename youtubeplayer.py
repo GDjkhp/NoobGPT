@@ -107,8 +107,8 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
         text, desc = f"🎵 Queue playlist", f'Added `{added}` songs to the queue'
         embed = music_embed(text, desc)
         embed.add_field(name="Name", value=f"[{tracks.name}]({tracks.url})", inline=False)
-        if tracks.type: embed.add_field(name="Type", value=tracks.type, inline=False)
-        if tracks.author: embed.add_field(name="Author", value=tracks.author, inline=False)
+        embed.add_field(name="Author", value=tracks.author, inline=False)
+        embed.add_field(name="Type", value=tracks.type, inline=False)
         if tracks.artwork: embed.set_thumbnail(url=tracks.artwork)
     else:
         await vc.queue.put_wait(tracks[0])
@@ -348,7 +348,7 @@ async def queue_shuffle(ctx: commands.Context):
     
     if vc.queue:
         vc.queue.shuffle()
-        embed = music_embed("🔀 Shuffle queue", f"{len(vc.queue)} songs have been randomized")
+        embed = music_embed("🔀 Shuffle queue", f"`{len(vc.queue)}` songs have been randomized")
         await ctx.reply(embed=embed)
 
 async def queue_reset(ctx: commands.Context):
