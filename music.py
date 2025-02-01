@@ -94,7 +94,9 @@ def music_now_playing_embed(bot: commands.Context, track: wavelink.Playable):
         embed.set_author(name="Bandcamp", icon_url="https://gdjkhp.github.io/img/bandcamp-button-circle-aqua-512.png")
     elif track.source == "applemusic":
         embed.set_author(name="Apple Music", icon_url="https://gdjkhp.github.io/img/applemoosic.png")
-    else: print(track.source)
+    else:
+        embed.set_author(name=track.source)
+        print(track.source)
     return embed
 
 def requester_string(bot: commands.Bot, track: wavelink.Playable):
@@ -134,7 +136,7 @@ def search_embed(arg: str, result: wavelink.Search, index: int) -> discord.Embed
                           description=f"{len(result)} found", color=0x00ff00)
     i = index
     while i < len(result):
-        if (i < index+pagelimit): embed.add_field(name=f"[{i + 1}] `{result[i].title}`", value=result[i].author)
+        if (i < index+pagelimit): embed.add_field(name=f"[{i + 1}] `{result[i].title}`", value=f"by `{result[i].author}`")
         i += 1
     return embed
 
@@ -218,11 +220,11 @@ class SelectChoice(discord.ui.Select):
             try: 
                 vc = await voice_channel_connector(self.ctx)
             except:
-                if fixing: return await interaction.edit_original_response(content="Please try again later.")
+                if fixing: return await interaction.edit_original_response(content="Please try again later")
                 print("ChannelTimeoutException")
                 await interaction.edit_original_response(content="An error occured. Reconnecting…")
                 await setup_hook_music(self.bot)
-                return await interaction.edit_original_response(content="Please re-run the command.")
+                return await interaction.edit_original_response(content="Please re-run the command")
             vc.autoplay = wavelink.AutoPlayMode.enabled
         else: vc: wavelink.Player = self.ctx.guild.voice_client
         vc.music_channel = self.ctx.channel
@@ -230,7 +232,7 @@ class SelectChoice(discord.ui.Select):
         selected = self.result[int(self.values[0])]
         await vc.queue.put_wait(selected)
         if not vc.playing: await vc.play(vc.queue.get())
-        text, desc = "🎵 Song added to the queue", f'`{selected.title}` has been added to the queue.'
+        text, desc = "🎵 Queue music", f'`{selected.author} - {selected.title}` has been added to the queue'
         await interaction.edit_original_response(content=None, embed=music_embed(text, desc), view=None)
 
 async def voice_channel_connector(ctx: commands.Context | discord.Interaction):
