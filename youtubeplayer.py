@@ -344,7 +344,7 @@ async def queue_shuffle(ctx: commands.Context):
     
     if vc.queue:
         vc.queue.shuffle()
-        embed = music_embed("🔀 Queue has been shuffled", f"{len(vc.queue)} songs has been randomized.")
+        embed = music_embed("🔀 Queue has been shuffled", f"{len(vc.queue)} songs have been randomized.")
         await ctx.reply(embed=embed)
 
 async def queue_reset(ctx: commands.Context):
