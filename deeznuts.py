@@ -207,11 +207,13 @@ class CogDeez(commands.Cog):
         if check_if_not_owner(ctx): return
         await set_deez(ctx, arg)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['media']} {description_helper['media']['deez']}")
-    @app_commands.describe(links="Link queries")
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    # @commands.hybrid_command(description=f"{description_helper['emojis']['media']} {description_helper['media']['deez']}")
+    # @app_commands.describe(links="Link queries")
+    # @app_commands.allowed_installs(guilds=True, users=True)
+    # @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @commands.command()
     async def deez(self, ctx: commands.Context, *, links:str=None):
+        if check_if_not_owner(ctx): return
         await cook_deez(ctx, links)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['media']} Deezer ARL checker")
