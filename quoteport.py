@@ -9,13 +9,13 @@ from imagetext_py import *
 import asyncio
 from util_discord import command_check, description_helper, get_guild_prefix
 
-font_reg = './res/font/AmaticSC-Regular.ttf'
-font_bold = './res/font/AmaticSC-Bold.ttf'
+font_reg = './res/font/NotoSansJP-Regular.ttf'
+font_bold = './res/font/NotoSansJP-Bold.ttf'
 
 FontDB.SetDefaultEmojiOptions(EmojiOptions(parse_discord_emojis=True))
 FontDB.LoadFromDir("./res/font")
-font_real_bold = FontDB.Query("AmaticSC-Bold NotoSansJP-Bold")
-font_real_reg = FontDB.Query("AmaticSC-Regular NotoSansJP-Regular")
+font_real_bold = FontDB.Query("NotoSansJP-Bold")
+font_real_reg = FontDB.Query("NotoSansJP-Regular")
 
 async def quote_this(ctx: commands.Context, msg_id: str):
     if await command_check(ctx, "quote", "utils"): return await ctx.reply("command disabled", ephemeral=True)
@@ -74,6 +74,12 @@ def replace_mentions(message: discord.Message):
             content = content.replace(
                 f'<@&{role_mention.id}>',
                 f'@{role_mention.name}'
+            )
+    if message.channel_mentions:
+        for channel_mention in message.channel_mentions:
+            content = content.replace(
+                f'<#{channel_mention.id}>',
+                f'#{channel_mention.name}'
             )
     return content
 
