@@ -162,7 +162,7 @@ async def music_skip(ctx: commands.Context):
         if vc.autoplay == wavelink.AutoPlayMode.enabled and not vc.auto_queue.is_empty:
             vc.queue = vc.auto_queue.copy()
         else: return await ctx.reply("There are no songs in the queue to skip")
-    await ctx.reply(embed=music_embed("⏭️ Skip music", f"Now playing: `{vc.queue[0]}`"))
+    await ctx.reply(embed=music_embed("⏭️ Skip music", f"`{vc.current.author} - {vc.current.title}` has been skipped"))
     await vc.skip()
 
 async def music_stop(ctx: commands.Context):
@@ -276,11 +276,7 @@ async def queue_list(ctx: commands.Context, page: str):
     total = sum(t.length for t in current_queue)
     items_per_page = 5
     total_pages = (len(current_queue) + items_per_page - 1) // items_per_page
-    # Redirect to last page if requested page is out of range
-    if page > total_pages:
-        page = total_pages
-    elif page < 1:
-        page = 1
+    page = max(1, min(page, total_pages)) # Redirect to last page if requested page is out of range
     index = page - 1  # page 1 = index 0
     queue_context = current_queue[index * items_per_page:(index + 1) * items_per_page]
     queue_list = "\n".join([f"{i + 1 + (items_per_page * index)}. `{track.author} - {track.title}` ({format_mil(track.length)}) - {requester_string(ctx.bot, track)}" for i, track in enumerate(queue_context)])
@@ -345,11 +341,10 @@ async def queue_shuffle(ctx: commands.Context):
     if not vc: return await ctx.reply("voice client not found")
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first')
-    
-    if vc.queue:
-        vc.queue.shuffle()
-        embed = music_embed("🔀 Shuffle queue", f"`{len(vc.queue)}` songs have been randomized")
-        await ctx.reply(embed=embed)
+    if vc.queue.is_empty: return await ctx.reply(embed=music_embed("🔀 Shuffle queue", "The queue is empty"))
+    vc.queue.shuffle()
+    embed = music_embed("🔀 Shuffle queue", f"`{len(vc.queue)}` songs have been randomized")
+    await ctx.reply(embed=embed)
 
 async def queue_reset(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
@@ -360,7 +355,7 @@ async def queue_reset(ctx: commands.Context):
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first')
     vc.queue.reset()
-    await ctx.reply(embed=music_embed("🗑️ Reset queue", "Queue has been reset"))
+    await ctx.reply(embed=music_embed("🗑️ Clear queue", "The queue has been emptied"))
 
 async def queue_remove(ctx: commands.Context, index: str):
     if not ctx.guild: return await ctx.reply("not supported")
@@ -371,10 +366,10 @@ async def queue_remove(ctx: commands.Context, index: str):
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first')
     if not index.isdigit() or not int(index): return await ctx.reply("not a digit :(")
-    if not vc.queue.is_empty:
-        track = vc.queue.peek(min(int(index)-1, len(vc.queue)-1))
-        vc.queue.remove(track)
-        await ctx.reply(embed=music_embed("🗑️ Remove track", f"`{track.author} - {track.title}` has been removed"))
+    if vc.queue.is_empty: return await ctx.reply(embed=music_embed("🗑️ Remove track", "The queue is empty"))
+    track = vc.queue.peek(min(int(index)-1, len(vc.queue)-1))
+    vc.queue.remove(track)
+    await ctx.reply(embed=music_embed("🗑️ Remove track", f"`{track.author} - {track.title}` has been removed"))
 
 async def queue_replace(ctx: commands.Context, index: str, query: str):
     if not ctx.guild: return await ctx.reply("not supported")
@@ -385,15 +380,14 @@ async def queue_replace(ctx: commands.Context, index: str, query: str):
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first')
     if not index.isdigit() or not int(index): return await ctx.reply("not a digit :(")
-    if not vc.queue.is_empty:
-        try: tracks = await wavelink.Playable.search(query)
-        except Exception as e: return await ctx.reply(f'Error :(\n{e}')
-        if not tracks: return await ctx.reply('No results found')
-        real_index = min(int(index)-1, len(vc.queue)-1)
-        track = vc.queue.peek(real_index)
-        vc.queue[real_index] = tracks[0]
-        await ctx.reply(embed=music_embed("➡️ Replace track",
-                                          f"`{track.author} - {track.title}` has been removed and `{tracks[0].author} - {tracks[0].title}` has been replaced"))
+    if vc.queue.is_empty: return await ctx.reply(embed=music_embed("➡️ Replace track", "The queue is empty"))
+    try: tracks = await wavelink.Playable.search(query)
+    except Exception as e: return await ctx.reply(f'Error :(\n{e}')
+    if not tracks: return await ctx.reply('No results found')
+    real_index = min(int(index)-1, len(vc.queue)-1)
+    track = vc.queue.peek(real_index)
+    vc.queue[real_index] = tracks[0]
+    await ctx.reply(embed=music_embed("➡️ Replace track", f"`{track.author} - {track.title}` has been removed and `{tracks[0].author} - {tracks[0].title}` has been replaced"))
 
 async def queue_swap(ctx: commands.Context, init: str, dest: str):
     if not ctx.guild: return await ctx.reply("not supported")
@@ -404,14 +398,13 @@ async def queue_swap(ctx: commands.Context, init: str, dest: str):
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first')
     if not init.isdigit() or not dest.isdigit() or not int(init) or not int(dest): return await ctx.reply("not a digit :(")
-    if not vc.queue.is_empty:
-        index1 = min(int(init)-1, len(vc.queue)-1)
-        index2 = min(int(dest)-1, len(vc.queue)-1)
-        first = vc.queue.peek(index1)
-        second = vc.queue.peek(index2)
-        vc.queue.swap(index1, index2)
-        await ctx.reply(embed=music_embed("🔄 Swap tracks",
-                                          f"`{first.author} - {first.title}` is at position `{index2+1}` and `{second.author} - {second.title}` is at position `{index1+1}`"))
+    if vc.queue.is_empty: return await ctx.reply(embed=music_embed("🔄 Swap tracks", "The queue is empty"))
+    index1 = min(int(init)-1, len(vc.queue)-1)
+    index2 = min(int(dest)-1, len(vc.queue)-1)
+    first = vc.queue.peek(index1)
+    second = vc.queue.peek(index2)
+    vc.queue.swap(index1, index2)
+    await ctx.reply(embed=music_embed("🔄 Swap tracks", f"`{first.author} - {first.title}` is at position `{index2+1}` and `{second.author} - {second.title}` is at position `{index1+1}`"))
 
 async def queue_peek(ctx: commands.Context, index: str):
     if not ctx.guild: return await ctx.reply("not supported")
@@ -422,10 +415,10 @@ async def queue_peek(ctx: commands.Context, index: str):
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first')
     if not index.isdigit() or not int(index): return await ctx.reply("not a digit :(")
-    if not vc.queue.is_empty:
-        real_index = min(int(index)-1, len(vc.queue)-1)
-        track = vc.queue.peek(real_index)
-        await ctx.reply(embed=music_embed("🎵 Track index", f"{real_index+1}. `{track.author} - {track.title}` ({format_mil(track.length)})"))
+    if vc.queue.is_empty: return await ctx.reply(embed=music_embed("🎵 Track index", "The queue is empty"))
+    real_index = min(int(index)-1, len(vc.queue)-1)
+    track = vc.queue.peek(real_index)
+    await ctx.reply(embed=music_embed("🎵 Track index", f"{real_index+1}. `{track.author} - {track.title}` ({format_mil(track.length)})"))
 
 async def queue_move(ctx: commands.Context, init: str, dest: str):
     if not ctx.guild: return await ctx.reply("not supported")
@@ -436,13 +429,13 @@ async def queue_move(ctx: commands.Context, init: str, dest: str):
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first')
     if not init.isdigit() or not dest.isdigit() or not int(init) or not int(dest): return await ctx.reply("not a digit :(")
-    if not vc.queue.is_empty:
-        index1 = min(int(init)-1, len(vc.queue)-1)
-        index2 = min(int(dest)-1, len(vc.queue)-1)
-        track = vc.queue.peek(index1)
-        vc.queue.remove(track)
-        vc.queue.put_at(index2, track)
-        await ctx.reply(embed=music_embed("↕️ Move track", f"`{track.author} - {track.title}` is now at position `{index2+1}`"))
+    if vc.queue.is_empty: return await ctx.reply(embed=music_embed("↕️ Move track", "The queue is empty"))
+    index1 = min(int(init)-1, len(vc.queue)-1)
+    index2 = min(int(dest)-1, len(vc.queue)-1)
+    track = vc.queue.peek(index1)
+    vc.queue.remove(track)
+    vc.queue.put_at(index2, track)
+    await ctx.reply(embed=music_embed("↕️ Move track", f"`{track.author} - {track.title}` is now at position `{index2+1}`"))
 
 async def search_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     if not current: return []
