@@ -249,7 +249,7 @@ def check_bot_conflict(ctx: commands.Context | discord.Interaction):
     bot = ctx.guild.me
     moosic = bot.guild.get_member(1073823671392686162)
     if moosic:
-        if moosic != bot: return True
+        if moosic != bot and moosic in ctx.channel.members: return True
 
 class MusicUtil(commands.Cog):
     def __init__(self, bot):
