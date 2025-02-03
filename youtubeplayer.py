@@ -17,16 +17,17 @@ async def music_summon(ctx: commands.Context):
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not ctx.author.voice:
         return await ctx.reply(f'Join a voice channel first')
-    
-    if not ctx.voice_client:
-        try: vc = await voice_channel_connector(ctx)
-        except: 
-            if fixing: return await ctx.reply(content="Please try again later")
-            print("ChannelTimeoutException")
-            msg=await ctx.reply(content="An error occured. Reconnecting…")
-            await setup_hook_music(ctx.bot)
-            return await msg.edit(content="Please re-run the command")
-        vc.autoplay = wavelink.AutoPlayMode.enabled
+
+    if ctx.voice_client: return await ctx.reply(f"I'm already connected to {ctx.voice_client.channel.jump_url}\nPlease use a different bot (>_<)")
+    try: vc = await voice_channel_connector(ctx)
+    except:
+        if fixing: return await ctx.reply(content="Please try again later")
+        print("ChannelTimeoutException")
+        msg=await ctx.reply(content="An error occured. Reconnecting…")
+        await setup_hook_music(ctx.bot)
+        return await msg.edit(content="Please re-run the command")
+    vc.autoplay = wavelink.AutoPlayMode.enabled
+    await ctx.reply(f"Connected to {vc.channel.jump_url}")
 
 async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interaction, search: str):
     if not ctx.guild: return await ctx.reply("not supported")
@@ -49,7 +50,7 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
             return await msg.edit(content="not a disc jockey")
         if isinstance(ctx, discord.Interaction):
             return await ctx.edit_original_response(content="not a disc jockey")
-        
+
     vc = ctx.guild.voice_client
     if isinstance(ctx, commands.Context):
         if not ctx.author.voice or (vc and not ctx.author.voice.channel == vc.channel):
@@ -57,14 +58,14 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
     if isinstance(ctx, discord.Interaction):
         if not ctx.user.voice or (vc and not ctx.user.voice.channel == vc.channel):
             return await ctx.edit_original_response(content='Join the voice channel with the bot first')
-        
+
     if not search:
         p = await get_guild_prefix(ctx)
         if isinstance(ctx, commands.Context):
             return await msg.edit(content=f"usage: `{p}play <query>`")
         if isinstance(ctx, discord.Interaction):
             return await ctx.edit_original_response(content=f"usage: `{p}play <query>`")
-        
+
     try:
         tracks = await wavelink.Playable.search(search)
     except Exception as e:
@@ -72,7 +73,7 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
             return await msg.edit(content=f'Error :(\n{e}')
         if isinstance(ctx, discord.Interaction):
             return await ctx.edit_original_response(content=f'Error :(\n{e}')
-        
+
     if not tracks:
         if isinstance(ctx, commands.Context):
             return await msg.edit(content='No results found')
@@ -223,7 +224,7 @@ async def queue_search(bot: commands.Bot, ctx: commands.Context | discord.Intera
             return await msg.edit(content="not a disc jockey")
         if isinstance(ctx, discord.Interaction):
             return await ctx.edit_original_response(content="not a disc jockey")
-    
+
     vc = ctx.guild.voice_client
     if isinstance(ctx, commands.Context):
         if not ctx.author.voice or (vc and not ctx.author.voice.channel == vc.channel):
@@ -238,7 +239,7 @@ async def queue_search(bot: commands.Bot, ctx: commands.Context | discord.Intera
             return await msg.edit(content=f"usage: `{p}search <query>`")
         if isinstance(ctx, discord.Interaction):
             return await ctx.edit_original_response(content=f"usage: `{p}search <query>`")
-    
+
     try:
         tracks = await wavelink.Playable.search(search, source=source)
     except Exception as e:
@@ -252,7 +253,7 @@ async def queue_search(bot: commands.Bot, ctx: commands.Context | discord.Intera
             return await msg.edit(content='No results found')
         if isinstance(ctx, discord.Interaction):
             return await ctx.edit_original_response(content='No results found')
-    
+
     if isinstance(ctx, commands.Context):
         await msg.edit(content=None, embed=search_embed(search, tracks, 0), view=SearchView(bot, ctx, search, tracks, 0))
     if isinstance(ctx, discord.Interaction):
@@ -652,7 +653,7 @@ class YouTubePlayer(commands.Cog):
     #         "`-filters reset <filter>` will reset specific filter"
     #     ]
     #     await ctx.reply("\n".join(texts))
-    
+
     # @commands.hybrid_command(description="")
     # async def timescale(self, ctx: commands.Context, pitch:float=None, speed:float=None, rate:float=None):
     #     if not ctx.guild: return await ctx.reply("not supported")
