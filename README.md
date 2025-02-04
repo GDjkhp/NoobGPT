@@ -27,8 +27,8 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 
 ## Donate
 [`Paypal`](https://paypal.me/GDjkhp) • [`Patreon`](https://www.patreon.com/GDjkhp) • [`Fiverr`](https://www.fiverr.com/gdjkhp/develop-host-and-maintain-your-discord-bot) • [`Top.gg`](https://top.gg/bot/1090254079609020447)
-<details><summary><b>Why you should invest on NoobGPT?</b></summary>
-<h3>Running this bot cost me nothing so far!</h3>
+<details><summary><b>Why you should invest in NoobGPT?</b></summary>
+<h3>Running this bot has cost me nothing so far!</h3>
 <img src="https://gdjkhp.github.io/img/tenor.gif">
 </details>
 
