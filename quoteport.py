@@ -213,6 +213,8 @@ class CogQuote(commands.Cog):
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} {description_helper['utils']['quote']}")
     @app_commands.describe(msg_id="Message ID of the message you want to quote")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def quote(self, ctx: commands.Context, msg_id: str=None):
         await quote_this(ctx, msg_id)
 

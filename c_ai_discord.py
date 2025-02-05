@@ -1440,31 +1440,45 @@ class CogCAI(commands.Cog):
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} add character")
     @app_commands.describe(query="Search query")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def cadd(self, ctx: commands.Context, *, query:str=None):
         await add_char(ctx, query, 0)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} recommended characters")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def crec(self, ctx: commands.Context):
         await add_char(ctx, None, 2)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} trending characters")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def ctren(self, ctx: commands.Context):
         await add_char(ctx, None, 1)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} delete character")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def cdel(self, ctx: commands.Context):
         await delete_char(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} toggle admin approval")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def cadm(self, ctx: commands.Context):
         await t_adm(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} add/remove channel")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def cchan(self, ctx: commands.Context):
         await t_chan(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} set global message_rate")
     @app_commands.describe(rate="Set global message rate (Must be a valid integer: 0-100)")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def crate(self, ctx: commands.Context, *, rate:str=None):
         await set_rate(ctx, rate)
 
@@ -1473,46 +1487,66 @@ class CogCAI(commands.Cog):
         await c_help(ctx)
 
     @commands.hybrid_command(description=f'{description_helper["emojis"]["ai"]} {description_helper["ai"]["cai"]}'[:100])
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def cai(self, ctx: commands.Context):
         await c_help(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} toggle channel mode")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def cmode(self, ctx: commands.Context):
         await t_mode(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} available characters")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def cchar(self, ctx: commands.Context):
         await view_char(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} set char_message_rate per channel")
     @app_commands.describe(rate="Set character message rate per channel (Must be a valid integer: 0-100)")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def cedit(self, ctx: commands.Context, rate:str=None):
         await edit_char(ctx, rate)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} reset character")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def cres(self, ctx: commands.Context):
         await reset_char(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} set mention mode")
     @app_commands.autocomplete(mode=mode_auto)
     @app_commands.describe(mode="Set mention mode")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def cping(self, ctx: commands.Context, *, mode:str=None):
         await set_mention_mode(ctx, mode)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} set character voice")
     @app_commands.describe(query="Search query")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def cvoice(self, ctx: commands.Context, *, query:str=None):
         await voice_search(ctx, query)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} set voice mode")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def cvmode(self, ctx: commands.Context):
         await voice_mode(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} delete character voice")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def cvdel(self, ctx: commands.Context):
         await voice_delete(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} set voice only")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def cvonly(self, ctx: commands.Context):
         await voice_only(ctx)
 

@@ -132,7 +132,7 @@ class TiananmenSquare1989Cog(commands.Cog):
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} {description_helper['utils']['log']}")
     @app_commands.describe(channel_id="Channel ID of the channel you wish to become THE MESSAGE LOGGING CENTER!")
-    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def log(self, ctx: commands.Context, channel_id: str=None):
         await exceute_log_channel(ctx, channel_id)

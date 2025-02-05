@@ -649,24 +649,34 @@ class LevelInsult(commands.Cog):
 
     # xp level system
     @commands.hybrid_command(description=f'{description_helper["emojis"]["utils"]} {description_helper["utils"]["xp"]}')
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def xp(self, ctx: commands.Context):
         await toggle_xp(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} View a member's rank")
     @app_commands.describe(user_id="User ID of the member you want to see the rank of")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def rank(self, ctx: commands.Context, user_id:str=None):
         await user_rank(ctx, user_id)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} View server leaderboard")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def levels(self, ctx: commands.Context):
         await guild_lead(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} View level roles")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def xproleview(self, ctx: commands.Context):
         await view_xp_roles(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} Add level role")
     @app_commands.describe(level="Level role (`-1` = restricted, `0` = none, `1, 2, ...` = levels)")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def xproleadd(self, ctx: commands.Context, level:str=None):
         await add_xp_role(ctx, level)
 
@@ -675,47 +685,67 @@ class LevelInsult(commands.Cog):
                            multiplier="Set level role multiplier (please enter in `1.75x` or `1` format. use `0` for xp restriction, `-1` for none)", 
                            cooldown="Set level role cooldown (please enter a valid integer. use `-1` for none)",
                            role_id="Role ID of the level role you want to edit")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def xproleedit(self, ctx: commands.Context, role_id:str=None, keep:str=None, multiplier:str=None, cooldown:str=None):
         await edit_xp_role(ctx, role_id, keep, multiplier, cooldown)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} Delete level role")
     @app_commands.describe(role_id="Role ID of the role you want to delete")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def xproledel(self, ctx: commands.Context, role_id:str=None):
         await delete_xp_role(ctx, role_id)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} View custom level up messages")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def lvlmsgview(self, ctx: commands.Context):
         await view_lvlmsgs(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} Add custom level up message")
     @app_commands.describe(message="Add level up message")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def lvlmsgadd(self, ctx: commands.Context, *, message:str=None):
         await add_lvl_msg(ctx, message)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} Delete custom level up message")
     @app_commands.describe(message="Delete level up message")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def lvlmsgdel(self, ctx: commands.Context, *, message:str=None):
         await del_lvl_msg(ctx, message)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} Toggle troll level up messages")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def lvlmsgtroll(self, ctx: commands.Context):
         await toggle_troll(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} How to use XP system")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def xphelp(self, ctx: commands.Context):
         await help_level(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} Toggle XP channel")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def xpchan(self, ctx: commands.Context):
         await toggle_special_channel(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} Edit XP channel")
     @app_commands.describe(rate="Set channel xp rate (please enter in `1.75x` or `1` format. use `0` for xp restriction, `-1` for none)",
                            cooldown="Set channel xp cooldown (please enter a valid integer. use `-1` for none)")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def xpchanedit(self, ctx: commands.Context, rate:str=None, cooldown:str=None):
         await edit_special_channel(ctx, rate, cooldown)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} Set rank/leaderboard command channel")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def xprankchan(self, ctx: commands.Context):
         await rank_channel(ctx)
 
