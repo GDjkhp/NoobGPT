@@ -24,8 +24,9 @@ async def help_tv(ctx: commands.Context):
     if await command_check(ctx, "tv", "media"): return await ctx.reply("command disabled", ephemeral=True)
     p = await get_guild_prefix(ctx)
     sources = [
+        "no sources available :("
         # f"`{p}flix` sflix",
-        f"`{p}kiss` kisskh",
+        # f"`{p}kiss` kisskh",
         # f"`{p}kiss` kissasian",
     ]
     await ctx.reply("\n".join(sources))
@@ -443,12 +444,12 @@ class CogSflix(commands.Cog):
         if check_if_not_owner(ctx): return
         await set_domain(ctx, arg)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['tv']} sflix")
-    @app_commands.describe(query="Search query")
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def flix(self, ctx: commands.Context, *, query:str=None):
-        await Sflix(ctx, query)
+    # @commands.hybrid_command(description=f"{description_helper['emojis']['tv']} sflix")
+    # @app_commands.describe(query="Search query")
+    # @app_commands.allowed_installs(guilds=True, users=True)
+    # @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    # async def flix(self, ctx: commands.Context, *, query:str=None):
+    #     await Sflix(ctx, query)
 
     @commands.hybrid_command(description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["tv"]}')
     @app_commands.allowed_installs(guilds=True, users=True)
