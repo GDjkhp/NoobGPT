@@ -21,7 +21,7 @@ class YouTubePlayerMin(commands.Cog):
     @commands.command(name="mreset")
     async def reset(self, ctx: commands.Context):
         if check_if_not_owner(ctx): return
-        n: wavelink.Node = wavelink.Pool.get_node(identifier=self.bot.node_id)
+        n = wavelink.Pool.get_node(self.bot.node_id)
         if n: await n.close(eject=True)
         await setup_hook_music(self.bot)
 
