@@ -12,6 +12,9 @@ async def setup_hook_music(bot: commands.Bot):
     fixing=True
     nodes = []
     data = await node_list()
+    if bot.node_id:
+        n = wavelink.Pool.get_node(bot.node_id)
+        if n: await n.close(eject=True)
     bot.node_id = secrets.token_urlsafe(12)
     for lava in data:
         nodes.append(wavelink.Node(client=bot, uri=lava["host"], password=lava["password"], retries=3600, identifier=bot.node_id)) # 1 hour (1 retry = 60 secs)
@@ -273,8 +276,6 @@ class MusicUtil(commands.Cog):
     @commands.command(name="mreset")
     async def reset(self, ctx: commands.Context):
         if check_if_not_owner(ctx): return
-        n = wavelink.Pool.get_node(self.bot.node_id)
-        if n: await n.close(eject=True)
         await setup_hook_music(self.bot)
 
     @commands.command(name="msync")
