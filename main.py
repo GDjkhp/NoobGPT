@@ -44,6 +44,7 @@ class NoobGPT(commands.Bot):
                          help_command = None, allowed_mentions = mentions)
         self.token = os.getenv(token)
         self.identifier = token
+        self.node_id = None
 
     async def on_ready(self):
         print(f"{self.identifier} (c) {datetime.now().year} The Karakters Kompany. All rights reserved.")
