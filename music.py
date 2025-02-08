@@ -13,8 +13,10 @@ async def setup_hook_music(bot: commands.Bot):
     nodes = []
     data = await node_list()
     if bot.node_id:
-        n = wavelink.Pool.get_node(bot.node_id)
-        if n: await n.close(eject=True)
+        try:
+            n = wavelink.Pool.get_node(bot.node_id)
+            if n: await n.close(eject=True)
+        except Exception as e: print(e)
     bot.node_id = secrets.token_urlsafe(12)
     for lava in data:
         nodes.append(wavelink.Node(client=bot, uri=lava["host"], password=lava["password"], retries=3600, identifier=bot.node_id)) # 1 hour (1 retry = 60 secs)
