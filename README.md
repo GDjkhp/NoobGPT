@@ -1,13 +1,27 @@
-<img src="https://gdjkhp.github.io/img/tama-anim-merge.gif" width=256>
-
-## A **very simple yet complicated** multi-purpose Discord bot that does pretty much nothing but insult you.
-
+<img src="https://gdjkhp.github.io/img/tama-anim-merge.gif" width=256 align="right">
 <div align="center">
+A <b>very simple yet complicated</b> multi-purpose Discord bot that does pretty much nothing but insult you.
 <h3><a href="https://discord.com/api/oauth2/authorize?client_id=1120259379715903508&permissions=633731823291392&scope=applications.commands%20bot">Add to server</a>, <a href="https://discord.com/oauth2/authorize?client_id=1090254079609020447">install as user</a>, or <a href="discord://discord.com/users/1090254079609020447">send a direct message</a></h3>
 <a href="discord://discord.com/users/1090254079609020447">
 <img style="background-color: black;" src="https://discord.c99.nl/widget/theme-4/1090254079609020447.png" alt="Discord RPC isn't working!" title="Click here to visit my Discord Profile!">
 </a>
 </div>
+
+**Let me be with you! (>3<)**
+* I can generate AI text and images!
+* I can play music in voice channels!
+* I can lookup tv shows, movies, anime and manga!
+* I can download and convert YouTube videos!
+
+**You can customize me as your own! How cool is that!**
+* Set me up as a very helpful, precise and concise AI assistant chatbot, or not! I can help you cheat your homework, code the next ChatGPT, or even cook meth! I will insult you if you don't set me up this way >:(
+* Set up Character.AI characters! You can add up to 15 characters per channels/threads/forums. Either chat with them (if you need someone to talk to), or let them talk to each other (O_O)
+* Set up only nessesary commands you want! You don't want members learn how to cook meth. I'm fully modular when you think about it ;)
+* Set up DJ role for music! You don't want members spam "Thick of It" in the music VC.
+* Set up bot master role for your moderator homies! Let them handle me when shit happens.
+* Want further customizations? It's open source!
+
+> Hosting your own instance is recommended. 24/7 uptime is not guaranteed :(
 
 ## Source Code
 * <https://github.com/GDjkhp/level-up-loser-python-branch>
@@ -59,7 +73,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-g4f` gpt4free serves as a PoC (proof of concept), demonstrating the development of an API package with multi-provider requests, with features like timeouts, load balance and flow control.
 
 ## Games 🎲
-* `-aki (optional: category = [people/animals/objects] [language])` Play a guessing game of [Akinator](https://akinator.com).
+* `-aki (optional: category = [people/animals/objects] [language])` Play a guessing game of Akinator.
 * `-tic` Play tic-tac-toe with someone.
 * `-hang (optional: mode = [all/hardcore/me] count = [1-50] type = [any/word/quiz] category = [any/9-32] difficulty = [any/easy/medium/hard])` Play the word puzzle game of hangman.
 * `-quiz (optional: mode = [all/anon/me] version = [any/v1/v2] count = [1-50] category = [any/9-32] [difficulty = any/easy/medium/hard] [type = any/multiple/boolean])` Play a game of quiz.
@@ -72,7 +86,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-anime` Watch animated works originating in Japan.
 * `-manga` Read comics originating in Japan.
 * `-booru` A form of imageboard where images are categorized with tags.
-* `-ytdlp (optional: format = [mp3/m4a]) [link]` yt-dlp is a feature-rich command-line audio/video downloader with support for [thousands of sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md).
+* `-ytdlp (optional: format = [mp3/m4a]) [link]` yt-dlp is a feature-rich command-line audio/video downloader with support for [thousands of sites.](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md)
 * `-deez [link]` Streamrip is a scriptable stream downloader for Deezer.
 * `-img [format] [attachments]` Convert an image to a different format with Pillow.
     
@@ -87,24 +101,30 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-banner [user_id]` Return a user's Discord profile banner.
 
 ## Moosic
-<img src="https://gdjkhp.github.io/img/baka.jpg" width=256>
-
-## grass is greenr on the othr side
-
+<img src="https://gdjkhp.github.io/img/baka.jpg" width=256 align="right">
 <div align="center">
+grass is greenr on the othr side
 <h3><a href="https://discord.com/api/oauth2/authorize?client_id=1073823671392686162&permissions=412588788736&scope=applications.commands%20bot">Add to server</a></h3>
 <a href="discord://discord.com/users/1073823671392686162">
 <img style="background-color: black;" src="https://discord.c99.nl/widget/theme-4/1073823671392686162.png" alt="Discord RPC isn't working!" title="Click here to visit my Discord Profile!">
 </a>
 </div>
 
+**Packed with features that I stole from other music discord bots!**
+* Supports YouTube, Spotify, SoundCloud, Apple Music and more!
+* DJ role setup
+* Autoplay recommendations and smart shuffle
+* Fair queue
+* Multi voice channel support
+> No paywall BS! You get everything out-of-the-box for free.
+
 ## Bot Commands
 ### Supports slash and prefix commands.
 * `-music` Show commands help page
 
 ## Player commands
-* `-play <query>` Play music (Supports YouTube, Spotify, SoundCloud, Apple Music)
-* `-search <query>` Search music (Defaults to YouTube)
+* `-play <query>` Play music
+* `-search <query>` Search music
 * `-nowplaying` Now playing
 * `-pause` Pause music
 * `-resume` Resume music
