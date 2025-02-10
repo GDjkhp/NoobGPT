@@ -100,7 +100,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-avatar [user_id]` Return a user's Discord profile avatar.
 * `-banner [user_id]` Return a user's Discord profile banner.
 
-## Moosic
+# Moosic
 <img src="https://gdjkhp.github.io/img/baka.jpg" width=256 align="right">
 <div align="center">
 grass is greenr on the othr side
@@ -116,7 +116,8 @@ grass is greenr on the othr side
 * Autoplay recommendations and smart shuffle
 * Fair queue
 * Multi voice channel support
-> No paywall BS! You get everything out-of-the-box for free.
+
+> No paywall BS! You get everything out-of-the-box for free :)
 
 ## Bot Commands
 ### Supports slash and prefix commands.
