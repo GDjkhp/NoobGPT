@@ -22,7 +22,6 @@ from c_ai_discord import c_ai
 from custom_status import silly_activities
 from music import setup_hook_music
 from util_message import message_snitcher
-from gpt4free import setup_hook_ai
 if sys.platform == 'win32':
     asyncio.set_event_loop_policy(
         asyncio.WindowsSelectorEventLoopPolicy()
@@ -88,7 +87,6 @@ class NoobGPT(commands.Bot):
         self.loop.create_task(silly_activities(self))
         self.loop.create_task(setup_hook_music(self))
         if self.identifier == "NOOBGPT":
-            self.loop.create_task(setup_hook_ai())
             self.loop.create_task(main_gde(self))
             self.loop.create_task(main_rob(self))
         modules = moosic_modules if self.identifier == "MOOSIC" else noobgpt_modules
