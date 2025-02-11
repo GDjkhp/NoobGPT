@@ -3,13 +3,25 @@ import time
 import discord
 from discord import app_commands
 from discord.ext import commands
-from util_discord import model_helper, description_helper, command_check, get_guild_prefix
+from util_discord import description_helper, command_check, get_guild_prefix, check_if_not_owner
 from perplexity import loopMsgGH, loopMsgSlash, strip_dash
 from g4f.client import AsyncClient
 client = AsyncClient()
 
-models_image = model_helper["models_image"]
-models_text = model_helper["models_text"]
+from util_database import myclient
+mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
+models_image, models_text = [], []
+
+async def setup_hook_ai():
+    global models_image, models_text
+    cursor = mycol.find()
+    data = await cursor.to_list(None)
+    if data: models_image, models_text = data[0]["ai_img"], data[0]["ai_txt"]
+
+async def set_models(ctx: commands.Context, mode: str, arg: str):
+    model_list = arg.split()
+    await mycol.update_one({}, {"$set": {mode: model_list}})
+    await ctx.reply(f"{mode}: ```{model_list}```")
 
 async def the_free_req_img(prompt: str, model: str):
     response = await client.images.generate(
@@ -209,6 +221,21 @@ class GPT4UCog(commands.Cog):
     @commands.hybrid_command(description=f'{description_helper["emojis"]["ai"]} {description_helper["ai"]["g4f"]}'[:100])
     async def g4f(self, ctx: commands.Context):
         await g4f_help(ctx)
+
+    @commands.command()
+    async def aiimg(self, ctx: commands.Context, *, models):
+        if check_if_not_owner(ctx): return
+        await set_models(ctx, "ai_img", models)
+
+    @commands.command()
+    async def aitxt(self, ctx: commands.Context, *, models):
+        if check_if_not_owner(ctx): return
+        await set_models(ctx, "ai_txt", models)
+
+    @commands.command()
+    async def aireset(self, ctx: commands.Context):
+        if check_if_not_owner(ctx): return
+        await setup_hook_ai()
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(GPT4UCog(bot))

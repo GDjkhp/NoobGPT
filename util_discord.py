@@ -221,7 +221,6 @@ async def toggle_global_cat(server_id: int, cat: str):
 
 # public code for everyone to share, free to use
 description_helper = read_json_file("./res/mandatory_settings_and_splashes.json")["help_wanted_dictionaries_dead_or_alive"]
-model_helper = read_json_file("./res/mandatory_settings_and_splashes.json")["gpt4u"]
 
 def check_if_not_owner(ctx: commands.Context): # does not support interactions, deal with it
     return ctx.author.id != int(os.getenv("OWNER"))

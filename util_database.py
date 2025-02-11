@@ -9,6 +9,7 @@ async def add_database2(server_id: int):
         "prefix": "-",
         "bot_master_role": 0,
         "bot_dj_role": 0,
+        "bot_dj_channel": 0,
         "ai_mode": "",
         "ai_rate": 1,
         "ai_mention": True,
@@ -43,6 +44,9 @@ async def get_database2(server_id: int):
 
 async def set_dj_role_db(server_id: int, role_id):
     await mycol2.update_one({"guild":server_id}, {"$set": {"bot_dj_role": role_id}})
+
+async def set_dj_channel_db(server_id: int, channel_id):
+    await mycol2.update_one({"guild":server_id}, {"$set": {"bot_dj_channel": channel_id}})
 
 async def set_insult(server_id: int, b: bool):
     await mycol2.update_one({"guild":server_id}, {"$set": {"insult_module": b}})
