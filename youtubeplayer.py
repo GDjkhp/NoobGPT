@@ -161,7 +161,9 @@ async def music_skip(ctx: commands.Context):
 
     if vc.queue.is_empty:
         if vc.autoplay == wavelink.AutoPlayMode.enabled and not vc.auto_queue.is_empty:
-            vc.queue = vc.auto_queue.copy()
+            for x in vc.auto_queue:
+                await vc.queue.put_wait(x)
+            vc.auto_queue.reset()
         else: return await ctx.reply("There are no songs in the queue to skip")
     await ctx.reply(embed=music_embed("⏭️ Skip music", f"`{vc.current.author} - {vc.current.title}` has been skipped"))
     await vc.skip()
@@ -356,6 +358,7 @@ async def queue_reset(ctx: commands.Context):
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first')
     vc.queue.reset()
+    vc.auto_queue.reset()
     await ctx.reply(embed=music_embed("🗑️ Clear queue", "The queue has been emptied"))
 
 async def queue_remove(ctx: commands.Context, index: str):
@@ -437,6 +440,77 @@ async def queue_move(ctx: commands.Context, init: str, dest: str):
     vc.queue.remove(track)
     vc.queue.put_at(index2, track)
     await ctx.reply(embed=music_embed("↕️ Move track", f"`{track.author} - {track.title}` is now at position `{index2+1}`"))
+
+async def queue_smart(ctx: commands.Context):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if check_bot_conflict(ctx): return await ctx.reply("use moosic instead :)", ephemeral=True)
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+    vc: wavelink.Player = ctx.voice_client
+    if not vc: return await ctx.reply("voice client not found")
+    if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
+        return await ctx.reply(f'Join the voice channel with the bot first')
+    if vc.auto_queue.is_empty:
+        await vc._do_recommendation()
+    for x in vc.auto_queue:
+        await vc.queue.put_wait(x)
+    vc.queue.shuffle()
+    embed = music_embed("🔀 Smart Shuffle", f"`{len(vc.auto_queue)}` songs have been added")
+    vc.auto_queue.reset()
+    await ctx.reply(embed=embed)
+
+async def queue_fair(ctx: commands.Context):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if check_bot_conflict(ctx): return await ctx.reply("use moosic instead :)", ephemeral=True)
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+    vc: wavelink.Player = ctx.voice_client
+    if not vc: return await ctx.reply("voice client not found")
+    if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
+        return await ctx.reply(f'Join the voice channel with the bot first')
+    if vc.queue.is_empty:
+        return await ctx.reply(embed=music_embed("⚖️ Fair Queue", "The queue is empty"))
+    
+    # Get all unique requesters in the queue
+    requesters = []
+    requester_tracks = {}
+    
+    # Group tracks by requester
+    for track in vc.queue:
+        requester_id = requester_string(ctx.bot, track)
+        if requester_id not in requesters:
+            requesters.append(requester_id)
+            requester_tracks[requester_id] = []
+        requester_tracks[requester_id].append(track)
+    
+    if len(requesters) <= 1:
+        return await ctx.reply(embed=music_embed("⚖️ Fair Queue", "Queue is already fair"))
+    
+    # Start with a different requester than current if possible
+    current_requester = requester_string(ctx.bot, vc.current)
+    if current_requester in requesters:
+        requesters.remove(current_requester)
+        requesters.append(current_requester)
+    
+    # Create new fair queue
+    new_queue = []
+    max_rounds = max(len(tracks) for tracks in requester_tracks.values())
+    
+    # Distribute tracks round-robin style
+    for round in range(max_rounds):
+        for requester in requesters:
+            tracks = requester_tracks[requester]
+            if round < len(tracks):
+                new_queue.append(tracks[round])
+    
+    # Clear and refill the queue with fair distribution
+    vc.queue.reset()
+    for track in new_queue:
+        await vc.queue.put_wait(track)
+    
+    # Create summary of the new distribution
+    distribution = {requester: len(tracks) for requester, tracks in requester_tracks.items()}
+    summary = "\n".join([f"{requester}: {count} tracks" for requester, count in distribution.items()])
+    embed = music_embed("⚖️ Fair Queue", f"Queue has been reorganized to alternate between users fairly.\n\n**Distribution:**\n{summary}")
+    await ctx.reply(embed=embed)
 
 async def search_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     if not current: return []
@@ -581,6 +655,14 @@ class YouTubePlayer(commands.Cog):
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['queue']['clear']}")
     async def clear(self, ctx: commands.Context):
+        await queue_reset(ctx)
+
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['queue']['smartshuffle']}")
+    async def smartshuffle(self, ctx: commands.Context):
+        await queue_reset(ctx)
+
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['queue']['fair']}")
+    async def fair(self, ctx: commands.Context):
         await queue_reset(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['queue']['remove']}")

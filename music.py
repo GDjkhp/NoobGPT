@@ -2,7 +2,7 @@ import secrets
 import wavelink
 from discord.ext import commands
 import discord
-from util_discord import command_check, get_database2, set_dj_role_db, check_if_master_or_admin, check_if_not_owner
+from util_discord import command_check, get_database2, set_dj_role_db, set_dj_channel_db, check_if_master_or_admin, check_if_not_owner
 from util_database import myclient
 mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 fixing=False
@@ -19,7 +19,7 @@ async def setup_hook_music(bot: commands.Bot):
         except Exception as e: print(e)
     bot.node_id = secrets.token_urlsafe(12)
     for lava in data:
-        nodes.append(wavelink.Node(client=bot, uri=lava["host"], password=lava["password"], retries=3600, identifier=bot.node_id)) # 1 hour (1 retry = 60 secs)
+        nodes.append(wavelink.Node(client=bot, uri=lava["host"], password=lava["password"], retries=3, identifier=bot.node_id))
     await wavelink.Pool.connect(nodes=nodes)
     fixing=False
     print(f"{bot.identifier}: setup_hook_music ok")
@@ -45,6 +45,21 @@ async def node_list():
     cursor = mycol.find()
     data = await cursor.to_list(None)
     return data[0]["nodes"]
+
+async def set_dj_channel(ctx: commands.Context, chan_id: str):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin", ephemeral=True)
+    chan = None
+    if chan_id:
+        if chan_id == "off":
+            await set_dj_channel_db(ctx.guild.id, 0)
+            return await ctx.reply("dj channel has been disabled!")
+        if not chan_id.isdigit(): return await ctx.reply("not a digit :(")
+        chan = ctx.guild.get_channel(int(chan_id))
+    if not chan: chan = ctx.channel
+    await set_dj_channel_db(ctx.guild.id, chan.id)
+    await ctx.reply(f"{chan.jump_url} has been set as **THE DJ SPAM CHANNEL!**")
 
 async def set_dj_role(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
