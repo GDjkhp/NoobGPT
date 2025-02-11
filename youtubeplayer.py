@@ -659,11 +659,11 @@ class YouTubePlayer(commands.Cog):
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['queue']['smartshuffle']}")
     async def smartshuffle(self, ctx: commands.Context):
-        await queue_reset(ctx)
+        await queue_smart(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['queue']['fair']}")
     async def fair(self, ctx: commands.Context):
-        await queue_reset(ctx)
+        await queue_fair(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['queue']['remove']}")
     @app_commands.describe(index="Track number you want to remove (Must be a valid integer)")
