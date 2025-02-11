@@ -1,4 +1,4 @@
-<img src="https://gdjkhp.github.io/img/tama-anim-merge.gif" width=256 align="right">
+<img src="https://gdjkhp.github.io/img/tama-anim-merge.gif" width=256 align="right" style="background-color: transparent;">
 <div align="center">
 A <b>very simple yet complicated</b> multi-purpose Discord bot that does pretty much nothing but insult you.
 <h3><a href="https://discord.com/api/oauth2/authorize?client_id=1120259379715903508&permissions=633731823291392&scope=applications.commands%20bot">Add to server</a>, <a href="https://discord.com/oauth2/authorize?client_id=1090254079609020447">install as user</a>, or <a href="discord://discord.com/users/1090254079609020447">send a direct message</a></h3>
@@ -54,12 +54,12 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-help` Show commands help page
 
 ## AI 🤖
-<a href="https://openai.com"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/openai-white-lockup.png"></a>
-<a href="https://gemini.google.com"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/gemini.png"></a>
-<a href="https://mistral.ai"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/mistral.png"></a>
-<a href="https://www.anthropic.com"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/idGmbIn6Mx_logos.png"></a>
-<a href="https://www.deepseek.com"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/deepseek.png"></a>
-<a href="https://c.ai"><img width=128 style="padding: 15px; background-color:black;" src="https://gdjkhp.github.io/img/Character.AI.png"></a>
+<a href="https://openai.com"><img width=128 style="padding: 15px; background-color: black;" src="https://gdjkhp.github.io/img/openai-white-lockup.png"></a>
+<a href="https://gemini.google.com"><img width=128 style="padding: 15px; background-color: black;" src="https://gdjkhp.github.io/img/gemini.png"></a>
+<a href="https://mistral.ai"><img width=128 style="padding: 15px; background-color: black;" src="https://gdjkhp.github.io/img/mistral.png"></a>
+<a href="https://www.anthropic.com"><img width=128 style="padding: 15px; background-color: black;" src="https://gdjkhp.github.io/img/idGmbIn6Mx_logos.png"></a>
+<a href="https://www.deepseek.com"><img width=128 style="padding: 15px; background-color: black;" src="https://gdjkhp.github.io/img/deepseek.png"></a>
+<a href="https://c.ai"><img width=128 style="padding: 15px; background-color: black;" src="https://gdjkhp.github.io/img/Character.AI.png"></a>
 
 * `-openai` OpenAI is an AI research and deployment company. Our mission is to ensure that artificial general intelligence benefits all of humanity.
 * `-googleai` Google AI is a division of Google dedicated to artificial intelligence.
@@ -101,7 +101,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-banner [user_id]` Return a user's Discord profile banner.
 
 # Moosic
-<img src="https://gdjkhp.github.io/img/baka.jpg" width=256 align="right">
+<img src="https://gdjkhp.github.io/img/baka.jpg" width=256 align="right" style="background-color: transparent;">
 <div align="center">
 grass is greenr on the othr side
 <h3><a href="https://discord.com/api/oauth2/authorize?client_id=1073823671392686162&permissions=412588788736&scope=applications.commands%20bot">Add to server</a></h3>
