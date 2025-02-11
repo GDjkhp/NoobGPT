@@ -6,19 +6,20 @@ from util_discord import command_check, check_if_master_or_admin, description_he
 from util_database import get_database2, set_ai_mode, set_ai_rate, set_ai_mention
 from googleai import models_google, GEMINI_REST
 from perplexity import models_mistral, models_groq, models_github, main_mistral, main_groq, main_github
-from gpt4free import models_image, models_text, free_image, free_text, build_help
-models_master = models_text + models_image + ["off"]
+from gpt4free import get_models, free_image, free_text, build_help
 
 async def ai_respond_mode(ctx: commands.Context, model: str):
     if await command_check(ctx, "aimode", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin", ephemeral=True)
     id = ctx.guild.id if ctx.guild else ctx.channel.id
     db = await get_database2(id)
+    models_text, models_image = await get_models()
+    models_master = models_text + models_image + ["off"]
     if not model in models_master:
         current = None
         if db.get("ai_mode") and db["ai_mode"]:
             current = db["ai_mode"]
-        final_text = build_help(current) + [
+        final_text = await build_help(current) + [
             "# Get started",
             "* `-aimode <model>` setup ai",
             "  * Use `-aimode off` to disable AI response (reverts to `-insult`)\n",
@@ -40,6 +41,7 @@ async def ai_respond_mode(ctx: commands.Context, model: str):
 async def ted_talk_response(ctx: commands.Context, model):
     if await command_check(ctx, "g4f", "ai"):  return
     async with ctx.typing(): # users and discord itself will hate me for this
+        models_text, models_image = await get_models()
         if model in models_text:
             return await free_text(ctx, model, debug=False)
         if model in models_image:
@@ -77,6 +79,8 @@ async def ai_respond_mention(ctx: commands.Context):
     await ctx.reply(f"ai mode mention is now `{not b}`")
 
 async def model_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    models_text, models_image = await get_models()
+    models_master = models_text + models_image + ["off"]
     return [
         app_commands.Choice(name=model, value=model) for model in models_master if current.lower() in model.lower()
     ][:25]

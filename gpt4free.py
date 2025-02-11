@@ -10,13 +10,11 @@ client = AsyncClient()
 
 from util_database import myclient
 mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
-models_image, models_text = [], []
 
-async def setup_hook_ai():
-    global models_image, models_text
+async def get_models():
     cursor = mycol.find()
     data = await cursor.to_list(None)
-    if data: models_image, models_text = data[0]["ai_img"], data[0]["ai_txt"]
+    if data: return data[0]["ai_txt"], data[0]["ai_img"]
 
 async def set_models(ctx: commands.Context, mode: str, arg: str):
     model_list = arg.split()
@@ -153,7 +151,8 @@ def noobgpt_cleaner(ctx: commands.Context, text: str):
         if name in text: mod_text = mod_text.replace(name, "")
     return mod_text
 
-def build_help(current: str=None):
+async def build_help(current: str=None):
+    models_text, models_image = await get_models()
     def format_model(model: str) -> str:
         if current and model.lower() == current.lower():
             return f"> {model}"
@@ -170,7 +169,7 @@ def build_help(current: str=None):
 
 async def g4f_help(ctx: commands.Context):
     if await command_check(ctx, "g4f", "ai"): return await ctx.reply("command disabled", ephemeral=True)
-    final_text = build_help() + [
+    final_text = await build_help() + [
         "# Get started",
         "`-ask <prompt>` text generation (defaults to `gpt-4o`)",
         "`-imagine <prompt>` image generation (defaults to `flux`)",
@@ -179,13 +178,15 @@ async def g4f_help(ctx: commands.Context):
         "* Check out `-aimode` to set up AI responses on mentions",
     ]
     await ctx.reply("\n".join(final_text))
-    
+
 async def model_img_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    models_text, models_image = await get_models()
     return [
         app_commands.Choice(name=model, value=model) for model in models_image if current.lower() in model.lower()
     ][:25]
 
 async def model_txt_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    models_text, models_image = await get_models()
     return [
         app_commands.Choice(name=model, value=model) for model in models_text if current.lower() in model.lower()
     ][:25]
@@ -231,11 +232,6 @@ class GPT4UCog(commands.Cog):
     async def aitxt(self, ctx: commands.Context, *, models):
         if check_if_not_owner(ctx): return
         await set_models(ctx, "ai_txt", models)
-
-    @commands.command()
-    async def aireset(self, ctx: commands.Context):
-        if check_if_not_owner(ctx): return
-        await setup_hook_ai()
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(GPT4UCog(bot))
