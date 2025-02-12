@@ -98,10 +98,10 @@ async def start_bot(bot: commands.Bot):
 
 async def main():
     await asyncio.gather(
-        start_bot(NoobGPT("TEST")),
-        # start_bot(NoobGPT("MOOSIC")),
-        # start_bot(NoobGPT("KAGURA")),
-        # start_bot(NoobGPT("ZERO")),
+        start_bot(NoobGPT("NOOBGPT")),
+        start_bot(NoobGPT("MOOSIC")),
+        start_bot(NoobGPT("KAGURA")),
+        start_bot(NoobGPT("ZERO")),
     )
 
 if __name__ == "__main__":
