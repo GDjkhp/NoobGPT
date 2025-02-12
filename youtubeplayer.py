@@ -249,7 +249,7 @@ async def queue_search(bot: commands.Bot, ctx: commands.Context | discord.Intera
             return await msg.edit(content=f'Error :(\n{e}')
         if isinstance(ctx, discord.Interaction):
             return await ctx.edit_original_response(content=f'Error :(\n{e}')
-    
+
     if not tracks:
         if isinstance(ctx, commands.Context):
             return await msg.edit(content='No results found')
@@ -441,7 +441,7 @@ async def queue_move(ctx: commands.Context, init: str, dest: str):
     vc.queue.put_at(index2, track)
     await ctx.reply(embed=music_embed("↕️ Move track", f"`{track.author} - {track.title}` is now at position `{index2+1}`"))
 
-async def queue_smart(ctx: commands.Context):
+async def queue_smart(ctx: commands.Context, count: str):
     if not ctx.guild: return await ctx.reply("not supported")
     if check_bot_conflict(ctx): return await ctx.reply("use moosic instead :)", ephemeral=True)
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
@@ -449,8 +449,9 @@ async def queue_smart(ctx: commands.Context):
     if not vc: return await ctx.reply("voice client not found")
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first')
-    if vc.auto_queue.is_empty:
-        await vc._do_recommendation()
+    if not count: count="20"
+    if not count.isdigit() or not int(count): return await ctx.reply("not a digit :(")
+    await smart_recommendation(vc, max_population=int(count))
     for x in vc.auto_queue:
         await vc.queue.put_wait(x)
     vc.queue.shuffle()
@@ -468,11 +469,11 @@ async def queue_fair(ctx: commands.Context):
         return await ctx.reply(f'Join the voice channel with the bot first')
     if vc.queue.is_empty:
         return await ctx.reply(embed=music_embed("⚖️ Fair Queue", "The queue is empty"))
-    
+
     # Get all unique requesters in the queue
     requesters = []
     requester_tracks = {}
-    
+
     # Group tracks by requester
     for track in vc.queue:
         requester_id = requester_string(ctx.bot, track)
@@ -480,27 +481,27 @@ async def queue_fair(ctx: commands.Context):
             requesters.append(requester_id)
             requester_tracks[requester_id] = []
         requester_tracks[requester_id].append(track)
-    
+
     if len(requesters) <= 1:
         return await ctx.reply(embed=music_embed("⚖️ Fair Queue", "Queue is already fair"))
-    
+
     # Start with a different requester than current if possible
     current_requester = requester_string(ctx.bot, vc.current)
     if current_requester in requesters:
         requesters.remove(current_requester)
         requesters.append(current_requester)
-    
+
     # Create new fair queue
     new_queue = []
     max_rounds = max(len(tracks) for tracks in requester_tracks.values())
-    
+
     # Distribute tracks round-robin style
     for round in range(max_rounds):
         for requester in requesters:
             tracks = requester_tracks[requester]
             if round < len(tracks):
                 new_queue.append(tracks[round])
-    
+
     # Clear and refill the queue with fair distribution
     vc.queue.reset()
     for track in new_queue:
@@ -657,9 +658,9 @@ class YouTubePlayer(commands.Cog):
     async def clear(self, ctx: commands.Context):
         await queue_reset(ctx)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['queue']['smartshuffle']}")
-    async def smartshuffle(self, ctx: commands.Context):
-        await queue_smart(ctx)
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['queue']['smart']}")
+    async def smart(self, ctx: commands.Context, count: str=None):
+        await queue_smart(ctx, count)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['queue']['fair']}")
     async def fair(self, ctx: commands.Context):

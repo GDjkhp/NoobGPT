@@ -72,7 +72,7 @@
         "queue": {
             "list": "Show queue",
             "shuffle": "Shuffle queue",
-            "smartshuffle": "Smart shuffle queue",
+            "smart": "Smart shuffle queue",
             "fair": "Redistribute queue fairly",
             "clear": "Clear queue",
             "peek": "Peek track index",

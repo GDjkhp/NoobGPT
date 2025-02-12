@@ -1,4 +1,6 @@
 import secrets
+import asyncio
+import random
 import wavelink
 from discord.ext import commands
 import discord
@@ -149,6 +151,120 @@ def format_mil(milliseconds: int):
 
     return ":".join(formatted_time)
 
+# smart shuffle algorithm
+async def smart_recommendation(
+    vc: wavelink.Player,
+    *,
+    populate_track: wavelink.Playable | None = None,
+    max_population: int | None = 20,
+) -> None:
+    # Include both history and current queue in weighted selections
+    weighted_history: list[wavelink.Playable] = vc.queue.history[::-1][: max(5, 5 * vc._auto_weight)]
+    weighted_queue: list[wavelink.Playable] = vc.queue[:max(5, 5 * vc._auto_weight)]
+    weighted_upcoming: list[wavelink.Playable] = vc.auto_queue[: max(3, int((5 * vc._auto_weight) / 3))]
+    choices: list[wavelink.Playable | None] = [
+        *weighted_history,
+        *weighted_queue,
+        *weighted_upcoming,
+        vc.current,
+        vc._previous
+    ]
+
+    # Filter out None and dupllicate tracks
+    seeds: list[wavelink.Playable] = [t for t in choices if t is not None and t not in vc.queue]
+    random.shuffle(seeds)
+
+    if populate_track:
+        seeds.insert(0, populate_track)
+
+    spotify: list[str] = [t.identifier for t in seeds if t.source == "spotify"]
+    youtube: list[str] = [t.identifier for t in seeds if t.source == "youtube"]
+
+    spotify_query: str | None = None
+    youtube_query: str | None = None
+
+    # Consider both history and queue changes
+    count: int = len(vc.queue.history) + len(vc.queue)
+    changed_by: int = min(3, count) if vc._history_count is None else count - vc._history_count
+
+    if changed_by > 0:
+        vc._history_count = count
+
+    # Get recent tracks from both history and queue
+    changed_tracks: list[wavelink.Playable] = (
+        vc.queue.history[::-1][:changed_by] +
+        vc.queue[:changed_by]
+    )
+
+    added: int = 0
+    for i in range(min(len(changed_tracks), 3)):
+        track: wavelink.Playable = changed_tracks[i]
+
+        if added == 2 and track.source == "spotify":
+            break
+
+        if track.source == "spotify":
+            spotify.insert(0, track.identifier)
+            added += 1
+        elif track.source == "youtube":
+            youtube.insert(0, track.identifier)
+
+    if spotify:
+        spotify_seeds: list[str] = spotify[:3]
+        spotify_query = f"sprec:seed_tracks={','.join(spotify_seeds)}&limit=10"
+
+        for s_seed in spotify_seeds:
+            vc._add_to_previous_seeds(s_seed)
+
+    if youtube:
+        ytm_seed: str = youtube[0]
+        youtube_query = f"https://music.youtube.com/watch?v={ytm_seed}8&list=RD{ytm_seed}"
+        vc._add_to_previous_seeds(ytm_seed)
+
+    async def _search(query: str | None) -> list[wavelink.Playable] | wavelink.Playlist:
+        if query is None:
+            return []
+
+        try:
+            search: wavelink.Search = await wavelink.Pool.fetch_tracks(query, node=vc.node)
+        except (wavelink.LavalinkLoadException, wavelink.LavalinkException):
+            return []
+
+        if not search:
+            return []
+
+        tracks: list[wavelink.Playable] = search.tracks.copy() if isinstance(search, wavelink.Playlist) else search
+        return tracks
+
+    results: tuple[list[wavelink.Playable] | wavelink.Playlist, list[wavelink.Playable] | wavelink.Playlist] = await asyncio.gather(_search(spotify_query), _search(youtube_query))
+    filtered_r: list[wavelink.Playable] = [t for r in results for t in r]
+
+    if not filtered_r and not vc.auto_queue:
+        print(f'Player {vc.guild.id} could not load any songs via AutoPlay.')
+        return
+
+    # Include both queue and history in duplicate checking
+    history: list[wavelink.Playable] = (
+        vc.auto_queue[:40] +
+        vc.queue[:40] +
+        vc.queue.history[:-41:-1] +
+        vc.auto_queue.history[:-61:-1]
+    )
+
+    added: int = 0
+    random.shuffle(filtered_r)
+    for track in filtered_r:
+        if track in history:
+            continue
+
+        track._recommended = True
+        added += await vc.auto_queue.put_wait(track)
+
+        if added >= max_population:
+            break
+
+    print(f'Player {vc.guild.id} added {added} tracks to the auto_queue via AutoPlay.')
+
 # music search functions
 pagelimit=12
 def search_embed(arg: str, result: wavelink.Search, index: int) -> discord.Embed:
@@ -207,7 +323,7 @@ class nextPage(discord.ui.Button):
     def __init__(self, bot: commands.Bot, ctx: commands.Context, arg: str, result: wavelink.Search, index: int, l: str):
         super().__init__(emoji=l, style=discord.ButtonStyle.success)
         self.result, self.index, self.arg, self.ctx, self.bot = result, index, arg, ctx, bot
-    
+
     async def callback(self, interaction: discord.Interaction):
         if isinstance(self.ctx, commands.Context):
             if interaction.user != self.ctx.author:

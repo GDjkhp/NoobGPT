@@ -95,6 +95,15 @@ class YouTubePlayerMin(commands.Cog):
         await music_nowplaying(ctx)
 
     # queue
+    @commands.command()
+    async def search(self, ctx: commands.Context, *, query: str=None):
+        await queue_search(self.bot, ctx, query)
+
+    @commands.command()
+    @app_commands.describe(index="Track number you want to peek into (Must be a valid integer)")
+    async def peek(self, ctx: commands.Context, index: str):
+        await queue_peek(ctx, index)
+
     @commands.command() # alias
     async def queue(self, ctx: commands.Context, page: str=None):
         await queue_list(ctx, page)
@@ -134,6 +143,14 @@ class YouTubePlayerMin(commands.Cog):
     async def clear(self, ctx: commands.Context):
         await queue_reset(ctx)
 
+    @commands.command()
+    async def smart(self, ctx: commands.Context, count: str=None):
+        await queue_smart(ctx, count)
+
+    @commands.command()
+    async def fair(self, ctx: commands.Context):
+        await queue_fair(ctx)
+
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['queue']['remove']}")
     @app_commands.describe(index="Track number you want to remove (Must be a valid integer)")
     @app_commands.allowed_installs(guilds=True, users=False)
@@ -163,6 +180,11 @@ class YouTubePlayerMin(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def move(self, ctx: commands.Context, init: str, dest: str):
         await queue_move(ctx, init, dest)
+
+    @commands.command()
+    @app_commands.describe(value="Set value (Must be a valid integer: 0-100)")
+    async def volume(self, ctx: commands.Context, value: str=None):
+        await music_volume(ctx, value)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(YouTubePlayerMin(bot))
