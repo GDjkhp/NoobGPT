@@ -67,7 +67,8 @@
             "autoplay": "Toggle autoplay and recommended music",
             "voulume": "Set volume",
             "summon": "Join voice channel",
-            "dj": "Create DJ role"
+            "dj": "Create DJ role",
+            "djspam": "Set DJ spam channel"
         },
         "queue": {
             "list": "Show queue",
