@@ -39,6 +39,10 @@ class YouTubePlayerMin(commands.Cog):
     async def dj(self, ctx: commands.Context):
         await set_dj_role(ctx)
 
+    @commands.command()
+    async def djspam(self, ctx: commands.Context, channel_id: str=None):
+        await set_dj_channel(ctx, channel_id)
+
     # player
     @commands.command() # alias
     async def p(self, ctx: commands.Context, *, query: str=None):

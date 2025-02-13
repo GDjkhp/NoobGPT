@@ -84,6 +84,9 @@ async def set_dj_role(ctx: commands.Context):
 
 async def check_if_dj(ctx: commands.Context | discord.Interaction):
     db = await get_database2(ctx.guild.id)
+    if db.get("bot_dj_channel"):
+        if db["bot_dj_channel"]:
+            return db["bot_dj_channel"] == ctx.channel.id
     if db.get("bot_dj_role"):
         if db["bot_dj_role"]:
             if isinstance(ctx, commands.Context): r = ctx.author.roles
