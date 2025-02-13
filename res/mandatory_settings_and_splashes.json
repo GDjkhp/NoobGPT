@@ -56,8 +56,8 @@
             "insult": "[Insult 🤬]"
         },
         "player": {
-            "play": "Play music (Supports YouTube, Spotify, SoundCloud, Apple Music)",
-            "search": "Search music (Defaults to YouTube)",
+            "play": "Play music",
+            "search": "Search music",
             "nowplaying": "Now playing",
             "pause": "Pause music",
             "resume": "Resume music",

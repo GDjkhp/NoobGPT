@@ -44,6 +44,9 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 <details><summary><b>Why you should invest in NoobGPT?</b></summary>
 <h3>Running this bot has cost me nothing so far!</h3>
 <img src="https://gdjkhp.github.io/img/tenor.gif">
+<h3>Sponsors</h3>
+<li><code>jaicraft</code> Premium AI subscription access</li>
+<li><code>aychelletroller</code> $4.64 from Patreon (Join <a href="https://discord.gg/fv4st">Eternal Discord Server</a>)</li>
 </details>
 
 ## Bot Commands
@@ -110,12 +113,11 @@ grass is greenr on the othr side
 </a>
 </div>
 
-**Packed with features that I stole from other music discord bots!**
-* Supports YouTube, Spotify, SoundCloud, Apple Music and more!
-* DJ role setup
-* Autoplay recommendations and smart shuffle
-* Fair queue
-* Multi voice channel support
+**Packed with features I stole from other music discord bots!**
+* Supports YouTube, Spotify, SoundCloud, Apple Music, Deezer, and more!
+* DJ role and spam channel setup
+* Autoplay recommendations, smart shuffle, and fair queue
+* Multi voice channel support via NoobGPT
 
 > No paywall BS! You get everything out-of-the-box for free :)
 
@@ -136,10 +138,13 @@ grass is greenr on the othr side
 * `-volume <value>` Set volume
 * `-summon` Join voice channel
 * `-dj` Create DJ role
+* `-djspam` Set DJ spam channel
 
 ## Queue commands
 * `-list <page>` Show queue
 * `-shuffle` Shuffle queue
+* `-smart` Smart shuffle queue
+* `-fair` Redistribute queue fairly
 * `-clear` Clear queue
 * `-peek` Peek track index
 * `-remove <index>` Remove track

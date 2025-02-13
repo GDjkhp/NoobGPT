@@ -119,6 +119,8 @@ def music_now_playing_embed(bot: commands.Context, track: wavelink.Playable):
         embed.set_author(name="Bandcamp", icon_url="https://gdjkhp.github.io/img/bandcamp-button-circle-aqua-512.png")
     elif track.source == "applemusic":
         embed.set_author(name="Apple Music", icon_url="https://gdjkhp.github.io/img/applemoosic.png")
+    elif track.source == "deezer":
+        embed.set_author(name="Deezer", icon_url="https://gdjkhp.github.io/img/deez.png")
     else:
         embed.set_author(name=track.source)
         print(track.source)
