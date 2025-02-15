@@ -13,6 +13,11 @@ headers = {"cookie": os.getenv('PAHE')}
 pagelimit=12
 provider="https://gdjkhp.github.io/img/apdoesnthavelogotheysaidapistooplaintheysaid.png"
 base="https://animepahe.ru"
+# feat: mp4 dl (it just works): https://github.com/justfoolingaround/animdl/blob/master/animdl/core/codebase/providers/animepahe/inner/__init__.py
+CHARACTER_MAP = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/"
+KWIK_PARAMS_RE = re.compile(r'\("(\w+)",\d+,"(\w+)",(\d+),(\d+),\d+\)')
+KWIK_D_URL = re.compile(r'action="(.+?)"')
+KWIK_D_TOKEN = re.compile(r'value="(.+?)"')
 
 async def help_anime(ctx: commands.Context):
     if await command_check(ctx, "anime", "media"): return await ctx.reply("command disabled", ephemeral=True)
@@ -27,11 +32,37 @@ async def help_anime(ctx: commands.Context):
 async def new_req_old(url: str, headers: dict, json_mode: bool):
     async with aiohttp.ClientSession() as session:
         async with session.get(url, headers=headers) as response:
-            if response.status == 200: 
+            if response.status == 200:
                 return await response.json() if json_mode else await response.read()
 async def new_req(url: str, headers: dict, json_mode: bool):
     req = await session.get(url, headers=headers)
     return req.json() if json_mode else req.content
+def get_string(content, s1, s2):
+    slice_2 = CHARACTER_MAP[0:s2]
+    acc = 0
+    for n, i in enumerate(content[::-1]):
+        acc += int(i if i.isdigit() else 0) * s1**n
+    k = ""
+    while acc > 0:
+        k = slice_2[int(acc % s2)] + k
+        acc = (acc - (acc % s2)) / s2
+    return k or "0"
+def decrypt(full_string, key, v1, v2):
+    v1, v2 = int(v1), int(v2)
+    r = ""
+    i = 0
+    while i < len(full_string):
+        s = ""
+        while full_string[i] != key[v2]:
+            s += full_string[i]
+            i += 1
+        j = 0
+        while j < len(key):
+            s = s.replace(key[j], str(j))
+            j += 1
+        r += chr(int(get_string(s, v2, 10)) - v1)
+        i += 1
+    return r
 def soupify(data): return BS(data, "lxml")
 def get_max_page(length):
     if length % pagelimit != 0: return length - (length % pagelimit)
@@ -79,10 +110,10 @@ class CancelButton(discord.ui.Button):
     def __init__(self, ctx: commands.Context, r: int):
         super().__init__(emoji="❌", style=discord.ButtonStyle.success, row=r)
         self.ctx = ctx
-    
+
     async def callback(self, interaction: discord.Interaction):
-        if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
+        if interaction.user != self.ctx.author:
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.",
                                                            ephemeral=True)
         await interaction.response.defer()
         await interaction.delete_original_response()
@@ -96,12 +127,12 @@ class nextPage(discord.ui.Button):
     def __init__(self, ctx: commands.Context, arg: str, result: list, index: int, l: str):
         super().__init__(emoji=l, style=discord.ButtonStyle.success)
         self.result, self.index, self.arg, self.ctx = result, index, arg, ctx
-    
+
     async def callback(self, interaction: discord.Interaction):
-        if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
+        if interaction.user != self.ctx.author:
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.",
                                                            ephemeral=True)
-        await interaction.response.edit_message(embed=buildSearch(self.arg, self.result, self.index), 
+        await interaction.response.edit_message(embed=buildSearch(self.arg, self.result, self.index),
                                                 view=SearchView(self.ctx, self.arg, self.result, self.index))
 
 class SearchView(discord.ui.View):
@@ -128,15 +159,15 @@ class SelectChoice(discord.ui.Select):
     def __init__(self, ctx: commands.Context, index: int, result: list):
         super().__init__(placeholder=f"{min(index + pagelimit, len(result))}/{len(result)} found")
         i, self.result, self.ctx = index, result, ctx
-        while i < len(result): 
-            if (i < index+pagelimit): self.add_option(label=f"[{i + 1}] {result[i]['title']}"[:100], value=i, 
+        while i < len(result):
+            if (i < index+pagelimit): self.add_option(label=f"[{i + 1}] {result[i]['title']}"[:100], value=i,
                                                       description=f"{result[i]['season']} {result[i]['year']}")
             if (i == index+pagelimit): break
             i += 1
 
     async def callback(self, interaction: discord.Interaction):
-        if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
+        if interaction.user != self.ctx.author:
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.",
                                                            ephemeral=True)
         await interaction.response.edit_message(view=None)
         selected = self.result[int(self.values[0])]
@@ -165,10 +196,10 @@ class nextPageEP(discord.ui.Button):
     def __init__(self, ctx: commands.Context, details: list, index: int, row: int, l: str, urls: list, ep_texts: list):
         super().__init__(emoji=l, style=discord.ButtonStyle.success, row=row)
         self.details, self.index, self.ctx, self.urls, self.ep_texts = details, index, ctx, urls, ep_texts
-    
+
     async def callback(self, interaction: discord.Interaction):
-        if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
+        if interaction.user != self.ctx.author:
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.",
                                                            ephemeral=True)
         await interaction.response.edit_message(view=EpisodeView(self.ctx, self.details, self.urls, self.ep_texts, self.index))
 
@@ -202,10 +233,10 @@ class ButtonEpisode(discord.ui.Button):
     def __init__(self, ctx: commands.Context, index: int, url_session: str, ep_text: str, details: dict, row: int):
         super().__init__(label=ep_text.replace("Episode ", ""), style=discord.ButtonStyle.primary, row=row)
         self.index, self.url_session, self.ctx, self.details, self.ep_text = index, url_session, ctx, details, ep_text
-    
+
     async def callback(self, interaction: discord.Interaction):
-        if interaction.user != self.ctx.author: 
-            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
+        if interaction.user != self.ctx.author:
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.",
                                                            ephemeral=True)
         await interaction.response.defer()
         req = await new_req(f"{base}{self.url_session}", headers, False)
@@ -216,7 +247,7 @@ class ButtonEpisode(discord.ui.Button):
         msg_content = f"{self.details['title']}: {self.ep_text}"
         for x in range(len(urls)):
             msg_content += f"\n{x+1}. {texts[x]}"
-        await interaction.followup.send(msg_content, view=DownloadView(self.ctx, urls, self.details, self.index, texts, self.ep_text), 
+        await interaction.followup.send(msg_content, view=DownloadView(self.ctx, urls, self.details, self.index, texts, self.ep_text),
                                         ephemeral=True)
 
 class ButtonDownload(discord.ui.Button):
@@ -226,16 +257,21 @@ class ButtonDownload(discord.ui.Button):
 
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author:
-            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
+            return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.",
                                                            ephemeral=True)
         await interaction.response.defer()
         req = await new_req(self.url_fake, None, False)
         soup = soupify(req)
         script_tag = soup.find("script")
         match = re.search(r"https://kwik\.si/f/\w+", script_tag.string)
-        if match: 
-            await interaction.followup.send(f"{self.details['title']}: {self.ep_text} [{self.text}]", 
-                                            view=WatchView([match.group()]), ephemeral=True)
+        dl_page = await new_req(match.group(), None, False)
+        full_key, key, v1, v2 = KWIK_PARAMS_RE.search(dl_page.decode()).group(1, 2, 3, 4)
+        decrypted = decrypt(full_key, key, v1, v2)
+        head = {"Referer": "https://kwik.cx/"}
+        data = {"_token": KWIK_D_TOKEN.search(decrypted).group(1)}
+        semi_final = await session.post(KWIK_D_URL.search(decrypted).group(1), data=data, headers=head, allow_redirects=False)
+        await interaction.followup.send(f"{self.details['title']}: {self.ep_text} [{self.text}]",
+                                        view=WatchView([semi_final.headers["Location"]]), ephemeral=True)
 
 class DownloadView(discord.ui.View):
     def __init__(self, ctx: commands.Context, urls: list, details: dict, index: int, texts: list, ep_text: str):
