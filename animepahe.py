@@ -13,6 +13,7 @@ headers = {"cookie": os.getenv('PAHE')}
 pagelimit=12
 provider="https://gdjkhp.github.io/img/apdoesnthavelogotheysaidapistooplaintheysaid.png"
 base="https://animepahe.ru"
+
 # feat: mp4 dl (it just works): https://github.com/justfoolingaround/animdl/blob/master/animdl/core/codebase/providers/animepahe/inner/__init__.py
 CHARACTER_MAP = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/"
 KWIK_PARAMS_RE = re.compile(r'\("(\w+)",\d+,"(\w+)",(\d+),(\d+),\d+\)')
@@ -96,7 +97,7 @@ def buildAnime(details: dict) -> discord.Embed:
     embed = discord.Embed(title=details['title'], description=cook_deets, color=0x00ff00)
     embed.set_thumbnail(url=provider)
     embed.set_image(url = details['poster'])
-    embed.set_footer(text="Note: Use Adblockers :)")
+    embed.set_footer(text="Note: MP4 DL links expires, download them immediately!")
     return embed
 
 async def pahe_search(ctx: commands.Context, arg: str):
@@ -270,8 +271,8 @@ class ButtonDownload(discord.ui.Button):
         head = {"Referer": "https://kwik.cx/"}
         data = {"_token": KWIK_D_TOKEN.search(decrypted).group(1)}
         semi_final = await session.post(KWIK_D_URL.search(decrypted).group(1), data=data, headers=head, allow_redirects=False)
-        await interaction.followup.send(f"{self.details['title']}: {self.ep_text} [{self.text}]",
-                                        view=WatchView([semi_final.headers["Location"]]), ephemeral=True)
+        final_mp4 = semi_final.headers["Location"]
+        await interaction.followup.send(f"{self.details['title']}: {self.ep_text} [{self.text}]", view=WatchView([final_mp4]), ephemeral=True)
 
 class DownloadView(discord.ui.View):
     def __init__(self, ctx: commands.Context, urls: list, details: dict, index: int, texts: list, ep_text: str):
