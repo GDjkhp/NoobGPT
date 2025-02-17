@@ -180,11 +180,11 @@ def get_subtitle_flags(subtitle_text: str):
         return '🇩🇪'
     elif 'italian' in text:
         return '🇮🇹'
-    elif 'portuguese' in text and 'brazil' in text:
+    elif 'portuguese' in text and 'bra' in text:
         return '🇧🇷'
     elif 'russian' in text:
         return '🇷🇺'
-    elif 'spanish' in text and 'latin_america' in text:
+    elif 'spanish' in text and 'la' in text:
         return '🇪🇸'
     elif 'spanish' in text:
         return '🇲🇽'
