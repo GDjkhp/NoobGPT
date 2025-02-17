@@ -187,8 +187,6 @@ grass is greenr on the othr side
 * <https://github.com/xtekky/gpt4free>
 * <https://github.com/debakarr/kisskh-dl>
 * <https://github.com/ghoshRitesh12/aniwatch-api>
-* <https://github.com/videojs/video.js>
-* <https://github.com/videojs/themes>
 * <https://github.com/GDjkhp/ubel>
 
 ### Sites
