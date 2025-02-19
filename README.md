@@ -106,7 +106,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 
 # Moosic
 <div align="center">
-<img src="https://gdjkhp.github.io/img/baka.jpg" width=256 style="background-color: transparent;" align="right">
+<img src="https://gdjkhp.github.io/img/baka.jpg" width=256 style="background-color: transparent;" class="right">
 <br>
 grass is greenr on the othr side
 <h3><a href="https://discord.com/api/oauth2/authorize?client_id=1073823671392686162&permissions=412588788736&scope=applications.commands%20bot">Add to server</a></h3>
