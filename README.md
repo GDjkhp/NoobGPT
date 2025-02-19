@@ -1,6 +1,6 @@
 <div align="center">
 <img src="https://gdjkhp.github.io/img/tama-anim-merge.gif" width=256 style="background-color: transparent;" class="right">
-<br>
+<br class="br">
 A <b>very simple yet complicated</b> multi-purpose Discord bot that does pretty much nothing but insult you.
 <h3><a href="https://discord.com/api/oauth2/authorize?client_id=1120259379715903508&permissions=633731823291392&scope=applications.commands%20bot">Add to server</a>, <a href="https://discord.com/oauth2/authorize?client_id=1090254079609020447">install as user</a>, or <a href="discord://discord.com/users/1090254079609020447">send a direct message</a></h3>
 <a href="discord://discord.com/users/1090254079609020447">
@@ -107,7 +107,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 # Moosic
 <div align="center">
 <img src="https://gdjkhp.github.io/img/baka.jpg" width=256 style="background-color: transparent;" class="right">
-<br>
+<br class="br">
 grass is greenr on the othr side
 <h3><a href="https://discord.com/api/oauth2/authorize?client_id=1073823671392686162&permissions=412588788736&scope=applications.commands%20bot">Add to server</a></h3>
 <a href="discord://discord.com/users/1073823671392686162">
