@@ -1,4 +1,5 @@
 <div align="center">
+<a href="https://gdjkhp.github.io/NoobGPT" class="github"><h1>NoobGPT</h1></a>
 <img src="https://gdjkhp.github.io/img/tama-anim-merge.gif" width=256 style="background-color: transparent;" class="right">
 <br class="br">
 A <b>very simple yet complicated</b> multi-purpose Discord bot that does pretty much nothing but insult you.
