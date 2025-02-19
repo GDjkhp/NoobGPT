@@ -105,8 +105,8 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 * `-avatar [user_id]` Return a user's Discord profile avatar.
 * `-banner [user_id]` Return a user's Discord profile banner.
 
-# Moosic
 <div align="center">
+<h1 class="github"><a href="https://gdjkhp.github.io/NoobGPT/#moosic">Moosic</a></h1>
 <img src="https://gdjkhp.github.io/img/baka.jpg" width=256 style="background-color: transparent;" class="right">
 <br class="br">
 grass is greenr on the othr side
