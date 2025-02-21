@@ -152,7 +152,7 @@ class ButtonSelect4(discord.ui.Button):
     def __init__(self, ctx: commands.Context, index: int, result: list, row: int):
         super().__init__(label=index, style=discord.ButtonStyle.primary, row=row)
         self.result, self.ctx = result, ctx
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -176,7 +176,7 @@ class nextPage(discord.ui.Button):
     def __init__(self, ctx: commands.Context, arg: str, result: list, index: int, l: str):
         super().__init__(emoji=l, style=discord.ButtonStyle.success)
         self.result, self.index, self.arg, self.ctx = result, index, arg, ctx
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -216,7 +216,7 @@ class ButtonSelect5(discord.ui.Button):
         self.index = index
         self.sUrl = sUrl
         self.ctx = ctx
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -236,7 +236,7 @@ class nextPageEP(discord.ui.Button):
     def __init__(self, ctx: commands.Context, details: list, index: int, row: int, l: str):
         super().__init__(emoji=l, style=discord.ButtonStyle.success, row=row)
         self.details, self.index, self.ctx = details, index, ctx
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -247,7 +247,7 @@ class CancelButton(discord.ui.Button):
     def __init__(self, ctx: commands.Context, r: int):
         super().__init__(emoji="❌", style=discord.ButtonStyle.success, row=r)
         self.ctx = ctx
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 

@@ -31,7 +31,7 @@ noobgpt_modules = [
     "c_ai_discord", "stablehorde", "gpt4free", "perplexity", "openai_", "googleai", # "petals",
     "tictactoe", "aki", "hangman", "quiz", "wordle_", "rps_game",
     "gelbooru", "deeznuts", "sflix", "ytdlp_", "magick_pillow", "kiss_api", "hianime_api", "min_music", # "cobalt", "kissasian",
-    "gogoanime", "animepahe", "manganato", "mangadex",
+    "animepahe", "manganato", "mangadex", # "gogoanime",
     "custom_status", "level_insult", "respond_mode", "quoteport", "help", # "weather",
     "util_discord", "util_member", "util_message",
 ]
@@ -73,7 +73,7 @@ class NoobGPT(commands.Bot):
         self.loop.create_task(
             message_snitcher(before, after,"Message updated", f"#{before.channel}", 0x00ff00)
         )
-    
+
     async def on_message_delete(self, message: discord.Message):
         if self.identifier == "MOOSIC": return
         self.loop.create_task(
