@@ -272,7 +272,13 @@ class ButtonDownload(discord.ui.Button):
         data = {"_token": KWIK_D_TOKEN.search(decrypted).group(1)}
         semi_final = await session.post(KWIK_D_URL.search(decrypted).group(1), data=data, headers=head, allow_redirects=False)
         final_mp4 = semi_final.headers["Location"]
-        await interaction.followup.send(f"{self.details['title']}: {self.ep_text} [{self.text}]", view=WatchView([final_mp4]), ephemeral=True)
+        code_tags = soup.find_all('code')
+        txt_content = [
+            f"{self.details['title']}: {self.ep_text} [{self.text}]",
+            f"CRC32: `{code_tags[0].text}`",
+            f"MD5: `{code_tags[1].text}`"
+        ]
+        await interaction.followup.send("\n".join(txt_content), view=WatchView([final_mp4]), ephemeral=True)
 
 class DownloadView(discord.ui.View):
     def __init__(self, ctx: commands.Context, urls: list, details: dict, index: int, texts: list, ep_text: str):

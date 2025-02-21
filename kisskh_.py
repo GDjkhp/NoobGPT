@@ -3,7 +3,6 @@ from typing import Any, Dict, List
 from pydantic import BaseModel, Field, RootModel
 from quickjs import Context as quickjsContext
 from bs4 import BeautifulSoup as BS
-import re
 
 class Episode(BaseModel):
     id: int
@@ -178,8 +177,6 @@ class KissKHApi:
         kkey = await self._get_token(episode_id)
         stream_api_url = self._stream_api_url(episode_id, kkey)
         response = await self._request(stream_api_url)
-        # m3u8_list = await self._parse_m3u8_links(response.get("Video"))
-        # return m3u8_list
         return response.get("Video")
 
     async def get_drama(self, drama_id: int):
@@ -203,45 +200,3 @@ class KissKHApi:
         # evaluate js code to generate token
         token = quickjs_context.eval(token_generation_js_code + f'_0x54b991({episode_id}, null, "2.8.10", "62f176f3bb1b5b8e70e39932ad34a0c7", 4830201,  "kisskh", "kisskh", "kisskh", "kisskh", "kisskh", "kisskh")')
         return token
-    
-    async def _parse_m3u8_links(self, master_m3u8_link):
-        '''
-        parse master m3u8 data and return dict of resolutions and m3u8 links
-        '''
-        m3u8_links = []
-        base_url = '/'.join(master_m3u8_link.split('/')[:-1])
-        master_m3u8_data = await self._request(master_m3u8_link, False) # NOTE: removed referer
-        print(f'Master m3u8 data: {master_m3u8_data}')
-
-        _regex_list = lambda data, rgx, grp: [ url.group(grp) for url in re.finditer(rgx, data) ]
-        _full_link = lambda link: link if link.startswith('http') else base_url + '/' + link
-        resolutions = _regex_list(master_m3u8_data, r'RESOLUTION=(\d+x\d+)', 1)
-        resolution_names = _regex_list(master_m3u8_data, 'NAME="(.*)"', 1)
-        if len(resolution_names) == 0:
-            resolution_names = [ res.lower().split('x')[-1] for res in resolutions ]
-        resolution_links = _regex_list(master_m3u8_data, '(.*)m3u8', 0)
-        print(f'Resolutions data: {resolutions}, {resolution_names}, {resolution_links}')
-
-        if len(resolution_links) == 0:
-            # check for original keyword in the link, or if '#EXT-X-ENDLIST' in m3u8 data
-            master_is_child = re.search('#EXT-X-ENDLIST', master_m3u8_data)
-            if 'original' in master_m3u8_link or master_is_child:
-                m3u8_links.append({
-                    'downloadLink': master_m3u8_link,
-                    'downloadType': 'hls'
-                })
-
-            return m3u8_links
-
-        # calculate duration from any resolution, as it is same for all resolutions
-        for _res, _pixels, _link in zip(resolution_names, resolutions, resolution_links):
-            # prepend base url if it is relative url
-            m3u8_link = _full_link(_link)
-            m3u8_links.append({
-                'resolution': _res.replace('p',''),
-                'resolution_size': _pixels,
-                'downloadLink': m3u8_link,
-                'downloadType': 'hls',
-            })
-
-        return m3u8_links
