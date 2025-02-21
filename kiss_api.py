@@ -196,11 +196,10 @@ class CogKisskh(commands.Cog):
         if check_if_not_owner(ctx): return
         await set_domain(ctx, arg)
 
-    # @commands.hybrid_command(description=f"{description_helper['emojis']['tv']} kisskh")
-    # @app_commands.describe(query="Search query")
-    # @app_commands.allowed_installs(guilds=True, users=True)
-    # @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    @commands.command()
+    @commands.hybrid_command(description=f"{description_helper['emojis']['tv']} kisskh")
+    @app_commands.describe(query="Search query")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def kiss(self, ctx: commands.Context, *, query:str=None):
         await kisskh_search(ctx, query)
 
