@@ -13,7 +13,7 @@ client, client_dood = HttpClient(), HttpClient()
 title, url, aid, mv_tv, poster = 0, 1, 2, 3, 4
 desc, ep, animetype, released, genre = 2, 3, 5, 6, 7
 pagelimit = 12
-gogoanime = "https://anitaku.pe"
+gogoanime = "https://anitaku.bz"
 provider="https://gdjkhp.github.io/img/logo.png"
 
 async def get_domain():
