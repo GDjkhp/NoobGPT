@@ -272,6 +272,7 @@ class ButtonDownload(discord.ui.Button):
         data = {"_token": KWIK_D_TOKEN.search(decrypted).group(1)}
         semi_final = await session.post(KWIK_D_URL.search(decrypted).group(1), data=data, headers=head, allow_redirects=False)
         final_mp4 = semi_final.headers["Location"]
+        soup = soupify(dl_page)
         code_tags = soup.find_all('code')
         txt_content = [
             f"{self.details['title']}: {self.ep_text} [{self.text}]",
