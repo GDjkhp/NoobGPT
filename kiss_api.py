@@ -8,7 +8,7 @@ mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 kiss = "https://kisskh.id"
 kiss_api = kisskh_.KissKHApi(kiss)
 provider="https://gdjkhp.github.io/img/kisskh.png"
-ubel="https://gdjkhp.github.io/ubel/?url=" # FIXME: it works on my machine
+ubel="https://gdjkhp.github.io/ubel/?url="
 pagelimit=12
 
 async def get_domain():
@@ -155,7 +155,8 @@ class WatchView(discord.ui.View):
     def __init__(self, links: list):
         super().__init__(timeout=None)
         for x in links[:25]:
-            self.add_item(discord.ui.Button(style=discord.ButtonStyle.link, url=x, emoji="🎞️",
+            self.add_item(discord.ui.Button(style=discord.ButtonStyle.link, emoji="🎞️",
+                                            url=f"{ubel}{x}",
                                             label=f"Watch Full HD Movies & TV Shows"))
 
 # utils

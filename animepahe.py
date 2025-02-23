@@ -8,23 +8,23 @@ from util_discord import command_check, description_helper, get_guild_prefix
 from curl_cffi.requests import AsyncSession
 from discord import app_commands
 
-session = AsyncSession(impersonate='chrome110')
-headers = {"cookie": os.getenv('PAHE')}
-pagelimit=12
-provider="https://gdjkhp.github.io/img/apdoesnthavelogotheysaidapistooplaintheysaid.png"
 base="https://animepahe.ru"
+provider="https://gdjkhp.github.io/img/apdoesnthavelogotheysaidapistooplaintheysaid.png"
+pagelimit=12
+headers = {"cookie": os.getenv('PAHE'), "referer": base}
+session = AsyncSession(impersonate='chrome110')
 
 # feat: mp4 dl (it just works): https://github.com/justfoolingaround/animdl/blob/master/animdl/core/codebase/providers/animepahe/inner/__init__.py
 CHARACTER_MAP = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/"
 KWIK_PARAMS_RE = re.compile(r'\("(\w+)",\d+,"(\w+)",(\d+),(\d+),\d+\)')
 KWIK_D_URL = re.compile(r'action="(.+?)"')
 KWIK_D_TOKEN = re.compile(r'value="(.+?)"')
+regex_extract = lambda rgx, txt, grp: re.search(rgx, txt).group(grp) if re.search(rgx, txt) else False
 
 async def help_anime(ctx: commands.Context):
     if await command_check(ctx, "anime", "media"): return await ctx.reply("command disabled", ephemeral=True)
     p = await get_guild_prefix(ctx)
     sources = [
-        f"`{p}gogo` gogoanime",
         f"`{p}pahe` animepahe",
         f"`{p}aniwatch` hianime",
     ]
@@ -64,6 +64,30 @@ def decrypt(full_string, key, v1, v2):
         r += chr(int(get_string(s, v2, 10)) - v1)
         i += 1
     return r
+def parse_m3u8_link(text):
+    '''
+    parse m3u8 link using javascript's packed function implementation
+    '''
+    x = r"\}\('(.*)'\)*,*(\d+)*,*(\d+)*,*'((?:[^'\\]|\\.)*)'\.split\('\|'\)*,*(\d+)*,*(\{\})"
+    try:
+        p, a, c, k, e, d = re.findall(x, text)[0]
+        p, a, c, k, e, d = p, int(a), int(c), k.split('|'), int(e), {}
+    except Exception as e:
+        raise Exception('m3u8 link extraction failed. Unable to extract packed args')
+
+    def e(c):
+        x = '' if c < a else e(int(c/a))
+        c = c % a
+        return x + (chr(c + 29) if c > 35 else '0123456789abcdefghijklmnopqrstuvwxyz'[c])
+
+    for i in range(c): d[e(i)] = k[i] or e(i)
+    parsed_js_code = re.sub(r'\b(\w+)\b', lambda e: d.get(e.group(0)) or e.group(0), p)
+
+    parsed_link = regex_extract('http.*.m3u8', parsed_js_code, 0)
+    if not parsed_link:
+        raise Exception('m3u8 link extraction failed. link not found')
+
+    return parsed_link
 def soupify(data): return BS(data, "lxml")
 def get_max_page(length):
     if length % pagelimit != 0: return length - (length % pagelimit)
@@ -243,18 +267,20 @@ class ButtonEpisode(discord.ui.Button):
         req = await new_req(f"{base}{self.url_session}", headers, False)
         soup = soupify(req)
         items = soup.find("div", {"id": "pickDownload"}).findAll("a")
+        embeds = soup.find("div", {"id": "resolutionMenu"}).findAll("button")
+        embeds = [e["data-src"] for e in embeds]
         urls = [items[i].get("href") for i in range(len(items))]
         texts = [items[i].text for i in range(len(items))]
         msg_content = f"{self.details['title']}: {self.ep_text}"
         for x in range(len(urls)):
             msg_content += f"\n{x+1}. {texts[x]}"
-        await interaction.followup.send(msg_content, view=DownloadView(self.ctx, urls, self.details, self.index, texts, self.ep_text),
+        await interaction.followup.send(msg_content, view=DownloadView(self.ctx, urls, self.details, self.index, texts, self.ep_text, embeds),
                                         ephemeral=True)
 
 class ButtonDownload(discord.ui.Button):
-    def __init__(self, ctx: commands.Context, url_fake: str, l: str, details: dict, index: int, text: str, ep_text: str):
+    def __init__(self, ctx: commands.Context, url_fake: str, l: str, details: dict, index: int, text: str, ep_text: str, embed: str):
         super().__init__(label=l+1)
-        self.url_fake, self.ctx, self.details, self.index, self.text, self.ep_text = url_fake, ctx, details, index, text, ep_text
+        self.url_fake, self.ctx, self.details, self.index, self.text, self.ep_text, self.embed = url_fake, ctx, details, index, text, ep_text, embed
 
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author:
@@ -272,27 +298,40 @@ class ButtonDownload(discord.ui.Button):
         data = {"_token": KWIK_D_TOKEN.search(decrypted).group(1)}
         semi_final = await session.post(KWIK_D_URL.search(decrypted).group(1), data=data, headers=head, allow_redirects=False)
         final_mp4 = semi_final.headers["Location"]
-        soup = soupify(dl_page)
-        code_tags = soup.find_all('code')
+        req_embed = await new_req(self.embed, headers, False)
+        m3u8 = parse_m3u8_link(req_embed.decode())
+        soup_code = soupify(dl_page)
+        code_tags = soup_code.find_all('code')
         txt_content = [
             f"{self.details['title']}: {self.ep_text} [{self.text}]",
             f"CRC32: `{code_tags[0].text}`",
             f"MD5: `{code_tags[1].text}`"
         ]
-        await interaction.followup.send("\n".join(txt_content), view=WatchView([final_mp4]), ephemeral=True)
+        real_links = [
+            {
+                "emoji": "▶️",
+                "label": "Stream",
+                "url": f"https://gdjkhp.github.io/ubel/?url={m3u8}"
+            },
+            {
+                "emoji": "⬇️",
+                "label": "Download",
+                "url": final_mp4
+            }
+        ]
+        await interaction.followup.send("\n".join(txt_content), view=WatchView(real_links), ephemeral=True)
 
 class DownloadView(discord.ui.View):
-    def __init__(self, ctx: commands.Context, urls: list, details: dict, index: int, texts: list, ep_text: str):
+    def __init__(self, ctx: commands.Context, urls: list, details: dict, index: int, texts: list, ep_text: str, embeds: list):
         super().__init__(timeout=None)
         for x in range(len(urls)):
-            self.add_item(ButtonDownload(ctx, urls[x], x, details, index, texts[x], ep_text))
+            self.add_item(ButtonDownload(ctx, urls[x], x, details, index, texts[x], ep_text, embeds[x]))
 
 class WatchView(discord.ui.View):
     def __init__(self, links: list):
         super().__init__(timeout=None)
         for x in links[:25]:
-            self.add_item(discord.ui.Button(style=discord.ButtonStyle.link, url=x, emoji="🎞️",
-                                            label=f"Watch Full HD Movies & TV Shows"))
+            self.add_item(discord.ui.Button(style=discord.ButtonStyle.link, url=x["url"], emoji=x["emoji"], label=x["label"]))
 
 class CogPahe(commands.Cog):
     def __init__(self, bot):
