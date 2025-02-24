@@ -1,8 +1,9 @@
-import aiohttp
 from typing import Any, Dict, List
 from pydantic import BaseModel, Field, RootModel
 from quickjs import Context as quickjsContext
 from bs4 import BeautifulSoup as BS
+from curl_cffi.requests import AsyncSession
+session = AsyncSession(impersonate='chrome123')
 
 class Episode(BaseModel):
     id: int
@@ -112,20 +113,17 @@ class KissKHApi:
         """
         return f"{self.base_url}/api/DramaList/Episode/{episode_id}.png?kkey={kkey}"
 
-    async def _request(self, url: str, json: bool=True):
+    async def _request(self, url: str, json: bool=True, content_type: str=None) -> Any:
         """Helper for all the request call
 
         :param url: url to do the get request on
         :return: reponse for a specific get request
         """
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                if response.status == 200:
-                    if not json: return await response.text()
-                    content_type = None
-                    if response.content_type == "image/png":
-                        content_type = "image/png"
-                    return await response.json(content_type=content_type)
+        response = await session.get(url)
+        print(response.content.decode())
+        if not json: return response.content.decode()
+        if content_type: return response.json(content_type=content_type)
+        return response.json()
 
     async def get_episode_ids(self, drama_id: int) -> Dict[int, int]:
         """Get episode ids for a specific drama
@@ -176,7 +174,7 @@ class KissKHApi:
         """
         kkey = await self._get_token(episode_id)
         stream_api_url = self._stream_api_url(episode_id, kkey)
-        response = await self._request(stream_api_url)
+        response = await self._request(stream_api_url, content_type="image/png")
         return response.get("Video")
 
     async def get_drama(self, drama_id: int):
