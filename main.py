@@ -38,12 +38,14 @@ noobgpt_modules = [
 moosic_modules = [
     "util_discord", "youtubeplayer", "music",
 ]
+zero_modules = noobgpt_modules + ["util_channel"]
 
 class NoobGPT(commands.Bot):
-    def __init__(self, token):
+    def __init__(self, token, modules):
         super().__init__(command_prefix = get_prefix, intents = intents, 
                          help_command = None, allowed_mentions = mentions)
         self.token = os.getenv(token)
+        self.modules = modules
         self.identifier = token
         self.node_id = None
 
@@ -89,19 +91,18 @@ class NoobGPT(commands.Bot):
         if self.identifier == "NOOBGPT":
             self.loop.create_task(main_gde(self))
             self.loop.create_task(main_rob(self))
-        modules = moosic_modules if self.identifier == "MOOSIC" else noobgpt_modules
-        for module in modules:
+        for module in self.modules:
             await self.load_extension(module)
 
-async def start_bot(bot: commands.Bot):
+async def start_bot(bot: NoobGPT):
     await bot.start(bot.token)
 
 async def main():
     await asyncio.gather(
-        start_bot(NoobGPT("NOOBGPT")),
-        start_bot(NoobGPT("MOOSIC")),
-        start_bot(NoobGPT("KAGURA")),
-        start_bot(NoobGPT("ZERO")),
+        start_bot(NoobGPT("NOOBGPT", noobgpt_modules)),
+        start_bot(NoobGPT("MOOSIC", moosic_modules)),
+        start_bot(NoobGPT("KAGURA", noobgpt_modules)),
+        start_bot(NoobGPT("ZERO", zero_modules)),
     )
 
 if __name__ == "__main__":
