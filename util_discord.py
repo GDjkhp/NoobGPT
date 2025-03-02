@@ -262,7 +262,7 @@ class DiscordUtil(commands.Cog):
     async def chanmode(self, ctx: commands.Context):
         await command_channel_mode(ctx)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Toggle command. Requires channel mode")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Toggle command (Requires channel mode)")
     @app_commands.describe(command="Command you want to enable")
     @app_commands.autocomplete(command=catcom_auto)
     @app_commands.allowed_installs(guilds=True, users=True)
@@ -270,7 +270,7 @@ class DiscordUtil(commands.Cog):
     async def toggle(self, ctx: commands.Context, command:str=None):
         await command_enable(ctx, command)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Disable command server-wide")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Toggle command server-wide")
     @app_commands.describe(command="Command you want to disable")
     @app_commands.autocomplete(command=catcom_auto)
     @app_commands.allowed_installs(guilds=True, users=True)
