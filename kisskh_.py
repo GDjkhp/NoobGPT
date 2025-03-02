@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field, RootModel
 from quickjs import Context as quickjsContext
 from bs4 import BeautifulSoup as BS
 from curl_cffi.requests import AsyncSession
-session = AsyncSession(impersonate='chrome123')
+session = AsyncSession(impersonate='chrome')
 
 class Episode(BaseModel):
     id: int
