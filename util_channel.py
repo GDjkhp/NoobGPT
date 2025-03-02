@@ -7,6 +7,7 @@ async def create_sus_txtchannel(ctx: commands.Context, name: str):
     if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "channel", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin", ephemeral=True)
+    if not name: return await ctx.reply(":(")
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.administrator:
         return await ctx.reply("**THIS FEATURE REQUIRES ADMIN PERMS FOR NOOBGPT :(**")
@@ -22,6 +23,7 @@ async def create_sus_vchannel(ctx: commands.Context, name: str):
     if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "channel", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin", ephemeral=True)
+    if not name: return await ctx.reply(":(")
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.administrator:
         return await ctx.reply("**THIS FEATURE REQUIRES ADMIN PERMS FOR NOOBGPT :(**")
@@ -37,6 +39,7 @@ async def add_member_to_sus(ctx: commands.Context, user_ids: str):
     if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "channel", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin", ephemeral=True)
+    if not user_ids: return await ctx.reply(":(")
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.administrator:
         return await ctx.reply("**THIS FEATURE REQUIRES ADMIN PERMS FOR NOOBGPT :(**")
@@ -54,6 +57,7 @@ async def add_role_to_sus(ctx: commands.Context, role_ids: str):
     if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "channel", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin", ephemeral=True)
+    if not role_ids: return await ctx.reply(":(")
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.administrator:
         return await ctx.reply("**THIS FEATURE REQUIRES ADMIN PERMS FOR NOOBGPT :(**")
