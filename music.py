@@ -70,7 +70,7 @@ async def set_dj_role(ctx: commands.Context):
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_roles:
         return await ctx.reply("**manage roles permission is disabled :(**")
-    
+
     db = await get_database2(ctx.guild.id)
     if not db.get("bot_dj_role") or not db["bot_dj_role"]:
         role = await ctx.guild.create_role(name="noobgpt disc jockey", mentionable=False)
@@ -157,12 +157,88 @@ def format_mil(milliseconds: int):
     return ":".join(formatted_time)
 
 # smart shuffle algorithm
+async def get_recommendations(
+    vc: wavelink.Player,
+    seed_tracks: list[wavelink.Playable] = None,
+    max_tracks: int = 20,
+    existing_tracks: list[wavelink.Playable] = None
+) -> list[wavelink.Playable]:
+    """
+    Get track recommendations based on seed tracks.
+
+    Parameters:
+    - vc: The voice client player
+    - seed_tracks: List of tracks to use as seeds
+    - max_tracks: Maximum number of tracks to return
+    - existing_tracks: Tracks to exclude from results
+
+    Returns:
+    - List of recommended tracks
+    """
+    if not seed_tracks: 
+        return []
+
+    if not existing_tracks: 
+        existing_tracks = []
+
+    recommended_tracks = []
+    attempts = 0
+    used_seeds = set()
+
+    while len(recommended_tracks) < max_tracks and len(used_seeds) < len(seed_tracks):
+        attempts += 1
+        try:
+            # Avoid selecting the same seed track repeatedly
+            available_seeds = [t for t in seed_tracks if t.identifier not in used_seeds]
+            if not available_seeds: break
+            track = random.choice(available_seeds)
+            query = None
+            if track.source == "spotify":
+                random_spotify_seeds = [
+                    t.identifier for t in seed_tracks
+                    if t.source == "spotify"
+                    and t.identifier not in used_seeds
+                ]
+                if not random_spotify_seeds: break
+                random.shuffle(random_spotify_seeds)
+                for s in random_spotify_seeds[:5]: used_seeds.add(s)
+                query = f"sprec:seed_tracks={','.join(random_spotify_seeds[:5])}&limit=100"
+            elif track.source == "youtube":
+                used_seeds.add(track.identifier)
+                query = f"https://music.youtube.com/watch?v={track.identifier}&list=RD{track.identifier}"
+            else:
+                continue # Skip non-supported sources
+            if query:
+                search = await wavelink.Pool.fetch_tracks(query, node=vc.node)
+                if search:
+                    tracks = search.tracks.copy() if isinstance(search, wavelink.Playlist) else search
+                    # Only add tracks that aren't duplicates
+                    new_tracks = [t for t in tracks if t not in existing_tracks and t not in recommended_tracks]
+                    recommended_tracks.extend(new_tracks)
+                    # Check if we have enough tracks now
+                    if len(recommended_tracks) >= max_tracks: break
+                else: break
+        except Exception as e:
+            print(f"Unexpected error in get_recommendations: {e}")
+            break
+    print(f"Took {attempts} attempts to get {len(recommended_tracks)} recommendations.")
+    return recommended_tracks[:max_tracks]
+
 async def smart_recommendation(
     vc: wavelink.Player,
     *,
     populate_track: wavelink.Playable | None = None,
     max_population: int | None = 20,
 ) -> None:
+    """
+    Smart recommendation algorithm that populates the auto queue with recommended tracks
+    based on player history and current queue.
+
+    Parameters:
+    - vc: The voice client player
+    - populate_track: Optional specific track to use for recommendations
+    - max_population: Maximum number of tracks to add to auto queue
+    """
     # Include both history and current queue in weighted selections
     weighted_history: list[wavelink.Playable] = vc.queue.history[::-1][: max(5, 5 * vc._auto_weight)]
     weighted_queue: list[wavelink.Playable] = vc.queue[:max(5, 5 * vc._auto_weight)]
@@ -175,18 +251,12 @@ async def smart_recommendation(
         vc._previous
     ]
 
-    # Filter out None and dupllicate tracks
+    # Filter out None and duplicate tracks
     seeds: list[wavelink.Playable] = [t for t in choices if t is not None and t not in vc.queue]
     random.shuffle(seeds)
 
     if populate_track:
         seeds.insert(0, populate_track)
-
-    spotify: list[str] = [t.identifier for t in seeds if t.source == "spotify"]
-    youtube: list[str] = [t.identifier for t in seeds if t.source == "youtube"]
-
-    spotify_query: str | None = None
-    youtube_query: str | None = None
 
     # Consider both history and queue changes
     count: int = len(vc.queue.history) + len(vc.queue)
@@ -201,54 +271,12 @@ async def smart_recommendation(
         vc.queue[:changed_by]
     )
 
-    added: int = 0
-    for i in range(min(len(changed_tracks), 3)):
-        track: wavelink.Playable = changed_tracks[i]
+    # Prioritize recently changed tracks in seeds
+    for track in changed_tracks[:3]:
+        if track not in seeds:
+            seeds.insert(0, track)
 
-        if added == 2 and track.source == "spotify":
-            break
-
-        if track.source == "spotify":
-            spotify.insert(0, track.identifier)
-            added += 1
-        elif track.source == "youtube":
-            youtube.insert(0, track.identifier)
-
-    if spotify:
-        spotify_seeds: list[str] = spotify[:3]
-        spotify_query = f"sprec:seed_tracks={','.join(spotify_seeds)}&limit=10"
-
-        for s_seed in spotify_seeds:
-            vc._add_to_previous_seeds(s_seed)
-
-    if youtube:
-        ytm_seed: str = youtube[0]
-        youtube_query = f"https://music.youtube.com/watch?v={ytm_seed}8&list=RD{ytm_seed}"
-        vc._add_to_previous_seeds(ytm_seed)
-
-    async def _search(query: str | None) -> list[wavelink.Playable] | wavelink.Playlist:
-        if query is None:
-            return []
-
-        try:
-            search: wavelink.Search = await wavelink.Pool.fetch_tracks(query, node=vc.node)
-        except (wavelink.LavalinkLoadException, wavelink.LavalinkException):
-            return []
-
-        if not search:
-            return []
-
-        tracks: list[wavelink.Playable] = search.tracks.copy() if isinstance(search, wavelink.Playlist) else search
-        return tracks
-
-    results: tuple[list[wavelink.Playable] | wavelink.Playlist, list[wavelink.Playable] | wavelink.Playlist] = await asyncio.gather(_search(spotify_query), _search(youtube_query))
-    filtered_r: list[wavelink.Playable] = [t for r in results for t in r]
-
-    if not filtered_r and not vc.auto_queue:
-        print(f'Player {vc.guild.id} could not load any songs via AutoPlay.')
-        return
-
-    # Include both queue and history in duplicate checking
+    # Get all tracks to check for duplicates
     history: list[wavelink.Playable] = (
         vc.auto_queue[:40] +
         vc.queue[:40] +
@@ -256,17 +284,29 @@ async def smart_recommendation(
         vc.auto_queue.history[:-61:-1]
     )
 
+    # Get recommendations using our separate function
+    recommended_tracks = await get_recommendations(
+        vc=vc,
+        seed_tracks=seeds,
+        max_tracks=max_population,
+        existing_tracks=history
+    )
+
+    if not recommended_tracks and not vc.auto_queue:
+        print(f'Player {vc.guild.id} could not load any songs via AutoPlay.')
+        return
+
+    # Add recommended tracks to auto queue
     added: int = 0
-    random.shuffle(filtered_r)
-    for track in filtered_r:
-        if track in history:
-            continue
+    random.shuffle(recommended_tracks) # Randomize to add variety
+
+    for track in recommended_tracks:
+        if track in history: continue
 
         track._recommended = True
         added += await vc.auto_queue.put_wait(track)
 
-        if added >= max_population:
-            break
+        if added >= max_population: break
 
     print(f'Player {vc.guild.id} added {added} tracks to the auto_queue via AutoPlay.')
 
