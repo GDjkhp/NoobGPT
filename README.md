@@ -39,7 +39,7 @@ Host your bots for free: [Bot-Hosting.net](https://bot-hosting.net/?aff=72955418
 ## Support
 Feature requests, contributions, and improvements are welcome!
 <br>
-Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) or reach out [GDjkhp](discord://discord.com/users/729554186777133088)
+Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka), [Eternal Discord Server](https://discord.gg/fv4st), or reach out [GDjkhp](https://gdjkhp.github.io)
 
 ## Donate
 [`Paypal`](https://paypal.me/GDjkhp) • [`Patreon`](https://www.patreon.com/GDjkhp) • [`Fiverr`](https://www.fiverr.com/gdjkhp/develop-host-and-maintain-your-discord-bot) • [`Top.gg`](https://top.gg/bot/1090254079609020447)
