@@ -7,6 +7,7 @@ async def add_database2(server_id: int):
     data = {
         "guild": server_id,
         "prefix": "-",
+        "prefix_disabled": False,
         "bot_master_role": 0,
         "bot_dj_role": 0,
         "bot_dj_channel": 0,
@@ -92,6 +93,9 @@ async def set_rank_channel(server_id: int, data):
 
 async def set_prefix(server_id: int, p):
     await mycol2.update_one({"guild":server_id}, {"$set": {"prefix": p}})
+
+async def set_prefix_mode(server_id: int, b: bool):
+    await mycol2.update_one({"guild":server_id}, {"$set": {"prefix_disabled": b}})
 
 async def set_master_role(server_id: int, data):
     await mycol2.update_one({"guild":server_id}, {"$set": {"bot_master_role": data}})

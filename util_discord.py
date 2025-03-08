@@ -48,6 +48,7 @@ async def config_commands(ctx: commands.Context):
         f"`{p}view` View disabled commands",
         f"`{p}botmaster [user_id]` Adds bot master role to a user",
         f"`{p}prefix [prefix]` Change bot command prefix",
+        f"`{p}toggleprefix` Toggle bot command prefix",
         f"`{p}chanmode` Toggle channel mode, where you can set specific commands per channel",
         f"`{p}toggle [command]` Toggle command (Requires channel mode)",
         f"`{p}togglehard [command]` Toggle command server-wide"
@@ -62,13 +63,21 @@ async def set_prefix_cmd(ctx: commands.Context, arg: str):
     await set_prefix(id, arg)
     await ctx.reply(f"prefix has been set to `{arg}`")
 
+async def set_prefix_mode_cmd(ctx: commands.Context):
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin", ephemeral=True)
+    id = ctx.guild.id if ctx.guild else ctx.channel.id
+    db = await get_database2(id)
+    toggle = not db["prefix_disabled"] if db.get("prefix_disabled") else True
+    await set_prefix_mode(id, toggle)
+    await ctx.reply(f"prefix mode has been set to `{toggle}`")
+
 async def add_master_user(ctx: commands.Context, arg: str):
     if not ctx.guild: return await ctx.reply("not supported")
     if not ctx.author.guild_permissions.administrator: return await ctx.reply("not an admin :(")
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_roles:
         return await ctx.reply("**manage roles is disabled :(**")
-    
+
     if not arg: arg = str(ctx.author.id)
     if ctx.message.mentions: member = ctx.message.mentions[0]
     elif arg.isdigit(): member = ctx.guild.get_member(int(arg))
@@ -106,7 +115,7 @@ async def command_enable(ctx: commands.Context, com: str):
     if not db["channel_mode"]: return await ctx.reply("channel_mode is disabled")
     if com in db["disabled_commands"] or com in db["disabled_categories"]:
         return await ctx.reply(f"`{com}` was disabled server-wide (enable `{com}` first)")
-    
+
     chan_deets = None
     for chan in db["channels"]:
         if chan["id"] == ctx.channel.id:
@@ -290,6 +299,12 @@ class DiscordUtil(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def prefix(self, ctx: commands.Context, prefix:str=None):
         await set_prefix_cmd(ctx, prefix)
+
+    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Toggle bot command prefix")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def toggleprefix(self, ctx: commands.Context):
+        await set_prefix_mode_cmd(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Adds bot master role to a user")
     @app_commands.describe(user_id="User ID of the member you want to be a bot master")
