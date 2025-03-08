@@ -121,7 +121,7 @@ def buildAnime(details: dict) -> discord.Embed:
     embed = discord.Embed(title=details['title'], description=cook_deets, color=0x00ff00)
     embed.set_thumbnail(url=provider)
     embed.set_image(url = details['poster'])
-    embed.set_footer(text="Note: MP4 DL links expires, download them immediately!")
+    embed.set_footer(text='Use "Allow CORS: Access-Control-Allow-Origin" extension to stream the content.')
     return embed
 
 async def pahe_search(ctx: commands.Context, arg: str):
