@@ -35,7 +35,7 @@ async def loopMsg(message: discord.Message, prefix: str):
 async def loopMsgSlash(prompt: str, image: discord.Attachment=None):
     if not image:
         return [{"role": "user", "content": prompt}]
-    
+
     image_data = await image.read()
     base64_data = base64.b64encode(image_data).decode('utf-8')
     return [{
@@ -50,7 +50,7 @@ async def loopMsgGH(message: discord.Message, prefix: str):
     role = "assistant" if message.author.bot else "user"
     content = message.content if message.author.bot else strip_dash(message.content, prefix)
     if not content: content = "?" # maybe image only, i can't read this message :(
-    
+
     # vision support?
     base64_data = None
     if len(message.attachments) > 0:
@@ -158,6 +158,8 @@ models_github=[
     "Llama-3.2-90B-Vision-Instruct",
     "Llama-3.3-70B-Instruct",
     "AI21-Jamba-1.5-Large",
+    "DeepSeek-R1",
+    "DeepSeek-V3",
 ]
 models_black=[
     None, # default
@@ -229,6 +231,8 @@ async def help_github(ctx: commands.Context):
         f"`{p}ai21` {models_github[7]}",
         f"`{p}ccr` {models_github[8]}",
         f"`{p}ccrp` {models_github[9]}",
+        f"`{p}dsr1` {models_github[31]}",
+        f"`{p}dsv3` {models_github[32]}",
     ]
     await ctx.reply("\n".join(text))
 
@@ -788,6 +792,28 @@ class CogPerplex(commands.Cog):
     @commands.command()
     async def ccrp(self, ctx: commands.Context):
         await main_github(ctx, models_github[9])
+
+    @commands.command()
+    async def dsr1(self, ctx: commands.Context):
+        await main_github(ctx, models_github[31])
+
+    # @app_commands.command(name="dsr1", description=f"{description_helper['emojis']['ai']} {models_github[31]}")
+    # @app_commands.describe(prompt="Text prompt", image="Image prompt")
+    # @app_commands.allowed_installs(guilds=True, users=True)
+    # @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    # async def dsr1_slash(self, ctx: discord.Interaction, prompt: str, image: discord.Attachment=None):
+    #     await main_github(ctx, models_github[31], prompt, image)
+
+    @commands.command()
+    async def dsv3(self, ctx: commands.Context):
+        await main_github(ctx, models_github[32])
+
+    # @app_commands.command(name="dsv3", description=f"{description_helper['emojis']['ai']} {models_github[32]}")
+    # @app_commands.describe(prompt="Text prompt", image="Image prompt")
+    # @app_commands.allowed_installs(guilds=True, users=True)
+    # @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    # async def dsv3_slash(self, ctx: discord.Interaction, prompt: str, image: discord.Attachment=None):
+    #     await main_github(ctx, models_github[32], prompt, image)
 
     # TODO: blackbox
     # @commands.command()
