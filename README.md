@@ -32,9 +32,10 @@ Host your bots for free: [Bot-Hosting.net](https://bot-hosting.net/?aff=72955418
 
 ### Requirements
 * [`Python 3.10+`](https://www.python.org/downloads), [`FFmpeg`](https://www.ffmpeg.org/download.html), [`requirements.txt`](http://gdjkhp.github.io/NoobGPT/requirements.txt) packages, [`.env`](https://gdjkhp.github.io/NoobGPT/example.env) for secret keys.
-* A running [`MongoDB`](https://www.mongodb.com) instance. [How do I find my MongoDB connection string?](https://www.mongodb.com/resources/products/fundamentals/mongodb-connection-string)
+* A working [`MongoDB`](https://www.mongodb.com) instance. [How do I find my MongoDB connection string?](https://www.mongodb.com/resources/products/fundamentals/mongodb-connection-string)
 * A `cookies.txt` for downloading YouTube videos. [How do I pass cookies to yt-dlp?](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp)
 * Google Cloud Console OAuth 2.0 User and Client credentials (Production) + `.../auth/drive.file` scope. [Generate token.json with quickstart.](https://developers.google.com/docs/api/quickstart/python)
+* A running [`Lavalink`](https://github.com/lavalink-devs/Lavalink) server for music. [Use an existing free instance to get started.](https://lavalink.darrennathanael.com)
 
 ## Support
 Feature requests, contributions, and improvements are welcome!
@@ -162,6 +163,8 @@ grass is greenr on the othr side
 * <https://github.com/mov-cli/mov-cli>
 * <https://github.com/rainyDayDevs/pygelbooru>
 * <https://github.com/yt-dlp/yt-dlp>
+* <https://github.com/lavalink-devs/Lavalink>
+* <https://github.com/topi314/LavaSrc>
 * <https://github.com/advnpzn/akipy>
 * <https://github.com/mongodb/mongo-python-driver>
 * <https://github.com/mongodb/motor>
@@ -228,6 +231,7 @@ grass is greenr on the othr side
 * <https://mangadex.org>
 * <https://manganato.com>
 * <https://www.crummy.com/software/BeautifulSoup>
+* <https://lavalink.darrennathanael.com>
 
 ### Special Thanks
 * `NoobGPT#5766` for developing itself 🤨
