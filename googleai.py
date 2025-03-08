@@ -28,7 +28,7 @@ def get_error(response_data) -> str:
             if entry['probability'] != 'NEGLIGIBLE':
                 result += f"{entry['category']}: {entry['probability']}\n"
         return result
-    
+
     error_message = response_data.get('error', {}).get('message', 'Unknown error')
     error_type = response_data.get('errorType', '')
     return f"**Error! :(**\n{error_message}" if "error" in response_data else f"**Error! :(**\n{error_type}"
@@ -40,7 +40,7 @@ def get_error_palm(response_data) -> str:
             if entry['rating']['probability'] != 'NEGLIGIBLE':
                 result += f"{entry['rating']['category']}: {entry['rating']['probability']}\n"
         return result
-    
+
     error_message = response_data.get('error', {}).get('message', 'Unknown error')
     error_type = response_data.get('errorType', '')
     return f"**Error! :(**\n{error_message}" if "error" in response_data else f"**Error! :(**\n{error_type}"
@@ -62,7 +62,7 @@ def get_text_palm(response_data) -> str:
         return response_data["candidates"][0]["output"]
     else:
         return get_error_palm(response_data)
-    
+
 # ugly
 def strip_dash(text: str, prefix: str):
     words = text.split()
@@ -106,7 +106,7 @@ async def loopMsg(message: discord.Message, prefix: str):
         return base_data
     previousMessages = await loopMsg(repliedMessage, prefix)
     return previousMessages + base_data
-    
+
 async def json_data(msg: discord.Message, prefix: str):
     messagesArray = await loopMsg(msg, prefix)
     return {"contents": messagesArray}
@@ -180,6 +180,11 @@ models_google = [
     # "text-bison-001", # dead
     "gemini-1.5-pro",
     "gemini-1.5-flash",
+    "gemini-2.0-flash",
+    "gemini-2.0-flash-lite",
+    "gemini-1.5-flash-8b",
+    "gemini-2.0-pro-exp-02-05",
+    "gemini-2.0-flash-thinking-exp-01-21",
 ]
 
 async def GEMINI_REST(ctx: commands.Context | discord.Interaction, model: str, prompt: str=None, image: discord.Attachment=None,
@@ -237,8 +242,9 @@ async def help_google(ctx: commands.Context):
     if await command_check(ctx, "googleai", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     p = await get_guild_prefix(ctx)
     text  = [
-        f"`{p}gemini` {models_google[0]}",
-        f"`{p}flash` {models_google[1]}",
+        f"`{p}gemini` {models_google[2]}",
+        f"`{p}flash` {models_google[3]}",
+        f"`{p}think` {models_google[6]}",
         # f"`{p}palm` {models[0]}"
     ]
     await ctx.reply("\n".join(text))
@@ -253,7 +259,7 @@ class CogGoogle(commands.Cog):
 
     @commands.command(aliases=["ge"]) # alias
     async def gemini(self, ctx: commands.Context):
-        await GEMINI_REST(ctx, models_google[0])
+        await GEMINI_REST(ctx, models_google[2])
 
     # @app_commands.command(name="gemini", description=f"{description_helper['emojis']['ai']} {models_google[0]}")
     # @app_commands.describe(prompt="Text prompt", image="Image prompt")
@@ -264,7 +270,7 @@ class CogGoogle(commands.Cog):
 
     @commands.command()
     async def flash(self, ctx: commands.Context):
-        await GEMINI_REST(ctx, models_google[1])
+        await GEMINI_REST(ctx, models_google[3])
 
     # @app_commands.command(name="flash", description=f"{description_helper['emojis']['ai']} {models_google[1]}")
     # @app_commands.describe(prompt="Text prompt", image="Image prompt")
@@ -272,6 +278,10 @@ class CogGoogle(commands.Cog):
     # @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     # async def flash_slash(self, ctx: discord.Interaction, prompt: str, image: discord.Attachment=None):
     #     await GEMINI_REST(ctx, models_google[1], prompt, image)
+
+    @commands.command()
+    async def think(self, ctx: commands.Context):
+        await GEMINI_REST(ctx, models_google[6])
 
     @commands.command()
     async def googleai(self, ctx: commands.Context):

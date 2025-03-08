@@ -206,6 +206,15 @@ async def get_recommendations(
             elif track.source == "youtube":
                 used_seeds.add(track.identifier)
                 query = f"https://music.youtube.com/watch?v={track.identifier}&list=RD{track.identifier}"
+            elif track.source == "deezer":
+                used_seeds.add(track.identifier)
+                query = f"dzrec:{track.identifier}"
+            elif track.source == "yandexmusic":
+                used_seeds.add(track.identifier)
+                query = f"ymrec:{track.identifier}"
+            elif track.source == "vkmusic":
+                used_seeds.add(track.identifier)
+                query = f"vkrec:{track.identifier}"
             else:
                 continue # Skip non-supported sources
             if query:
