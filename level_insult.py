@@ -86,7 +86,7 @@ async def earn_xp(bot: commands.Bot, msg: discord.Message):
 # noobgpt sucks without custom prefix they said
 async def get_prefix(bot: commands.Bot, message: discord.Message):
     db = await get_database2(message.guild.id if message.guild else message.channel.id)
-    if db.get("prefix_disabled") and db["prefix_disabled"]: return
+    if db.get("prefix_disabled") and db["prefix_disabled"]: return ""
     return commands.when_mentioned_or(db['prefix'])(bot, message)
 
 # commands
