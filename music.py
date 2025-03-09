@@ -14,14 +14,16 @@ async def setup_hook_music(bot: commands.Bot):
     fixing=True
     nodes = []
     data = await node_list()
-    if bot.node_id:
+    for n in bot.node_ids:
         try:
-            n = wavelink.Pool.get_node(bot.node_id)
+            n = wavelink.Pool.get_node(n)
             if n: await n.close(eject=True)
         except Exception as e: print(e)
-    bot.node_id = secrets.token_urlsafe(12)
+    bot.node_ids = []
     for lava in data:
-        nodes.append(wavelink.Node(client=bot, uri=lava["host"], password=lava["password"], retries=3, identifier=bot.node_id))
+        node_id = secrets.token_urlsafe(12)
+        bot.node_ids.append(node_id)
+        nodes.append(wavelink.Node(client=bot, uri=lava["host"], password=lava["password"], retries=3, identifier=node_id))
     await wavelink.Pool.connect(nodes=nodes)
     fixing=False
     print(f"{bot.identifier}: setup_hook_music ok")
@@ -430,8 +432,13 @@ async def voice_channel_connector(ctx: commands.Context | discord.Interaction):
         member = ctx.author
     if isinstance(ctx, discord.Interaction):
         member = ctx.user
-    node = wavelink.Pool.get_node(ctx.bot.node_id)
-    player = wavelink.Player(nodes=[node])
+    nodes = []
+    for n in ctx.bot.node_ids:
+        try:
+            node = wavelink.Pool.get_node(n)
+            nodes.append(node)
+        except: pass
+    player = wavelink.Player(nodes=nodes)
     vc = await member.voice.channel.connect(cls=player, self_deaf=True)
     return vc
 

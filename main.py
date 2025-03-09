@@ -47,7 +47,7 @@ class NoobGPT(commands.Bot):
         self.token = os.getenv(token)
         self.modules = modules
         self.identifier = token
-        self.node_id = None
+        self.node_ids = []
 
     async def on_ready(self):
         print(f"{self.identifier} (c) {datetime.now().year} The Karakters Kompany. All rights reserved.")
