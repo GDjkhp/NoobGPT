@@ -2,7 +2,6 @@ import discord
 from bs4 import BeautifulSoup as BS
 import aiohttp
 from discord.ext import commands
-import os
 import re
 from util_discord import command_check, description_helper, get_guild_prefix
 from curl_cffi.requests import AsyncSession
@@ -11,7 +10,7 @@ from discord import app_commands
 base="https://animepahe.ru"
 provider="https://gdjkhp.github.io/img/apdoesnthavelogotheysaidapistooplaintheysaid.png"
 pagelimit=12
-headers = {"cookie": os.getenv('PAHE'), "referer": base}
+headers = {"cookie": "__ddg2_=", "referer": base}
 session = AsyncSession(impersonate='chrome110')
 
 # feat: mp4 dl (it just works): https://github.com/justfoolingaround/animdl/blob/master/animdl/core/codebase/providers/animepahe/inner/__init__.py
