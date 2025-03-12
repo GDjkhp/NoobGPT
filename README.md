@@ -165,6 +165,7 @@ grass is greenr on the othr side
 * <https://github.com/yt-dlp/yt-dlp>
 * <https://github.com/lavalink-devs/Lavalink>
 * <https://github.com/topi314/LavaSrc>
+* <https://github.com/Ombucha/akinator.py>
 * <https://github.com/advnpzn/akipy>
 * <https://github.com/mongodb/mongo-python-driver>
 * <https://github.com/mongodb/motor>
@@ -182,7 +183,6 @@ grass is greenr on the othr side
 * <https://github.com/python-websockets/websockets>
 * <https://github.com/theskumar/python-dotenv>
 * <https://github.com/encode/httpx>
-* <https://github.com/pydantic/pydantic>
 * <https://github.com/Legrandin/pycryptodome>
 * <https://github.com/kkroening/ffmpeg-python>
 * <https://github.com/Xtr4F/PyCharacterAI>
