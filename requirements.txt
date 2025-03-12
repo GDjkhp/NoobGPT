@@ -6,7 +6,6 @@ beautifulsoup4
 websockets
 pygelbooru
 pillow
-pydantic
 openai
 imagetext-py
 Flask
