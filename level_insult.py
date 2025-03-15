@@ -24,8 +24,8 @@ async def detect_mentions(message: discord.Message, bot: commands.Bot, db: dict)
     msg_id = message.reference.message_id if message.reference and message.reference.message_id else None
     try:
         if msg_id: ref_msg = await message.channel.fetch_message(msg_id)
-    except:
-        print("Exception in detect_mentions")
+    except Exception as e:
+        print(f"Exception in detect_mentions: {e}")
     if ref_msg and ref_msg.author == bot.user: return True
 
     if not (db.get("ai_mode") and db["ai_mode"]): return # gatekeep mentions to ai for now
@@ -93,9 +93,10 @@ async def get_prefix(bot: commands.Bot, message: discord.Message):
 async def toggle_insult(ctx: commands.Context):
     if await command_check(ctx, "insult", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
-    db = await get_database2(ctx.guild.id if ctx.guild else ctx.channel.id)
+    real_id = ctx.guild.id if ctx.guild else ctx.channel.id
+    db = await get_database2(real_id)
     b = not db["insult_module"]
-    await set_insult(ctx.guild.id, b)
+    await set_insult(real_id, b)
     await ctx.reply(f"`insult_module` is set to `{b}`")
 
 async def toggle_xp(ctx: commands.Context):
@@ -332,8 +333,9 @@ async def add_insult(ctx: commands.Context, arg: str):
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     p = await get_guild_prefix(ctx)
     if not arg: return await ctx.reply(f"usage: `{p}insultadd <str>`")
-    db = await get_database2(ctx.guild.id if ctx.guild else ctx.channel.id) # nonsense
-    await push_insult(ctx.guild.id if ctx.guild else ctx.channel.id, arg)
+    real_id = ctx.guild.id if ctx.guild else ctx.channel.id
+    db = await get_database2(real_id) # nonsense
+    await push_insult(real_id, arg)
     await ctx.reply(f"insult added. use `{p}insultview` to list all insults.")
 
 async def add_lvl_msg(ctx: commands.Context, arg: str):
@@ -350,8 +352,9 @@ async def del_insult(ctx: commands.Context, arg: str):
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin", ephemeral=True)
     p = await get_guild_prefix(ctx)
     if not arg: return await ctx.reply(f"usage: `{p}insultdel <str>`")
-    db = await get_database2(ctx.guild.id if ctx.guild else ctx.channel.id) # nonsense
-    await pull_insult(ctx.guild.id if ctx.guild else ctx.channel.id, arg)
+    real_id = ctx.guild.id if ctx.guild else ctx.channel.id
+    db = await get_database2(real_id) # nonsense
+    await pull_insult(real_id, arg)
     await ctx.reply(f"insult removed. use `{p}insultview` to list all insults.")
 
 async def del_lvl_msg(ctx: commands.Context, arg: str):

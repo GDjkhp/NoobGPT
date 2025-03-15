@@ -2,7 +2,6 @@ from typing import Any, Dict, List
 from quickjs import Context as quickjsContext
 from bs4 import BeautifulSoup as BS
 from curl_cffi.requests import AsyncSession
-session = AsyncSession(impersonate='chrome')
 
 class Episode:
     def __init__(self, id: int, number: float, sub: int):
@@ -169,6 +168,7 @@ class Sub:
 class KissKHApi:
     def __init__(self, url: str):
         self.base_url = url
+        self.session = AsyncSession(impersonate='chrome')
 
     def set_base_url(self, url: str):
         self.base_url = url
@@ -211,7 +211,7 @@ class KissKHApi:
         :param url: url to do the get request on
         :return: reponse for a specific get request
         """
-        response = await session.get(url)
+        response = await self.session.get(url)
         print(response.content.decode())
         if not json: return response.content.decode()
         if content_type: return response.json(content_type=content_type)

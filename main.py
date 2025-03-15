@@ -42,12 +42,13 @@ zero_modules = noobgpt_modules + ["util_channel"]
 
 class NoobGPT(commands.Bot):
     def __init__(self, token, modules):
-        super().__init__(command_prefix = get_prefix, intents = intents, 
-                         help_command = None, allowed_mentions = mentions)
         self.token = os.getenv(token)
         self.modules = modules
         self.identifier = token
         self.node_ids = []
+        super().__init__(
+            command_prefix = get_prefix, intents = intents, help_command = None, allowed_mentions = mentions
+        )
 
     async def on_ready(self):
         print(f"{self.identifier} (c) {datetime.now().year} The Karakters Kompany. All rights reserved.")
@@ -105,5 +106,4 @@ async def main():
         start_bot(NoobGPT("ZERO", zero_modules)),
     )
 
-if __name__ == "__main__":
-    asyncio.run(main())
+asyncio.run(main())
