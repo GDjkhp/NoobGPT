@@ -1,29 +1,46 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
-from aki_new import Akinator, CantGoBackAnyFurther
+from aki_new import Akinator, CantGoBackAnyFurther, AkinatorError
 from util_discord import command_check, description_helper, get_guild_prefix
 
-categories = ['people', 'objects', 'animals']
-languages = ['en', 'ar', 'cn', 'de', 'es', 'fr', 'it', 'jp', 'kr', 'nl', 'pl', 'pt', 'ru', 'tr', 'id']
+CATEGORIES = {
+    'people': 'characters', 
+    'objects': 'objects', 
+    'animals': 'animals'
+}
 
-def w(ctx: commands.Context, aki: Akinator) -> discord.Embed:
-    embed_win = discord.Embed(title=aki.name_proposition, description=aki.description_proposition,
-                              colour=0x00FF00)
-    if ctx.author.avatar: embed_win.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
-    else: embed_win.set_author(name=ctx.author)
-    embed_win.set_image(url=aki.photo)
-    # embed_win.add_field(name="Ranking", value="#"+aki.first_guess['ranking'], inline=True)
+LANGUAGES = ['en', 'ar', 'cn', 'de', 'es', 'fr', 'it', 'jp', 'kr', 'nl', 'pl', 'pt', 'ru', 'tr', 'id']
+
+def create_win_embed(ctx: commands.Context, aki: Akinator) -> discord.Embed:
+    guess = aki.get_guess()
+    embed_win = discord.Embed(
+        title=guess['name'], 
+        description=guess['description'],
+        colour=0x00FF00
+    )
+    if ctx.author.avatar: 
+        embed_win.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
+    else: 
+        embed_win.set_author(name=ctx.author)
+    embed_win.set_image(url=guess['photo'])
     embed_win.add_field(name="Questions", value=aki.step+1, inline=True)
     embed_win.add_field(name="Progress", value=f"{aki.progression}%", inline=True)
     return embed_win
-def qEmbed(aki: Akinator, ctx: commands.Context) -> discord.Embed:
-    e = discord.Embed(title=f"{aki.step+1}. {aki.question}", description=f"{aki.progression}%", color=0x00FF00)
-    if ctx.author.avatar: e.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
-    else: e.set_author(name=ctx.author)
-    return e
 
-class QView(discord.ui.View):
+def create_question_embed(aki: Akinator, ctx: commands.Context) -> discord.Embed:
+    embed = discord.Embed(
+        title=f"{aki.step+1}. {aki.question}", 
+        description=f"{aki.progression}%", 
+        color=0x00FF00
+    )
+    if ctx.author.avatar: 
+        embed.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
+    else: 
+        embed.set_author(name=ctx.author)
+    return embed
+
+class QuestionView(discord.ui.View):
     def __init__(self, aki: Akinator, ctx: commands.Context):
         super().__init__(timeout=None)
         self.add_item(ButtonAction(aki, ctx, 0, 'Yes', '✅', 'y'))
@@ -31,100 +48,149 @@ class QView(discord.ui.View):
         self.add_item(ButtonAction(aki, ctx, 0, 'Don\'t Know', '❓', 'idk'))
         self.add_item(ButtonAction(aki, ctx, 1, 'Probably', '👍', 'p'))
         self.add_item(ButtonAction(aki, ctx, 1, 'Probably Not', '👎', 'pn'))
-        self.add_item(ButtonAction(aki, ctx, 2, 'Back', '⏮', 'b'))
+        self.add_item(ButtonAction(aki, ctx, 2, 'Back', '⏮️', 'b'))
         self.add_item(ButtonAction(aki, ctx, 2, 'Stop', '🛑', 's'))
 
 class ButtonAction(discord.ui.Button):
-    def __init__(self, aki: Akinator, ctx: commands.Context, row: int, l: str, emoji: str, action: str):
-        super().__init__(label=l, style=discord.ButtonStyle.success, emoji=emoji, row=row)
-        self.aki, self.action, self.ctx = aki, action, ctx
+    def __init__(self, aki: Akinator, ctx: commands.Context, row: int, label: str, emoji: str, action: str):
+        super().__init__(label=label, style=discord.ButtonStyle.success, emoji=emoji, row=row)
+        self.aki = aki
+        self.action = action
+        self.ctx = ctx
     
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author:
-            return await interaction.response.send_message(content=f"<@{self.ctx.author.id}> is playing this game! Use `{await get_guild_prefix(self.ctx)}aki` to create your own game.", 
-                                                           ephemeral=True)
+            return await interaction.response.send_message(
+                content=f"<@{self.ctx.author.id}> is playing this game! Use `{await get_guild_prefix(self.ctx)}aki` to create your own game.",
+                ephemeral=True
+            )
+
         if self.action == 's':
             return await interaction.response.edit_message(content=f"Skill issue <@{interaction.user.id}>", view=None, embed=None)
-        if self.action == 'b':
-            try:
+        
+        try:
+            if self.action == 'b':
                 await interaction.response.defer()
                 await self.aki.back()
-            except CantGoBackAnyFurther:
-                return await interaction.followup.send(content=f"CantGoBackAnyFurther", ephemeral=True)
-        else:
-            await interaction.response.edit_message(view=None)
-            await self.aki.answer(self.action)
-        if not self.aki.win and self.aki.step < 79:
-            await interaction.edit_original_response(embed=qEmbed(self.aki, self.ctx), view=QView(self.aki, self.ctx))
-        else:
-            embed = w(self.ctx, self.aki)
-            await interaction.edit_original_response(embed=embed, view=RView(self.aki, self.ctx))
+            else:
+                # Handle answer actions
+                await interaction.response.edit_message(view=None)
+                is_guess = await self.aki.answer(self.action)
+                
+                # If Akinator has a guess or reached max questions, show result
+                if is_guess or self.aki.step >= 79:
+                    embed = create_win_embed(self.ctx, self.aki)
+                    return await interaction.edit_original_response(
+                        embed=embed, 
+                        view=ResultView(self.aki, self.ctx)
+                    )
+            
+            # Continue with next question
+            await interaction.edit_original_response(
+                embed=create_question_embed(self.aki, self.ctx), 
+                view=QuestionView(self.aki, self.ctx)
+            )
+        
+        except CantGoBackAnyFurther:
+            await interaction.followup.send(content="Cannot go back any further!", ephemeral=True)
+        except AkinatorError as e:
+            await interaction.followup.send(content=f"Error: {str(e)}", ephemeral=True)
 
-class RView(discord.ui.View):
+class ResultView(discord.ui.View):
     def __init__(self, aki: Akinator, ctx):
         super().__init__(timeout=None)
-        self.add_item(ButtonAction0(aki, ctx, 'Yes', '✅', 'y'))
-        self.add_item(ButtonAction0(aki, ctx, 'No', '❌', 'n'))
+        self.add_item(ResultButton(aki, ctx, 'Yes', '✅', 'y'))
+        self.add_item(ResultButton(aki, ctx, 'No', '❌', 'n'))
 
-class ButtonAction0(discord.ui.Button):
-    def __init__(self, aki: Akinator, ctx: commands.Context, l: str, emoji: str, action: str):
-        super().__init__(label=l, style=discord.ButtonStyle.success, emoji=emoji)
-        self.aki, self.action, self.ctx = aki, action, ctx
+class ResultButton(discord.ui.Button):
+    def __init__(self, aki: Akinator, ctx: commands.Context, label: str, emoji: str, action: str):
+        super().__init__(label=label, style=discord.ButtonStyle.success, emoji=emoji)
+        self.aki = aki
+        self.action = action
+        self.ctx = ctx
 
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author:
-            return await interaction.response.send_message(content=f"<@{self.ctx.author.id}> is playing this game! Use `{await get_guild_prefix(self.ctx)}aki` to create your own game.", 
-                                                           ephemeral=True)
-        if self.action == 'y':
-            embed_win = discord.Embed(title='GG!', color=0x00FF00)
-            embed_win.add_field(name=self.aki.name_proposition, value=self.aki.description_proposition, inline=False)
-            embed_win.set_image(url=self.aki.photo)
-            # embed_win.add_field(name="Ranking", value="#"+self.aki.first_guess['ranking'], inline=True)
-            embed_win.add_field(name="Questions", value=self.aki.step+1, inline=True)
-            embed_win.add_field(name="Progress", value=f"{self.aki.progression}%", inline=True)
-            if self.ctx.author.avatar: embed_win.set_author(name=self.ctx.author, icon_url=self.ctx.author.avatar.url)
-            else: embed_win.set_author(name=self.ctx.author)
-            await interaction.response.edit_message(embed=embed_win, view=None)
-        else:
-            # FIXME: problematic, might remove
-            # if self.aki.step < 79:
-            #     try: await self.aki.exclude()
-            #     except: pass
-            #     return await interaction.response.edit_message(embed=qEmbed(self.aki, self.ctx), view=QView(self.aki, self.ctx))
+            return await interaction.response.send_message(
+                content=f"<@{self.ctx.author.id}> is playing this game! Use `{await get_guild_prefix(self.ctx)}aki` to create your own game.",
+                ephemeral=True
+            )
+        try:
+            if self.action == 'y':
+                guess = self.aki.get_guess()
+                embed_win = discord.Embed(title='GG!', color=0x00FF00)
+                embed_win.add_field(name=guess['name'], value=guess['description'], inline=False)
+                embed_win.set_image(url=guess['photo'])
+                embed_win.add_field(name="Questions", value=self.aki.step+1, inline=True)
+                embed_win.add_field(name="Progress", value=f"{self.aki.progression}%", inline=True)
+                if self.ctx.author.avatar: 
+                    embed_win.set_author(name=self.ctx.author, icon_url=self.ctx.author.avatar.url)
+                else: 
+                    embed_win.set_author(name=self.ctx.author)
+                await interaction.response.edit_message(embed=embed_win, view=None)
+            else:
+                if self.aki.step < 79:
+                    try: 
+                        await self.aki.exclude()
+                        return await interaction.response.edit_message(
+                            embed=create_question_embed(self.aki, self.ctx), 
+                            view=QuestionView(self.aki, self.ctx)
+                        )
+                    except AkinatorError: pass
+                embed_loss = discord.Embed(
+                    title="Game over!", 
+                    description="Please try again.", 
+                    color=0xFF0000
+                )
+                if self.ctx.author.avatar: 
+                    embed_loss.set_author(name=self.ctx.author, icon_url=self.ctx.author.avatar.url)
+                else: 
+                    embed_loss.set_author(name=self.ctx.author)
+                await interaction.response.edit_message(embed=embed_loss, view=None)
+        
+        except AkinatorError as e:
+            await interaction.response.send_message(content=f"Error: {str(e)}", ephemeral=True)
 
-            embed_loss = discord.Embed(title="Game over!", description="Please try again.", color=0xFF0000) # Here's some of my guesses:
-            # for times in self.aki.guesses:
-            #     embed_loss.add_field(name=times['name'], value=times['description'])
-            
-            if self.ctx.author.avatar: embed_loss.set_author(name=self.ctx.author, icon_url=self.ctx.author.avatar.url)
-            else: embed_loss.set_author(name=self.ctx.author)
-            await interaction.response.edit_message(embed=embed_loss, view=None)
-
-# @commands.max_concurrency(1, per=BucketType.default, wait=False)
-async def Aki(ctx: commands.Context, cat: str, lang: str):
-    if await command_check(ctx, "aki", "games"): return await ctx.reply("command disabled", ephemeral=True)
+async def start_akinator_game(ctx: commands.Context, category: str = None, language: str = None):
+    if await command_check(ctx, "aki", "games"): return await ctx.reply("Command disabled", ephemeral=True)
     msg = await ctx.reply('Starting game…')
-    if not cat: cat = 'people'
-    if not lang: lang = 'en'
+    category = category or 'people'
+    language = language or 'en'
     sfw = not ctx.channel.nsfw if ctx.guild else True
-    if not lang in languages:
-        return await msg.edit(content=f"Invalid language parameter.\nSupported languages:```{languages}```")
-    if not cat in categories:
-        return await msg.edit(content=f'Category `{cat}` not found.\nAvailable categories:```{categories}```')
-    try: 
+
+    if language not in LANGUAGES:
+        return await msg.edit(
+            content=f"Invalid language parameter.\nSupported languages:```{', '.join(LANGUAGES)}```"
+        )
+    if category not in CATEGORIES:
+        return await msg.edit(
+            content=f'Category `{category}` not found.\nAvailable categories:```{", ".join(CATEGORIES.keys())}```'
+        )
+    
+    try:
         aki = Akinator()
-        await aki.start_game(language=f'{lang}' if cat == 'people' else f'{lang}_{cat}', child_mode=sfw)
-        await msg.edit(content=None, embed=qEmbed(aki, ctx), view=QView(aki, ctx))
-    except Exception as e: await msg.edit(content=f"Error! :(\n{e}")
+        theme = CATEGORIES[category]
+        await aki.start_game(language=language, theme=theme, child_mode=sfw)
+        await msg.edit(
+            content=None, 
+            embed=create_question_embed(aki, ctx), 
+            view=QuestionView(aki, ctx)
+        )
+    except Exception as e:
+        await msg.edit(content=f"Error starting Akinator! :(\n{e}")
 
 async def cat_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     return [
-        app_commands.Choice(name=cat, value=cat) for cat in categories if current.lower() in cat.lower()
+        app_commands.Choice(name=cat, value=cat) 
+        for cat in CATEGORIES.keys() 
+        if current.lower() in cat.lower()
     ]
 
 async def lang_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     return [
-        app_commands.Choice(name=lang, value=lang) for lang in languages if current.lower() in lang.lower()
+        app_commands.Choice(name=lang, value=lang) 
+        for lang in LANGUAGES 
+        if current.lower() in lang.lower()
     ]
 
 class CogAki(commands.Cog):
@@ -137,8 +203,8 @@ class CogAki(commands.Cog):
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     # @commands.max_concurrency(1, per=BucketType.default, wait=False)
-    async def aki(self, ctx: commands.Context, category:str=None, language:str=None):
-        await Aki(ctx, category, language)
+    async def aki(self, ctx: commands.Context, category: str = None, language: str = None):
+        await start_akinator_game(ctx, category, language)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogAki(bot))
