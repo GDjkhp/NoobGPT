@@ -71,7 +71,7 @@ class Akinator:
         self.theme = None
         self.child_mode = False
         self.available_themes = None
-        
+
         # Game state
         self.session = None
         self.signature = None
@@ -80,7 +80,7 @@ class Akinator:
         self.step = 0
         self.step_last_proposition = 0
         self.akitude = None
-        
+
         # Result attributes
         self.win = False
         self.name_proposition = None
@@ -96,7 +96,7 @@ class Akinator:
                     response = await client.get(url, headers=HEADERS, timeout=30.0)
                 else:  # POST
                     response = await client.post(url, headers=HEADERS, json=data, timeout=30.0)
-                
+
                 response.raise_for_status()
                 return response
         except httpx.HTTPStatusError as e:
@@ -122,18 +122,18 @@ class Akinator:
             self.step = int(response_data.get("step", 0))
             self.progression = float(response_data.get("progression", 0.0))
             self.question = response_data.get("question")
-        
+
         self.completion = response_data.get("completion")
 
     async def start_game(self, language="en", theme="characters", child_mode=False):
         """
         Start a new Akinator game session.
-        
+
         Args:
             language (str): Language code or name (default: "en")
             theme (str): Game theme - "characters", "animals", or "objects" (default: "characters")
             child_mode (bool): Enable child mode (default: False)
-            
+
         Returns:
             str: The first question
         """
@@ -141,7 +141,7 @@ class Akinator:
             language = LANG_MAP[language]
         elif language not in LANG_MAP.values():
             raise InvalidLanguageError(f"Language '{language}' is not supported")
-        
+
         self.lang = language
         self.uri = f"https://{language}.akinator.com"
         self.child_mode = child_mode
@@ -176,10 +176,10 @@ class Akinator:
     async def answer(self, answer):
         """
         Submit an answer to the current question.
-        
+
         Args:
             answer (str): One of "yes"/"y", "no"/"n", "idk", "probably"/"p", or "probably not"/"pn"
-            
+
         Returns:
             bool: True if Akinator has a guess, False if more questions
         """
@@ -210,13 +210,13 @@ class Akinator:
     async def back(self):
         """
         Go back to the previous question.
-        
+
         Returns:
             str: The previous question
         """
         if self.step == 0:
             raise CantGoBackAnyFurther("Cannot go back from the first question")
-        
+
         data = {
             "step": self.step,
             "progression": self.progression,
@@ -225,30 +225,30 @@ class Akinator:
             "session": self.session,
             "signature": self.signature,
         }
-        
+
         url = f"{self.uri}/cancel_answer"
         response = await self._request(url, "POST", data)
         response_data = response.json()
-        
+
         # Update state
         self.akitude = response_data.get("akitude")
         self.step = int(response_data.get("step", 0))
         self.progression = float(response_data.get("progression", 0.0))
         self.question = response_data.get("question")
         self.win = False
-        
+
         return self.question
 
     async def exclude(self):
         """
         Exclude the current guess and continue with more questions.
-        
+
         Returns:
             str: The next question
         """
         if not self.win:
             raise AkinatorError("Cannot exclude when there is no guess")
-        
+
         data = {
             "step": self.step,
             "progression": self.progression,
@@ -258,17 +258,17 @@ class Akinator:
             "signature": self.signature,
             "step_last_proposition": self.step
         }
-        
+
         url = f"{self.uri}/exclude"
         response = await self._request(url, "POST", data)
         response_data = response.json()
-        
+
         # Reset win state
         self.win = False
         self.name_proposition = None
         self.description_proposition = None
         self.photo = None
-        
+
         # Update state
         self.akitude = response_data.get("akitude")
         self.step = int(response_data.get("step", 0))
@@ -280,13 +280,13 @@ class Akinator:
     def get_guess(self):
         """
         Get the current guess information.
-        
+
         Returns:
             dict: Guess information including name, description, and photo
         """
         if not self.win:
             return None
-        
+
         return {
             "name": self.name_proposition,
             "description": self.description_proposition,
@@ -298,13 +298,13 @@ class Akinator:
 #     aki = Akinator()
 #     question = await aki.start_game(language="en", theme="characters")
 #     print(f"First question: {question}")
-    
+
 #     # Answer loop
 #     while True:
 #         # Get user answer
 #         print("\nYour answer (y/n/idk/p/pn/b to go back): ", end="")
 #         answer = input().strip().lower()
-        
+
 #         if answer == "b":
 #             try:
 #                 question = await aki.back()
@@ -314,16 +314,16 @@ class Akinator:
 #         else:
 #             try:
 #                 is_guess = await aki.answer(answer)
-                
+
 #                 if is_guess:
 #                     # We have a guess
 #                     guess = aki.get_guess()
 #                     print(f"\nI think of: {guess['name']}")
 #                     print(f"Description: {guess['description']}")
-                    
+
 #                     print("\nAm I correct? (y/n): ", end="")
 #                     is_correct = input().strip().lower()
-                    
+
 #                     if is_correct in ["y", "yes"]:
 #                         print("Great! I guessed correctly!")
 #                         break

@@ -15,7 +15,7 @@ LANGUAGES = ['en', 'ar', 'cn', 'de', 'es', 'fr', 'it', 'jp', 'kr', 'nl', 'pl', '
 def create_win_embed(ctx: commands.Context, aki: Akinator) -> discord.Embed:
     guess = aki.get_guess()
     embed_win = discord.Embed(
-        title=guess['name'], 
+        title=guess['name'],
         description=guess['description'],
         colour=0x00FF00
     )
@@ -57,7 +57,7 @@ class ButtonAction(discord.ui.Button):
         self.aki = aki
         self.action = action
         self.ctx = ctx
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author:
             return await interaction.response.send_message(
@@ -79,18 +79,19 @@ class ButtonAction(discord.ui.Button):
                 
                 # If Akinator has a guess or reached max questions, show result
                 if is_guess or self.aki.step >= 79:
-                    embed = create_win_embed(self.ctx, self.aki)
-                    return await interaction.edit_original_response(
-                        embed=embed, 
-                        view=ResultView(self.aki, self.ctx)
+                    embed = discord.Embed(
+                        title="Game over!",
+                        description="Please try again.",
+                        color=0xFF0000
                     )
-            
+                    return await interaction.edit_original_response(embed=embed)
+
             # Continue with next question
             await interaction.edit_original_response(
                 embed=create_question_embed(self.aki, self.ctx), 
                 view=QuestionView(self.aki, self.ctx)
             )
-        
+
         except CantGoBackAnyFurther:
             await interaction.followup.send(content="Cannot go back any further!", ephemeral=True)
         except AkinatorError as e:
@@ -138,8 +139,8 @@ class ResultButton(discord.ui.Button):
                         )
                     except AkinatorError: pass
                 embed_loss = discord.Embed(
-                    title="Game over!", 
-                    description="Please try again.", 
+                    title="Game over!",
+                    description="Please try again.",
                     color=0xFF0000
                 )
                 if self.ctx.author.avatar: 
@@ -147,7 +148,7 @@ class ResultButton(discord.ui.Button):
                 else: 
                     embed_loss.set_author(name=self.ctx.author)
                 await interaction.response.edit_message(embed=embed_loss, view=None)
-        
+
         except AkinatorError as e:
             await interaction.response.send_message(content=f"Error: {str(e)}", ephemeral=True)
 
@@ -166,7 +167,7 @@ async def start_akinator_game(ctx: commands.Context, category: str = None, langu
         return await msg.edit(
             content=f'Category `{category}` not found.\nAvailable categories:```{", ".join(CATEGORIES.keys())}```'
         )
-    
+
     try:
         aki = Akinator()
         theme = CATEGORIES[category]
