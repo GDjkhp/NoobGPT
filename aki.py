@@ -17,26 +17,51 @@ def create_win_embed(ctx: commands.Context, aki: Akinator) -> discord.Embed:
     embed_win = discord.Embed(
         title=guess['name'],
         description=guess['description'],
-        colour=0x00FF00
+        colour=0x00FFFF
     )
-    if ctx.author.avatar: 
+    if ctx.author.avatar:
         embed_win.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
-    else: 
+    else:
         embed_win.set_author(name=ctx.author)
     embed_win.set_image(url=guess['photo'])
     embed_win.add_field(name="Questions", value=aki.step+1, inline=True)
     embed_win.add_field(name="Progress", value=f"{aki.progression}%", inline=True)
     return embed_win
 
+def create_final_embed(ctx: commands.Context, aki: Akinator) -> discord.Embed:
+    guess = aki.get_guess()
+    embed_win = discord.Embed(title='GG!', color=0x00FF00)
+    embed_win.add_field(name=guess['name'], value=guess['description'], inline=False)
+    embed_win.set_image(url=guess['photo'])
+    embed_win.add_field(name="Questions", value=aki.step+1, inline=True)
+    embed_win.add_field(name="Progress", value=f"{aki.progression}%", inline=True)
+    if ctx.author.avatar:
+        embed_win.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
+    else:
+        embed_win.set_author(name=ctx.author)
+    return embed_win
+
+def create_loss_embed(ctx: commands.Context) -> discord.Embed:
+    embed_loss = discord.Embed(
+        title="Game over!",
+        description="Please try again.",
+        color=0xFF0000
+    )
+    if ctx.author.avatar:
+        embed_loss.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
+    else:
+        embed_loss.set_author(name=ctx.author)
+    return embed_loss
+
 def create_question_embed(aki: Akinator, ctx: commands.Context) -> discord.Embed:
     embed = discord.Embed(
-        title=f"{aki.step+1}. {aki.question}", 
-        description=f"{aki.progression}%", 
-        color=0x00FF00
+        title=f"{aki.step+1}. {aki.question}",
+        description=f"{aki.progression}%",
+        color=0x00FFFF
     )
-    if ctx.author.avatar: 
+    if ctx.author.avatar:
         embed.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
-    else: 
+    else:
         embed.set_author(name=ctx.author)
     return embed
 
@@ -75,16 +100,16 @@ class ButtonAction(discord.ui.Button):
             else:
                 # Handle answer actions
                 await interaction.response.edit_message(view=None)
+                if self.aki.step == 79:
+                    embed_loss = create_loss_embed(self.ctx)
+                    return await interaction.edit_original_response(embed=embed_loss, view=None)
                 is_guess = await self.aki.answer(self.action)
-                
-                # If Akinator has a guess or reached max questions, show result
-                if is_guess or self.aki.step >= 79:
+                if is_guess:
                     embed = create_win_embed(self.ctx, self.aki)
                     return await interaction.edit_original_response(
-                        embed=embed, 
+                        embed=embed,
                         view=ResultView(self.aki, self.ctx)
                     )
-
             # Continue with next question
             await interaction.edit_original_response(
                 embed=create_question_embed(self.aki, self.ctx), 
@@ -117,35 +142,18 @@ class ResultButton(discord.ui.Button):
             )
         try:
             if self.action == 'y':
-                guess = self.aki.get_guess()
-                embed_win = discord.Embed(title='GG!', color=0x00FF00)
-                embed_win.add_field(name=guess['name'], value=guess['description'], inline=False)
-                embed_win.set_image(url=guess['photo'])
-                embed_win.add_field(name="Questions", value=self.aki.step+1, inline=True)
-                embed_win.add_field(name="Progress", value=f"{self.aki.progression}%", inline=True)
-                if self.ctx.author.avatar: 
-                    embed_win.set_author(name=self.ctx.author, icon_url=self.ctx.author.avatar.url)
-                else: 
-                    embed_win.set_author(name=self.ctx.author)
+                embed_win = create_final_embed(self.ctx, self.aki)
                 await interaction.response.edit_message(embed=embed_win, view=None)
             else:
                 if self.aki.step < 79:
-                    try: 
+                    try:
                         await self.aki.exclude()
                         return await interaction.response.edit_message(
                             embed=create_question_embed(self.aki, self.ctx), 
                             view=QuestionView(self.aki, self.ctx)
                         )
                     except AkinatorError: pass
-                embed_loss = discord.Embed(
-                    title="Game over!",
-                    description="Please try again.",
-                    color=0xFF0000
-                )
-                if self.ctx.author.avatar: 
-                    embed_loss.set_author(name=self.ctx.author, icon_url=self.ctx.author.avatar.url)
-                else: 
-                    embed_loss.set_author(name=self.ctx.author)
+                embed_loss = create_loss_embed(self.ctx)
                 await interaction.response.edit_message(embed=embed_loss, view=None)
 
         except AkinatorError as e:
