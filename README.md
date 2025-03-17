@@ -167,6 +167,7 @@ grass is greenr on the othr side
 * <https://github.com/topi314/LavaSrc>
 * <https://github.com/Ombucha/akinator.py>
 * <https://github.com/advnpzn/akipy>
+* <https://github.com/taka-4602/Akinator-python>
 * <https://github.com/mongodb/mongo-python-driver>
 * <https://github.com/mongodb/motor>
 * <https://github.com/python-pillow/Pillow>
