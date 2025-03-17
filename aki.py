@@ -79,12 +79,11 @@ class ButtonAction(discord.ui.Button):
                 
                 # If Akinator has a guess or reached max questions, show result
                 if is_guess or self.aki.step >= 79:
-                    embed = discord.Embed(
-                        title="Game over!",
-                        description="Please try again.",
-                        color=0xFF0000
+                    embed = create_win_embed(self.ctx, self.aki)
+                    return await interaction.edit_original_response(
+                        embed=embed, 
+                        view=ResultView(self.aki, self.ctx)
                     )
-                    return await interaction.edit_original_response(embed=embed)
 
             # Continue with next question
             await interaction.edit_original_response(
