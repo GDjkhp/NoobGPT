@@ -89,10 +89,8 @@ class ButtonAction(discord.ui.Button):
                 content=f"<@{self.ctx.author.id}> is playing this game! Use `{await get_guild_prefix(self.ctx)}aki` to create your own game.",
                 ephemeral=True
             )
-
         if self.action == 's':
             return await interaction.response.edit_message(content=f"Skill issue <@{interaction.user.id}>", view=None, embed=None)
-        
         try:
             if self.action == 'b':
                 await interaction.response.defer()
@@ -115,7 +113,6 @@ class ButtonAction(discord.ui.Button):
                 embed=create_question_embed(self.aki, self.ctx), 
                 view=QuestionView(self.aki, self.ctx)
             )
-
         except CantGoBackAnyFurther:
             await interaction.followup.send(content="Cannot go back any further!", ephemeral=True)
         except AkinatorError as e:
@@ -155,7 +152,6 @@ class ResultButton(discord.ui.Button):
                     except AkinatorError: pass
                 embed_loss = create_loss_embed(self.ctx)
                 await interaction.response.edit_message(embed=embed_loss, view=None)
-
         except AkinatorError as e:
             await interaction.response.send_message(content=f"Error: {str(e)}", ephemeral=True)
 
