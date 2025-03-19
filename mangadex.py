@@ -60,7 +60,7 @@ async def search_manga(query):
     search_url = f"{BASE_URL}/manga"
     params = {"title": query}
     data = await req_real(search_url, params)
-    if data["total"] > 0: return data["data"]
+    if data.get("total") and data["total"] > 0: return data["data"]
 
 async def get_chapters(manga_id, offset):
     chapters_url = f"{BASE_URL}/manga/{manga_id}/feed"
