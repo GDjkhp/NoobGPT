@@ -35,10 +35,9 @@ noobgpt_modules = [
     "custom_status", "level_insult", "respond_mode", "quoteport", "help", # "weather",
     "util_discord", "util_member", "util_message",
 ]
-moosic_modules = [
-    "util_discord", "youtubeplayer", "music",
-]
+moosic_modules = ["util_discord", "youtubeplayer", "music"]
 zero_modules = noobgpt_modules + ["util_channel"]
+squid_modules = ["util_discord", "mister_squid"]
 
 class NoobGPT(commands.Bot):
     def __init__(self, token, modules):
@@ -104,6 +103,7 @@ async def main():
         start_bot(NoobGPT("MOOSIC", moosic_modules)),
         start_bot(NoobGPT("KAGURA", noobgpt_modules)),
         start_bot(NoobGPT("ZERO", zero_modules)),
+        start_bot(NoobGPT("SQUID", squid_modules))
     )
 
 asyncio.run(main())
