@@ -257,7 +257,7 @@ async def get_guild_prefix(ctx: commands.Context):
 
 class DiscordUtil(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: commands.Bot = bot
 
     @commands.hybrid_command(description=f'{description_helper["emojis"]["utils"]} {description_helper["utils"]["config"]}')
     @app_commands.allowed_installs(guilds=True, users=True)
@@ -318,6 +318,21 @@ class DiscordUtil(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def legal(self, ctx: commands.Context):
         await copypasta(ctx)
+
+    @commands.command()
+    async def sync(self, ctx: commands.Context):
+        if check_if_not_owner(ctx): return
+        synced = await self.bot.tree.sync()
+        await ctx.reply(f"Synced {len(synced)} slash commands")
+
+    @commands.command()
+    async def stats(self, ctx: commands.Context):
+        stat_list = [
+            f"serving {len(self.bot.users)} users in {len(self.bot.guilds)} guilds",
+            f"will return in {round(self.bot.latency * 1000) if self.bot.latency != float('inf') else '♾️'}ms",
+            f"{len(self.bot.tree.get_commands())} application commands found"
+        ]
+        await ctx.reply("\n".join(stat_list))
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(DiscordUtil(bot))

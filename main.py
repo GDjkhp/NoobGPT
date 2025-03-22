@@ -92,6 +92,8 @@ class NoobGPT(commands.Bot):
             self.loop.create_task(main_gde(self))
             self.loop.create_task(main_rob(self))
         for module in self.modules:
+            exclude = ["custom_status"]
+            if self.identifier != "NOOBGPT" and module in exclude: continue
             await self.load_extension(module)
 
 async def start_bot(bot: NoobGPT):
