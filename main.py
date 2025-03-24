@@ -37,7 +37,7 @@ noobgpt_modules = [
 ]
 moosic_modules = ["util_discord", "youtubeplayer", "music"]
 zero_modules = noobgpt_modules + ["util_channel"]
-squid_modules = ["util_discord", "mister_squid"]
+squid_modules = ["util_discord", "mister_squid", "roshidere"]
 
 class NoobGPT(commands.Bot):
     def __init__(self, token, modules):
