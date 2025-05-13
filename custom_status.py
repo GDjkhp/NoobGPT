@@ -41,7 +41,6 @@ async def silly_activities(bot: commands.Bot):
                     "RADIO ONSEN EUTOPIA",
                     "bot by gdjkhp",
                     "made in yokohama, japan",
-                    "hosted in germany",
                     "written in python",
                     "powered by pterodactyl",
                     "don't make me popular >_<",

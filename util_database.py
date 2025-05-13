@@ -23,6 +23,8 @@ async def add_database2(server_id: int):
         "insult_default": True,
         "xp_module": False,
         "xp_troll": True,
+        "xp_reverse": False,
+        "xp_reverse_starting": 100,
         "xp_channel_mode": False,
         "xp_rate": 1,
         "xp_cooldown": 60,
@@ -120,3 +122,9 @@ async def set_log_channel(server_id: int, b: bool):
 
 async def set_log_notify(server_id: int, b):
     await mycol2.update_one({"guild":server_id}, {"$set": {"log_notify_mode": b}})
+
+async def set_reverse_mode(server_id: int, b: bool):
+    await mycol2.update_one({"guild":server_id}, {"$set": {"xp_reverse": b}})
+
+async def set_reverse_start(server_id: int, b):
+    await mycol2.update_one({"guild":server_id}, {"$set": {"xp_reverse_starting": b}})
