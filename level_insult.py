@@ -296,6 +296,26 @@ async def toggle_troll(ctx: commands.Context):
     await set_troll_mode(ctx.guild.id, b)
     await ctx.reply(f"`xp_troll` is set to `{b}`")
 
+async def toggle_reverse(ctx: commands.Context):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
+    db = await get_database2(ctx.guild.id)
+    b = not db["xp_reverse"]
+    await set_reverse_mode(ctx.guild.id, b)
+    if db.get("xp_reverse_starting"): await set_reverse_start(ctx.guild.id, 100)
+    await ctx.reply(f"`xp_reverse` is set to `{b}`")
+
+async def toggle_reverse_start(ctx: commands.Context, level: str):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
+    if not level or not level.isdigit(): return await ctx.reply("not a digit :(")
+    db = await get_database2(ctx.guild.id)
+    if not db.get("xp_reverse") or not db["xp_reverse"]: return await ctx.reply("`xp_reverse` is disabled")
+    await set_reverse_start(ctx.guild.id, int(level))
+    await ctx.reply(f"`xp_reverse_starting` is set to `{level}`")
+
 async def view_insults(ctx: commands.Context):
     if await command_check(ctx, "insult", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     db = await get_database2(ctx.guild.id if ctx.guild else ctx.channel.id)
@@ -726,6 +746,19 @@ class LevelInsult(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def lvlmsgtroll(self, ctx: commands.Context):
         await toggle_troll(ctx)
+
+    @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} Toggle reverse leveling")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def lvlmsgreverse(self, ctx: commands.Context):
+        await toggle_reverse(ctx)
+
+    @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} Set reverse leveling starting level")
+    @app_commands.describe(level="Starting level (100 -> 100, 99, 98, ...)")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def lvlmsgreverselvl(self, ctx: commands.Context, level:str=None):
+        await toggle_reverse_start(ctx, level)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['xp']} How to use XP system")
     @app_commands.allowed_installs(guilds=True, users=False)
