@@ -442,8 +442,8 @@ async def c_help(ctx: commands.Context):
         f"`{p}cres` reset character",
         f"`{p}cvoice <query>` set character voice",
         f"`{p}cvdel` delete character voice",
-        f"`{p}ctren` trending characters",
-        f"`{p}crec` recommended characters",
+        # f"`{p}ctren` trending characters",
+        # f"`{p}crec` recommended characters",
         "# Server commands",
         f"`{p}cchan` add/remove channel",
         f"`{p}cadm` toggle admin approval",
@@ -480,14 +480,16 @@ async def search_char(text: str, list_type: str):
         res = await client.character.recommended()
         characters = res["recommended_characters"]
     else:
-        res = await client.character.search(text)
-        characters = res["characters"]
-    sorted_characters = sorted(
+        # res = await client.character.search(text)
+        # characters = res["characters"]
+        characters = await client_voice.character.search_characters(text)
+        characters = [c.get_dict(True) for c in characters]
+    characters = sorted(
         characters,
         key=lambda x: x.get('participant__num_interactions', 0),
         reverse=True
     )
-    return sorted_characters
+    return characters
 async def search_char_id(text: str):
     chat = await client.chat.new_chat(text)
     return [
@@ -1445,17 +1447,17 @@ class CogCAI(commands.Cog):
     async def cadd(self, ctx: commands.Context, *, query:str=None):
         await add_char(ctx, query, 0)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} recommended characters")
-    @app_commands.allowed_installs(guilds=True, users=False)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def crec(self, ctx: commands.Context):
-        await add_char(ctx, None, 2)
+    # @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} recommended characters")
+    # @app_commands.allowed_installs(guilds=True, users=False)
+    # @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    # async def crec(self, ctx: commands.Context):
+    #     await add_char(ctx, None, 2)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} trending characters")
-    @app_commands.allowed_installs(guilds=True, users=False)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def ctren(self, ctx: commands.Context):
-        await add_char(ctx, None, 1)
+    # @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} trending characters")
+    # @app_commands.allowed_installs(guilds=True, users=False)
+    # @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    # async def ctren(self, ctx: commands.Context):
+    #     await add_char(ctx, None, 1)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['cai']} delete character")
     @app_commands.allowed_installs(guilds=True, users=False)
