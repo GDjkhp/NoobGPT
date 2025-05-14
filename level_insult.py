@@ -168,7 +168,7 @@ async def view_xp_roles(ctx: commands.Context):
     db = await get_database2(ctx.guild.id)
     text_list = []
     for role in db["xp_roles"]:
-        text_list.append(f'<@&{role["role_id"]}>')
+        text_list.append(f'<@&{role["role_id"]}> ({role["role_id"]})')
         text_list.append(f'Level: {role["role_level"]}, Multiplier: {role["role_multiplier"]}, Cooldown: {role["role_cooldown"]}, Keep: {role["role_keep"]}')
 
     if not text_list: return await ctx.reply("`xp_roles` not found 😳")
