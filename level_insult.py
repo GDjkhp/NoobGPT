@@ -56,7 +56,7 @@ async def earn_xp(bot: commands.Bot, msg: discord.Message):
     if not db["xp_module"]: return
 
     fake_chan = get_channel_data(msg.channel.id, db["channels"])
-    fake_roles = get_member_roles(msg.author, db['xp_roles'])
+    fake_roles = get_member_roles(msg.author, db["xp_roles"])
     if check_member_if_xp_restricted(fake_roles, fake_chan): return
     multipliers = get_all_multipliers(fake_roles, fake_chan, db["xp_rate"])
     xp = int(random.randint(15, 25) * multipliers)
@@ -71,14 +71,18 @@ async def earn_xp(bot: commands.Bot, msg: discord.Message):
             data["msgs"] += 1
             data["lastUpdated"] = now
             if loop_level(data):
-                await assign_roles_logic(msg, data["level"], db['xp_roles'])
+                await assign_roles_logic(msg, data["level"], db["xp_roles"])
                 json_data = read_json_file(path)
                 if db["xp_troll"]: text: str = random.choice(json_data["level up loser"])
                 else:
                     if db["xp_messages"]: text = random.choice(db["xp_messages"])
                     else: text = json_data["mee6 default"]
                 user_data = {"name": f"<@{msg.author.id}>", "level": data["level"]}
-                await msg.channel.send(text.format_map(user_data))
+                if not db.get("xp_reverse") or not db["xp_reverse"]:
+                    await msg.channel.send(text.format_map(user_data))
+                else:
+                    reverse_data = {"name": f"<@{msg.author.id}>", "level": db["xp_reverse_starting"] - data["level"]}
+                    await msg.channel.send(text.format_map(reverse_data))
             await push_player(msg.guild.id, data)
             return
     await push_player(msg.guild.id, player_data(xp, msg.author.id, now)) # not found
@@ -119,7 +123,7 @@ async def user_rank(ctx: commands.Context, arg: str):
     player_db = await get_player_db(ctx.guild.id)
     for player in player_db["players"]:
         if player['userID'] == int(arg):
-            fake_roles = get_member_roles(ctx.author, db['xp_roles'])
+            fake_roles = get_member_roles(ctx.author, db["xp_roles"])
             fake_chan = get_channel_data(ctx.channel.id, db["channels"])
             cooldown, t_id, t_type = get_lowest_cooldown(fake_roles, fake_chan, db['xp_cooldown'])
             return await ctx.reply(embed=embed_xp(ctx.author, player, fake_roles, cooldown, t_id, db['xp_rate'], t_type, fake_chan))
@@ -145,9 +149,10 @@ async def add_xp_role(ctx: commands.Context, arg: str):
     p = await get_guild_prefix(ctx)
     if not arg or not arg.lstrip('-').isdigit():
         return await ctx.reply(f"usage: `{p}xprole <level>`\nparameters:\n`-1` = restricted, `0` = none, `1, 2, ...` = levels")
-    
-    role = await ctx.guild.create_role(name="Level "+arg if int(arg) > 0 else "special role" if int(arg) == 0 else "xp restriction", 
-                                       mentionable=False)
+    db = await get_database2(ctx.guild.id)
+    name_reverse = "Level "+ str(db["xp_reverse_starting"]-int(arg)) if db.get("xp_reverse") and db["xp_reverse"] else "Level "+arg
+    name_role = name_reverse if int(arg) > 0 else "special role" if int(arg) == 0 else "xp restriction"
+    role = await ctx.guild.create_role(name=name_role, mentionable=False)
     await push_role(ctx.guild.id, role_data(role.id, int(arg)))
     await ctx.reply(f"<@&{role.id}> has been created. edit attributes using `{p}xproleedit <roleid>`, `name` and `color` in server settings.")
 
@@ -301,9 +306,9 @@ async def toggle_reverse(ctx: commands.Context):
     if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     db = await get_database2(ctx.guild.id)
-    b = not db["xp_reverse"]
+    b = not db["xp_reverse"] if db.get("xp_reverse") else True
     await set_reverse_mode(ctx.guild.id, b)
-    if db.get("xp_reverse_starting"): await set_reverse_start(ctx.guild.id, 100)
+    if not db.get("xp_reverse_starting"): await set_reverse_start(ctx.guild.id, 100)
     await ctx.reply(f"`xp_reverse` is set to `{b}`")
 
 async def toggle_reverse_start(ctx: commands.Context, level: str):
