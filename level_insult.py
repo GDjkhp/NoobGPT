@@ -105,7 +105,7 @@ async def toggle_insult(ctx: commands.Context):
 
 async def toggle_xp(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    if await command_check(ctx, "xp", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     db = await get_database2(ctx.guild.id)
     b = not db["xp_module"]
@@ -114,7 +114,7 @@ async def toggle_xp(ctx: commands.Context):
 
 async def user_rank(ctx: commands.Context, arg: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    if await command_check(ctx, "xp", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     db = await get_database2(ctx.guild.id)
     if not db["xp_module"]: return
     if db.get("bot_rank_channel") and not db["bot_rank_channel"] == ctx.channel.id: return
@@ -131,7 +131,7 @@ async def user_rank(ctx: commands.Context, arg: str):
 
 async def guild_lead(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    if await command_check(ctx, "xp", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     db = await get_database2(ctx.guild.id)
     if not db["xp_module"]: return
     if db.get("bot_rank_channel") and not db["bot_rank_channel"] == ctx.channel.id: return
@@ -139,7 +139,7 @@ async def guild_lead(ctx: commands.Context):
 
 async def add_xp_role(ctx: commands.Context, arg: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    if await command_check(ctx, "xp", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
 
     permissions = ctx.channel.permissions_for(ctx.me)
@@ -158,7 +158,7 @@ async def add_xp_role(ctx: commands.Context, arg: str):
 
 async def view_xp_roles(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    if await command_check(ctx, "xp", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     
     permissions = ctx.channel.permissions_for(ctx.me)
@@ -183,7 +183,7 @@ async def view_xp_roles(ctx: commands.Context):
 
 async def edit_xp_role(ctx: commands.Context, role_id: str, keep: str, multiplier: str, cooldown: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    if await command_check(ctx, "xp", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     
     permissions = ctx.channel.permissions_for(ctx.me)
@@ -230,7 +230,7 @@ async def edit_xp_role(ctx: commands.Context, role_id: str, keep: str, multiplie
 
 async def delete_xp_role(ctx: commands.Context, role_id: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    if await command_check(ctx, "xp", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     
     permissions = ctx.channel.permissions_for(ctx.me)
@@ -253,7 +253,7 @@ async def delete_xp_role(ctx: commands.Context, role_id: str):
 
 async def toggle_special_channel(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    if await command_check(ctx, "xp", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
 
     db = await get_database2(ctx.guild.id)
@@ -267,7 +267,7 @@ async def toggle_special_channel(ctx: commands.Context):
 
 async def edit_special_channel(ctx: commands.Context, rate: str, cooldown: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    if await command_check(ctx, "xp", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
 
     db = await get_database2(ctx.guild.id)
@@ -294,7 +294,7 @@ async def edit_special_channel(ctx: commands.Context, rate: str, cooldown: str):
 
 async def toggle_troll(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    if await command_check(ctx, "xp", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     db = await get_database2(ctx.guild.id)
     b = not db["xp_troll"]
@@ -303,7 +303,7 @@ async def toggle_troll(ctx: commands.Context):
 
 async def toggle_reverse(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    if await command_check(ctx, "xp", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     db = await get_database2(ctx.guild.id)
     b = not db["xp_reverse"] if db.get("xp_reverse") else True
@@ -313,7 +313,7 @@ async def toggle_reverse(ctx: commands.Context):
 
 async def toggle_reverse_start(ctx: commands.Context, level: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    if await command_check(ctx, "xp", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     if not level or not level.isdigit(): return await ctx.reply("not a digit :(")
     db = await get_database2(ctx.guild.id)
@@ -337,7 +337,7 @@ async def view_insults(ctx: commands.Context):
 
 async def view_lvlmsgs(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    if await command_check(ctx, "xp", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     db = await get_database2(ctx.guild.id)
     p = await get_guild_prefix(ctx)
     if db["xp_troll"]: return await ctx.reply(f"xp troll is enabled. disable this first using `{p}lvlmsgtroll`.")
@@ -365,7 +365,7 @@ async def add_insult(ctx: commands.Context, arg: str):
 
 async def add_lvl_msg(ctx: commands.Context, arg: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    if await command_check(ctx, "xp", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     p = await get_guild_prefix(ctx)
     if not arg: return await ctx.reply(f"usage: `{p}lvlmsgadd <str>`\nformat: {read_json_file(path)['mee6 default']}")
@@ -384,7 +384,7 @@ async def del_insult(ctx: commands.Context, arg: str):
 
 async def del_lvl_msg(ctx: commands.Context, arg: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    if await command_check(ctx, "xp", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin", ephemeral=True)
     p = await get_guild_prefix(ctx)
     if not arg: return await ctx.reply(f"usage: `{p}lvlmsgdel <str>`")
@@ -394,18 +394,18 @@ async def del_lvl_msg(ctx: commands.Context, arg: str):
 # TODO: add xp
 async def user_set_xp(ctx: commands.Context, user: str, number: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    if await command_check(ctx, "xp", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin", ephemeral=True)
 
 # TODO: set level
 async def user_set_level(ctx: commands.Context, user: str, number: str):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    if await command_check(ctx, "xp", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin", ephemeral=True)
 
 async def rank_channel(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
-    if await command_check(ctx, "level", "utils"): return await ctx.reply("command disabled", ephemeral=True)
+    if await command_check(ctx, "xp", "utils"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin", ephemeral=True)
 
     db = await get_database2(ctx.guild.id)
