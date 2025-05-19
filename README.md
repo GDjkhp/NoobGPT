@@ -26,14 +26,15 @@ A <b>very simple yet complicated</b> multi-purpose Discord bot that does pretty 
 > Hosting your own instance is recommended. 24/7 uptime is not guaranteed :(
 
 ## Instances
-Note: Discord won't approve my message content application because it's not unique enough.
-| **alias** | **servers**       |
-| :-------- | :---------------: |
-| noobgpt   | 100/100 (full)    |
-| kagura    | ?/100             |
-| zero      | private (eternal) |
-| squid     | ?/100             |
-| moosic    | ?/100             |
+Note: Discord won't approve my message content application because it's not unique enough. Use KAGURA instance for now.
+
+| **alias** | **servers** | **remarks**                        |
+| :-------- | ----------: | :--------------------------------- |
+| noobgpt   | 100/100     | public beta / [invite link](https://discord.com/oauth2/authorize?client_id=1090254079609020447&permissions=633731823291392&scope=applications.commands%20bot) |
+| kagura    | ?/100       | public beta / [invite link](https://discord.com/oauth2/authorize?client_id=1120259379715903508&permissions=633731823291392&scope=applications.commands%20bot) |
+| squid     | ?/100       | public beta (games) / [invite link](https://discord.com/oauth2/authorize?client_id=1352614776831742036&permissions=633731823291392&scope=applications.commands%20bot) |
+| moosic    | ?/100       | public beta (music) / [invite link](https://discord.com/api/oauth2/authorize?client_id=1073823671392686162&permissions=412588788736&scope=applications.commands%20bot)    |
+| zero      | ?           | private beta / [server invite](https://discord.gg/fv4st) |
 
 ## Source Code
 * <https://github.com/GDjkhp/level-up-loser-python-branch>
