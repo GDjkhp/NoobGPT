@@ -25,6 +25,16 @@ A <b>very simple yet complicated</b> multi-purpose Discord bot that does pretty 
 
 > Hosting your own instance is recommended. 24/7 uptime is not guaranteed :(
 
+## Instances
+Note: Discord won't approve my message content application because it's not unique enough.
+| **alias** | **servers**       |
+| :-------- | :---------------: |
+| noobgpt   | 100/100 (full)    |
+| kagura    | ?/100             |
+| zero      | private (eternal) |
+| squidbot  | ?/100             |
+| moosic    | ?/100             |
+
 ## Source Code
 * <https://github.com/GDjkhp/level-up-loser-python-branch>
 
@@ -40,7 +50,7 @@ Host your bots for free: [Bot-Hosting.net](https://bot-hosting.net/?aff=72955418
 ## Support
 Feature requests, contributions, and improvements are welcome!
 <br>
-Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka), [Eternal Discord Server](https://discord.gg/fv4st), or reach out [GDjkhp](https://gdjkhp.github.io)
+Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) or reach out [GDjkhp](https://gdjkhp.github.io)
 
 ## Donate
 [`Paypal`](https://paypal.me/GDjkhp) • [`Patreon`](https://www.patreon.com/GDjkhp) • [`Fiverr`](https://www.fiverr.com/gdjkhp/develop-host-and-maintain-your-discord-bot) • [`Top.gg`](https://top.gg/bot/1090254079609020447)

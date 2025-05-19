@@ -2,7 +2,7 @@ from PIL import Image
 from discord.ext import commands
 import discord
 from discord import app_commands
-import io
+import io, time
 import aiohttp
 from typing import Union
 from reportlab.pdfgen import canvas
@@ -63,14 +63,16 @@ async def img_converter(ctx: commands.Context, format: str, images: str):
         await ctx.send("No valid images provided. Please attach images or provide valid image URLs.")
         return
 
+    # Special handling for SVG format
+    if format == 'svg':
+        await ctx.send("SVG conversion is not supported as it requires vector graphics conversion.")
+        return
+
+    info = await ctx.send("please wait")
+    old = round(time.time() * 1000)
     try:
         # Convert all image data to PIL Images
         pil_images = [Image.open(io.BytesIO(data)) for data in image_data_list]
-
-        # Special handling for SVG format
-        if format == 'svg':
-            await ctx.send("SVG conversion is not supported as it requires vector graphics conversion.")
-            return
 
         # Process the images
         outputs = process_images(pil_images, format)
@@ -87,14 +89,14 @@ async def img_converter(ctx: commands.Context, format: str, images: str):
             for i, output in enumerate(outputs):
                 filename = f"converted_{i+1}.{format}"
                 files.append(discord.File(fp=output, filename=filename))
-            
+
             await ctx.send(
                 content=f"Converted {len(files)} images to {format.upper()}:",
                 files=files
             )
-
+        await info.edit(content=f"Took {round(time.time() * 1000)-old}ms")
     except Exception as e:
-        await ctx.send(f"An error occurred while converting the images: {str(e)}")
+        await info.edit(content=f"An error occurred while converting the images: {str(e)}")
 
 async def download_image(url: str) -> bytes:
     async with aiohttp.ClientSession() as session:
@@ -102,7 +104,7 @@ async def download_image(url: str) -> bytes:
             if response.status != 200:
                 raise commands.BadArgument("Failed to download image from URL.")
             return await response.read()
-    
+
 def is_animated(img: Image.Image) -> bool:
     try:
         img.seek(1)
@@ -111,37 +113,37 @@ def is_animated(img: Image.Image) -> bool:
         return False
     finally:
         img.seek(0)
-        
+
 def convert_multiple_to_pdf(images: list[Image.Image]) -> io.BytesIO:
     output = io.BytesIO()
     # Use A4 as default page size
     c = canvas.Canvas(output, pagesize=A4)
     page_width, page_height = A4
-    
+
     for img in images:
         # Convert RGBA to RGB if necessary
         if img.mode in ('RGBA', 'LA'):
             background = Image.new('RGB', img.size, (255, 255, 255))
             background.paste(img, mask=img.split()[-1])
             img = background
-        
+
         # If image is animated, use first frame
         if is_animated(img):
             img.seek(0)
-        
+
         # Calculate scaling to fit image on page while preserving aspect ratio
         img_width, img_height = img.size
         width_ratio = page_width / img_width
         height_ratio = page_height / img_height
         scale = min(width_ratio, height_ratio) * 0.9  # 90% of page size for margins
-        
+
         scaled_width = img_width * scale
         scaled_height = img_height * scale
-        
+
         # Center image on page
         x_offset = (page_width - scaled_width) / 2
         y_offset = (page_height - scaled_height) / 2
-        
+
         # Draw the image
         c.drawImage(
             ImageReader(img),
@@ -150,22 +152,22 @@ def convert_multiple_to_pdf(images: list[Image.Image]) -> io.BytesIO:
             height=scaled_height,
             preserveAspectRatio=True
         )
-        
+
         c.showPage()  # Add a new page
-    
+
     c.save()
     output.seek(0)
     return output
-        
+
 def process_images(images: list[Image.Image], format: str) -> Union[io.BytesIO, list[io.BytesIO]]:
     if format == 'pdf':
         return convert_multiple_to_pdf(images)
-    
+
     # For non-PDF formats, process each image separately
     outputs = []
     for img in images:
         output = io.BytesIO()
-        
+
         if format == 'jpeg':
             if img.mode in ('RGBA', 'LA'):
                 background = Image.new('RGB', img.size, (255, 255, 255))
@@ -175,10 +177,10 @@ def process_images(images: list[Image.Image], format: str) -> Union[io.BytesIO, 
 
         elif format == 'tiff':
             img.save(output, format='TIFF', compression='lzw')
-        
+
         elif format == 'ico': # bug: windows can't read (corrupted)
             img.save(output, format='ICO', sizes=special_formats['ico']['sizes'])
-        
+
         elif format == 'avif': # no support (see pillow-avif-plugin)
             img.save(output, format='AVIF', quality=special_formats['avif']['quality'])
 
@@ -191,7 +193,7 @@ def process_images(images: list[Image.Image], format: str) -> Union[io.BytesIO, 
                         img.seek(img.tell() + 1)
                 except EOFError:
                     pass
-                
+
                 frames[0].save(
                     output,
                     format='PNG',
@@ -202,7 +204,7 @@ def process_images(images: list[Image.Image], format: str) -> Union[io.BytesIO, 
                 )
             else:
                 img.save(output, format='PNG')
-        
+
         else:
             if format in animated_formats and is_animated(img):
                 img.save(
@@ -214,10 +216,10 @@ def process_images(images: list[Image.Image], format: str) -> Union[io.BytesIO, 
                 )
             else:
                 img.save(output, format=format.upper())
-        
+
         output.seek(0)
         outputs.append(output)
-    
+
     return outputs
 
 async def fmt_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
