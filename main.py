@@ -38,6 +38,7 @@ noobgpt_modules = [
 moosic_modules = ["util_discord", "youtubeplayer", "music"]
 zero_modules = noobgpt_modules + ["util_channel"]
 squid_modules = ["util_discord", "mister_squid", "roshidere"]
+exclude_bots = ["MOOSIC", "SQUID"]
 
 class NoobGPT(commands.Bot):
     def __init__(self, token, modules):
@@ -63,7 +64,7 @@ class NoobGPT(commands.Bot):
         print(f"{self.identifier}: Left {guild.name} ({guild.id})")
 
     async def on_message(self, message: discord.Message):
-        if self.identifier != "MOOSIC":
+        if self.identifier not in exclude_bots:
             # self.loop.create_task(main_styx(self, message))
             self.loop.create_task(c_ai(self, message))
             self.loop.create_task(insult_user(self, message))
@@ -71,13 +72,13 @@ class NoobGPT(commands.Bot):
         await self.process_commands(message)
 
     async def on_message_edit(self, before: discord.Message, after: discord.Message):
-        if self.identifier == "MOOSIC": return
+        if self.identifier in exclude_bots: return
         self.loop.create_task(
             message_snitcher(before, after,"Message updated", f"#{before.channel}", 0x00ff00)
         )
 
     async def on_message_delete(self, message: discord.Message):
-        if self.identifier == "MOOSIC": return
+        if self.identifier in exclude_bots: return
         self.loop.create_task(
             message_snitcher(message, None, "Message deleted", f"#{message.channel}", 0xff0000)
         )

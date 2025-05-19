@@ -32,7 +32,7 @@ Note: Discord won't approve my message content application because it's not uniq
 | noobgpt   | 100/100 (full)    |
 | kagura    | ?/100             |
 | zero      | private (eternal) |
-| squidbot  | ?/100             |
+| squid     | ?/100             |
 | moosic    | ?/100             |
 
 ## Source Code
