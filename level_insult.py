@@ -126,7 +126,8 @@ async def user_rank(ctx: commands.Context, arg: str):
             fake_roles = get_member_roles(ctx.author, db["xp_roles"])
             fake_chan = get_channel_data(ctx.channel.id, db["channels"])
             cooldown, t_id, t_type = get_lowest_cooldown(fake_roles, fake_chan, db['xp_cooldown'])
-            return await ctx.reply(embed=embed_xp(ctx.author, player, fake_roles, cooldown, t_id, db['xp_rate'], t_type, fake_chan))
+            real_member = ctx.guild.get_member(int(arg))
+            if real_member: return await ctx.reply(embed=embed_xp(real_member, player, fake_roles, cooldown, t_id, db['xp_rate'], t_type, fake_chan))
     await ctx.reply("null player")
 
 async def guild_lead(ctx: commands.Context):
