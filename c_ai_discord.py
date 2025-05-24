@@ -44,14 +44,19 @@ async def queue_msgs(ctx: commands.Context, chars, clean_text):
         # check if history exists
         try: chat = await client_voice.chat.fetch_chat(x["history_id"])
         except: continue
-        # this is terrible
-        while True:
+        # this is no longer terrible (kinda)
+        retries = 0
+        turn = None
+        while retries < 3:
             try:
                 turn = await client_voice.chat.send_message(x["char_id"], x["history_id"], clean_text)
                 break
-            except Exception as e: print(f"Exception in queue_msgs: {e} ({[x["char_id"], x["history_id"]]})")
-        if turn.get_primary_candidate(): await add_task_to_queue(ctx, x, chat, turn)
-        else: print(turn)
+            except Exception as e:
+                print(f"Exception in queue_msgs: {e}\n({[x["char_id"], x["history_id"]]})\nRetries: {retries}")
+                retries += 1
+        if turn: 
+            if turn.get_primary_candidate(): await add_task_to_queue(ctx, x, chat, turn)
+            else: print(turn)
 # queue worker
 async def c_ai_init(ctx: commands.Context):
     while True:
