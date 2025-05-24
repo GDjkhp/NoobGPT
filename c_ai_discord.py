@@ -20,7 +20,7 @@ from util_discord import command_check, check_if_master_or_admin, description_he
 client_voice = PyCharacterAI.Client()
 client_voice.set_token(os.getenv('CHARACTER'))
 client_voice.set_account_id(os.getenv('CHARACTERID'))
-client = PyAsyncCAI(os.getenv('CHARACTER'))
+# client = PyAsyncCAI(os.getenv('CHARACTER'))
 
 mycol = util_database.myclient["ai"]["character"]
 list_types = ["search", "trending", "recommended"]
@@ -109,7 +109,7 @@ async def send_webhook_message(ctx: commands.Context, x, chat: Chat, turn: Turn,
                 if db.get("voicehook"): speech_file = discord.File(ogg_buffer, filename="voice-message.ogg")
         except Exception as e:
             print(f"send_webhook_message: {e}")
-    
+
         if final_text or speech_file:
             if type(ctx.channel) == discord.Thread:
                 if speech_file: await wh.send(final_text, file=speech_file, thread=ctx.channel)
@@ -183,12 +183,12 @@ async def add_char(ctx: commands.Context, text: str, search_type: int):
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
-    
+
     db = await get_database(ctx.guild.id)
     if db["admin_approval"] and not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
         return await ctx.reply("channel not found")
-    
+
     list_type = list_types[search_type]
     if search_type == 0: 
         if not text: return await ctx.reply(f"usage: `{await get_guild_prefix(ctx)}cadd <query>`")
@@ -210,12 +210,12 @@ async def delete_char(ctx: commands.Context):
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
-    
+
     db = await get_database(ctx.guild.id)
     if db["admin_approval"] and not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
         return await ctx.reply("channel not found")
-    
+
     if not db["characters"]: return await ctx.reply("no entries found")
     await ctx.reply(view=DeleteView(ctx, db["characters"], 0), embed=view_embed(ctx, db["characters"], 0, 0xff0000))
 
@@ -226,7 +226,7 @@ async def t_chan(ctx: commands.Context):
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
-    
+
     db = await get_database(ctx.guild.id)
     if db["admin_approval"] and not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     ok = await toggle_chan(ctx.guild.id, ctx.channel.id)
@@ -240,7 +240,7 @@ async def t_adm(ctx: commands.Context):
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
-    
+
     db = await get_database(ctx.guild.id)
     if db["admin_approval"] and not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     await set_admin(ctx.guild.id, not db["admin_approval"])
@@ -253,7 +253,7 @@ async def t_mode(ctx: commands.Context):
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
-    
+
     db = await get_database(ctx.guild.id)
     if db["admin_approval"] and not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     await set_mode(ctx.guild.id, not db["channel_mode"])
@@ -266,12 +266,12 @@ async def set_rate(ctx: commands.Context, num: str):
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
-    
+
     db = await get_database(ctx.guild.id)
     if db["admin_approval"] and not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
         return await ctx.reply("channel not found")
-    
+
     if not num: return await ctx.reply(f"usage: `{await get_guild_prefix(ctx)}crate <0-100>`")
     if not num.isdigit(): return await ctx.reply("not a digit")
     num = fix_num(num)
@@ -285,11 +285,11 @@ async def view_char(ctx: commands.Context):
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
-    
+
     db = await get_database(ctx.guild.id)
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
         return await ctx.reply("channel not found")
-    
+
     if not db["characters"]: return await ctx.reply("no entries found")
     text = [
         f"message_rate: `{db['message_rate']}%`",
@@ -308,12 +308,12 @@ async def edit_char(ctx: commands.Context, rate: str):
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
-    
+
     db = await get_database(ctx.guild.id)
     if db["admin_approval"] and not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
         return await ctx.reply("channel not found")
-    
+
     if not rate: return await ctx.reply(f"usage: `{await get_guild_prefix(ctx)}cedit <0-100>`")
     if not rate.isdigit(): return await ctx.reply("not a digit :(")
     rate = fix_num(rate)
@@ -329,7 +329,7 @@ async def reset_char(ctx: commands.Context):
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
-    
+
     db = await get_database(ctx.guild.id)
     if db["admin_approval"] and not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
@@ -346,12 +346,12 @@ async def set_mention_mode(ctx: commands.Context, modes: str):
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
-    
+
     db = await get_database(ctx.guild.id)
     if db["admin_approval"] and not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
         return await ctx.reply("channel not found")
-    
+
     if not modes:
         text = [
             f"usage: `{await get_guild_prefix(ctx)}cping <basic/nospace/split/snake>`",
@@ -378,7 +378,7 @@ async def voice_mode(ctx: commands.Context):
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
-    
+
     db = await get_database(ctx.guild.id)
     if db["admin_approval"] and not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     await set_voice_mode(ctx.guild.id, not bool(db.get("voicehook")))
@@ -391,7 +391,7 @@ async def voice_only(ctx: commands.Context):
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
-    
+
     db = await get_database(ctx.guild.id)
     if db["admin_approval"] and not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     await set_voice_only(ctx.guild.id, not bool(db.get("voice_only")))
@@ -404,7 +404,7 @@ async def voice_search(ctx: commands.Context, text: str):
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
-    
+
     db = await get_database(ctx.guild.id)
     if db["admin_approval"] and not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
@@ -428,12 +428,12 @@ async def voice_delete(ctx: commands.Context):
     permissions = ctx.channel.permissions_for(ctx.me)
     if not permissions.manage_webhooks or not permissions.manage_roles:
         return await ctx.reply("**manage webhooks and/or manage roles are disabled :(**")
-    
+
     db = await get_database(ctx.guild.id)
     if db["admin_approval"] and not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin")
     if db["channel_mode"] and not ctx.channel.id in db["channels"]: 
         return await ctx.reply("channel not found")
-    
+
     if not db["characters"]: return await ctx.reply("no entries found")
     await ctx.reply(view=DeleteVoiceView(ctx, db["characters"], 0), embed=view_embed(ctx, db["characters"], 0, 0x808080))
 
@@ -479,17 +479,18 @@ async def mode_auto(interaction: discord.Interaction, current: str) -> list[app_
     ]
 
 async def search_char(text: str, list_type: str):
-    if list_type == "trending": 
-        res = await client.character.trending()
-        characters = res["trending_characters"]
-    elif list_type == "recommended":
-        res = await client.character.recommended()
-        characters = res["recommended_characters"]
-    else:
-        # res = await client.character.search(text)
-        # characters = res["characters"]
-        characters = await client_voice.character.search_characters(text)
-        characters = [c.get_dict(True) for c in characters]
+    # if list_type == "trending": 
+    #     res = await client.character.trending()
+    #     characters = res["trending_characters"]
+    # elif list_type == "recommended":
+    #     res = await client.character.recommended()
+    #     characters = res["recommended_characters"]
+    # else:
+    #     res = await client.character.search(text)
+    #     characters = res["characters"]
+
+    characters = await client_voice.character.search_characters(text)
+    characters = [c.get_dict(True) for c in characters]
     characters = sorted(
         characters,
         key=lambda x: x.get('participant__num_interactions', 0),
@@ -497,17 +498,24 @@ async def search_char(text: str, list_type: str):
     )
     return characters
 async def search_char_id(text: str):
-    chat = await client.chat.new_chat(text)
-    return [
-        {
-            "external_id": text,
-            "title": "⁉️",
-            "avatar_file_name": chat["messages"][0]["src__character__avatar_file_name"],
-            "participant__name": chat["messages"][0]["src__name"],
-            "participant__num_interactions": -1,
-            "user__username": chat["messages"][0]["src__user__username"],
-        }
-    ]
+    # chat = await client.chat.new_chat(text)
+    # return [
+    #     {
+    #         "external_id": text,
+    #         "title": "⁉️",
+    #         "avatar_file_name": chat["messages"][0]["src__character__avatar_file_name"],
+    #         "participant__name": chat["messages"][0]["src__name"],
+    #         "participant__num_interactions": -1,
+    #         "user__username": chat["messages"][0]["src__user__username"],
+    #     }
+    # ]
+
+    try:
+        char = await client_voice.character.fetch_character_info(text)
+        return [char.get_dict(True)]
+    except Exception as e:
+        print(f"Exception in search_char_id: {e}")
+        return []
 async def load_image(url):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
@@ -787,7 +795,7 @@ class nextPage(discord.ui.Button):
     def __init__(self, ctx: commands.Context, arg: str, result: list, index: int, l: str):
         super().__init__(emoji=l, style=discord.ButtonStyle.success)
         self.result, self.index, self.arg, self.ctx = result, index, arg, ctx
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -798,12 +806,12 @@ class nextPage(discord.ui.Button):
 class DisabledButton(discord.ui.Button):
     def __init__(self, e: str):
         super().__init__(emoji=e, style=discord.ButtonStyle.success, disabled=True)
-        
+
 class CancelButton(discord.ui.Button):
     def __init__(self, ctx: commands.Context, row: int=None):
         super().__init__(emoji="❌", style=discord.ButtonStyle.success, row=row)
         self.ctx = ctx
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -834,7 +842,7 @@ class DeleteAllButton(discord.ui.Button):
     def __init__(self, ctx: commands.Context, result: list, row: int=None):
         super().__init__(emoji="💀", style=discord.ButtonStyle.success, row=row)
         self.ctx, self.result = ctx, result
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -851,7 +859,7 @@ class ResetAllButton(discord.ui.Button):
     def __init__(self, ctx: commands.Context, result: list, row: int=None):
         super().__init__(emoji="💀", style=discord.ButtonStyle.success, row=row)
         self.ctx, self.result = ctx, result
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -884,7 +892,7 @@ class EditAllButton(discord.ui.Button):
     def __init__(self, ctx: commands.Context, result: list, rate: int, row: int=None):
         super().__init__(emoji="💀", style=discord.ButtonStyle.success, row=row)
         self.ctx, self.result, self.rate = ctx, result, rate
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -943,7 +951,7 @@ class nextPageDelete(discord.ui.Button):
     def __init__(self, ctx: commands.Context, result: list, index: int, l: str):
         super().__init__(emoji=l, style=discord.ButtonStyle.success)
         self.result, self.index, self.ctx = result, index, ctx
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -974,7 +982,7 @@ class nextPageAvail(discord.ui.Button):
     def __init__(self, ctx: commands.Context, result: list, index: int, l: str):
         super().__init__(emoji=l, style=discord.ButtonStyle.success)
         self.result, self.index, self.ctx = result, index, ctx
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -1015,7 +1023,7 @@ class EditChoice(discord.ui.Select):
                     await edit_method(self.ctx, selected, w, self.rate)
                     break
                 else: mod_webhooks.remove(w)
-        
+
         if not found: # create webhook
             parent = self.ctx.channel
             threads = []
@@ -1058,7 +1066,7 @@ class nextPageEdit(discord.ui.Button):
     def __init__(self, ctx: commands.Context, result: list, index: int, l: str, rate: int):
         super().__init__(emoji=l, style=discord.ButtonStyle.success)
         self.result, self.index, self.ctx, self.rate = result, index, ctx, rate
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -1091,14 +1099,14 @@ class nextPageReset(discord.ui.Button):
     def __init__(self, ctx: commands.Context, result: list, index: int, l: str):
         super().__init__(emoji=l, style=discord.ButtonStyle.success)
         self.result, self.index, self.ctx = result, index, ctx
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(view = ResetView(self.ctx, self.result, self.index), 
                                                 embed= view_embed(self.ctx, self.result, self.index, 0xff00ff))
-        
+
 class ResetChoice(discord.ui.Select):
     def __init__(self, ctx: commands.Context, index: int, result: list):
         super().__init__(placeholder=f"{min(index + pagelimit, len(result))}/{len(result)} found")
@@ -1171,7 +1179,7 @@ class CharVoiceChoice(discord.ui.Select):
         selected["voice_id"] = self.voice.voice_id
         await push_character(self.ctx.guild.id, selected)
         await interaction.edit_original_response(content=f"`{self.voice.name}` voice has been set for character `{selected['name']}`")
-        
+
 class CharVoiceView(discord.ui.View):
     def __init__(self, ctx: commands.Context, voice: Voice, result: list, index: int):
         super().__init__(timeout=None)
@@ -1196,7 +1204,7 @@ class nextPageCharVoice(discord.ui.Button):
     def __init__(self, ctx: commands.Context, voice: Voice, result: list, index: int, l: str):
         super().__init__(emoji=l, style=discord.ButtonStyle.success)
         self.result, self.index, self.ctx, self.voice = result, index, ctx, voice
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -1229,7 +1237,7 @@ class nextPageVoice(discord.ui.Button):
     def __init__(self, ctx: commands.Context, arg: str, result: list, index: int, l: str):
         super().__init__(emoji=l, style=discord.ButtonStyle.success)
         self.result, self.index, self.ctx, self.arg = result, index, ctx, arg
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -1260,7 +1268,7 @@ class DeleteAllVoiceButton(discord.ui.Button):
     def __init__(self, ctx: commands.Context, result: list, row: int=None):
         super().__init__(emoji="💀", style=discord.ButtonStyle.success, row=row)
         self.ctx, self.result = ctx, result
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -1277,7 +1285,7 @@ class nextPageDeleteVoice(discord.ui.Button):
     def __init__(self, ctx: commands.Context, result: list, index: int, l: str):
         super().__init__(emoji=l, style=discord.ButtonStyle.success)
         self.result, self.index, self.ctx = result, index, ctx
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -1370,7 +1378,7 @@ async def toggle_chan(server_id: int, chan_id):
     if await mycol.find_one({"guild":server_id, "channels": chan_id}):
         return await pull_chan(server_id, chan_id)
     return await push_chan(server_id, chan_id)
-    
+
 async def set_admin(server_id: int, b: bool):
     await mycol.update_one({"guild":server_id}, {"$set": {"admin_approval": b}})
 
