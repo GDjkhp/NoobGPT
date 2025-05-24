@@ -41,9 +41,12 @@ async def add_task_to_queue(ctx: commands.Context, x, chat, turn):
 async def queue_msgs(ctx: commands.Context, chars, clean_text):
     for x in chars:
         if not x.get("char_id"): return
-        try: chat = await client_voice.chat.fetch_chat(x["history_id"])
-        except: continue
-        turn = await client_voice.chat.send_message(x["char_id"], x["history_id"], clean_text)
+        while True:
+            try:
+                chat = await client_voice.chat.fetch_chat(x["history_id"])
+                turn = await client_voice.chat.send_message(x["char_id"], x["history_id"], clean_text)
+                break
+            except Exception as e: print(f"Exception in queue_msgs: {e} ({[x["char_id"], x["history_id"]]})")
         if turn.get_primary_candidate(): await add_task_to_queue(ctx, x, chat, turn)
         else: print(turn)
 # queue worker
