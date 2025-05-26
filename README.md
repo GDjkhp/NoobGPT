@@ -12,7 +12,7 @@ A <b>very simple yet complicated</b> multi-purpose Discord bot that does pretty 
 **Let me be with you! (>3<)**
 * I can generate AI text and images!
 * I can play music in voice channels!
-* I can lookup tv shows, movies, anime and manga!
+* I can lookup TV shows, movies, anime and manga!
 * I can download and convert YouTube videos!
 
 **You can customize me as your own! How cool is that!**
