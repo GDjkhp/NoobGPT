@@ -30,7 +30,14 @@ async def ai_respond_mode(ctx: commands.Context, model: str):
             "  * `True` = always active: read message, if name/nickname mentioned in text, respond",
             "  * `False` = respond only on pings",
         ]
-        return await ctx.reply("\n".join(final_text))
+        text = "\n".join(final_text)
+        chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
+        replyFirst = True
+        for chunk in chunks:
+            if replyFirst: 
+                replyFirst = False
+                await ctx.reply(chunk)
+            else: await ctx.send(chunk)
     if model != "off":
         await set_ai_mode(id, model)
         await ctx.reply(f"`{model}` has been set as my default response mode. talk to me and see what happens.")
