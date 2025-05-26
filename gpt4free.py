@@ -19,7 +19,14 @@ async def get_models():
 async def set_models(ctx: commands.Context, mode: str, arg: str):
     model_list = arg.split()
     await mycol.update_one({}, {"$set": {mode: model_list}})
-    await ctx.reply(f"{mode}: ```{model_list}```")
+    text = f"{mode}: ```{model_list}```"
+    chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
+    replyFirst = True
+    for chunk in chunks:
+        if replyFirst: 
+            replyFirst = False
+            await ctx.reply(chunk)
+        else: await ctx.send(chunk)
 
 async def the_free_req_img(prompt: str, model: str):
     response = await client.images.generate(
