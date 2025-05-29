@@ -588,6 +588,7 @@ def generate_random_bool(num):
     return result < chance
 def clean_gdjkhp(o: str, n: str):
     o = o.replace("gdjkhp", n)
+    o = o.replace("gdj", n)
     o = o.replace("GDJKHP", n.upper())
     return o
 def replace_mentions(message: discord.Message, bot: commands.Bot):
