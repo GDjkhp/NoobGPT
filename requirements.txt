@@ -24,3 +24,5 @@ google-auth-httplib2
 google-auth-oauthlib
 g4f
 quickjs
+gunicorn
+gevent
