@@ -16,6 +16,7 @@ intents.message_content = True
 intents.members = True
 mentions = discord.AllowedMentions(everyone=False, users=True, roles=True, replied_user=True)
 
+from request_listener import serve, register_bot
 from level_insult import get_prefix, insult_user, earn_xp
 from gde_hall_of_fame import main_gde, main_rob
 from c_ai_discord import c_ai
@@ -41,10 +42,10 @@ squid_modules = ["util_discord", "mister_squid", "roshidere"]
 exclude_bots = ["MOOSIC", "SQUID"]
 
 class NoobGPT(commands.Bot):
-    def __init__(self, token, modules):
-        self.token = os.getenv(token)
+    def __init__(self, identifier, modules):
+        self.identifier = identifier
+        self.token = os.getenv(identifier)
         self.modules = modules
-        self.identifier = token
         self.node_ids = []
         super().__init__(
             command_prefix = get_prefix, intents = intents, help_command = None, allowed_mentions = mentions
@@ -98,9 +99,11 @@ class NoobGPT(commands.Bot):
             await self.load_extension(module)
 
 async def start_bot(bot: NoobGPT):
+    register_bot(bot.identifier, bot)
     await bot.start(bot.token)
 
 async def main():
+    serve()
     await asyncio.gather(
         start_bot(NoobGPT("NOOBGPT", noobgpt_modules)),
         start_bot(NoobGPT("MOOSIC", moosic_modules)),
