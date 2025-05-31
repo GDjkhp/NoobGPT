@@ -1,19 +1,18 @@
-from flask import Flask, jsonify
+from quart import Quart, jsonify
 from discord.ext.commands import Bot
-from threading import Thread
 
-app = Flask('')
+app = Quart('')
 bot_instances: dict[str, Bot] = {}
 
 def register_bot(identifier: str, bot: Bot):
     bot_instances[identifier] = bot
 
 @app.route('/')
-def main():
+async def main():
     return "Bot by GDjkhp"
 
 @app.route('/bot/<identifier>', methods=['GET'])
-def get_bot_info(identifier):
+async def get_bot_info(identifier):
     if not identifier:
         return jsonify({'error': 'No identifier provided'}), 400
 
@@ -21,16 +20,23 @@ def get_bot_info(identifier):
     if not bot:
         return jsonify({'error': 'Bot not found'}), 404
 
+    app_info = await bot.application_info()
     return jsonify({
         'guild_count': len(bot.guilds),
         'user_count': len(bot.users),
+        'user_install_count': app_info.approximate_user_install_count or 0,
         'latency': f"{round(bot.latency * 1000) if bot.latency != float('inf') else '♾️'}ms",
-        'commands': [command.name for command in bot.tree.get_commands()],
+        'prefix_commands': [command.name for command in bot.commands],
+        'slash_commands': [command.name for command in bot.tree.get_commands()],
+        'cogs': [
+            {
+                cog_id: {
+                    'prefix': [command.name for command in cog.get_commands()],
+                    'slash': [command.name for command in cog.get_app_commands()],
+                }
+            } for cog_id, cog in bot.cogs.items()
+        ],
     })
 
-def run():
-    app.run(host="0.0.0.0", port=20129)
-
-def serve():
-    server = Thread(target=run)
-    server.start()
+async def serve():
+    await app.run_task(host="0.0.0.0", port=20129)

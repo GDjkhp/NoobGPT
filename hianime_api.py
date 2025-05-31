@@ -7,7 +7,7 @@ import aiohttp
 from util_discord import command_check, get_guild_prefix, description_helper
 aniwatch = os.getenv("ANIWATCH")
 provider="https://gdjkhp.github.io/img/hi.png"
-ubel="https://gdjkhp.github.io/ubel/?url="
+ubel="https://gdjkhp.github.io/ubel/?url=https://hianime-may-proxy.vercel.app/m3u8-proxy?url="
 pagelimit=12
 
 async def hi_search(ctx: commands.Context, arg: str):
@@ -21,7 +21,7 @@ class CancelButton(discord.ui.Button):
     def __init__(self, ctx: commands.Context, r: int):
         super().__init__(emoji="❌", style=discord.ButtonStyle.success, row=r)
         self.ctx = ctx
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -38,7 +38,7 @@ class nextPage(discord.ui.Button):
     def __init__(self, ctx: commands.Context, arg: str, result: list, index: int, l: str):
         super().__init__(emoji=l, style=discord.ButtonStyle.success)
         self.result, self.index, self.arg, self.ctx = result, index, arg, ctx
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -91,7 +91,7 @@ class nextPageEP(discord.ui.Button):
     def __init__(self, ctx: commands.Context, details: list, index: int, row: int, l: str):
         super().__init__(emoji=l, style=discord.ButtonStyle.success, row=row)
         self.details, self.index, self.ctx = details, index, ctx
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -128,7 +128,7 @@ class ButtonEpisode(discord.ui.Button):
     def __init__(self, ctx: commands.Context, index: int, details: dict, row: int):
         super().__init__(label=str(details["episodes"][index]["number"]), style=discord.ButtonStyle.primary, row=row)
         self.index, self.ctx, self.details = index, ctx, details
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -136,10 +136,10 @@ class ButtonEpisode(discord.ui.Button):
         await interaction.response.defer()
         msg_content = f"{self.details['jname']}: Episode {self.details['episodes'][self.index]['number']}"
         stream_source = f"{aniwatch}/api/v2/hianime/episode/sources?animeEpisodeId="
-        link = await req(f'{stream_source}{self.details["episodes"][self.index]["episodeId"]}')
-        link_dub = await req(f'{stream_source}{self.details["episodes"][self.index]["episodeId"]}&category=dub')
-        link_raw = await req(f'{stream_source}{self.details["episodes"][self.index]["episodeId"]}&category=raw')
-        links = []
+        link = await req(f'{stream_source}{self.details["episodes"][self.index]["episodeId"]}&server=hd-2')
+        link_dub = await req(f'{stream_source}{self.details["episodes"][self.index]["episodeId"]}&category=dub&server=hd-2')
+        link_raw = await req(f'{stream_source}{self.details["episodes"][self.index]["episodeId"]}&category=raw&server=hd-2')
+        links: list[dict[str, str]] = []
         # sub_param = "&subtitles="
         for s in link["data"]["tracks"]:
             if s["kind"] == "captions":
@@ -148,7 +148,14 @@ class ButtonEpisode(discord.ui.Button):
                 if link: links.append({f"{s['label'].upper()} SUB": f'{ubel}{link["data"]["sources"][0]["url"]}&subtitles={quote_plus(s["label"])};{s["file"]}'})
         if link_dub: links.append({"ENGLISH DUB": f'{ubel}{link_dub["data"]["sources"][0]["url"]}'})
         if link_raw: links.append({"RAW": f'{ubel}{link_raw["data"]["sources"][0]["url"]}'})
-        await interaction.followup.send(msg_content, view=WatchView(links), ephemeral=True)
+
+        embed = discord.Embed(title=msg_content, color=0x00ff00)
+        embed.set_footer(text="Powered by Übel Web Player :)")
+        embed.set_thumbnail(url=provider)
+        for item in links:
+            for label, url in item.items():
+                embed.add_field(name=f"{get_subtitle_flags(label)} {label}", value=f"[Watch Here]({url})")
+        await interaction.followup.send(embed=embed, ephemeral=True)
 
 class WatchView(discord.ui.View):
     def __init__(self, links: list[dict]):
@@ -209,7 +216,6 @@ def buildAniwatch(details: dict) -> discord.Embed:
     embed = discord.Embed(title=details["jname"], description="\n".join(desc), color=0x00ff00)
     embed.set_thumbnail(url=provider)
     embed.set_image(url=details["poster"])
-    embed.set_footer(text="Powered by Übel Web Player :)")
     return embed
 
 class CogAniwatch(commands.Cog):

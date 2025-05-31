@@ -8,7 +8,6 @@ pygelbooru
 pillow
 openai
 imagetext-py
-Flask
 pycryptodome
 motor
 yt-dlp
@@ -24,5 +23,4 @@ google-auth-httplib2
 google-auth-oauthlib
 g4f
 quickjs
-gunicorn
-gevent
+quart
