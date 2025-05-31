@@ -11,7 +11,7 @@ base="https://animepahe.ru"
 provider="https://gdjkhp.github.io/img/apdoesnthavelogotheysaidapistooplaintheysaid.png"
 pagelimit=12
 headers = {"cookie": "__ddg2_=", "referer": base}
-session = AsyncSession(impersonate='chrome110')
+session = AsyncSession(impersonate='chrome')
 
 # feat: mp4 dl (it just works): https://github.com/justfoolingaround/animdl/blob/master/animdl/core/codebase/providers/animepahe/inner/__init__.py
 CHARACTER_MAP = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/"

@@ -27,7 +27,7 @@ class PyAsyncCAI:
         if plus: sub = 'plus'
         else: sub = 'beta'
 
-        self.session = AsyncSession(impersonate='chrome120')
+        self.session = AsyncSession(impersonate='chrome')
 
         setattr(self.session, 'url', f'https://{sub}.character.ai/')
         setattr(self.session, 'token', token)

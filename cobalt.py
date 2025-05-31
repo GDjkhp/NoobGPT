@@ -5,7 +5,7 @@ import discord
 from discord import app_commands
 from util_discord import command_check, description_helper
 from curl_cffi.requests import AsyncSession
-session = AsyncSession(impersonate='chrome110')
+session = AsyncSession(impersonate='chrome')
 
 async def the_real_req(payload: dict):
     headers = {
@@ -227,7 +227,7 @@ class DownloadView(discord.ui.View):
 #     resp = await payload_cooker("https://www.youtube.com/watch?v=dQw4w9WgXcQ", vCodec, vQuality, aFormat, filenamePattern, 
 #                                 isAudioOnly, isTTFullAudio, isAudioMuted, dubLang, disableMetadata, twitterGif, vimeoDash)
 #     print(resp)
-
+# import asyncio
 # asyncio.run(test())
             
 class CogCob(commands.Cog):
