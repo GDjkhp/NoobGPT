@@ -11,7 +11,7 @@ import random
 from util_discord import command_check, get_guild_prefix, description_helper
 
 emoji_peak = description_helper['peak']
-session = AsyncSession(impersonate='chrome110')
+session = AsyncSession(impersonate='chrome')
 headers = {"apikey": os.getenv("HORDE")}
 class RequestData(object):
     def __init__(self, prompt: str, model: str, n: int, nsfw: bool, width: int, height: int, steps: int, 

@@ -1,11 +1,14 @@
 from quart import Quart, jsonify
 from discord.ext.commands import Bot
+from time import time
 
 app = Quart('')
 bot_instances: dict[str, Bot] = {}
+bot_starttime: dict[str, int] = {}
 
 def register_bot(identifier: str, bot: Bot):
     bot_instances[identifier] = bot
+    bot_starttime[identifier] = int(time())
 
 @app.route('/')
 async def main():
@@ -22,6 +25,7 @@ async def get_bot_info(identifier):
 
     app_info = await bot.application_info()
     return jsonify({
+        'start_time': bot_starttime.get(identifier),
         'guild_count': len(bot.guilds),
         'user_count': len(bot.users),
         'user_install_count': app_info.approximate_user_install_count or 0,

@@ -1,8 +1,9 @@
 """
 A simplified and improved Akinator API client
 """
-import httpx
 from bs4 import BeautifulSoup
+from curl_cffi.requests import AsyncSession
+session = AsyncSession(impersonate='chrome')
 
 class AkinatorError(Exception):
     pass
@@ -91,18 +92,11 @@ class Akinator:
 
     async def _request(self, url, method="GET", data=None):
         try:
-            async with httpx.AsyncClient() as client:
-                if method.upper() == "GET":
-                    response = await client.get(url, headers=HEADERS, timeout=30.0)
-                else:  # POST
-                    response = await client.post(url, headers=HEADERS, json=data, timeout=30.0)
-
-                response.raise_for_status()
-                return response
-        except httpx.HTTPStatusError as e:
-            raise AkinatorError(f"HTTP error: {e.response.status_code}")
-        except httpx.RequestError as e:
-            raise AkinatorError(f"Request error: {str(e)}")
+            if method.upper() == "GET":
+                response = await session.get(url, headers=HEADERS, timeout=30.0)
+            else:  # POST
+                response = await session.post(url, headers=HEADERS, json=data, timeout=30.0)
+            return response
         except Exception as e:
             raise AkinatorError(f"Request failed: {str(e)}")
 
