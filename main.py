@@ -103,13 +103,13 @@ async def start_bot(bot: NoobGPT):
     await bot.start(bot.token)
 
 async def main():
-    serve()
     await asyncio.gather(
         start_bot(NoobGPT("NOOBGPT", noobgpt_modules)),
         start_bot(NoobGPT("MOOSIC", moosic_modules)),
         start_bot(NoobGPT("KAGURA", noobgpt_modules)),
         start_bot(NoobGPT("ZERO", zero_modules)),
-        start_bot(NoobGPT("SQUID", squid_modules))
+        start_bot(NoobGPT("SQUID", squid_modules)),
+        serve(),
     )
 
 asyncio.run(main())

@@ -170,6 +170,7 @@ grass is greenr on the othr side
 ## Credits
 ### Code
 * <https://github.com/Rapptz/discord.py>
+* <https://github.com/pallets/quart>
 * <https://github.com/openai/openai-python>
 * <https://github.com/mov-cli/mov-cli>
 * <https://github.com/rainyDayDevs/pygelbooru>
