@@ -149,13 +149,25 @@ class ButtonEpisode(discord.ui.Button):
         if link_dub: links.append({"ENGLISH DUB": f'{ubel}{link_dub["data"]["sources"][0]["url"]}'})
         if link_raw: links.append({"RAW": f'{ubel}{link_raw["data"]["sources"][0]["url"]}'})
 
-        embed = discord.Embed(title=msg_content, color=0x00ff00)
-        embed.set_footer(text="Powered by Übel Web Player :)")
-        embed.set_thumbnail(url=provider)
+        embeds = []
+        all_fields = []
         for item in links:
             for label, url in item.items():
-                embed.add_field(name=f"{get_subtitle_flags(label)} {label}", value=f"[Watch Here]({url})")
-        await interaction.followup.send(embed=embed, ephemeral=True)
+                all_fields.append({
+                    "name": f"{get_subtitle_flags(label)} {label}",
+                    "value": f"[Watch Here]({url})"
+                })
+        field_chunks = [all_fields[i:i + 9] for i in range(0, len(all_fields), 9)]
+        total_pages = len(field_chunks)
+        for page_num, chunk in enumerate(field_chunks, 1):
+            embed = discord.Embed(title=msg_content, color=0x00ff00)
+            embed.set_footer(text=f"Page {page_num}/{total_pages}")
+            embed.set_thumbnail(url=provider)
+            for field in chunk:
+                embed.add_field(name=field["name"], value=field["value"])
+            embeds.append(embed)
+        for embed in embeds:
+            await interaction.followup.send(embed=embed, ephemeral=True)
 
 class WatchView(discord.ui.View):
     def __init__(self, links: list[dict]):
@@ -216,6 +228,7 @@ def buildAniwatch(details: dict) -> discord.Embed:
     embed = discord.Embed(title=details["jname"], description="\n".join(desc), color=0x00ff00)
     embed.set_thumbnail(url=provider)
     embed.set_image(url=details["poster"])
+    embed.set_footer(text="Powered by Übel Web Player :)")
     return embed
 
 class CogAniwatch(commands.Cog):
