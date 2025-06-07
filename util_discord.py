@@ -319,13 +319,9 @@ class DiscordUtil(commands.Cog):
     async def legal(self, ctx: commands.Context):
         await copypasta(ctx)
 
-    @commands.command()
-    async def sync(self, ctx: commands.Context):
-        if check_if_not_owner(ctx): return
-        synced = await self.bot.tree.sync()
-        await ctx.reply(f"Synced {len(synced)} slash commands")
-
-    @commands.command()
+    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Show statistics")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def stats(self, ctx: commands.Context):
         stat_list = [
             f"serving {len(self.bot.users)} users in {len(self.bot.guilds)} guilds",
@@ -333,6 +329,12 @@ class DiscordUtil(commands.Cog):
             f"{len(self.bot.tree.get_commands())} application commands found"
         ]
         await ctx.reply("\n".join(stat_list))
+
+    @commands.command()
+    async def sync(self, ctx: commands.Context):
+        if check_if_not_owner(ctx): return
+        synced = await self.bot.tree.sync()
+        await ctx.reply(f"Synced {len(synced)} slash commands")
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(DiscordUtil(bot))

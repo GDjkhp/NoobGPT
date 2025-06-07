@@ -64,11 +64,10 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 </details>
 
 ## Bot Commands
-### Python Computer #1: Beta Branch
-Collection of random and unique stuff I came up with, mostly games and useful tools. This is where I add new features regularly.
-
 ### Supports slash and prefix commands. User integration is partially supported.
 * `-help` Show commands help page
+* `-legal` Show legal page
+* `-stats` Show statistics
 
 ## AI 🤖
 <a href="https://openai.com"><img width=128 style="padding: 15px; background-color: black;" src="https://gdjkhp.github.io/img/openai-white-lockup.png"></a>
@@ -78,7 +77,7 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 <a href="https://www.deepseek.com"><img width=128 style="padding: 15px; background-color: black;" src="https://gdjkhp.github.io/img/deepseek.png"></a>
 <a href="https://c.ai"><img width=128 style="padding: 15px; background-color: black;" src="https://gdjkhp.github.io/img/Character.AI.png"></a>
 
-Note: Use `-ask` or `-imagine` for generating text and images respectively. Use the slash command variants for the list of available models. Use `-aimode` to set up AI response mode.
+### Note: Use `-ask` or `-imagine` for generating text and images respectively. Use the slash command variants for the list of available models. Use `-aimode` to set up AI response mode.
 
 * `-openai` OpenAI is an AI research and deployment company. Our mission is to ensure that artificial general intelligence benefits all of humanity.
 * `-googleai` Google AI is a division of Google dedicated to artificial intelligence.
