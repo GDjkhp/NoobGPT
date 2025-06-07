@@ -67,7 +67,7 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 ### Supports slash and prefix commands. User integration is partially supported.
 * `-help` Show commands help page
 * `-legal` Show legal page
-* `-stats` Show statistics
+* `-stats` Show statistics page
 
 ## AI 🤖
 <a href="https://openai.com"><img width=128 style="padding: 15px; background-color: black;" src="https://gdjkhp.github.io/img/openai-white-lockup.png"></a>

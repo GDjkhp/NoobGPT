@@ -33,9 +33,14 @@ async def silly_activities(bot: commands.Bot):
     while True:
         if bot.is_ready():
             try:
+                app_info = await bot.application_info()
                 strings = [
                     f"serving {len(bot.users)} users in {len(bot.guilds)} guilds",
+                    f"approximately {app_info.approximate_user_install_count or 0} users installed this app",
                     f"will return in {round(bot.latency * 1000) if bot.latency != float('inf') else '♾️'}ms",
+                    f"{len(bot.commands)} prefix commands found",
+                    f"{len(bot.tree.get_commands())} slash commands found",
+                    f"{len(bot.cogs)} cogs registered",
                     time.strftime("%A, %d %B %Y"),
                     "🔴 = stable 🟢 = unstable",
                     "RADIO ONSEN EUTOPIA",

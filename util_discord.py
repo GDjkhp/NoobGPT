@@ -319,14 +319,20 @@ class DiscordUtil(commands.Cog):
     async def legal(self, ctx: commands.Context):
         await copypasta(ctx)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Show statistics")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['utils']} Show bot statistics")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def stats(self, ctx: commands.Context):
+        app_info = await self.bot.application_info()
+        cog_list = [cog_id for cog_id, cog in self.bot.cogs.items()]
         stat_list = [
-            f"serving {len(self.bot.users)} users in {len(self.bot.guilds)} guilds",
-            f"will return in {round(self.bot.latency * 1000) if self.bot.latency != float('inf') else '♾️'}ms",
-            f"{len(self.bot.tree.get_commands())} application commands found"
+            f"serving `{len(self.bot.users)}` users in `{len(self.bot.guilds)}` guilds",
+            f"approximately `{app_info.approximate_user_install_count or 0}` users installed this app",
+            f"will return in `{round(self.bot.latency * 1000) if self.bot.latency != float('inf') else '♾️'}ms`",
+            f"`{len(self.bot.commands)}` prefix commands found",
+            f"`{len(self.bot.tree.get_commands())}` slash commands found",
+            f"{len(cog_list)} cogs registered"
+            f"registered cogs: `{'\n'.join(cog_list)}`",
         ]
         await ctx.reply("\n".join(stat_list))
 
