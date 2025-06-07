@@ -32,8 +32,8 @@ Note: Discord won't approve my message content application because it's not uniq
 | :-------- | ----------: | :--------------------------------- |
 | NOOBGPT   | 100/100     | public beta / [invite link](https://discord.com/oauth2/authorize?client_id=1090254079609020447&permissions=633731823291392&scope=applications.commands%20bot) |
 | KAGURA    | ?/100       | public beta / [invite link](https://discord.com/oauth2/authorize?client_id=1120259379715903508&permissions=633731823291392&scope=applications.commands%20bot) |
-| SQUID     | ?/100       | public beta (games) / [invite link](https://discord.com/oauth2/authorize?client_id=1352614776831742036&permissions=633731823291392&scope=applications.commands%20bot) |
 | MOOSIC    | ?/100       | public beta (music) / [invite link](https://discord.com/api/oauth2/authorize?client_id=1073823671392686162&permissions=412588788736&scope=applications.commands%20bot) |
+| SQUID     | ?/100       | public beta (games) / [invite link](https://discord.com/oauth2/authorize?client_id=1352614776831742036&permissions=633731823291392&scope=applications.commands%20bot) |
 | ZERO      | ?           | private beta / [server invite](https://discord.gg/fv4st) |
 
 ## Source Code
