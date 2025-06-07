@@ -1,5 +1,6 @@
-from quart import Quart, jsonify
 from discord.ext.commands import Bot
+from quart import Quart, jsonify
+from gpt4free import get_models
 from time import time
 
 app = Quart('')
@@ -40,6 +41,14 @@ async def get_bot_info(identifier):
                 }
             } for cog_id, cog in bot.cogs.items()
         ],
+    })
+
+@app.route('/models', methods=['GET'])
+async def get_models():
+    models_text, models_image = await get_models()
+    return jsonify({
+        "TEXT": models_text,
+        "IMAGE": models_image,
     })
 
 async def serve():

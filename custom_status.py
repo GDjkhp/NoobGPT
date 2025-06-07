@@ -40,7 +40,7 @@ async def silly_activities(bot: commands.Bot):
                     "🔴 = stable 🟢 = unstable",
                     "RADIO ONSEN EUTOPIA",
                     "bot by gdjkhp",
-                    "made in yokohama, japan",
+                    "made in yokohama japan",
                     "written in python",
                     "powered by pterodactyl",
                     "don't make me popular >_<",

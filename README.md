@@ -78,6 +78,8 @@ Collection of random and unique stuff I came up with, mostly games and useful to
 <a href="https://www.deepseek.com"><img width=128 style="padding: 15px; background-color: black;" src="https://gdjkhp.github.io/img/deepseek.png"></a>
 <a href="https://c.ai"><img width=128 style="padding: 15px; background-color: black;" src="https://gdjkhp.github.io/img/Character.AI.png"></a>
 
+Note: Use `-ask` or `-imagine` for generating text and images respectively. Use the slash command variants for the list of available models. Use `-aimode` to set up AI response mode.
+
 * `-openai` OpenAI is an AI research and deployment company. Our mission is to ensure that artificial general intelligence benefits all of humanity.
 * `-googleai` Google AI is a division of Google dedicated to artificial intelligence.
 * `-perplex` Perplexity AI unlocks the power of knowledge with information discovery and sharing.
@@ -109,13 +111,13 @@ Collection of random and unique stuff I came up with, mostly games and useful to
     
 ## Utils 🔧
 * `-config` Customize how the bot works.
-* `-insult` Toggle insults. Use `-insulthelp` for more info.
-* `-aimode [model]` Toggle AI response mode. Use `-aimode` for list of models.
 * `-xp` Toggle XP levelling system. Use `-xphelp` for more info.
-* `-quote` Reply to a message to make it a quote.
+* `-insult` Toggle insults. Use `-insulthelp` for more info.
+* `-aimode [model]` Toggle AI response mode. Use `-aimode` for more info.
 * `-log [channel_id]` Set a message logger channel.
 * `-avatar [user_id]` Return a user's Discord profile avatar.
 * `-banner [user_id]` Return a user's Discord profile banner.
+* `-quote` Reply to a message to make it a quote.
 
 <div align="center">
 <h2><a href="https://gdjkhp.github.io/NoobGPT/#moosic">Moosic</a></h2>
