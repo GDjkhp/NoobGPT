@@ -331,8 +331,8 @@ class DiscordUtil(commands.Cog):
             f"will return in `{round(self.bot.latency * 1000) if self.bot.latency != float('inf') else '♾️'}ms`",
             f"`{len(self.bot.commands)}` prefix commands found",
             f"`{len(self.bot.tree.get_commands())}` slash commands found",
-            f"{len(cog_list)} cogs registered"
-            f"registered cogs: `{'\n'.join(cog_list)}`",
+            f"{len(cog_list)} cogs registered",
+            f"registered cogs: `{', '.join(cog_list)}`",
         ]
         await ctx.reply("\n".join(stat_list))
 
