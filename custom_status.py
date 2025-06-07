@@ -91,7 +91,7 @@ async def del_kv(ctx: commands.Context, key: str):
     data = await the_real_req(f"https://api.lanyard.rest/v1/users/{os.getenv('OWNER')}")
     await ctx.reply(embed=kv_embed(data["data"]["kv"]))
 
-class LanyardUtil(commands.Cog):
+class CogLanyardUtil(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -116,4 +116,4 @@ class LanyardUtil(commands.Cog):
         await del_kv(ctx, key)
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(LanyardUtil(bot))
+    await bot.add_cog(CogLanyardUtil(bot))

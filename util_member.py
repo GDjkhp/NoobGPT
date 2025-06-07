@@ -20,7 +20,7 @@ async def banner_function(ctx: commands.Context, bot: commands.Bot, arg: str):
     except: pass
     await ctx.reply("There is no such thing.")
 
-class DiscordUtilMember(commands.Cog):
+class CogDiscordUtilMember(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -47,4 +47,4 @@ class DiscordUtilMember(commands.Cog):
         await banner_function(ctx, self.bot, user_id)
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(DiscordUtilMember(bot))
+    await bot.add_cog(CogDiscordUtilMember(bot))

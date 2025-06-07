@@ -255,7 +255,7 @@ async def get_guild_prefix(ctx: commands.Context):
     db = await get_database2(ctx.guild.id if ctx.guild else ctx.channel.id)
     return db["prefix"]
 
-class DiscordUtil(commands.Cog):
+class CogDiscordUtil(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
 
@@ -343,4 +343,4 @@ class DiscordUtil(commands.Cog):
         await ctx.reply(f"Synced {len(synced)} slash commands")
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(DiscordUtil(bot))
+    await bot.add_cog(CogDiscordUtil(bot))
