@@ -537,7 +537,7 @@ async def mode_rec_auto(interaction: discord.Interaction, current: str) -> list[
         app_commands.Choice(name=mode, value=mode) for mode in ["partial", "enabled", "disabled"] if current.lower() in mode.lower()
     ]
 
-class YouTubePlayer(commands.Cog):
+class CogYouTubePlayer(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -860,4 +860,4 @@ class YouTubePlayer(commands.Cog):
     #     await ctx.reply(embed=filter_embed("🎚️ Filter", "Vibrato", filters.vibrato.payload))
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(YouTubePlayer(bot))
+    await bot.add_cog(CogYouTubePlayer(bot))

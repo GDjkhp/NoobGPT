@@ -227,7 +227,7 @@ async def fmt_auto(interaction: discord.Interaction, current: str) -> list[app_c
         app_commands.Choice(name=fmt, value=fmt) for fmt in supported_formats if current.lower() in fmt.lower()
     ]
 
-class ImageConverter(commands.Cog):
+class CogImageConverter(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -240,4 +240,4 @@ class ImageConverter(commands.Cog):
         await img_converter(ctx, format, images)
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(ImageConverter(bot))
+    await bot.add_cog(CogImageConverter(bot))

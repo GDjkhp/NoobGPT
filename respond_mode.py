@@ -86,7 +86,7 @@ async def model_auto(interaction: discord.Interaction, current: str) -> list[app
         app_commands.Choice(name=model, value=model) for model in models_master if current.lower() in model.lower()
     ][:25]
 
-class AIModeCog(commands.Cog):
+class CogAIMode(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -112,4 +112,4 @@ class AIModeCog(commands.Cog):
         await ai_respond_mention(ctx)
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(AIModeCog(bot))
+    await bot.add_cog(CogAIMode(bot))

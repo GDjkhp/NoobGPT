@@ -6,7 +6,7 @@ from util_discord import description_helper
 
 # min_music for noobgpt (only essential commands)
 # list np play pause resume stop skip autoplay shuffle remove clear dj repeat swap replace move
-class YouTubePlayerMin(commands.Cog):
+class CogYouTubePlayerMin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -191,4 +191,4 @@ class YouTubePlayerMin(commands.Cog):
         await music_volume(ctx, value)
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(YouTubePlayerMin(bot))
+    await bot.add_cog(CogYouTubePlayerMin(bot))
