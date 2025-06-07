@@ -16,10 +16,11 @@ async def ai_respond_mode(ctx: commands.Context, model: str):
     models_text, models_image = await get_models()
     models_master = models_text + models_image + ["off"]
     if not model in models_master:
-        current = None
-        if db.get("ai_mode") and db["ai_mode"]:
-            current = db["ai_mode"]
-        final_text = await build_help(current) + [
+        final_text = [
+            "# Configuration",
+            f'Current model: `{db["ai_mode"] if db.get("ai_mode") and db["ai_mode"] else None}`',
+            f'Mention mode: `{db["ai_mention"] if db.get("ai_mention") else False}`',
+            f'Response rate: `{db["ai_rate"] if db.get("ai_rate") else 0}%`',
             "# Get started",
             "* `-aimode <model>` setup ai",
             "  * Use `-aimode off` to disable AI response (reverts to `-insult`)\n",

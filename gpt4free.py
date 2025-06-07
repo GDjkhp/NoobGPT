@@ -19,7 +19,7 @@ async def get_models():
 async def set_models(ctx: commands.Context, mode: str, arg: str):
     model_list = arg.split()
     await mycol.update_one({}, {"$set": {mode: model_list}})
-    text = f"{mode}: ```{model_list}```"
+    text = f"{mode}: {model_list}"
     chunks = [text[i:i+2000] for i in range(0, len(text), 2000)]
     replyFirst = True
     for chunk in chunks:
@@ -158,6 +158,7 @@ def noobgpt_cleaner(ctx: commands.Context, text: str):
         if name in text: mod_text = mod_text.replace(name, "")
     return mod_text
 
+# DONUT USE: AI is advancing at the sp[e]ed of light
 async def build_help(current: str=None):
     models_text, models_image = await get_models()
     def format_model(model: str) -> str:
@@ -176,7 +177,7 @@ async def build_help(current: str=None):
 
 async def g4f_help(ctx: commands.Context):
     if await command_check(ctx, "g4f", "ai"): return await ctx.reply("command disabled", ephemeral=True)
-    final_text = await build_help() + [
+    final_text = [
         "# Get started",
         "`-ask <prompt>` text generation (defaults to `gpt-4o`)",
         "`-imagine <prompt>` image generation (defaults to `flux`)",
