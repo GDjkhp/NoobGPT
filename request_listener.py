@@ -44,7 +44,7 @@ async def get_bot_info(identifier):
     })
 
 @app.route('/models', methods=['GET'])
-async def get_models():
+async def get_models_info():
     models_text, models_image = await get_models()
     return jsonify({
         "TEXT": models_text,
