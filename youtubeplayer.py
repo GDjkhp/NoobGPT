@@ -21,7 +21,7 @@ async def music_summon(ctx: commands.Context):
     if ctx.voice_client: return await ctx.reply(f"I'm already connected to {ctx.voice_client.channel.jump_url}\nPlease use a different bot (>_<)")
     try: vc = await voice_channel_connector(ctx)
     except:
-        if fixing: return await ctx.reply(content="Please try again later")
+        # if fixing: return await ctx.reply(content="Please try again later")
         print("ChannelTimeoutException")
         msg=await ctx.reply(content="An error occured. Reconnecting…")
         await setup_hook_music(ctx.bot)
@@ -90,9 +90,9 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
         try:
             vc = await voice_channel_connector(ctx)
         except:
-            if fixing: 
-                if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="Please try again later")
-                if isinstance(ctx, commands.Context): return await msg.edit(content="Please try again later")
+            # if fixing: 
+            #     if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="Please try again later")
+            #     if isinstance(ctx, commands.Context): return await msg.edit(content="Please try again later")
             print("ChannelTimeoutException")
             if isinstance(ctx, discord.Interaction): await ctx.edit_original_response(content="An error occured. Reconnecting…")
             if isinstance(ctx, commands.Context): await msg.edit(content="An error occured. Reconnecting…")
