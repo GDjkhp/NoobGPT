@@ -412,7 +412,7 @@ class SelectChoice(discord.ui.Select):
             try: 
                 vc = await voice_channel_connector(self.ctx)
             except:
-                if fixing: return await interaction.edit_original_response(content="Please try again later")
+                # if fixing: return await interaction.edit_original_response(content="Please try again later")
                 print("ChannelTimeoutException")
                 await interaction.edit_original_response(content="An error occured. Reconnecting…")
                 await setup_hook_music(self.bot)
