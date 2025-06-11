@@ -1,9 +1,11 @@
 from discord.ext.commands import Bot
 from quart import Quart, jsonify
+from quart_cors import cors
 from gpt4free import get_models
 from time import time
 
 app = Quart('')
+app = cors(app, allow_origin="*")
 bot_instances: dict[str, Bot] = {}
 bot_starttime: dict[str, int] = {}
 
