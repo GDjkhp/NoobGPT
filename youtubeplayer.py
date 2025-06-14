@@ -113,7 +113,7 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
         if tracks.artwork: embed.set_thumbnail(url=tracks.artwork)
     else:
         await vc.queue.put_wait(tracks[0])
-        text, desc = "🎵 Play music", f'`{tracks[0].author} - {tracks[0].title}` has been added to the queue'
+        text, desc = "🎵 Play music", f'`{tracks[0].author} - {tracks[0].title}` has been added to the queue at position `{len(vc.queue)}`'
         embed = music_embed(text, desc)
     if not vc.playing: await vc.play(vc.queue.get())
     if isinstance(ctx, commands.Context):
