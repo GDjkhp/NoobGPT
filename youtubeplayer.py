@@ -510,12 +510,8 @@ async def queue_fair(ctx: commands.Context):
     # Create summary of the new distribution
     distribution = {requester: len(tracks) for requester, tracks in requester_tracks.items()}
     distribution_summary = "\n".join([f"{requester}: {count} tracks" for requester, count in distribution.items()])
-
-    # Create preview of first 5 tracks in new queue
-    preview_tracks = new_queue[:5]
-    queue_preview = "\n".join([f"{i + 1}. `{track.author} - {track.title}` ({format_mil(track.length)}) - {requester_string(ctx.bot, track)}" for i, track in enumerate(preview_tracks)])
-
-    description = f"Queue has been reorganized to alternate between users fairly.\n\n**Distribution:**\n{distribution_summary}\n\n**Next 5 tracks:**\n{queue_preview}"
+    queue_preview = "\n".join([f"{i + 1}. `{track.author} - {track.title}` ({format_mil(track.length)}) - {requester_string(ctx.bot, track)}" for i, track in enumerate(new_queue[:5])])
+    description = f"Queue has been reorganized to alternate between users fairly.\n\n**Distribution:**\n{distribution_summary}\n\n**Playlist:**\n{queue_preview}"
     embed = music_embed("⚖️ Fair Queue", description)
     await ctx.reply(embed=embed)
 
