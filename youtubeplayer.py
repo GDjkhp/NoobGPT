@@ -492,7 +492,7 @@ async def queue_fair(ctx: commands.Context):
         requesters.append(current_requester)
 
     # Create new fair queue
-    new_queue = []
+    new_queue: list[wavelink.Playable] = []
     max_rounds = max(len(tracks) for tracks in requester_tracks.values())
 
     # Distribute tracks round-robin style
@@ -506,11 +506,17 @@ async def queue_fair(ctx: commands.Context):
     vc.queue.reset()
     for track in new_queue:
         await vc.queue.put_wait(track)
-    
+
     # Create summary of the new distribution
     distribution = {requester: len(tracks) for requester, tracks in requester_tracks.items()}
-    summary = "\n".join([f"{requester}: {count} tracks" for requester, count in distribution.items()])
-    embed = music_embed("⚖️ Fair Queue", f"Queue has been reorganized to alternate between users fairly.\n\n**Distribution:**\n{summary}")
+    distribution_summary = "\n".join([f"{requester}: {count} tracks" for requester, count in distribution.items()])
+
+    # Create preview of first 5 tracks in new queue
+    preview_tracks = new_queue[:5]
+    queue_preview = "\n".join([f"{i + 1}. `{track.author} - {track.title}` ({format_mil(track.length)}) - {requester_string(ctx.bot, track)}" for i, track in enumerate(preview_tracks)])
+
+    description = f"Queue has been reorganized to alternate between users fairly.\n\n**Distribution:**\n{distribution_summary}\n\n**Next 5 tracks:**\n{queue_preview}"
+    embed = music_embed("⚖️ Fair Queue", description)
     await ctx.reply(embed=embed)
 
 async def search_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
