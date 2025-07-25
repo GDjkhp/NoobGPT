@@ -177,7 +177,7 @@ grass is greenr on the othr side
 * <https://github.com/pgjones/quart-cors>
 * <https://github.com/openai/openai-python>
 * <https://github.com/mov-cli/mov-cli>
-* <https://github.com/rainyDayDevs/pygelbooru>
+* <https://github.com/GDjkhp/pygelbooru>
 * <https://github.com/yt-dlp/yt-dlp>
 * <https://github.com/lavalink-devs/Lavalink>
 * <https://github.com/topi314/LavaSrc>
@@ -211,6 +211,7 @@ grass is greenr on the othr side
 * <https://github.com/debakarr/kisskh-dl>
 * <https://github.com/ghoshRitesh12/aniwatch-api>
 * <https://github.com/GDjkhp/ubel>
+* <https://github.com/pymupdf/pymupdf>
 
 ### Sites
 * <https://code.visualstudio.com>
@@ -249,6 +250,7 @@ grass is greenr on the othr side
 * <https://manganato.com>
 * <https://www.crummy.com/software/BeautifulSoup>
 * <https://lavalink.darrennathanael.com>
+* <https://www.reportlab.com>
 
 ### Special Thanks
 * `NoobGPT#5766` for developing itself 🤨
