@@ -411,6 +411,8 @@ class SelectChoice(discord.ui.Select):
         if not self.ctx.guild.voice_client:
             try: 
                 vc = await voice_channel_connector(self.ctx)
+                if not vc:
+                    return await interaction.edit_original_response(content="i do not have **connect** or **speak** perms")
             except:
                 # if fixing: return await interaction.edit_original_response(content="Please try again later")
                 print("ChannelTimeoutException")
@@ -439,6 +441,8 @@ async def voice_channel_connector(ctx: commands.Context | discord.Interaction):
             nodes.append(node)
         except: pass
     player = wavelink.Player(nodes=nodes)
+    perms = player.channel.permissions_for(ctx.me)
+    if not perms.connect or not perms.speak: return
     vc = await member.voice.channel.connect(cls=player, self_deaf=True)
     return vc
 

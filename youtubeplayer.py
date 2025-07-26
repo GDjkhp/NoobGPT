@@ -19,7 +19,10 @@ async def music_summon(ctx: commands.Context):
         return await ctx.reply(f'Join a voice channel first')
 
     if ctx.voice_client: return await ctx.reply(f"I'm already connected to {ctx.voice_client.channel.jump_url}\nPlease use a different bot (>_<)")
-    try: vc = await voice_channel_connector(ctx)
+    try:
+        vc = await voice_channel_connector(ctx)
+        if not vc:
+            return await ctx.reply(content="i do not have **connect** or **speak** perms")
     except:
         # if fixing: return await ctx.reply(content="Please try again later")
         print("ChannelTimeoutException")
@@ -89,6 +92,9 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
     if not ctx.guild.voice_client:
         try:
             vc = await voice_channel_connector(ctx)
+            if not vc:
+                if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="i do not have **connect** or **speak** perms")
+                if isinstance(ctx, commands.Context): return await msg.edit(content="i do not have **connect** or **speak** perms")
         except:
             # if fixing: 
             #     if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="Please try again later")
