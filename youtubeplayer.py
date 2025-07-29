@@ -388,6 +388,26 @@ async def queue_remove(ctx: commands.Context, index: str = None, index2: str = N
     if member:
         tracks_to_remove = []
 
+        # Handle bot recommendations
+        if member.lower() == "bot":
+            # Find all tracks with no requester (bot recommendations)
+            for i in range(len(vc.queue)):
+                track = vc.queue.peek(i)
+                track_requester = dict(track.extras).get("requester")
+                if not track_requester:
+                    tracks_to_remove.append(track)
+
+            if not tracks_to_remove:
+                return await ctx.reply(embed=music_embed("🗑️ Remove tracks", "No bot recommendations found in queue"))
+
+            # Remove tracks
+            for track in tracks_to_remove:
+                vc.queue.remove(track)
+
+            count = len(tracks_to_remove)
+            await ctx.reply(embed=music_embed("🗑️ Remove tracks", f"Removed {count} bot recommendation{'s' if count != 1 else ''}"))
+            return
+
         # Try to get member object from string (could be ID or mention)
         member_obj = None
         try:
@@ -426,7 +446,7 @@ async def queue_remove(ctx: commands.Context, index: str = None, index2: str = N
 
     # Require index if not removing by member
     if not index:
-        return await ctx.reply("Please provide an index or specify a member")
+        return await ctx.reply(f"Please provide an index or specify a member\nUsage: `{await get_guild_prefix(ctx)}remove <index/member>`")
 
     if not index.isdigit() or not int(index): return await ctx.reply("not a digit :(")
 
@@ -639,14 +659,29 @@ async def remove_member_auto(interaction: discord.Interaction, current: str):
 
     # Get unique requesters from the queue
     requesters = set()
+    has_bot_recommendations = False
+
     for i in range(len(vc.queue)):
         track = vc.queue.peek(i)
         requester_id = dict(track.extras).get("requester")
         if requester_id:
             requesters.add(int(requester_id))
+        else:
+            # Track with no requester = bot recommendation
+            has_bot_recommendations = True
 
     # Get member objects and filter by current input
     choices = []
+
+    # Add bot recommendations option if they exist
+    if has_bot_recommendations:
+        bot_name = f"{interaction.guild.me.display_name} ({interaction.guild.me.name})"
+        if not current or current.lower() in bot_name.lower():
+            choices.append(app_commands.Choice(
+                name=bot_name,
+                value="bot"
+            ))
+
     for requester_id in requesters:
         try:
             member = interaction.guild.get_member(requester_id)
@@ -655,7 +690,7 @@ async def remove_member_auto(interaction: discord.Interaction, current: str):
                 if not current or current.lower() in member.display_name.lower() or current.lower() in member.name.lower():
                     choices.append(app_commands.Choice(
                         name=f"{member.display_name} ({member.name})",
-                        value=str(member.id)
+                        value=member.id
                     ))
         except:
             continue
@@ -803,7 +838,7 @@ class CogYouTubePlayer(commands.Cog):
                            index2="Track number you want to remove within range (Must be a valid integer)",
                            member="Remove all tracks queued by this member")
     @app_commands.autocomplete(member=remove_member_auto)
-    async def remove(self, ctx: commands.Context, index: str, index2: str=None, member: str=None):
+    async def remove(self, ctx: commands.Context, index: str=None, index2: str=None, member: str=None):
         await queue_remove(ctx, index, index2, member)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['queue']['replace']}")
