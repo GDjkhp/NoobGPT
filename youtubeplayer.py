@@ -374,7 +374,7 @@ async def queue_reset(ctx: commands.Context):
     vc.auto_queue.reset()
     await ctx.reply(embed=music_embed("🗑️ Clear queue", "The queue has been emptied"))
 
-async def queue_remove(ctx: commands.Context, index: str):
+async def queue_remove(ctx: commands.Context, index: str = None, index2: str = None, member: discord.Member = None):
     if not ctx.guild: return await ctx.reply("not supported")
     if check_bot_conflict(ctx): return await ctx.reply("use moosic instead :)", ephemeral=True)
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
@@ -382,11 +382,70 @@ async def queue_remove(ctx: commands.Context, index: str):
     if not vc: return await ctx.reply("voice client not found")
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first')
-    if not index.isdigit() or not int(index): return await ctx.reply("not a digit :(")
     if vc.queue.is_empty: return await ctx.reply(embed=music_embed("🗑️ Remove track", "The queue is empty"))
-    track = vc.queue.peek(min(int(index)-1, len(vc.queue)-1))
-    vc.queue.remove(track)
-    await ctx.reply(embed=music_embed("🗑️ Remove track", f"`{track.author} - {track.title}` has been removed"))
+
+    # Handle removal by member/requester
+    if member:
+        tracks_to_remove = []
+        member_id = str(member.id)
+
+        # Find all tracks queued by the specified member
+        for i in range(len(vc.queue)):
+            track = vc.queue.peek(i)
+            track_requester = dict(track.extras).get("requester")
+            if track_requester and str(track_requester) == member_id:
+                tracks_to_remove.append(track)
+
+        if not tracks_to_remove:
+            return await ctx.reply(embed=music_embed("🗑️ Remove tracks", f"No tracks found queued by {member.display_name}"))
+
+        # Remove tracks
+        for track in tracks_to_remove:
+            vc.queue.remove(track)
+
+        count = len(tracks_to_remove)
+        await ctx.reply(embed=music_embed("🗑️ Remove tracks", f"Removed {count} track{'s' if count != 1 else ''} queued by {member.display_name}"))
+        return
+
+    # Require index if not removing by member
+    if not index:
+        return await ctx.reply("Please provide an index or specify a member")
+
+    if not index.isdigit() or not int(index): return await ctx.reply("not a digit :(")
+
+    # Handle range removal if index2 is provided
+    if index2:
+        if not index2.isdigit() or not int(index2): return await ctx.reply("index2 is not a digit :(")
+
+        # Convert to 0-based indexing
+        start_idx = int(index) - 1
+        end_idx = int(index2) - 1
+
+        # Ensure indices are within bounds
+        start_idx = max(0, min(start_idx, len(vc.queue) - 1))
+        end_idx = max(0, min(end_idx, len(vc.queue) - 1))
+
+        # Ensure start_idx <= end_idx
+        if start_idx > end_idx:
+            start_idx, end_idx = end_idx, start_idx
+
+        # Get tracks to remove
+        tracks_to_remove = []
+        for i in range(start_idx, end_idx + 1):
+            tracks_to_remove.append(vc.queue.peek(i))
+
+        # Remove tracks (remove in reverse order to maintain indices)
+        for track in reversed(tracks_to_remove):
+            vc.queue.remove(track)
+
+        count = len(tracks_to_remove)
+        await ctx.reply(embed=music_embed("🗑️ Remove tracks", f"Removed {count} track{'s' if count != 1 else ''} from position {int(index)} to {int(index2)}"))
+
+    # Handle single track removal
+    else:
+        track = vc.queue.peek(min(int(index)-1, len(vc.queue)-1))
+        vc.queue.remove(track)
+        await ctx.reply(embed=music_embed("🗑️ Remove track", f"`{track.author} - {track.title}` has been removed"))
 
 async def queue_replace(ctx: commands.Context, index: str, query: str):
     if not ctx.guild: return await ctx.reply("not supported")
@@ -552,6 +611,42 @@ async def mode_rec_auto(interaction: discord.Interaction, current: str) -> list[
         app_commands.Choice(name=mode, value=mode) for mode in ["partial", "enabled", "disabled"] if current.lower() in mode.lower()
     ]
 
+async def remove_member_autocomplete(interaction: discord.Interaction, current: str):
+    if not interaction.guild:
+        return []
+
+    # Get the voice client to check the queue
+    vc: wavelink.Player = interaction.guild.voice_client
+    if not vc or vc.queue.is_empty:
+        return []
+
+    # Get unique requesters from the queue
+    requesters = set()
+    for i in range(len(vc.queue)):
+        track = vc.queue.peek(i)
+        requester_id = dict(track.extras).get("requester")
+        if requester_id:
+            requesters.add(int(requester_id))
+
+    # Get member objects and filter by current input
+    choices = []
+    for requester_id in requesters:
+        try:
+            member = interaction.guild.get_member(requester_id)
+            if member:
+                # Filter by current input (name or display name)
+                if not current or current.lower() in member.display_name.lower() or current.lower() in member.name.lower():
+                    choices.append(app_commands.Choice(
+                        name=f"{member.display_name} ({member.name})",
+                        value=str(member.id)
+                    ))
+        except:
+            continue
+
+    # Sort by display name and limit to 25 (Discord's limit)
+    choices.sort(key=lambda x: x.name.lower())
+    return choices[:25]
+
 class CogYouTubePlayer(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -687,9 +782,12 @@ class CogYouTubePlayer(commands.Cog):
         await queue_fair(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['queue']['remove']}")
-    @app_commands.describe(index="Track number you want to remove (Must be a valid integer)")
-    async def remove(self, ctx: commands.Context, index: str):
-        await queue_remove(ctx, index)
+    @app_commands.describe(index="Track number you want to remove (Must be a valid integer)",
+                           index2="Track number you want to remove within range (Must be a valid integer)",
+                           member="Remove all tracks queued by this member")
+    @app_commands.autocomplete(member=remove_member_autocomplete)
+    async def remove(self, ctx: commands.Context, index: str, index2: str=None, member: discord.Member=None):
+        await queue_remove(ctx, index, index2, member)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['queue']['replace']}")
     @app_commands.describe(index="Track number you want to replace (Must be a valid integer)", query="Search query")
