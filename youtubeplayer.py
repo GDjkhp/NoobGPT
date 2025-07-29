@@ -374,7 +374,7 @@ async def queue_reset(ctx: commands.Context):
     vc.auto_queue.reset()
     await ctx.reply(embed=music_embed("🗑️ Clear queue", "The queue has been emptied"))
 
-async def queue_remove(ctx: commands.Context, index: str = None, index2: str = None, member: discord.Member = None):
+async def queue_remove(ctx: commands.Context, index: str = None, index2: str = None, member: str = None):
     if not ctx.guild: return await ctx.reply("not supported")
     if check_bot_conflict(ctx): return await ctx.reply("use moosic instead :)", ephemeral=True)
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
@@ -387,7 +387,24 @@ async def queue_remove(ctx: commands.Context, index: str = None, index2: str = N
     # Handle removal by member/requester
     if member:
         tracks_to_remove = []
-        member_id = str(member.id)
+
+        # Try to get member object from string (could be ID or mention)
+        member_obj = None
+        try:
+            # If it's a digit, treat as user ID
+            if member.isdigit():
+                member_obj = ctx.guild.get_member(int(member))
+            # If it's a mention, extract ID
+            elif member.startswith('<@') and member.endswith('>'):
+                member_id = member[2:-1].replace('!', '')
+                member_obj = ctx.guild.get_member(int(member_id))
+        except:
+            pass
+
+        if not member_obj:
+            return await ctx.reply("Member not found")
+
+        member_id = str(member_obj.id)
 
         # Find all tracks queued by the specified member
         for i in range(len(vc.queue)):
@@ -397,14 +414,14 @@ async def queue_remove(ctx: commands.Context, index: str = None, index2: str = N
                 tracks_to_remove.append(track)
 
         if not tracks_to_remove:
-            return await ctx.reply(embed=music_embed("🗑️ Remove tracks", f"No tracks found queued by {member.display_name}"))
+            return await ctx.reply(embed=music_embed("🗑️ Remove tracks", f"No tracks found queued by {member_obj.display_name}"))
 
         # Remove tracks
         for track in tracks_to_remove:
             vc.queue.remove(track)
 
         count = len(tracks_to_remove)
-        await ctx.reply(embed=music_embed("🗑️ Remove tracks", f"Removed {count} track{'s' if count != 1 else ''} queued by {member.display_name}"))
+        await ctx.reply(embed=music_embed("🗑️ Remove tracks", f"Removed {count} track{'s' if count != 1 else ''} queued by {member_obj.display_name}"))
         return
 
     # Require index if not removing by member
@@ -611,7 +628,7 @@ async def mode_rec_auto(interaction: discord.Interaction, current: str) -> list[
         app_commands.Choice(name=mode, value=mode) for mode in ["partial", "enabled", "disabled"] if current.lower() in mode.lower()
     ]
 
-async def remove_member_autocomplete(interaction: discord.Interaction, current: str):
+async def remove_member_auto(interaction: discord.Interaction, current: str):
     if not interaction.guild:
         return []
 
@@ -785,8 +802,8 @@ class CogYouTubePlayer(commands.Cog):
     @app_commands.describe(index="Track number you want to remove (Must be a valid integer)",
                            index2="Track number you want to remove within range (Must be a valid integer)",
                            member="Remove all tracks queued by this member")
-    @app_commands.autocomplete(member=remove_member_autocomplete)
-    async def remove(self, ctx: commands.Context, index: str, index2: str=None, member: discord.Member=None):
+    @app_commands.autocomplete(member=remove_member_auto)
+    async def remove(self, ctx: commands.Context, index: str, index2: str=None, member: str=None):
         await queue_remove(ctx, index, index2, member)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['queue']['replace']}")
