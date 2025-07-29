@@ -104,7 +104,7 @@ def music_now_playing_embed(bot: commands.Context, track: wavelink.Playable):
                           description=f"[{track.title}]({track.uri})" if track.uri else track.title)
     embed.add_field(name="Author", value=track.author, inline=False)
     if track.album.name: embed.add_field(name="Album", value=track.album.name, inline=False)
-    embed.add_field(name="Duration", value=format_mil(track.length), inline=False)
+    embed.add_field(name="Duration", value=f"{format_mil(track.position)} / {format_mil(track.length)}", inline=False)
     embed.add_field(name="Requested by", value=requester_string(bot, track), inline=False)
 
     if track.artwork: embed.set_thumbnail(url=track.artwork)
