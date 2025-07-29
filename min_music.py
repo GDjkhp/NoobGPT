@@ -159,10 +159,10 @@ class CogYouTubePlayerMin(commands.Cog):
     @app_commands.describe(index="Track number you want to remove (Must be a valid integer)",
                            index2="Track number you want to remove within range (Must be a valid integer)",
                            member="Remove all tracks queued by this member")
-    @app_commands.autocomplete(member=remove_member_autocomplete)
+    @app_commands.autocomplete(member=remove_member_auto)
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def remove(self, ctx: commands.Context, index: str, index2: str=None, member: discord.Member=None):
+    async def remove(self, ctx: commands.Context, index: str, index2: str=None, member: str=None):
         await queue_remove(ctx, index, index2, member)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['queue']['replace']}")
