@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
-from aki_new import Akinator, CantGoBackAnyFurther, AkinatorError
+from akinator import Akinator, CantGoBackAnyFurther, AkinatorError
 from util_discord import command_check, description_helper, get_guild_prefix
 
 CATEGORIES = {
@@ -15,24 +15,23 @@ LANGUAGES = ['en', 'ar', 'cn', 'de', 'es', 'fr', 'it', 'jp', 'kr', 'nl', 'pl', '
 def create_win_embed(ctx: commands.Context, aki: Akinator) -> discord.Embed:
     guess = aki.get_guess()
     embed_win = discord.Embed(
-        title=guess['name'],
-        description=guess['description'],
+        title=aki.name_proposition,
+        description=aki.description_proposition,
         colour=0x00FFFF
     )
     if ctx.author.avatar:
         embed_win.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
     else:
         embed_win.set_author(name=ctx.author)
-    embed_win.set_image(url=guess['photo'])
+    embed_win.set_image(url=aki.photo)
     embed_win.add_field(name="Questions", value=aki.step+1, inline=True)
     embed_win.add_field(name="Progress", value=f"{aki.progression}%", inline=True)
     return embed_win
 
 def create_final_embed(ctx: commands.Context, aki: Akinator) -> discord.Embed:
-    guess = aki.get_guess()
     embed_win = discord.Embed(title='GG!', color=0x00FF00)
-    embed_win.add_field(name=guess['name'], value=guess['description'], inline=False)
-    embed_win.set_image(url=guess['photo'])
+    embed_win.add_field(name=aki.name_proposition, value=aki.description_proposition, inline=False)
+    embed_win.set_image(url=aki.photo)
     embed_win.add_field(name="Questions", value=aki.step+1, inline=True)
     embed_win.add_field(name="Progress", value=f"{aki.progression}%", inline=True)
     if ctx.author.avatar:
@@ -101,8 +100,8 @@ class ButtonAction(discord.ui.Button):
                 if self.aki.step == 79:
                     embed_loss = create_loss_embed(self.ctx)
                     return await interaction.edit_original_response(embed=embed_loss, view=None)
-                is_guess = await self.aki.answer(self.action)
-                if is_guess:
+                await self.aki.answer(self.action)
+                if self.aki.win:
                     embed = create_win_embed(self.ctx, self.aki)
                     return await interaction.edit_original_response(
                         embed=embed,
@@ -139,6 +138,7 @@ class ResultButton(discord.ui.Button):
             )
         try:
             if self.action == 'y':
+                await self.aki.choose()
                 embed_win = create_final_embed(self.ctx, self.aki)
                 await interaction.response.edit_message(embed=embed_win, view=None)
             else:
