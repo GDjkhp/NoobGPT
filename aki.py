@@ -1,19 +1,18 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
-from akinator import Akinator, CantGoBackAnyFurther, AkinatorError
+from akinator import AsyncAkinator, CantGoBackAnyFurther
 from util_discord import command_check, description_helper, get_guild_prefix
 
 CATEGORIES = {
-    'people': 'characters', 
-    'objects': 'objects', 
-    'animals': 'animals'
+    'people': 'c', 
+    'objects': 'o', 
+    'animals': 'a'
 }
 
 LANGUAGES = ['en', 'ar', 'cn', 'de', 'es', 'fr', 'it', 'jp', 'kr', 'nl', 'pl', 'pt', 'ru', 'tr', 'id']
 
-def create_win_embed(ctx: commands.Context, aki: Akinator) -> discord.Embed:
-    guess = aki.get_guess()
+def create_win_embed(ctx: commands.Context, aki: AsyncAkinator) -> discord.Embed:
     embed_win = discord.Embed(
         title=aki.name_proposition,
         description=aki.description_proposition,
@@ -28,7 +27,7 @@ def create_win_embed(ctx: commands.Context, aki: Akinator) -> discord.Embed:
     embed_win.add_field(name="Progress", value=f"{aki.progression}%", inline=True)
     return embed_win
 
-def create_final_embed(ctx: commands.Context, aki: Akinator) -> discord.Embed:
+def create_final_embed(ctx: commands.Context, aki: AsyncAkinator) -> discord.Embed:
     embed_win = discord.Embed(title='GG!', color=0x00FF00)
     embed_win.add_field(name=aki.name_proposition, value=aki.description_proposition, inline=False)
     embed_win.set_image(url=aki.photo)
@@ -52,7 +51,7 @@ def create_loss_embed(ctx: commands.Context) -> discord.Embed:
         embed_loss.set_author(name=ctx.author)
     return embed_loss
 
-def create_question_embed(aki: Akinator, ctx: commands.Context) -> discord.Embed:
+def create_question_embed(aki: AsyncAkinator, ctx: commands.Context) -> discord.Embed:
     embed = discord.Embed(
         title=f"{aki.step+1}. {aki.question}",
         description=f"{aki.progression}%",
@@ -65,7 +64,7 @@ def create_question_embed(aki: Akinator, ctx: commands.Context) -> discord.Embed
     return embed
 
 class QuestionView(discord.ui.View):
-    def __init__(self, aki: Akinator, ctx: commands.Context):
+    def __init__(self, aki: AsyncAkinator, ctx: commands.Context):
         super().__init__(timeout=None)
         self.add_item(ButtonAction(aki, ctx, 0, 'Yes', '✅', 'y'))
         self.add_item(ButtonAction(aki, ctx, 0, 'No', '❌', 'n'))
@@ -76,7 +75,7 @@ class QuestionView(discord.ui.View):
         self.add_item(ButtonAction(aki, ctx, 2, 'Stop', '🛑', 's'))
 
 class ButtonAction(discord.ui.Button):
-    def __init__(self, aki: Akinator, ctx: commands.Context, row: int, label: str, emoji: str, action: str):
+    def __init__(self, aki: AsyncAkinator, ctx: commands.Context, row: int, label: str, emoji: str, action: str):
         super().__init__(label=label, style=discord.ButtonStyle.success, emoji=emoji, row=row)
         self.aki = aki
         self.action = action
@@ -101,7 +100,7 @@ class ButtonAction(discord.ui.Button):
                     embed_loss = create_loss_embed(self.ctx)
                     return await interaction.edit_original_response(embed=embed_loss, view=None)
                 await self.aki.answer(self.action)
-                if self.aki.win:
+                if self.aki.id_proposition: # see aki_new.py _update_from_answer func win condition
                     embed = create_win_embed(self.ctx, self.aki)
                     return await interaction.edit_original_response(
                         embed=embed,
@@ -114,17 +113,17 @@ class ButtonAction(discord.ui.Button):
             )
         except CantGoBackAnyFurther:
             await interaction.followup.send(content="Cannot go back any further!", ephemeral=True)
-        except AkinatorError as e:
+        except Exception as e:
             await interaction.followup.send(content=f"Error: {str(e)}", ephemeral=True)
 
 class ResultView(discord.ui.View):
-    def __init__(self, aki: Akinator, ctx):
+    def __init__(self, aki: AsyncAkinator, ctx):
         super().__init__(timeout=None)
         self.add_item(ResultButton(aki, ctx, 'Yes', '✅', 'y'))
         self.add_item(ResultButton(aki, ctx, 'No', '❌', 'n'))
 
 class ResultButton(discord.ui.Button):
-    def __init__(self, aki: Akinator, ctx: commands.Context, label: str, emoji: str, action: str):
+    def __init__(self, aki: AsyncAkinator, ctx: commands.Context, label: str, emoji: str, action: str):
         super().__init__(label=label, style=discord.ButtonStyle.success, emoji=emoji)
         self.aki = aki
         self.action = action
@@ -149,10 +148,10 @@ class ResultButton(discord.ui.Button):
                             embed=create_question_embed(self.aki, self.ctx), 
                             view=QuestionView(self.aki, self.ctx)
                         )
-                    except AkinatorError: pass
+                    except Exception: pass
                 embed_loss = create_loss_embed(self.ctx)
                 await interaction.response.edit_message(embed=embed_loss, view=None)
-        except AkinatorError as e:
+        except Exception as e:
             await interaction.response.send_message(content=f"Error: {str(e)}", ephemeral=True)
 
 async def start_akinator_game(ctx: commands.Context, category: str = None, language: str = None):
@@ -172,7 +171,7 @@ async def start_akinator_game(ctx: commands.Context, category: str = None, langu
         )
 
     try:
-        aki = Akinator()
+        aki = AsyncAkinator()
         theme = CATEGORIES[category]
         await aki.start_game(language=language, theme=theme, child_mode=sfw)
         await msg.edit(
