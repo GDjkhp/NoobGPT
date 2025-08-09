@@ -25,3 +25,4 @@ g4f
 quickjs
 quart
 quart-cors
+akinator
