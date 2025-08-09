@@ -37,11 +37,17 @@ A <b>very simple yet complicated</b> multi-purpose Discord bot that does pretty 
 | ZERO      | ?           | private beta / [server invite](https://discord.gg/fv4st) |
 
 ## Source Code
+![](https://img.shields.io/github/created-at/GDjkhp/level-up-loser-python-branch)
+![](https://img.shields.io/github/license/GDjkhp/level-up-loser-python-branch)
+![](https://img.shields.io/github/languages/top/GDjkhp/level-up-loser-python-branch)
+![](https://img.shields.io/github/commit-activity/t/GDjkhp/level-up-loser-python-branch)
+\
+![](https://github.com/GDjkhp/NoobGPT/actions/workflows/jekyll-gh-pages.yml/badge.svg)
+
 * <https://github.com/GDjkhp/level-up-loser-python-branch>
 
-Host your bots for free: [Bot-Hosting.net](https://bot-hosting.net/?aff=729554186777133088)
-
 ### Requirements
+Host your bots for free: [Bot-Hosting.net](https://bot-hosting.net/?aff=729554186777133088)
 * [`Python 3.10+`](https://www.python.org/downloads), [`FFmpeg`](https://www.ffmpeg.org/download.html), [`requirements.txt`](http://gdjkhp.github.io/NoobGPT/requirements.txt) packages, [`.env`](https://gdjkhp.github.io/NoobGPT/example.env) for secret keys.
 * A working [`MongoDB`](https://www.mongodb.com) instance. [How do I find my MongoDB connection string?](https://www.mongodb.com/resources/products/fundamentals/mongodb-connection-string)
 * A `cookies.txt` for downloading YouTube videos. [How do I pass cookies to yt-dlp?](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp)
