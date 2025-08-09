@@ -100,7 +100,7 @@ class ButtonAction(discord.ui.Button):
                     embed_loss = create_loss_embed(self.ctx)
                     return await interaction.edit_original_response(embed=embed_loss, view=None)
                 await self.aki.answer(self.action)
-                if self.aki.progression > 95 and self.aki.win:
+                if self.aki.win:
                     embed = create_win_embed(self.ctx, self.aki)
                     return await interaction.edit_original_response(
                         embed=embed,
