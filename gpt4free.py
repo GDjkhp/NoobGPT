@@ -7,9 +7,10 @@ from util_discord import description_helper, command_check, get_guild_prefix, ch
 from perplexity import loopMsgGH, loopMsgSlash, strip_dash
 from g4f.client import AsyncClient
 client = AsyncClient()
-
 from util_database import myclient
 mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
+DEFAULT_TXT = "gpt-4.1"
+DEFAULT_IMG = "flux"
 
 async def get_models():
     cursor = mycol.find()
@@ -179,8 +180,8 @@ async def g4f_help(ctx: commands.Context):
     if await command_check(ctx, "g4f", "ai"): return await ctx.reply("command disabled", ephemeral=True)
     final_text = [
         "# Get started",
-        "`-ask <prompt>` text generation (defaults to `gpt-4o`)",
-        "`-imagine <prompt>` image generation (defaults to `flux`)",
+        f"`-ask <prompt>` text generation (defaults to `{DEFAULT_TXT}`)",
+        f"`-imagine <prompt>` image generation (defaults to `{DEFAULT_IMG}`)",
         "# Advanced",
         "* Use `/ask` and `/imagine` to switch models",
         "* Check out `-aimode` to set up AI responses on mentions",
@@ -208,7 +209,7 @@ class GPT4UCog(commands.Cog):
     @app_commands.autocomplete(model=model_txt_auto)
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def gpt_slash(self, ctx: discord.Interaction, prompt: str, image: discord.Attachment=None, model: str="gpt-4o"):
+    async def gpt_slash(self, ctx: discord.Interaction, prompt: str, image: discord.Attachment=None, model: str=DEFAULT_TXT):
         await free_text(ctx, model, prompt, image)
 
     @app_commands.command(name="imagine", description=f"{description_helper['emojis']['ai']} GPT4Free Image Generation")
@@ -216,16 +217,16 @@ class GPT4UCog(commands.Cog):
     @app_commands.autocomplete(model=model_img_auto)
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def imagine_slash(self, ctx: discord.Interaction, prompt: str, model: str="flux"):
+    async def imagine_slash(self, ctx: discord.Interaction, prompt: str, model: str=DEFAULT_IMG):
         await free_image(ctx, model, prompt)
 
     @commands.command(aliases=["gpt"])
     async def ask(self, ctx: commands.Context):
-        await free_text(ctx, "gpt-4o")
+        await free_text(ctx, DEFAULT_TXT)
 
     @commands.command()
     async def imagine(self, ctx: commands.Context):
-        await free_image(ctx, "flux")
+        await free_image(ctx, DEFAULT_IMG)
 
     @commands.hybrid_command(description=f'{description_helper["emojis"]["ai"]} {description_helper["ai"]["g4f"]}'[:100])
     async def g4f(self, ctx: commands.Context):
