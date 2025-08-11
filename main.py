@@ -35,10 +35,11 @@ noobgpt_modules = [
     "animepahe", "manganato", "mangadex", # "gogoanime",
     "custom_status", "level_insult", "respond_mode", "quoteport", "help", # "weather",
     "util_discord", "util_member", "util_message",
+    "mister_squid", "roshidere", "util_channel", # squid + zero modules
 ]
 moosic_modules = ["util_discord", "youtubeplayer", "music"]
-zero_modules = noobgpt_modules + ["util_channel"]
-squid_modules = ["util_discord", "mister_squid", "roshidere"]
+# zero_modules = noobgpt_modules + ["util_channel"]
+# squid_modules = ["util_discord", "mister_squid", "roshidere"]
 exclude_bots = ["MOOSIC", "SQUID"]
 
 class NoobGPT(commands.Bot):
@@ -107,8 +108,8 @@ async def main():
         start_bot(NoobGPT("NOOBGPT", noobgpt_modules)),
         start_bot(NoobGPT("MOOSIC", moosic_modules)),
         start_bot(NoobGPT("KAGURA", noobgpt_modules)),
-        start_bot(NoobGPT("ZERO", zero_modules)),
-        start_bot(NoobGPT("SQUID", squid_modules)),
+        # start_bot(NoobGPT("ZERO", zero_modules)),
+        # start_bot(NoobGPT("SQUID", squid_modules)),
         serve(),
     )
 
