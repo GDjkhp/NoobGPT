@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
-from character_ai import PyAsyncCAI
+# from character_ai import PyAsyncCAI
 import PyCharacterAI
 from PyCharacterAI.types import Chat, Turn, Voice
 from pydub import AudioSegment
@@ -29,15 +29,25 @@ typing_chans = []
 pagelimit=12
 provider="https://gdjkhp.github.io/img/Character.AI.png"
 
-# queue system
-channel_queues: dict[int, asyncio.Queue] = defaultdict(asyncio.Queue)
-last_webhook_times: dict[int, float] = defaultdict(float)
-channel_tasks: dict[int, asyncio.Task] = {}
+# queue system: Use (channel_id, char_name) as key to separate characters
+character_queues: dict[tuple[int, str], asyncio.Queue] = defaultdict(asyncio.Queue)
+last_webhook_times: dict[tuple[int, str], float] = defaultdict(float)
+character_tasks: dict[tuple[int, str], asyncio.Task] = {}
+typing_chans: dict[tuple[int, str], bool] = defaultdict(bool)
+
+def get_character_key(channel_id: int, char_name: str) -> tuple[int, str]:
+    """Get unique key for character in channel"""
+    return (channel_id, char_name)
+
 async def add_task_to_queue(ctx: commands.Context, x, chat, turn):
-    await channel_queues[ctx.channel.id].put((ctx, x, chat, turn))
-    if ctx.channel.id not in channel_tasks or channel_queues[ctx.channel.id].task_done():
+    char_key = get_character_key(ctx.channel.id, x["name"])
+    await character_queues[char_key].put((ctx, x, chat, turn))
+
+    # Create task for this specific character if it doesn't exist or is done
+    if char_key not in character_tasks or character_tasks[char_key].done():
         bot: commands.Bot = ctx.bot
-        channel_tasks[ctx.channel.id] = bot.loop.create_task(c_ai_init(ctx))
+        character_tasks[char_key] = bot.loop.create_task(c_ai_worker(char_key))
+
 async def queue_msgs(ctx: commands.Context, chars, clean_text):
     for x in chars:
         if not x.get("char_id"): return
@@ -57,14 +67,24 @@ async def queue_msgs(ctx: commands.Context, chars, clean_text):
         if turn: 
             if turn.get_primary_candidate(): await add_task_to_queue(ctx, x, chat, turn)
             else: print(turn)
-# queue worker
-async def c_ai_init(ctx: commands.Context):
+
+# queue worker: Now per character instead of per channel
+async def c_ai_worker(char_key: tuple[int, str]):
+    """Worker for a specific character in a specific channel"""
+    channel_id, char_name = char_key
     while True:
         try:
-            if channel_queues[ctx.channel.id].empty():
+            if character_queues[char_key].empty():
                 await asyncio.sleep(0.1)
                 continue
-            ctx, x, chat, turn = await channel_queues[ctx.channel.id].get() # updated ctx is required for message author
+
+            ctx, x, chat, turn = await character_queues[char_key].get()
+
+            # Verify this is still the right character
+            if x["name"] != char_name:
+                print(f"Character mismatch: expected {char_name}, got {x['name']}")
+                continue
+
             permissions: discord.Permissions = ctx.channel.permissions_for(ctx.me)
             if not permissions.send_messages or not permissions.send_messages_in_threads: continue
             db = await get_database(ctx.guild.id)
@@ -77,23 +97,27 @@ async def c_ai_init(ctx: commands.Context):
                     if get_rate(ctx, char) == 0: continue
                     exist = True
             if not exist: continue
-            # webhook rate limiting
+            # webhook rate limiting - per character now
             current_time = time.time()
-            time_since_last_webhook = current_time - last_webhook_times[ctx.channel.id]
+            time_since_last_webhook = current_time - last_webhook_times[char_key]
             if time_since_last_webhook < 0.5:
                 await asyncio.sleep(0.5 - time_since_last_webhook)
             # send the fucking message
-            if ctx.channel.id in typing_chans:
+            if typing_chans[char_key]:
                 await send_webhook_message(ctx, x, chat, turn, db)
             else:
-                typing_chans.append(ctx.channel.id)
+                typing_chans[char_key] = True
                 async with ctx.typing():
                     await send_webhook_message(ctx, x, chat, turn, db)
-            last_webhook_times[ctx.channel.id] = time.time()
-        except Exception as e: print(f"Exception in c_ai_init: {e}")
-        try: 
-            if ctx.channel.id in typing_chans: typing_chans.remove(ctx.channel.id)
-        except: print("escaped the matrix bug triggered")
+            last_webhook_times[char_key] = time.time()
+        except Exception as e: 
+            print(f"Exception in c_ai_worker for {char_name}: {e}")
+        finally:
+            try: 
+                if typing_chans[char_key]: 
+                    typing_chans[char_key] = False
+            except: 
+                print("escaped the matrix bug triggered")
 
 async def send_webhook_message(ctx: commands.Context, x, chat: Chat, turn: Turn, db):
     wh = await get_webhook(ctx, x)
