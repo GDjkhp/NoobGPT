@@ -33,7 +33,7 @@ provider="https://gdjkhp.github.io/img/Character.AI.png"
 character_queues: dict[tuple[int, str], asyncio.Queue] = defaultdict(asyncio.Queue)
 last_webhook_times: dict[tuple[int, str], float] = defaultdict(float)
 character_tasks: dict[tuple[int, str], asyncio.Task] = {}
-typing_chans: dict[tuple[int, str], bool] = defaultdict(bool)
+typing_chans: dict[int, bool] = defaultdict(bool)
 
 def get_character_key(channel_id: int, char_name: str) -> tuple[int, str]:
     """Get unique key for character in channel"""
@@ -103,10 +103,10 @@ async def c_ai_worker(char_key: tuple[int, str]):
             if time_since_last_webhook < 0.5:
                 await asyncio.sleep(0.5 - time_since_last_webhook)
             # send the fucking message
-            if typing_chans[char_key]:
+            if typing_chans[channel_id]:
                 await send_webhook_message(ctx, x, chat, turn, db)
             else:
-                typing_chans[char_key] = True
+                typing_chans[channel_id] = True
                 async with ctx.typing():
                     await send_webhook_message(ctx, x, chat, turn, db)
             last_webhook_times[char_key] = time.time()
@@ -114,8 +114,8 @@ async def c_ai_worker(char_key: tuple[int, str]):
             print(f"Exception in c_ai_worker for {char_name}: {e}")
         finally:
             try: 
-                if typing_chans[char_key]: 
-                    typing_chans[char_key] = False
+                if typing_chans[channel_id]: 
+                    typing_chans[channel_id] = False
             except: 
                 print("escaped the matrix bug triggered")
 
@@ -199,10 +199,10 @@ async def c_ai(bot: commands.Bot, msg: discord.Message):
             if woke: chars.append(random.choice(woke))
     if not chars: return
 
-    if ctx.channel.id in typing_chans:
+    if typing_chans[ctx.channel.id]:
         await queue_msgs(ctx, chars, clean_text)
     else:
-        typing_chans.append(ctx.channel.id)
+        typing_chans[ctx.channel.id] = True
         async with ctx.typing(): await queue_msgs(ctx, chars, clean_text)
 
 async def add_char(ctx: commands.Context, text: str, search_type: int):
