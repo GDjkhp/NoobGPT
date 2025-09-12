@@ -9,13 +9,16 @@ from g4f.client import AsyncClient
 client = AsyncClient()
 from util_database import myclient
 mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
-DEFAULT_TXT = "gpt-4.1"
-DEFAULT_IMG = "flux"
 
 async def get_models():
     cursor = mycol.find()
     data = await cursor.to_list(None)
     if data: return data[0]["ai_txt"], data[0]["ai_img"]
+
+async def get_models_default():
+    cursor = mycol.find()
+    data = await cursor.to_list(None)
+    if data: return data[0]["ai_txt_default"], data[0]["ai_img_default"]
 
 async def set_models(ctx: commands.Context, mode: str, arg: str):
     model_list = arg.split()
@@ -28,6 +31,11 @@ async def set_models(ctx: commands.Context, mode: str, arg: str):
             replyFirst = False
             await ctx.reply(chunk)
         else: await ctx.send(chunk)
+
+async def set_models_default(ctx: commands.Context, mode: str, arg: str):
+    await mycol.update_one({}, {"$set": {mode: arg}})
+    text = f"{mode}: {arg}"
+    await ctx.reply(text)
 
 async def the_free_req_img(prompt: str, model: str):
     response = await client.images.generate(
@@ -178,6 +186,7 @@ async def build_help(current: str=None):
 
 async def g4f_help(ctx: commands.Context):
     if await command_check(ctx, "g4f", "ai"): return await ctx.reply("command disabled", ephemeral=True)
+    DEFAULT_TXT, DEFAULT_IMG = await get_models_default()
     final_text = [
         "# Get started",
         f"`-ask <prompt>` text generation (defaults to `{DEFAULT_TXT}`)",
@@ -209,7 +218,10 @@ class GPT4UCog(commands.Cog):
     @app_commands.autocomplete(model=model_txt_auto)
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def gpt_slash(self, ctx: discord.Interaction, prompt: str, image: discord.Attachment=None, model: str=DEFAULT_TXT):
+    async def gpt_slash(self, ctx: discord.Interaction, prompt: str, image: discord.Attachment=None, model: str=None):
+        if not model:
+            DEFAULT_TXT, _ = await get_models_default()
+            model = DEFAULT_TXT
         await free_text(ctx, model, prompt, image)
 
     @app_commands.command(name="imagine", description=f"{description_helper['emojis']['ai']} GPT4Free Image Generation")
@@ -217,15 +229,20 @@ class GPT4UCog(commands.Cog):
     @app_commands.autocomplete(model=model_img_auto)
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def imagine_slash(self, ctx: discord.Interaction, prompt: str, model: str=DEFAULT_IMG):
+    async def imagine_slash(self, ctx: discord.Interaction, prompt: str, model: str=None):
+        if not model:
+            _, DEFAULT_IMG = await get_models_default()
+            model = DEFAULT_IMG
         await free_image(ctx, model, prompt)
 
     @commands.command(aliases=["gpt"])
     async def ask(self, ctx: commands.Context):
+        DEFAULT_TXT, _ = await get_models_default()
         await free_text(ctx, DEFAULT_TXT)
 
     @commands.command()
     async def imagine(self, ctx: commands.Context):
+        _, DEFAULT_IMG = await get_models_default()
         await free_image(ctx, DEFAULT_IMG)
 
     @commands.hybrid_command(description=f'{description_helper["emojis"]["ai"]} {description_helper["ai"]["g4f"]}'[:100])
@@ -241,6 +258,16 @@ class GPT4UCog(commands.Cog):
     async def aitxt(self, ctx: commands.Context, *, models):
         if check_if_not_owner(ctx): return
         await set_models(ctx, "ai_txt", models)
+
+    @commands.command()
+    async def aiimgdef(self, ctx: commands.Context, model: str):
+        if check_if_not_owner(ctx): return
+        await set_models_default(ctx, "ai_img_default", model)
+
+    @commands.command()
+    async def aitxtdef(self, ctx: commands.Context, model: str):
+        if check_if_not_owner(ctx): return
+        await set_models_default(ctx, "ai_txt_default", model)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(GPT4UCog(bot))
