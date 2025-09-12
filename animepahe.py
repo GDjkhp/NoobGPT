@@ -7,7 +7,7 @@ from util_discord import command_check, description_helper, get_guild_prefix
 from curl_cffi.requests import AsyncSession
 from discord import app_commands
 
-base="https://animepahe.ru"
+base="https://animepahe.si"
 provider="https://gdjkhp.github.io/img/apdoesnthavelogotheysaidapistooplaintheysaid.png"
 pagelimit=12
 headers = {"cookie": "__ddg2_=", "referer": base}
