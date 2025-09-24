@@ -235,11 +235,11 @@ class QuizView(discord.ui.View):
         self.add_item(ButtonChoice(results, index, ctx, 666, players, 2, "UPDATE", settings))
 
 class ButtonChoice(discord.ui.Button):
-    def __init__(self, results: list, index: int, ctx: commands.Context | discord.Interaction, c: int, players: dict, row: int, id: str, settings: dict):
-        emoji, l = "🔀" if id == "RANDOM" else i2c(c), id
-        if id == "CHOICE": l = results[index]["choices"][c]
+    def __init__(self, results: list, index: int, ctx: commands.Context | discord.Interaction, c: int, players: dict, row: int, choice_id: str, settings: dict):
+        emoji, l = "🔀" if choice_id == "RANDOM" else i2c(c), choice_id
+        if choice_id == "CHOICE": l = results[index]["choices"][c]
         super().__init__(emoji=emoji, label=l[:80], row=row)
-        self.results, self.index, self.ctx, self.c, self.players, self.id, self.settings = results, index, ctx, c, players, id, settings
+        self.results, self.index, self.ctx, self.c, self.players, self.id, self.settings = results, index, ctx, c, players, choice_id, settings
     
     async def callback(self, interaction: discord.Interaction):
         # get host
