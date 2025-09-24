@@ -34,9 +34,9 @@ class RPSView(discord.ui.View):
         self.add_item(ButtonChoice("SCISSORS", player, w))
 
 class ButtonChoice(discord.ui.Button):
-    def __init__(self, id: str, player: discord.User, w: str):
-        super().__init__(label=id, emoji=id2e(id))
-        self.id, self.player, self.w = id, player, w
+    def __init__(self, choice_id: str, player: discord.User, w: str):
+        super().__init__(label=choice_id, emoji=id2e(choice_id))
+        self.id, self.player, self.w = choice_id, player, w
 
     async def callback(self, interaction: discord.Interaction):
         if not self.player:

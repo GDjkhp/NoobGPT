@@ -192,9 +192,9 @@ class QuizView(discord.ui.View):
             self.add_item(ButtonChoice("UPDATE", ctx, words, index, dead, settings, players, history))
 
 class ButtonChoice(discord.ui.Button):
-    def __init__(self, id: str, ctx: commands.Context, words: list, index: int, dead: dict, settings: dict, players: dict, history: list):
-        super().__init__(label=id, emoji=id2e(id))
-        self.id, self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history = id, ctx, words, index, dead, settings, players, history
+    def __init__(self, choice_id: str, ctx: commands.Context, words: list, index: int, dead: dict, settings: dict, players: dict, history: list):
+        super().__init__(label=choice_id, emoji=id2e(choice_id))
+        self.id, self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history = choice_id, ctx, words, index, dead, settings, players, history
     
     async def callback(self, interaction: discord.Interaction):
         # get host

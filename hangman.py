@@ -98,9 +98,9 @@ class MyModal(discord.ui.Modal):
             await interaction.response.edit_message(embed=e, view=None, content=f"GAME OVER!\n{text}")
 
 class ButtonChoice(discord.ui.Button):
-    def __init__(self, id: str, ctx: commands.Context, words: list, index: int, box: list, dead: list, settings: dict, players: dict):
-        super().__init__(label=id, emoji=id2e(id))
-        self.id, self.ctx, self.words, self.index, self.box, self.dead, self.settings, self.players = id, ctx, words, index, box, dead, settings, players
+    def __init__(self, choice_id: str, ctx: commands.Context, words: list, index: int, box: list, dead: list, settings: dict, players: dict):
+        super().__init__(label=choice_id, emoji=id2e(choice_id))
+        self.id, self.ctx, self.words, self.index, self.box, self.dead, self.settings, self.players = choice_id, ctx, words, index, box, dead, settings, players
     
     async def callback(self, interaction: discord.Interaction):
         # get host
