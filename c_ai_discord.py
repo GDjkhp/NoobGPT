@@ -62,7 +62,7 @@ async def queue_msgs(ctx: commands.Context, chars, clean_text):
                 turn = await client_voice.chat.send_message(x["char_id"], x["history_id"], clean_text)
                 break
             except Exception as e:
-                print(f"Exception in queue_msgs: {e}\n({[x["char_id"], x["history_id"]]})\nRetries: {retries}")
+                print(f"Exception in queue_msgs: {e}\n({[x['char_id'], x['history_id']]})\nRetries: {retries}")
                 retries += 1
         if turn: 
             if turn.get_primary_candidate(): await add_task_to_queue(ctx, x, chat, turn)

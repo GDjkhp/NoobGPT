@@ -34,7 +34,7 @@ noobgpt_modules = [
     "gelbooru", "deeznuts", "sflix", "ytdlp_", "magick_pillow", "kiss_api", "hianime_api", "min_music", # "cobalt", "kissasian",
     "animepahe", "manganato", "mangadex", # "gogoanime",
     "custom_status", "level_insult", "respond_mode", "quoteport", "help", # "weather",
-    "util_discord", "util_member", "util_message", "util_geometryjump",
+    "util_discord", "util_member", "util_message", # "util_geometryjump",
     "mister_squid", "roshidere", "util_channel", # squid + zero modules
 ]
 moosic_modules = ["util_discord", "youtubeplayer", "music"]
