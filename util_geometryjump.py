@@ -28,6 +28,7 @@ async def gj_song_info(song_id: str):
             headers={"User-Agent": "",}
         ) as resp:
             text = await resp.text()
+            print(text)
             song_info = parse_response(text)
             return {
                 "ID": int(song_info.get("1", 0)),
@@ -97,3 +98,6 @@ class CogGeometryJump(commands.Cog):
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogGeometryJump(bot))
+
+# import asyncio
+# asyncio.run(gj_song_info("1463773"))
