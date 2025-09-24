@@ -94,3 +94,6 @@ class CogGeometryJump(commands.Cog):
     @commands.command()
     async def songcheck(self, ctx: commands.Context, *, song_id:str=None):
         await process_song_id(ctx, song_id)
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(CogGeometryJump(bot))
