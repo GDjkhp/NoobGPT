@@ -35,7 +35,7 @@ noobgpt_modules = [
     "animepahe", "manganato", "mangadex", # "gogoanime",
     "custom_status", "level_insult", "respond_mode", "quoteport", "help", # "weather",
     "util_discord", "util_member", "util_message",
-    "mister_squid", "roshidere", "util_channel", # squid + zero modules
+    "mister_squid", "roshidere", "util_channel", "util_geometryjump" # squid + zero modules
 ]
 moosic_modules = ["util_discord", "youtubeplayer", "music"]
 # zero_modules = noobgpt_modules + ["util_channel"]

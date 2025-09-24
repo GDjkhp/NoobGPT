@@ -1,8 +1,9 @@
 from discord.ext.commands import Bot
-from quart import Quart, jsonify
+from quart import Quart, jsonify, request
 from quart_cors import cors
 from gpt4free import get_models
 from time import time
+from util_geometryjump import gj_song_info
 
 app = Quart('')
 app = cors(app, allow_origin="*")
@@ -52,6 +53,16 @@ async def get_models_info():
         "TEXT": models_text,
         "IMAGE": models_image,
     })
+
+@app.route('/song-info', methods=['GET'])
+async def song_info_endpoint():
+    song_id = request.args.get('song_id')
+    if not song_id:
+        return jsonify({'error': 'Missing song_id parameter'}), 400
+    info = await gj_song_info(song_id)
+    if not info or not info.get('ID'):
+        return jsonify({'error': 'Song not found'}), 404
+    return jsonify(info)
 
 async def serve():
     await app.run_task(host="0.0.0.0", port=20129)
