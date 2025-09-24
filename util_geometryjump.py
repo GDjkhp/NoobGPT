@@ -1,7 +1,8 @@
-import aiohttp
+from curl_cffi import AsyncSession
 import urllib.parse
 import discord
 from discord.ext import commands
+session = AsyncSession(impersonate='chrome')
 
 def parse_response(text):
     parts = text.strip().split('~|~')
@@ -21,32 +22,30 @@ async def gj_song_info(song_id: str):
             except Exception:
                 pass
 
-    async with aiohttp.ClientSession() as session:
-        async with session.post(
-            "http://www.boomlings.com/database/getGJSongInfo.php",
-            data={"secret": "Wmfd2893gb7", "songID": song_id,},
-            headers={"User-Agent": "",}
-        ) as resp:
-            text = await resp.text()
-            print(text)
-            song_info = parse_response(text)
-            return {
-                "ID": int(song_info.get("1", 0)),
-                "name": song_info.get("2", ""),
-                "artistID": int(song_info.get("3", 0)),
-                "artistName": song_info.get("4", ""),
-                "size": float(song_info.get("5", 0)),
-                "videoID": song_info.get("6", ""),
-                "youtubeURL": song_info.get("7", ""),
-                "isVerified": song_info.get("8", "0") == "1",
-                "songPriority": int(song_info.get("9", 0)) if "9" in song_info else None,
-                "link": urllib.parse.unquote(song_info.get("10", "")),
-                "nongEnum": int(song_info.get("11", 0)) if "11" in song_info else None,
-                "extraArtistIDs": [int(x) for x in song_info.get("12", "").split(".") if x] if "12" in song_info else [],
-                "new": song_info.get("13", "0") == "1" if "13" in song_info else False,
-                "newType": int(song_info.get("14", 0)) if "14" in song_info else None,
-                "extraArtistNames": song_info.get("15", "").split(",") if "15" in song_info and song_info["15"] else [],
-            }
+    resp = await session.post(
+        "http://www.boomlings.com/database/getGJSongInfo.php",
+        data={"secret": "Wmfd2893gb7", "songID": song_id,},
+        headers={"User-Agent": "",}
+    )
+    print(resp.text)
+    song_info = parse_response(resp.text)
+    return {
+        "ID": int(song_info.get("1", 0)),
+        "name": song_info.get("2", ""),
+        "artistID": int(song_info.get("3", 0)),
+        "artistName": song_info.get("4", ""),
+        "size": float(song_info.get("5", 0)),
+        "videoID": song_info.get("6", ""),
+        "youtubeURL": song_info.get("7", ""),
+        "isVerified": song_info.get("8", "0") == "1",
+        "songPriority": int(song_info.get("9", 0)) if "9" in song_info else None,
+        "link": urllib.parse.unquote(song_info.get("10", "")),
+        "nongEnum": int(song_info.get("11", 0)) if "11" in song_info else None,
+        "extraArtistIDs": [int(x) for x in song_info.get("12", "").split(".") if x] if "12" in song_info else [],
+        "new": song_info.get("13", "0") == "1" if "13" in song_info else False,
+        "newType": int(song_info.get("14", 0)) if "14" in song_info else None,
+        "extraArtistNames": song_info.get("15", "").split(",") if "15" in song_info and song_info["15"] else [],
+    }
 
 async def process_song_id(ctx: commands.Context, song_id: str):
     if not song_id:
