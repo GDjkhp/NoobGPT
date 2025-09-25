@@ -100,7 +100,7 @@ class MyModal(discord.ui.Modal):
 class ButtonChoice(discord.ui.Button):
     def __init__(self, choice_id: str, ctx: commands.Context, words: list, index: int, box: list, dead: list, settings: dict, players: dict):
         super().__init__(label=choice_id, emoji=id2e(choice_id))
-        self.id, self.ctx, self.words, self.index, self.box, self.dead, self.settings, self.players = choice_id, ctx, words, index, box, dead, settings, players
+        self.choice_id, self.ctx, self.words, self.index, self.box, self.dead, self.settings, self.players = choice_id, ctx, words, index, box, dead, settings, players
     
     async def callback(self, interaction: discord.Interaction):
         # get host
@@ -117,7 +117,7 @@ class ButtonChoice(discord.ui.Button):
         if self.settings["mode"] != "all" and interaction.user.id != host_id:
             return await interaction.response.send_message(content=f"<@{host_id}> is playing this game. Use `{await get_guild_prefix(self.ctx)}hang` to create your own game.",
                                                            ephemeral=True)
-        if self.id == "LEAVE": 
+        if self.choice_id == "LEAVE": 
             a = False
             keys_to_remove = []
             for k, v in self.players.items():
@@ -139,9 +139,9 @@ class ButtonChoice(discord.ui.Button):
         # register player choice
         if not interaction.user.id in self.players: self.players[interaction.user.id] = add_player(interaction.user)
         
-        if self.id == "INPUT":
+        if self.choice_id == "INPUT":
             return await interaction.response.send_modal(MyModal(self.ctx, self.words, self.index, self.box, self.dead, self.settings, self.players))
-        if self.id == "NEXT":
+        if self.choice_id == "NEXT":
             if self.settings["mode"] != "hardcore": self.settings["step"] = 0
             word = self.words[self.index+1]["word"].replace("_", " ").lower()
             self.dead = [" ", "-"]
@@ -150,7 +150,7 @@ class ButtonChoice(discord.ui.Button):
             return await interaction.response.edit_message(content=c2e(self.box), 
                                                            embed=QuizEmbed(self.words, self.index+1, self.settings, self.players, self.ctx), 
                                                            view=QuizView(self.ctx, self.words, self.index+1, self.box, self.dead, self.settings, self.players))
-        if self.id == "UPDATE":
+        if self.choice_id == "UPDATE":
             if interaction.user.id != host_id: 
                 return await interaction.response.send_message(f"Only <@{host_id}> can press this button.", ephemeral=True)
             await interaction.response.edit_message(view=None)

@@ -36,19 +36,19 @@ class RPSView(discord.ui.View):
 class ButtonChoice(discord.ui.Button):
     def __init__(self, choice_id: str, player: discord.User, w: str):
         super().__init__(label=choice_id, emoji=id2e(choice_id))
-        self.id, self.player, self.w = choice_id, player, w
+        self.choice_id, self.player, self.w = choice_id, player, w
 
     async def callback(self, interaction: discord.Interaction):
         if not self.player:
             await interaction.response.edit_message(content=f"{interaction.user.mention} :vs: :interrobang:", 
-                                                    view=RPSView(interaction.user, self.id))
+                                                    view=RPSView(interaction.user, self.choice_id))
         else:
             if self.player == interaction.user: 
                 return await interaction.response.send_message("You played yourself. Oh wait, you can't.", ephemeral=True)
-            result = logic_sense(self.w, self.id)
+            result = logic_sense(self.w, self.choice_id)
             winner: discord.User = None if result == "DRAW" else self.player if result == self.w else interaction.user
             await interaction.response.edit_message(
-                content=f"{id2e(self.w)}:vs:{id2e(self.id)}\n{'DRAW' if not winner else f'{winner.mention} won'}", view=None)
+                content=f"{id2e(self.w)}:vs:{id2e(self.choice_id)}\n{'DRAW' if not winner else f'{winner.mention} won'}", view=None)
 
 class CogRPS(commands.Cog):
     def __init__(self, bot):

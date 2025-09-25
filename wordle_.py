@@ -194,7 +194,7 @@ class QuizView(discord.ui.View):
 class ButtonChoice(discord.ui.Button):
     def __init__(self, choice_id: str, ctx: commands.Context, words: list, index: int, dead: dict, settings: dict, players: dict, history: list):
         super().__init__(label=choice_id, emoji=id2e(choice_id))
-        self.id, self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history = choice_id, ctx, words, index, dead, settings, players, history
+        self.choice_id, self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history = choice_id, ctx, words, index, dead, settings, players, history
     
     async def callback(self, interaction: discord.Interaction):
         # get host
@@ -216,7 +216,7 @@ class ButtonChoice(discord.ui.Button):
         if not interaction.user.id in self.players: self.players[interaction.user.id] = add_player(interaction.user)
 
         # buttons
-        if self.id == "LEAVE": 
+        if self.choice_id == "LEAVE": 
             a = False
             keys_to_remove = []
             for k, v in self.players.items():
@@ -234,16 +234,16 @@ class ButtonChoice(discord.ui.Button):
                                                         view=QuizView(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history))
             else: 
                 return await interaction.response.edit_message(content=f"You left.\n{self.words[self.index]['word'].upper()}", embed=None, view=None)
-        if self.id == "INPUT": # removing return was hot
+        if self.choice_id == "INPUT": # removing return was hot
             return await interaction.response.send_modal(MyModal(self.ctx, self.words, self.index, self.dead, self.settings, self.players, self.history))
-        if self.id == "NEXT":
+        if self.choice_id == "NEXT":
             game_reset(self.dead, self.settings, self.history)
             await interaction.response.edit_message(view=None)
             await interaction.followup.send(content=f"New game.",
                                             embed=QuizEmbed(self.settings, self.index+1, self.words, self.players),
                                             file=wordle_image(self.history, self.words[self.index+1]["word"].upper()),
                                             view=QuizView(self.ctx, self.words, self.index+1, self.dead, self.settings, self.players, self.history))
-        if self.id == "UPDATE":
+        if self.choice_id == "UPDATE":
             if interaction.user.id != host_id: 
                 return await interaction.response.send_message(f"Only <@{host_id}> can press this button.", ephemeral=True)
             await interaction.response.edit_message(view=None)
