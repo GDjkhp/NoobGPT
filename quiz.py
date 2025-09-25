@@ -239,7 +239,7 @@ class ButtonChoice(discord.ui.Button):
         emoji, l = "🔀" if choice_id == "RANDOM" else i2c(c), choice_id
         if choice_id == "CHOICE": l = results[index]["choices"][c]
         super().__init__(emoji=emoji, label=l[:80], row=row)
-        self.results, self.index, self.ctx, self.c, self.players, self.id, self.settings = results, index, ctx, c, players, choice_id, settings
+        self.results, self.index, self.ctx, self.c, self.players, self.choice_id, self.settings = results, index, ctx, c, players, choice_id, settings
     
     async def callback(self, interaction: discord.Interaction):
         # get host
@@ -252,7 +252,7 @@ class ButtonChoice(discord.ui.Button):
         if not a:
             k = next(iter(self.players))
             self.players[k]["host"] = True
-        if self.id == "LEAVE":
+        if self.choice_id == "LEAVE":
             a = False
             keys_to_remove = []
             for k, v in self.players.items():
@@ -272,7 +272,7 @@ class ButtonChoice(discord.ui.Button):
             return await interaction.response.edit_message(content=purge+text,
                                                            embed=BuildQuestion(self.results, self.index, self.ctx, self.players, self.settings), 
                                                            view=QuizView(self.results, self.index, self.ctx, self.players, self.settings))
-        if self.id == "END":
+        if self.choice_id == "END":
             if interaction.user.id != host_id: 
                 return await interaction.response.send_message(f"Only <@{host_id}> can press this button.", ephemeral=True)
             if button_confirm(self.players, interaction.user.id): 
@@ -280,7 +280,7 @@ class ButtonChoice(discord.ui.Button):
                                                                ephemeral=True)
             text = parseText(self.settings, self.results, self.index, self.players, self.c, self.ctx)
             return await interaction.response.edit_message(content=text+"\nTest ended.", embed=None, view=None)
-        if self.id == "PURGE":
+        if self.choice_id == "PURGE":
             if interaction.user.id != host_id: 
                 return await interaction.response.send_message(f"Only <@{host_id}> can press this button.", ephemeral=True)
             if button_confirm(self.players, interaction.user.id): 
@@ -292,13 +292,13 @@ class ButtonChoice(discord.ui.Button):
                     keys_to_remove.append(k)
             for k in keys_to_remove: del self.players[k]
             text = keysScore(self.players)
-            purge = f"{self.id}: "
+            purge = f"{self.choice_id}: "
             for i in keys_to_remove: purge += f"<@{i}>"
             if not keys_to_remove: purge="There is no such thing."
             return await interaction.response.edit_message(content=purge+text,
                                                            embed=BuildQuestion(self.results, self.index, self.ctx, self.players, self.settings), 
                                                            view=QuizView(self.results, self.index, self.ctx, self.players, self.settings))
-        if self.id == "UPDATE":
+        if self.choice_id == "UPDATE":
             if interaction.user.id != host_id: 
                 return await interaction.response.send_message(f"Only <@{host_id}> can press this button.", ephemeral=True)
             await interaction.response.edit_message(view=None)
