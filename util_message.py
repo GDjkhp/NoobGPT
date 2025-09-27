@@ -28,7 +28,7 @@ async def message_snitcher(before: discord.Message, after: discord.Message,
     chan = before.guild.get_channel(db["log_channel"])
     if not chan: return
 
-    if after:
+    if after and after.edited_at:
         content = f"{after.jump_url}\n<t:{round(after.edited_at.timestamp())}:F>"
     else: content = f"{before.channel.jump_url}\n<t:{round(datetime.now().timestamp())}:F>"
     await chan.send(content=content, embed=update_msg_embed(before, after, title, desc, col))
