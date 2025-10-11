@@ -289,7 +289,7 @@ class ButtonDownload(discord.ui.Button):
         req = await new_req(self.url_fake, None, False)
         soup = soupify(req)
         script_tag = soup.find("script")
-        match = re.search(r"https://kwik\.si/f/\w+", script_tag.string)
+        match = re.search(r"https://kwik\.cx/f/\w+", script_tag.string)
         dl_page = await new_req(match.group(), None, False)
         full_key, key, v1, v2 = KWIK_PARAMS_RE.search(dl_page.decode()).group(1, 2, 3, 4)
         decrypted = decrypt(full_key, key, v1, v2)
