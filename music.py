@@ -258,7 +258,7 @@ async def smart_recommendation(
         *weighted_history,
         *weighted_queue,
         *weighted_upcoming,
-        vc.current,
+        vc._current,
         vc._previous
     ]
 
