@@ -53,7 +53,7 @@ async def get_total_posts(tags: list, api: str) -> int:
             if pid_match:
                 last_pid = int(pid_match.group(1))
                 # Each page shows 42 posts, pid is 0-indexed
-                return last_pid + 42
+                return min(last_pid + 42, 1302) # magic number: page 32 limit (pid[31]) / api limitation / 42 x 31
 
         # If no last page link, count all page links
         page_links = pagination.find_all('a', href=re.compile(r'pid=\d+'))
