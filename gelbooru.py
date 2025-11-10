@@ -89,11 +89,11 @@ async def fetch_posts_page(tags: list, page: int, api: str):
     """Fetch a single page of posts."""
     try:
         if api == "safe":
-            return await Gelbooru(api=API_CONFIGS["safe"]).search_posts(tags=tags, page=page)
+            return await Gelbooru(api=API_CONFIGS["safe"]).search_posts(tags=tags, page=page, limit=42)
         elif api == "gel":
-            return await Gelbooru().search_posts(tags=tags, page=page)
+            return await Gelbooru().search_posts(tags=tags, page=page, limit=42)
         elif api == "r34":
-            return await Gelbooru(api=API_CONFIGS["r34"]).search_posts(tags=tags, page=page)
+            return await Gelbooru(api=API_CONFIGS["r34"]).search_posts(tags=tags, page=page, limit=42)
     except Exception as e:
         print(f"Error fetching page {page}: {e}")
         return []
