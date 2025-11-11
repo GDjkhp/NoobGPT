@@ -143,8 +143,7 @@ async def view_collection(ctx: commands.Context, api: str):
     first_post = await fetch_post(user["favorites"][0], api)
     embed = await BuildEmbed(search_ctx, first_post, 0, api == "safe", ctx)
     view = ImageView(search_ctx, 0, api == "safe", [False, False], ctx, api)
-    await message.edit(content=None if first_post else "**Error loading post**",
-                       embed=embed if first_post else None, view=view)
+    await message.edit(content=None, embed=embed, view=view)
 
 async def search_posts(ctx: commands.Context, arg: str, api: str):
     """Search posts with given tags."""
@@ -360,7 +359,7 @@ class ButtonShuffle(discord.ui.Button):
         post = await self.search_ctx.get_post(random_index)
         embed = await BuildEmbed(self.search_ctx, post, random_index, self.db == "safe", self.ctx)
         view = ImageView(self.search_ctx, random_index, self.db == "safe", self.lock, self.ctx, self.db)
-        await interaction.edit_original_response(content=None if post else "**Error loading post**", embed=embed if post else None, view=view)
+        await interaction.edit_original_response(content=None, embed=embed, view=view)
 
 class ButtonAction(discord.ui.Button):
     def __init__(self, search_ctx: SearchContext, index: int, emoji: str, row: int, lock: list, ctx: commands.Context, db: str, label: str):
@@ -390,7 +389,7 @@ class ButtonAction(discord.ui.Button):
         post = await self.search_ctx.get_post(self.index)
         embed = await BuildEmbed(self.search_ctx, post, self.index, self.db == "safe", self.ctx)
         view = ImageView(self.search_ctx, self.index, self.db == "safe", self.lock, self.ctx, self.db)
-        await interaction.edit_original_response(content=None if post else "**Error loading post**", embed=embed if post else None, view=view)
+        await interaction.edit_original_response(content=None, embed=embed, view=view)
 
 class CogSus(commands.Cog):
     def __init__(self, bot):
