@@ -12,7 +12,7 @@ from util_discord import command_check, description_helper, get_guild_prefix
 # API configuration
 API_CONFIGS = {
     "safe": "https://safebooru.org/",
-    "gel": None,  # Uses default Gelbooru
+    "gel": "https://gelbooru.com/",
     "r34": "https://api.rule34.xxx/"
 }
 
@@ -20,12 +20,8 @@ async def get_total_posts(tags: list, api: str) -> int:
     """Fetch total number of posts for given tags by parsing the pagination."""
     tags_str = "+".join(tag.replace(" ", "_") for tag in tags)
 
-    if api == "safe":
-        url = f"https://safebooru.org/index.php?page=post&s=list&tags={tags_str}"
-    elif api == "gel":
-        url = f"https://gelbooru.com/index.php?page=post&s=list&tags={tags_str}"
-    elif api == "r34":
-        url = f"https://rule34.xxx/index.php?page=post&s=list&tags={tags_str}"
+    if api in API_CONFIGS:
+        url = f"{API_CONFIGS[api]}index.php?page=post&s=list&tags={tags_str}"
     else:
         return 0
 
@@ -75,12 +71,8 @@ async def get_total_posts(tags: list, api: str) -> int:
 async def fetch_post(post_id: int, api: str):
     """Fetch a single post by ID."""
     try:
-        if api == "safe":
-            return await Gelbooru(api=API_CONFIGS["safe"]).get_post(post_id)
-        elif api == "gel":
-            return await Gelbooru().get_post(post_id)
-        elif api == "r34":
-            return await Gelbooru(api=API_CONFIGS["r34"]).get_post(post_id)
+        if api in API_CONFIGS:
+            return await Gelbooru(api=API_CONFIGS[api]).get_post(post_id)
     except Exception as e:
         print(f"Error fetching post {post_id}: {e}")
         return None
@@ -88,12 +80,8 @@ async def fetch_post(post_id: int, api: str):
 async def fetch_posts_page(tags: list, page: int, api: str):
     """Fetch a single page of posts."""
     try:
-        if api == "safe":
-            return await Gelbooru(api=API_CONFIGS["safe"]).search_posts(tags=tags, page=page, limit=42)
-        elif api == "gel":
-            return await Gelbooru().search_posts(tags=tags, page=page, limit=42)
-        elif api == "r34":
-            return await Gelbooru(api=API_CONFIGS["r34"]).search_posts(tags=tags, page=page, limit=42)
+        if api in API_CONFIGS:
+            return await Gelbooru(api=API_CONFIGS[api]).search_posts(tags=tags, page=page, limit=42)
     except Exception as e:
         print(f"Error fetching page {page}: {e}")
         return []
@@ -153,14 +141,10 @@ async def view_collection(ctx: commands.Context, api: str):
     # Fetch first post
     message = await ctx.reply("Loading…")
     first_post = await fetch_post(user["favorites"][0], api)
-
-    if not first_post:
-        return await message.edit(content="**Error loading post**")
-
     embed = await BuildEmbed(search_ctx, first_post, 0, api == "safe", ctx)
     view = ImageView(search_ctx, 0, api == "safe", [False, False], ctx, api)
-
-    await message.edit(content=None, embed=embed, view=view)
+    await message.edit(content=None if first_post else "**Error loading post**",
+                       embed=embed if first_post else None, view=view)
 
 async def search_posts(ctx: commands.Context, arg: str, api: str):
     """Search posts with given tags."""
@@ -315,6 +299,8 @@ class ButtonEnd(discord.ui.Button):
             )
         await interaction.response.defer()
         await interaction.delete_original_response()
+        # if you are thinking of 🤨 that gets deleted in 5 seconds, its incompatible with user commands
+        # await interaction.message.delete(delay=5) / await interaction.response.edit_message(content="🤨", embed=None, view=None, delete_after=5)
 
 class ButtonHeart(discord.ui.Button):
     def __init__(self, ctx: commands.Context, db: str, index: int, search_ctx: SearchContext, row: int):
@@ -328,7 +314,7 @@ class ButtonHeart(discord.ui.Button):
         # Get current post
         post = await self.search_ctx.get_post(self.index)
         if not post:
-            return await interaction.followup.send("Error loading post", ephemeral=True)
+            return await interaction.followup.send("**Error loading post**", ephemeral=True)
 
         # Update favorites
         if not await self.mycol.find_one({"user": interaction.user.id}):
@@ -372,13 +358,9 @@ class ButtonShuffle(discord.ui.Button):
 
         # Fetch random post
         post = await self.search_ctx.get_post(random_index)
-        if not post:
-            return await interaction.followup.send("Error loading post", ephemeral=True)
-
         embed = await BuildEmbed(self.search_ctx, post, random_index, self.db == "safe", self.ctx)
         view = ImageView(self.search_ctx, random_index, self.db == "safe", self.lock, self.ctx, self.db)
-
-        await interaction.edit_original_response(embed=embed, view=view)
+        await interaction.edit_original_response(content=None if post else "**Error loading post**", embed=embed if post else None, view=view)
 
 class ButtonAction(discord.ui.Button):
     def __init__(self, search_ctx: SearchContext, index: int, emoji: str, row: int, lock: list, ctx: commands.Context, db: str, label: str):
@@ -406,13 +388,9 @@ class ButtonAction(discord.ui.Button):
 
         # Fetch post at index
         post = await self.search_ctx.get_post(self.index)
-        if not post:
-            return await interaction.followup.send("Error loading post", ephemeral=True)
-
         embed = await BuildEmbed(self.search_ctx, post, self.index, self.db == "safe", self.ctx)
         view = ImageView(self.search_ctx, self.index, self.db == "safe", self.lock, self.ctx, self.db)
-
-        await interaction.edit_original_response(embed=embed, view=view)
+        await interaction.edit_original_response(content=None if post else "**Error loading post**", embed=embed if post else None, view=view)
 
 class CogSus(commands.Cog):
     def __init__(self, bot):
@@ -424,7 +402,7 @@ class CogSus(commands.Cog):
     async def booru(self, ctx: commands.Context):
         await help_booru(ctx)
 
-    @commands.command()
+    @commands.command() # discord doesnt allow nsfw slash commands
     async def r34(self, ctx: commands.Context, *, tags: str = None):
         await R34(ctx, tags)
 
