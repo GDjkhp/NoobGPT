@@ -1,4 +1,5 @@
 from pygelbooru import Gelbooru
+from pygelbooru.gelbooru import GelbooruImage, API_GELBOORU, API_RULE34, API_SAFEBOORU
 from discord.ext import commands
 import re
 import discord
@@ -9,11 +10,10 @@ from bs4 import BeautifulSoup
 from util_database import myclient
 from util_discord import command_check, description_helper, get_guild_prefix
 
-# API configuration
 API_CONFIGS = {
-    "safe": "https://safebooru.org/",
-    "gel": "https://gelbooru.com/",
-    "r34": "https://api.rule34.xxx/"
+    "safe": API_SAFEBOORU,
+    "gel": API_GELBOORU,
+    "r34": API_RULE34
 }
 
 async def get_total_posts(tags: list, api: str) -> int:
@@ -141,7 +141,7 @@ async def view_collection(ctx: commands.Context, api: str):
     # Fetch first post
     message = await ctx.reply("Loading…")
     first_post = await fetch_post(user["favorites"][0], api)
-    embed = await BuildEmbed(search_ctx, first_post, 0, api == "safe", ctx)
+    embed = BuildEmbed(search_ctx, first_post, 0, api == "safe", ctx)
     view = ImageView(search_ctx, 0, api == "safe", [False, False], ctx, api)
     await message.edit(content=None, embed=embed, view=view)
 
@@ -171,7 +171,7 @@ async def search_posts(ctx: commands.Context, arg: str, api: str):
     if not first_page:
         return await message.edit(content="**No results found**")
 
-    embed = await BuildEmbed(search_ctx, first_page[0], 0, api == "safe", ctx)
+    embed = BuildEmbed(search_ctx, first_page[0], 0, api == "safe", ctx)
     view = ImageView(search_ctx, 0, api == "safe", [False, False], ctx, api)
 
     await message.edit(content=None, embed=embed, view=view)
@@ -219,18 +219,18 @@ class SearchContext:
 
         return None
 
-async def BuildEmbed(search_ctx: SearchContext, post, index: int, safe: bool, ctx: commands.Context) -> discord.Embed:
+def BuildEmbed(search_ctx: SearchContext, post: GelbooruImage, index: int, safe: bool, ctx: commands.Context) -> discord.Embed:
     """Build embed for a post."""
     tags_display = search_ctx.tags if isinstance(search_ctx.tags, str) else f"`{search_ctx.tags}`"
     embed = discord.Embed(
-        title=f"Search results: {tags_display}", 
-        description=f"{index+1}/{search_ctx.total_posts} found", 
+        title=f"Search results: {tags_display}",
         color=0x00ff00
     )
 
     if post:
         embed.add_field(name="Tags", value=f"`{post.tags}`"[:1024], inline=False)
         embed.add_field(name="Source", value=post.source or "N/A", inline=False)
+        embed.description = f"ID: `{post.id}`"
 
         if post.file_url.endswith(".mp4"):
             embed.add_field(name="Video link:", value=post.file_url)
@@ -238,6 +238,12 @@ async def BuildEmbed(search_ctx: SearchContext, post, index: int, safe: bool, ct
             embed.set_image(url=post.file_url)
     else:
         embed.add_field(name="Error", value="Failed to load post")
+        if search_ctx.is_favorites: embed.description = f"ID: `{search_ctx.favorite_ids[index]}`"
+
+    if ctx.author.avatar:
+        embed.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
+    else:
+        embed.set_author(name=ctx.author)
 
     embed.set_footer(text=f"{index+1}/{search_ctx.total_posts}")
     return embed
