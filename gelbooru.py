@@ -363,7 +363,7 @@ class ButtonShuffle(discord.ui.Button):
 
         # Fetch random post
         post = await self.search_ctx.get_post(random_index)
-        embed = await BuildEmbed(self.search_ctx, post, random_index, self.db == "safe", self.ctx)
+        embed = BuildEmbed(self.search_ctx, post, random_index, self.db == "safe", self.ctx)
         view = ImageView(self.search_ctx, random_index, self.db == "safe", self.lock, self.ctx, self.db)
         await interaction.edit_original_response(content=None, embed=embed, view=view)
 
@@ -393,7 +393,7 @@ class ButtonAction(discord.ui.Button):
 
         # Fetch post at index
         post = await self.search_ctx.get_post(self.index)
-        embed = await BuildEmbed(self.search_ctx, post, self.index, self.db == "safe", self.ctx)
+        embed = BuildEmbed(self.search_ctx, post, self.index, self.db == "safe", self.ctx)
         view = ImageView(self.search_ctx, self.index, self.db == "safe", self.lock, self.ctx, self.db)
         await interaction.edit_original_response(content=None, embed=embed, view=view)
 
