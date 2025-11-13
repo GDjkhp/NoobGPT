@@ -37,7 +37,7 @@ async def get_total_posts(tags: list, api: str) -> int:
     tags_str = "+".join(tag.replace(" ", "_") for tag in tags)
 
     if api in API_CONFIGS:
-        url = f"{API_CONFIGS[api]['link']}index.php?page=post&s=list&tags={tags_str}"
+        url = f"{API_CONFIGS[api]['link'] if api != 'r34' else 'https://rule34.xxx/'}index.php?page=post&s=list&tags={tags_str}"
     else:
         return 0
 
