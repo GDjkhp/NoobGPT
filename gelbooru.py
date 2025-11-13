@@ -44,8 +44,9 @@ async def get_total_posts(tags: list, api: str) -> int:
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
-                if response.status != 200:
-                    return 0
+                if response.status != 200: # blocked by anti-bot bs
+                    print(await response.text())
+                    return API_CONFIGS[api]['limit']
                 html = await response.text()
 
         soup = BeautifulSoup(html, 'html.parser')
