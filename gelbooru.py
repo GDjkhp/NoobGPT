@@ -1,5 +1,5 @@
-from pygelbooru import Gelbooru
-from pygelbooru.gelbooru import GelbooruImage, API_GELBOORU, API_RULE34, API_SAFEBOORU
+from pygelbooru.gelbooru import Gelbooru, GelbooruImage, API_GELBOORU, API_RULE34, API_SAFEBOORU
+import os
 from discord.ext import commands
 import re
 import discord
@@ -11,17 +11,33 @@ from util_database import myclient
 from util_discord import command_check, description_helper, get_guild_prefix
 
 API_CONFIGS = {
-    "safe": API_SAFEBOORU,
-    "gel": API_GELBOORU,
-    "r34": API_RULE34
+    "safe": {
+        "link": API_SAFEBOORU,
+        "key": None,
+        "user": None,
+        "limit": 4746,
+    },
+    "gel": {
+        "link": API_GELBOORU,
+        "key": os.getenv('GELAPI'),
+        "user": os.getenv('GELUSER'),
+        "limit": 462,
+    },
+    "r34": {
+        "link": API_RULE34,
+        "key": os.getenv('R34API'),
+        "user": os.getenv('R34USER'),
+        "limit": 4746,
+    },
 }
+# magic number: page 114 limit (pid[113]) / api limitation / 42 x 113
 
 async def get_total_posts(tags: list, api: str) -> int:
     """Fetch total number of posts for given tags by parsing the pagination."""
     tags_str = "+".join(tag.replace(" ", "_") for tag in tags)
 
     if api in API_CONFIGS:
-        url = f"{API_CONFIGS[api]}index.php?page=post&s=list&tags={tags_str}"
+        url = f"{API_CONFIGS[api]['link']}index.php?page=post&s=list&tags={tags_str}"
     else:
         return 0
 
@@ -49,7 +65,7 @@ async def get_total_posts(tags: list, api: str) -> int:
             if pid_match:
                 last_pid = int(pid_match.group(1))
                 # Each page shows 42 posts, pid is 0-indexed
-                return min(last_pid + 42, 1302) # magic number: page 32 limit (pid[31]) / api limitation / 42 x 31
+                return min(last_pid + 42, API_CONFIGS[api]['limit'])
 
         # If no last page link, count all page links
         page_links = pagination.find_all('a', href=re.compile(r'pid=\d+'))
@@ -72,7 +88,9 @@ async def fetch_post(post_id: int, api: str):
     """Fetch a single post by ID."""
     try:
         if api in API_CONFIGS:
-            return await Gelbooru(api=API_CONFIGS[api]).get_post(post_id)
+            return await Gelbooru(api=API_CONFIGS[api]['link'],
+                                  api_key=API_CONFIGS[api]['key'],
+                                  user_id=API_CONFIGS[api]['user']).get_post(post_id)
     except Exception as e:
         print(f"Error fetching post {post_id}: {e}")
         return None
@@ -81,7 +99,9 @@ async def fetch_posts_page(tags: list, page: int, api: str):
     """Fetch a single page of posts."""
     try:
         if api in API_CONFIGS:
-            return await Gelbooru(api=API_CONFIGS[api]).search_posts(tags=tags, page=page, limit=42)
+            return await Gelbooru(api=API_CONFIGS[api]['link'],
+                                  api_key=API_CONFIGS[api]['key'],
+                                  user_id=API_CONFIGS[api]['user']).search_posts(tags=tags, page=page, limit=42)
     except Exception as e:
         print(f"Error fetching page {page}: {e}")
         return []
