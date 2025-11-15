@@ -1,9 +1,10 @@
 import discord
+from discord import app_commands
 from discord.ext import commands
 import random
 import asyncio
 from datetime import timedelta
-from util_discord import command_check
+from util_discord import command_check, description_helper
 
 # Constants
 MAX_ROUNDS = 6  # Total number of chambers/rounds
@@ -529,7 +530,10 @@ class CogRussianRoulette(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.hybrid_command(description=f"{description_helper['emojis']['games']} {description_helper['games']['roulette']}")
+    @app_commands.describe(duration="Duration (seconds)")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def roulette(self, ctx: commands.Context, duration: int = GAME_DURATION):
         """Start a Russian Roulette game"""
         await RUSSIAN_ROULETTE(ctx, duration)

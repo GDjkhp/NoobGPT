@@ -25,7 +25,7 @@ async def help_anime(ctx: commands.Context):
     p = await get_guild_prefix(ctx)
     sources = [
         f"`{p}pahe` animepahe",
-        f"`{p}aniwatch` hianime",
+        # f"`{p}aniwatch` hianime",
     ]
     await ctx.reply("\n".join(sources))
 
@@ -130,6 +130,13 @@ async def pahe_search(ctx: commands.Context, arg: str):
     if not results: return await ctx.reply("none found")
     await ctx.reply(embed=buildSearch(arg, results["data"], 0), view=SearchView(ctx, arg, results["data"], 0))
 
+async def pahe_anime(bot: commands.Bot, ctx: discord.Interaction, selected_session: str):
+    if await command_check(ctx, "anime", "media"): return await ctx.reply("command disabled", ephemeral=True)
+    selected, urls, ep_texts = await fetch_anime(selected_session)
+    ctx: commands.Context = await bot.get_context(ctx)
+    if not selected: return await ctx.reply("no episodes found")
+    await ctx.reply(embed=buildAnime(selected), view=EpisodeView(ctx, selected, urls, ep_texts, 0))
+
 class CancelButton(discord.ui.Button):
     def __init__(self, ctx: commands.Context, r: int):
         super().__init__(emoji="❌", style=discord.ButtonStyle.success, row=r)
@@ -194,26 +201,48 @@ class SelectChoice(discord.ui.Select):
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.",
                                                            ephemeral=True)
         await interaction.response.edit_message(view=None)
-        selected = self.result[int(self.values[0])]
-        r_search = await new_req(f"{base}/api?m=release&id={selected['session']}&sort=episode_asc&page=1", headers, True)
-        if not r_search.get('data'): return await interaction.edit_original_response(content="no episodes found", embed=None)
-        req = await new_req(f"{base}/play/{selected['session']}/{r_search['data'][0]['session']}", headers, False)
-        soup = soupify(req)
-        items = soup.find("div", {"class": "clusterize-scroll"}).findAll("a")
-        urls = [items[i].get("href") for i in range(len(items))]
-        ep_texts = [items[i].text for i in range(len(items))]
-
-        req = await new_req(f"{base}/anime/{selected['session']}", headers, False)
-        soup = soupify(req)
-        details = soup.find("div", {"class": "anime-info"}).findAll("p")
-        external = soup.find("p", {"class": "external-links"}).findAll("a")
-        genres = soup.find("div", {"class": "anime-genre"}).findAll("li")
-        selected["genres"] = [re.sub(r"^\s+|\s+$|\s+(?=\s)", "", genres[i].text) for i in range(len(genres))]
-        not_final = [re.sub(r"^\s+|\s+$|\s+(?=\s)", "", details[i].text) for i in range(len(details))]
-        externals = [external[i].get("href").replace("//", "https://") for i in range(len(external))]
-        selected["details"] = enclose_words(not_final)
-        selected["details"][len(selected["details"])-1] = format_links(selected["details"][len(selected["details"])-1], externals)
+        selected, urls, ep_texts = await fetch_anime(self.result[int(self.values[0])]["session"])
+        if not selected: return await interaction.edit_original_response(content="no episodes found", embed=None)
         await interaction.edit_original_response(embed=buildAnime(selected), view=EpisodeView(self.ctx, selected, urls, ep_texts, 0))
+
+async def fetch_anime(selected_session):
+    r_search = await new_req(f"{base}/api?m=release&id={selected_session}&sort=episode_asc&page=1", headers, True)
+    if not r_search.get('data'): return None, None, None
+
+    req = await new_req(f"{base}/play/{selected_session}/{r_search['data'][0]['session']}", headers, False)
+    soup = soupify(req)
+    items = soup.find("div", {"class": "clusterize-scroll"}).findAll("a")
+    urls = [items[i].get("href") for i in range(len(items))]
+    ep_texts = [items[i].text for i in range(len(items))]
+
+    req = await new_req(f"{base}/anime/{selected_session}", headers, False)
+    soup = soupify(req)
+    selected = {}
+
+    details = soup.find("div", {"class": "anime-info"}).findAll("p")
+    external = soup.find("p", {"class": "external-links"}).findAll("a")
+    genres = soup.find("div", {"class": "anime-genre"}).findAll("li")
+    thumbnail = soup.find("div", {"class": "anime-poster"}).findAll("img")
+    title = soup.find("div", {"class": "title-wrapper"}).findAll("span")
+
+    selected["genres"] = [re.sub(r"^\s+|\s+$|\s+(?=\s)", "", genres[i].text) for i in range(len(genres))]
+    not_final = [re.sub(r"^\s+|\s+$|\s+(?=\s)", "", details[i].text) for i in range(len(details))]
+    externals = [external[i].get("href").replace("//", "https://") for i in range(len(external))]
+    selected["details"] = enclose_words(not_final)
+    selected["details"][len(selected["details"])-1] = format_links(selected["details"][len(selected["details"])-1], externals)
+    selected["poster"] = thumbnail[0].get("data-src")
+    selected["title"] = title[0].text
+
+    return selected, urls, ep_texts
+
+async def pahe_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    if not current: return []
+    results = await new_req(f"{base}/api?m=search&q={current.replace(' ', '+')}", headers, True)
+    if not results: return []
+    return [
+        app_commands.Choice(name=f"{anime['title']} [{anime['type']} - {anime['episodes']} {'episodes' if anime['episodes'] > 1 else 'episode'}] ({anime['season']} {anime['year']})"[:100],
+                            value=anime["session"]) for anime in results["data"]
+    ][:25]
 
 # episode
 class nextPageEP(discord.ui.Button):
@@ -336,12 +365,17 @@ class CogPahe(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['anime']} animepahe")
-    @app_commands.describe(query="Search query")
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @commands.command()
     async def pahe(self, ctx: commands.Context, *, query:str=None):
         await pahe_search(ctx, query)
+
+    @app_commands.command(name="pahe", description=f"{description_helper['emojis']['anime']} animepahe")
+    @app_commands.describe(query="Search query")
+    @app_commands.autocomplete(query=pahe_auto)
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def pahe_slash(self, ctx: commands.Context, *, query:str=None):
+        await pahe_anime(self.bot, ctx, query)
 
     @commands.hybrid_command(description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["anime"]}')
     @app_commands.allowed_installs(guilds=True, users=True)

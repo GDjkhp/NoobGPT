@@ -13,12 +13,14 @@
             "g4f": "gpt4free serves as a PoC (proof of concept), demonstrating the development of an API package with multi-provider requests, with features like timeouts, load balance and flow control."
         },
         "games": {
-            "aki": "Play a guessing game of Akinator.",
-            "tic": "Play tic-tac-toe with someone.",
-            "hang": "Play the word puzzle game of hangman.",
-            "quiz": "Play a game of quiz.",
-            "wordle": "Play a game of wordle.",
-            "rps": "Play rock-paper-scissors."
+            "aki": "Play a guessing game of Akinator with yourself.",
+            "tic": "Play tic-tac-toe with another user.",
+            "hang": "Play the word puzzle game of hangman with yourself or another user.",
+            "quiz": "Play a game of quiz with yourself or another user.",
+            "wordle": "Play a game of wordle with yourself or another user.",
+            "rps": "Play rock-paper-scissors with another user.",
+            "tug": "Play tug of war with another user.",
+            "roulette": "Play russian roulette with another user."
         },
         "media": {
             "music": "Listen to music in a voice channel.",

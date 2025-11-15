@@ -1,9 +1,10 @@
 import discord
 from discord.ext import commands
+from discord import app_commands
 import random
 import asyncio
 from datetime import timedelta
-from util_discord import command_check
+from util_discord import command_check, description_helper
 
 # Constants
 ROPE_LENGTH = 20  # Total length of the rope (team positions will be relative to this)
@@ -288,7 +289,10 @@ class CogTugOfWar(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.hybrid_command(description=f"{description_helper['emojis']['games']} {description_helper['games']['tug']}")
+    @app_commands.describe(duration="Duration (seconds)")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def tug(self, ctx: commands.Context, duration: int = GAME_DURATION):
         """Start a tug of war game"""
         await TUG_OF_WAR(ctx, duration)
