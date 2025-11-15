@@ -32,6 +32,59 @@ API_CONFIGS = {
 }
 # magic number: page 114 limit (pid[113]) / api limitation / 42 x 113
 
+# unused: blame discord
+async def r34_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    if not current: return []
+    current = current.replace(" ", "_")
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"https://ac.rule34.xxx/autocomplete.php?q={current}",
+                                   headers={"referer": "https://rule34.xxx/"}) as response:
+                if response.status != 200:
+                    print(await response.text())
+                    return []
+                tags = await response.json(content_type="text/html")
+                return [
+                    app_commands.Choice(name=tag["label"][:100], value=tag["value"]) for tag in tags
+                ][:25]
+    except Exception as e:
+        print(f"Error fetching tags: {e}")
+        return []
+
+async def gel_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    if not current: return []
+    current = current.replace(" ", "_")
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"https://gelbooru.com/index.php?page=autocomplete2&term={current}") as response:
+                if response.status != 200:
+                    print(await response.text())
+                    return []
+                tags = await response.json()
+                return [
+                    app_commands.Choice(name=tag["label"][:100], value=tag["value"]) for tag in tags
+                ][:25]
+    except Exception as e:
+        print(f"Error fetching tags: {e}")
+        return []
+
+async def safe_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    if not current: return []
+    current = current.replace(" ", "_")
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"https://safebooru.org/autocomplete.php?q={current}") as response:
+                if response.status != 200:
+                    print(await response.text())
+                    return []
+                tags = await response.json(content_type="text/html")
+                return [
+                    app_commands.Choice(name=tag["label"][:100], value=tag["value"]) for tag in tags
+                ][:25]
+    except Exception as e:
+        print(f"Error fetching tags: {e}")
+        return []
+
 async def get_total_posts(tags: list, api: str) -> int:
     """Fetch total number of posts for given tags by parsing the pagination."""
     tags_str = "+".join(tag.replace(" ", "_") for tag in tags)
@@ -434,6 +487,7 @@ class CogSus(commands.Cog):
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['booru']} gelbooru")
     @app_commands.describe(tags="Search tags (e.g. `hatsune miku, school uniform`)")
+    @app_commands.autocomplete(tags=gel_auto)
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def gel(self, ctx: commands.Context, *, tags: str = None):
@@ -441,6 +495,7 @@ class CogSus(commands.Cog):
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['booru']} safebooru")
     @app_commands.describe(tags="Search tags (e.g. `hatsune miku, school uniform`)")
+    @app_commands.autocomplete(tags=safe_auto)
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def safe(self, ctx: commands.Context, *, tags: str = None):
