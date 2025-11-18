@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup as BS
 import aiohttp
 from discord.ext import commands
 import re
-from util_discord import command_check, description_helper, get_guild_prefix
+from util_discord import command_check, description_helper, get_guild_prefix, is_valid_uuid
 from curl_cffi.requests import AsyncSession
 from discord import app_commands
 
@@ -131,9 +131,11 @@ async def pahe_search(ctx: commands.Context, arg: str):
     await ctx.reply(embed=buildSearch(arg, results["data"], 0), view=SearchView(ctx, arg, results["data"], 0))
 
 async def pahe_anime(bot: commands.Bot, ctx: discord.Interaction, selected_session: str):
-    if await command_check(ctx, "anime", "media"): return await ctx.reply("command disabled", ephemeral=True)
-    selected, urls, ep_texts = await fetch_anime(selected_session)
     ctx: commands.Context = await bot.get_context(ctx)
+    if await command_check(ctx, "anime", "media"): return await ctx.reply("command disabled", ephemeral=True)
+    if not is_valid_uuid(selected_session):
+        return await ctx.reply(f"not a valid uuid\nusage: `{await get_guild_prefix(ctx)}pahe <query>`")
+    selected, urls, ep_texts = await fetch_anime(selected_session)
     if not selected: return await ctx.reply("no episodes found")
     await ctx.reply(embed=buildAnime(selected), view=EpisodeView(ctx, selected, urls, ep_texts, 0))
 
@@ -240,7 +242,7 @@ async def pahe_auto(interaction: discord.Interaction, current: str) -> list[app_
     results = await new_req(f"{base}/api?m=search&q={current.replace(' ', '+')}", headers, True)
     if not results: return []
     return [
-        app_commands.Choice(name=f"{anime['title']} [{anime['type']} - {anime['episodes']} {'episodes' if anime['episodes'] > 1 else 'episode'}] ({anime['season']} {anime['year']})"[:100],
+        app_commands.Choice(name=f"{anime['title']} [{anime['type']} - {anime['episodes']} {'episodes' if anime['episodes'] > 1 else 'episode'} / {anime['season']} {anime['year']}]"[:100],
                             value=anime["session"]) for anime in results["data"]
     ][:25]
 
@@ -374,7 +376,7 @@ class CogPahe(commands.Cog):
     @app_commands.autocomplete(query=pahe_auto)
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def pahe_slash(self, ctx: commands.Context, *, query:str=None):
+    async def pahe_slash(self, ctx: discord.Interaction, *, query:str=None):
         await pahe_anime(self.bot, ctx, query)
 
     @commands.hybrid_command(description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["anime"]}')
