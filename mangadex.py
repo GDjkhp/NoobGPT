@@ -38,6 +38,7 @@ async def dex_auto(interaction: discord.Interaction, current: str) -> list[app_c
     if not current: return []
     results = await search_manga(current)
     if not results: return []
+    await get_statistics(results)
     return [
         app_commands.Choice(name=f"{next(iter(manga['attributes']['title'].values()))} [⭐{round(manga['stats']['rating']['bayesian'], 2)} 🔖{format_number(manga['stats']['follows'])}]"[:100],
                             value=manga["id"]) for manga in results
