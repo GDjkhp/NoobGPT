@@ -4,7 +4,7 @@ from discord.ext import commands
 import aiohttp
 from PIL import Image
 import io
-from util_discord import command_check, description_helper, get_guild_prefix
+from util_discord import command_check, description_helper, get_guild_prefix, is_valid_uuid
 
 BASE_URL = "https://api.mangadex.org"
 provider = "https://gdjkhp.github.io/img/mangadex-logo.png"
@@ -24,6 +24,36 @@ async def dex_search(ctx: commands.Context, arg: str):
     if not res: return await msg.edit(content="none found")
     await get_statistics(res)
     await msg.edit(view=SearchView(ctx, arg, res, 0), embed=buildSearch(arg, res, 0), content=None)
+async def dex_manga(bot: commands.Bot, ctx: discord.Interaction, manga_id: str):
+    ctx: commands.Context = await bot.get_context(ctx)
+    if await command_check(ctx, "manga", "media"): return await ctx.reply("command disabled", ephemeral=True)
+    if not is_valid_uuid(manga_id):
+        return await ctx.reply(f"not a valid uuid\nusage: `{await get_guild_prefix(ctx)}dex <query>`")
+    selected, chapters = await fetch_manga(manga_id)
+    await ctx.reply(embed=buildManga(selected, pagelimit, len(chapters)),
+                    view=ChapterView(ctx, selected, chapters, 0),
+                    file=discord.File(io.BytesIO(selected["cover"]), filename='image.webp'))
+
+async def dex_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    if not current: return []
+    results = await search_manga(current)
+    if not results: return []
+    return [
+        app_commands.Choice(name=f"{next(iter(manga['attributes']['title'].values()))} [⭐{round(manga['stats']['rating']['bayesian'], 2)} 🔖{format_number(manga['stats']['follows'])}]"[:100],
+                            value=manga["id"]) for manga in results
+    ][:25]
+
+async def fetch_manga(manga_id):
+    selected = await get_manga(manga_id)
+    chapters, offset = [], 0
+    while True:
+        collect = await get_chapters(selected["id"], offset)
+        if not collect: break
+        chapters += collect
+        offset += 500
+    selected["cover"] = await convert_to_webp(await get_cover_art(selected))
+    selected["author"] = await get_author(selected)
+    return selected, chapters
 
 async def req_real(url: str, params: dict=None):
     async with aiohttp.ClientSession() as session:
@@ -41,7 +71,7 @@ async def convert_to_webp(url):
                 image.save(image_bytes, format='WebP')
                 image_bytes.seek(0)
                 return image_bytes.getvalue()
-            
+
 def get_max_page(length):
     if length % pagelimit != 0: return length - (length % pagelimit)
     return length - pagelimit
@@ -55,7 +85,7 @@ def format_number(num):
         return f"{num // 1000000000}b"
     else:
         return str(num)
-            
+
 async def search_manga(query):
     search_url = f"{BASE_URL}/manga"
     params = {"title": query}
@@ -66,6 +96,11 @@ async def get_chapters(manga_id, offset):
     chapters_url = f"{BASE_URL}/manga/{manga_id}/feed"
     params = {"translatedLanguage[]": ["en"], "order[chapter]": "asc", "limit": 500, "offset": offset}
     data = await req_real(chapters_url, params)
+    return data["data"]
+
+async def get_manga(manga_id):
+    manga_url = f"{BASE_URL}/manga/{manga_id}"
+    data = await req_real(manga_url)
     return data["data"]
 
 async def get_pages(chapter_id):
@@ -165,7 +200,7 @@ class CancelButton(discord.ui.Button):
     def __init__(self, ctx: commands.Context, r: int):
         super().__init__(emoji="❌", style=discord.ButtonStyle.success, row=r)
         self.ctx = ctx
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -202,14 +237,14 @@ class nextPage(discord.ui.Button):
     def __init__(self, ctx: commands.Context, arg: str, result: list, index: int, l: str):
         super().__init__(emoji=l, style=discord.ButtonStyle.success)
         self.result, self.index, self.arg, self.ctx = result, index, arg, ctx
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.edit_message(embed=buildSearch(self.arg, self.result, self.index), 
                                                 view=SearchView(self.ctx, self.arg, self.result, self.index))
-        
+
 class SelectChoice(discord.ui.Select):
     def __init__(self, ctx: commands.Context, index: int, result: list):
         super().__init__(placeholder=f"{min(index + pagelimit, len(result))}/{len(result)} found")
@@ -226,17 +261,9 @@ class SelectChoice(discord.ui.Select):
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
                                                            ephemeral=True)
         await interaction.response.defer()
-        selected = self.result[int(self.values[0])]
-        chapters, offset = [], 0
-        while True:
-            collect = await get_chapters(selected["id"], offset)
-            if not collect: break
-            chapters += collect
-            offset+=500
-        selected["cover"] = await convert_to_webp(await get_cover_art(selected))
-        selected["author"] = await get_author(selected)
+        selected, chapters = await fetch_manga(self.result[int(self.values[0])]["id"])
         await interaction.followup.send(embed=buildManga(selected, pagelimit, len(chapters)),
-                                        view=ChapterView(self.ctx, selected, chapters, 0), 
+                                        view=ChapterView(self.ctx, selected, chapters, 0),
                                         file=discord.File(io.BytesIO(selected["cover"]), filename='image.webp'))
         await interaction.delete_original_response()
 
@@ -245,7 +272,7 @@ class nextPageCH(discord.ui.Button):
     def __init__(self, ctx: commands.Context, details: dict, index: int, row: int, l: str, chapters: list):
         super().__init__(emoji=l, style=discord.ButtonStyle.success, row=row)
         self.details, self.index, self.ctx, self.chapters = details, index, ctx, chapters
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -294,7 +321,7 @@ class ButtonChapter(discord.ui.Button):
             style = discord.ButtonStyle.success
         super().__init__(label=l, style=style, row=row, emoji=e)
         self.index, self.chapters, self.ctx, self.details = index, chapters, ctx, details
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -320,7 +347,7 @@ class nextPageReal(discord.ui.Button):
     def __init__(self, ctx: commands.Context, details: dict, pagenumber: int, row: int, l: str, pages: list, index: int, chapters: list, group: str):
         super().__init__(emoji=l, style=discord.ButtonStyle.success, row=row)
         self.details, self.pagenumber, self.ctx, self.pages, self.index, self.chapters, self.group = details, pagenumber, ctx, pages, index, chapters, group
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -367,7 +394,7 @@ class ButtonPage(discord.ui.Button):
     def __init__(self, ctx: commands.Context, pagenumber: int, pages: list, details: dict, row: int, index: int, chapters: list, group: str):
         super().__init__(label=str(pagenumber+1), style=discord.ButtonStyle.primary, row=row)
         self.pagenumber, self.pages, self.ctx, self.details, self.index, self.chapters, self.group = pagenumber, pages, ctx, details, index, chapters, group
-    
+
     async def callback(self, interaction: discord.Interaction):
         if interaction.user != self.ctx.author: 
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.", 
@@ -391,7 +418,7 @@ class ButtonBack(discord.ui.Button):
                                                            ephemeral=True)
         # if interaction.message.attachments: await interaction.message.remove_attachments(interaction.message.attachments[0])
         await interaction.response.defer()
-        await interaction.followup.send(view=ChapterView(self.ctx, self.details, self.chapters, (self.index//pagelimit)*pagelimit), 
+        await interaction.followup.send(view=ChapterView(self.ctx, self.details, self.chapters, (self.index//pagelimit)*pagelimit),
                                         embed=buildManga(self.details, (self.index//pagelimit)*pagelimit+pagelimit, len(self.chapters)),
                                         file=discord.File(io.BytesIO(self.details["cover"]), filename='image.webp'))
         await interaction.delete_original_response()
@@ -406,12 +433,17 @@ class CogDex(commands.Cog):
     async def manga(self, ctx: commands.Context):
         await help_manga(ctx)
 
-    @commands.hybrid_command(description=f"{description_helper['emojis']['manga']} mangadex")
-    @app_commands.describe(query="Search query")
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    @commands.command()
     async def dex(self, ctx: commands.Context, *, query:str=None):
         await dex_search(ctx, query)
+
+    @app_commands.command(name="dex", description=f"{description_helper['emojis']['manga']} mangadex")
+    @app_commands.describe(query="Search query")
+    @app_commands.autocomplete(query=dex_auto)
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def dex_slash(self, ctx: discord.Interaction, *, query:str=None):
+        await dex_manga(self.bot, ctx, query)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogDex(bot))

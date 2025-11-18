@@ -3,6 +3,7 @@ from discord import app_commands
 import discord
 import json
 import os
+import uuid
 from util_database import *
 mycol = myclient["utils"]["commands"]
 legal_url="https://gdjkhp.github.io/NoobGPT/#legal"
@@ -254,6 +255,13 @@ async def check_if_master_or_admin(ctx: commands.Context):
 async def get_guild_prefix(ctx: commands.Context):
     db = await get_database2(ctx.guild.id if ctx.guild else ctx.channel.id)
     return db["prefix"]
+
+def is_valid_uuid(uuid_string):
+    try:
+        uuid.UUID(uuid_string)
+        return True
+    except ValueError:
+        return False
 
 class CogDiscordUtil(commands.Cog):
     def __init__(self, bot):
