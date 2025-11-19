@@ -134,7 +134,7 @@ async def pahe_anime(bot: commands.Bot, ctx: discord.Interaction, selected_sessi
     ctx: commands.Context = await bot.get_context(ctx)
     if await command_check(ctx, "anime", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not is_valid_uuid(selected_session):
-        return await ctx.reply(f"not a valid uuid\nusage: `{await get_guild_prefix(ctx)}pahe <query>`")
+        return await pahe_search(ctx, selected_session)
     selected, urls, ep_texts = await fetch_anime(selected_session)
     if not selected: return await ctx.reply("no episodes found")
     await ctx.reply(embed=buildAnime(selected), view=EpisodeView(ctx, selected, urls, ep_texts, 0))
