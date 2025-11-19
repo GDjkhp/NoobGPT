@@ -28,7 +28,7 @@ async def dex_manga(bot: commands.Bot, ctx: discord.Interaction, manga_id: str):
     ctx: commands.Context = await bot.get_context(ctx)
     if await command_check(ctx, "manga", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not is_valid_uuid(manga_id):
-        return await ctx.reply(f"not a valid uuid\nusage: `{await get_guild_prefix(ctx)}dex <query>`")
+        return await dex_search(ctx, manga_id)
     selected, chapters = await fetch_manga(manga_id)
     await ctx.reply(embed=buildManga(selected, pagelimit, len(chapters)),
                     view=ChapterView(ctx, selected, chapters, 0),
