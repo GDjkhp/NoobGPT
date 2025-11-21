@@ -28,7 +28,7 @@ quality = 3
 download_booklets = true
 
 # Authenticate to Qobuz using auth token? Value can be true/false only
-use_auth_token = false
+use_auth_token = true
 # Enter your userid if the above use_auth_token is set to true, else enter your email
 email_or_userid = ""
 # Enter your auth token if the above use_auth_token is set to true, else enter the md5 hash of your plaintext password
