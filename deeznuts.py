@@ -293,11 +293,11 @@ class CogDeez(commands.Cog):
         await cook_deez(ctx, f"arlc {arl}", "deez")
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['media']} Qobus credentials checker")
-    @app_commands.describe(token="Qobuz Token", userID="Qobuz User ID")
+    @app_commands.describe(token="Qobuz Token", user_id="Qobuz User ID")
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def qobc(self, ctx: commands.Context, token:str="", userID:str=""):
-        await cook_deez(ctx, f"qobc {token} {userID}", "qob")
+    async def qobc(self, ctx: commands.Context, token:str="", user_id:str=""): # DO NOT USE userID (command name is invalid)
+        await cook_deez(ctx, f"qobc {token} {user_id}", "qob")
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogDeez(bot))
