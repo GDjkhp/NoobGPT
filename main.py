@@ -5,9 +5,18 @@ import os
 from datetime import datetime
 import discord
 from discord.ext import commands
+from discord.gateway import DiscordWebSocket
 import wavelink
 import sys
 import asyncio
+
+from request_listener import serve, register_bot
+from level_insult import get_prefix, insult_user, earn_xp
+from gde_hall_of_fame import main_gde, main_rob
+from c_ai_discord import c_ai
+from custom_status import silly_activities, phone_status
+from music import setup_hook_music
+from util_message import message_snitcher
 
 discord.utils.setup_logging()
 intents = discord.Intents.default()
@@ -15,18 +24,8 @@ intents.message_content = True
 # intents.presences = True
 intents.members = True
 mentions = discord.AllowedMentions(everyone=False, users=True, roles=True, replied_user=True)
-
-from request_listener import serve, register_bot
-from level_insult import get_prefix, insult_user, earn_xp
-from gde_hall_of_fame import main_gde, main_rob
-from c_ai_discord import c_ai
-from custom_status import silly_activities
-from music import setup_hook_music
-from util_message import message_snitcher
-if sys.platform == 'win32':
-    asyncio.set_event_loop_policy(
-        asyncio.WindowsSelectorEventLoopPolicy()
-    )
+DiscordWebSocket.identify = phone_status
+if sys.platform == 'win32': asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 noobgpt_modules = [
     "c_ai_discord", "stablehorde", "gpt4free", "perplexity", "openai_", "googleai", # "petals",

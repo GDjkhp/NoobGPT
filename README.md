@@ -216,6 +216,7 @@ grass is greenr on the othr side
 * <https://github.com/ghoshRitesh12/aniwatch-api>
 * <https://github.com/GDjkhp/ubel>
 * <https://github.com/pymupdf/pymupdf>
+* <https://github.com/notiku/discord_ios>
 
 ### Sites
 * <https://code.visualstudio.com>
