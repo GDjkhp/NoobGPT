@@ -1,4 +1,5 @@
 from discord.ext import commands
+from discord.gateway import DiscordWebSocket
 import discord
 import asyncio
 import random
@@ -29,6 +30,42 @@ def read_json_file(file_path):
         data = json.load(json_file)
     return data
 
+async def phone_status(self: DiscordWebSocket):
+    payload = {
+        'op': self.IDENTIFY,
+        'd': {
+            'token': self.token,
+            'properties': {
+                '$os': '',
+                '$browser': 'Discord iOS',
+                '$device': 'Discord iOS',
+                '$referrer': '',
+                '$referring_domain': ''
+            },
+            'compress': True,
+            'large_threshold': 250,
+            'v': 3
+        }
+    }
+
+    if self.shard_id is not None and self.shard_count is not None:
+        payload["d"]["shard"] = [self.shard_id, self.shard_count]
+
+    state = self._connection
+    if state._activity is not None or state._status is not None:
+        payload["d"]["presence"] = {
+            "status": state._status,
+            "game": state._activity,
+            "since": 0,
+            "afk": False,
+        }
+
+    if state._intents is not None:
+        payload["d"]["intents"] = state._intents.value
+
+    await self.call_hooks("before_identify", self.shard_id, initial=self._initial_identify)
+    await self.send_as_json(payload)
+
 async def silly_activities(bot: commands.Bot):
     while True:
         if bot.is_ready():
@@ -58,7 +95,7 @@ async def silly_activities(bot: commands.Bot):
                             strings.append(data["data"]["kv"][key])
                 splashes = read_json_file("./res/mandatory_settings_and_splashes.json")["some funny splashes you can modify"]
                 strings.append(random.choice(splashes))
-                await bot.change_presence(activity=discord.CustomActivity(name=random.choice(strings)), status=discord.Status.dnd)
+                await bot.change_presence(activity=discord.CustomActivity(name=random.choice(strings)))
             except Exception as e: print(f"Exception in silly_activities: {e}")
         await asyncio.sleep(10)
 
