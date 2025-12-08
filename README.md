@@ -26,7 +26,7 @@ A <b>very simple yet complicated</b> multi-purpose Discord bot that does pretty 
 > Hosting your own instance is recommended. 24/7 uptime is not guaranteed :(
 
 ## Instances
-### Note: Discord won't approve my message content application because it's not unique enough. Use KAGURA instance for now.
+### Note: Discord keeps rejecting my message content application because they said my bot isn't unique enough. Use KAGURA instance for now.
 
 | **alias** | **servers** | **remarks**                        |
 | :-------- | ----------: | :--------------------------------- |
@@ -95,12 +95,14 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 * `-g4f` gpt4free serves as a PoC (proof of concept), demonstrating the development of an API package with multi-provider requests, with features like timeouts, load balance and flow control.
 
 ## Games 🎲
-* `-aki (optional: category = [people/animals/objects] [language])` Play a guessing game of Akinator.
-* `-tic` Play tic-tac-toe with someone.
-* `-hang (optional: mode = [all/hardcore/me] count = [1-50] type = [any/word/quiz] category = [any/9-32] difficulty = [any/easy/medium/hard])` Play the word puzzle game of hangman.
-* `-quiz (optional: mode = [all/anon/me] version = [any/v1/v2] count = [1-50] category = [any/9-32] [difficulty = any/easy/medium/hard] [type = any/multiple/boolean])` Play a game of quiz.
-* `-word (optional: stats = [rank/lead/global] OR mode = [all/hardcore/me] count = [1-50])` Play a game of wordle.
-* `-rps` Play rock-paper-scissors.
+* `-aki (optional: category = [people/animals/objects] [language])` Play a guessing game of Akinator with yourself.
+* `-tic` Play tic-tac-toe with another user.
+* `-hang (optional: mode = [all/hardcore/me] count = [1-50] type = [any/word/quiz] category = [any/9-32] difficulty = [any/easy/medium/hard])` Play the word puzzle game of hangman with yourself or another user.
+* `-quiz (optional: mode = [all/anon/me] version = [any/v1/v2] count = [1-50] category = [any/9-32] difficulty = [any/easy/medium/hard] type = [any/multiple/boolean])` Play a game of quiz with yourself or another user.
+* `-word (optional: {stats = [rank/lead/global] OR mode = [all/hardcore/me]} count = [1-50])` Play a game of wordle with yourself or another user.
+* `-rps` Play rock-paper-scissors with another user.
+* `-tug (optional: [duration])` Play tug of war with another user.
+* `-roulette (optional: [duration])` Play russian roulette with another user.
 
 ## Media 💽
 * `-music` Listen to music in a voice channel.
@@ -277,7 +279,7 @@ Required privilaged gateway intents: **Server members and message content**
 * Google Drive data retention policy: DO NOT ABUSE THE SYSTEM. All your generated files WILL BE DELETED WITHOUT FURTHER NOTICE to save space. When? I decide. Download them immediately.
 
 ## Permissions
-[Click here to see the full list of permissions](https://discordlookup.com/permissions-calculator/633731823291392)
+[NoobGPT Permissions](https://finitereality.github.io/permissions-calculator/?v=633731823291392) | [Moosic Permissions](https://finitereality.github.io/permissions-calculator/?v=412588788736)
 * All: Read and send messages, files, embeds and links
 * XP: Manage roles
 * Music: Manage roles, join and speak in voice channels
