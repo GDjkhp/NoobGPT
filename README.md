@@ -279,7 +279,7 @@ Required privilaged gateway intents: **Server members and message content**
 * Google Drive data retention policy: DO NOT ABUSE THE SYSTEM. All your generated files WILL BE DELETED WITHOUT FURTHER NOTICE to save space. When? I decide. Download them immediately.
 
 ## Permissions
-[NoobGPT Permissions](https://finitereality.github.io/permissions-calculator/?v=633731823291392) | [Moosic Permissions](https://finitereality.github.io/permissions-calculator/?v=412588788736)
+[`NoobGPT Permissions`](https://finitereality.github.io/permissions-calculator/?v=633731823291392) • [`Moosic Permissions`](https://finitereality.github.io/permissions-calculator/?v=412588788736)
 * All: Read and send messages, files, embeds and links
 * XP: Manage roles
 * Music: Manage roles, join and speak in voice channels
