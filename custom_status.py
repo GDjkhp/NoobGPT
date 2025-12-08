@@ -79,7 +79,7 @@ async def silly_activities(bot: commands.Bot):
                     f"{len(bot.tree.get_commands())} slash commands found",
                     f"{len(bot.cogs)} cogs registered",
                     time.strftime("%A, %d %B %Y"),
-                    "🔴 = stable 🟢 = unstable",
+                    "🟢 = stable 🔴 = unstable",
                     "RADIO ONSEN EUTOPIA",
                     "bot by gdjkhp",
                     "made in yokohama japan",
