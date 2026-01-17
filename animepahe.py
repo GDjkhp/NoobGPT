@@ -341,13 +341,18 @@ class ButtonDownload(discord.ui.Button):
             {
                 "emoji": "▶️",
                 "label": "Stream",
-                "url": f"https://gdjkhp.github.io/ubel/?url={m3u8}"
+                "url": f"https://gdjkhp.github.io/ubel/?url={m3u8}",
             },
             {
                 "emoji": "⬇️",
                 "label": "Download",
-                "url": final_mp4
-            }
+                "url": final_mp4,
+            },
+            {
+                "emoji": "🌏",
+                "label": "Link",
+                "url": match.group(),
+            },
         ]
         await interaction.followup.send("\n".join(txt_content), view=WatchView(real_links), ephemeral=True)
 
