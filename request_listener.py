@@ -65,4 +65,4 @@ async def get_models_info():
 #     return jsonify(info)
 
 async def serve():
-    await app.run_task(host="0.0.0.0", port=20049)
+    await app.run_task(host="0.0.0.0", port=20058)
