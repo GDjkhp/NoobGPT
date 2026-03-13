@@ -26,3 +26,4 @@ quickjs
 quart
 quart-cors
 akinator
+lava_lyra
