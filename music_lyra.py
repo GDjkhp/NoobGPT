@@ -18,7 +18,7 @@ async def setup_hook_music(bot: commands.Bot):
     data = await node_list()
     for n in bot.node_ids:
         try:
-            n: lava_lyra.Node = lava_lyra.NodePool.get_node(n)
+            n: lava_lyra.Node = lava_lyra.NodePool.get_node(identifier=n)
             if n: await n.disconnect()
         except Exception as e: print(e)
     bot.node_ids = []
