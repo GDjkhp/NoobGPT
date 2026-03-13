@@ -187,6 +187,8 @@ grass is greenr on the othr side
 * <https://github.com/yt-dlp/yt-dlp>
 * <https://github.com/lavalink-devs/Lavalink>
 * <https://github.com/topi314/LavaSrc>
+* <https://github.com/PythonistaGuild/Wavelink>
+* <https://github.com/ParrotXray/lava-lyra>
 * <https://github.com/Ombucha/akinator.py>
 * <https://github.com/advnpzn/akipy>
 * <https://github.com/taka-4602/Akinator-python>
@@ -201,7 +203,6 @@ grass is greenr on the othr side
 * <https://github.com/nixonjoshua98/manganelo>
 * <https://github.com/amankumarsingh77/KissApi>
 * <https://github.com/antergone/palm-netlify-proxy>
-* <https://github.com/PythonistaGuild/Wavelink>
 * <https://github.com/lxml/lxml>
 * <https://github.com/python-websockets/websockets>
 * <https://github.com/theskumar/python-dotenv>
