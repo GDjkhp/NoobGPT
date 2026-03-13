@@ -156,7 +156,7 @@ def music_now_playing_embed(bot: commands.Context, track: lava_lyra.Track):
     return embed
 
 def requester_string(bot: commands.Bot, track: lava_lyra.Track):
-    if dict(track.extras).get("requester"): return f"<@{track.extras.requester}>"
+    # if dict(track.extras).get("requester"): return f"<@{track.extras.requester}>"
     return f"<@{bot.user.id}>"
 
 def filter_embed(title: str, description: str, filter: dict):
@@ -299,7 +299,7 @@ async def voice_channel_connector(ctx: commands.Context | discord.Interaction):
     nodes: list[lava_lyra.Node] = []
     for n in ctx.bot.node_ids:
         try:
-            node = bot.pool.get_node(n)
+            node = ctx.bot.pool.get_node(n)
             nodes.append(node)
         except: pass
     vc = await member.voice.channel.connect(cls=NoobGPTPlayer, self_deaf=True)
