@@ -15,20 +15,19 @@ async def setup_hook_music(bot: commands.Bot):
     global fixing
     fixing=True
     nodes = []
-    data = await node_list()
     for n in bot.node_ids:
         try:
-            n: lava_lyra.Node = lava_lyra.NodePool.get_node(identifier=n)
+            n: lava_lyra.Node = bot.pool.get_node(identifier=n)
             if n: await n.disconnect()
         except Exception as e: print(e)
     bot.node_ids = []
-
+    data = await node_list()
     for lava in data:
         node_id = secrets.token_urlsafe(12)
         bot.node_ids.append(node_id)
         host_val, port_val, secure_val = _parse_address(lava["host"])
         nodes.append(
-            await lava_lyra.NodePool.create_node(
+            await bot.pool.create_node(
                 bot=bot,
                 secure=secure_val,
                 host=host_val,
@@ -300,7 +299,7 @@ async def voice_channel_connector(ctx: commands.Context | discord.Interaction):
     nodes: list[lava_lyra.Node] = []
     for n in ctx.bot.node_ids:
         try:
-            node = lava_lyra.NodePool.get_node(n)
+            node = bot.pool.get_node(n)
             nodes.append(node)
         except: pass
     vc = await member.voice.channel.connect(cls=NoobGPTPlayer, self_deaf=True)
