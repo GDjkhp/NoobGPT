@@ -79,7 +79,7 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
             return await ctx.edit_original_response(content=f"usage: `{p}play <query>`")
 
     try:
-        node = lava_lyra.NodePool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
+        node = bot.pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
         tracks = await node.get_tracks(search)
     except Exception as e:
         if isinstance(ctx, commands.Context):
@@ -256,7 +256,7 @@ async def queue_search(bot: commands.Bot, ctx: commands.Context | discord.Intera
             return await ctx.edit_original_response(content=f"usage: `{p}search <query>`")
 
     try:
-        node = lava_lyra.NodePool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
+        node = bot.pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
         tracks = await node.get_tracks(search) # TODO: source
     except Exception as e:
         if isinstance(ctx, commands.Context):
@@ -627,7 +627,7 @@ async def queue_fair(ctx: commands.Context):
 
 async def search_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     if not current: return []
-    node = lava_lyra.NodePool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
+    node = interaction.client.pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
     tracks = await node.get_tracks(current)
     return [
         app_commands.Choice(name=f"{track.author} - {track.title}"[:100], value=track.uri) for track in tracks
@@ -635,7 +635,7 @@ async def search_auto(interaction: discord.Interaction, current: str) -> list[ap
 
 async def search_auto_spotify(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     if not current: return []
-    node = lava_lyra.NodePool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
+    node = interaction.client.pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
     tracks = await node.get_tracks(current, source="spsearch:")
     return [
         app_commands.Choice(name=f"{track.author} - {track.title}"[:100], value=track.uri) for track in tracks
