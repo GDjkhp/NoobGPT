@@ -79,8 +79,9 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
             return await ctx.edit_original_response(content=f"usage: `{p}play <query>`")
 
     try:
-        node = bot.pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
-        tracks = await node.get_tracks(search)
+        pool: lava_lyra.NodePool = bot.pool
+        node = pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
+        tracks = await node.get_tracks(search, search_type=lava_lyra.SearchType.spsearch)
     except Exception as e:
         if isinstance(ctx, commands.Context):
             return await msg.edit(content=f'Error :(\n{e}')
@@ -123,7 +124,7 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
         embed.add_field(name="Name", value=f"[{tracks.name}]({tracks.uri})" if tracks.uri else tracks.name, inline=False)
         embed.add_field(name="Author", value=tracks.playlist_info, inline=False) # omg there's no helpers
         embed.add_field(name="Type", value=tracks.playlist_type, inline=False)
-        if tracks.artwork: embed.set_thumbnail(url=tracks.thumbnail)
+        if tracks.thumbnail: embed.set_thumbnail(url=tracks.thumbnail)
     else:
         vc.queue.put(tracks[0])
         text, desc = "🎵 Play music", f'`{tracks[0].author} - {tracks[0].title}` has been added to the queue at position `{len(vc.queue)}`'
@@ -256,7 +257,8 @@ async def queue_search(bot: commands.Bot, ctx: commands.Context | discord.Intera
             return await ctx.edit_original_response(content=f"usage: `{p}search <query>`")
 
     try:
-        node = bot.pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
+        pool: lava_lyra.NodePool = bot.pool
+        node = pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
         tracks = await node.get_tracks(search) # TODO: source
     except Exception as e:
         if isinstance(ctx, commands.Context):
@@ -627,7 +629,8 @@ async def queue_fair(ctx: commands.Context):
 
 async def search_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     if not current: return []
-    node = interaction.client.pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
+    pool: lava_lyra.NodePool = interaction.client.pool
+    node = pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
     tracks = await node.get_tracks(current)
     return [
         app_commands.Choice(name=f"{track.author} - {track.title}"[:100], value=track.uri) for track in tracks
@@ -635,7 +638,8 @@ async def search_auto(interaction: discord.Interaction, current: str) -> list[ap
 
 async def search_auto_spotify(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     if not current: return []
-    node = interaction.client.pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
+    pool: lava_lyra.NodePool = interaction.client.pool
+    node = pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
     tracks = await node.get_tracks(current, source="spsearch:")
     return [
         app_commands.Choice(name=f"{track.author} - {track.title}"[:100], value=track.uri) for track in tracks
@@ -709,9 +713,9 @@ class CogYouTubePlayer(commands.Cog):
     @commands.Cog.listener()
     async def on_lyra_track_start(self, vc: NoobGPTPlayer, track: lava_lyra.Track):
         if not vc: return
-        await get_rekt(vc)
         embed = music_now_playing_embed(self.bot, vc.current)
         await vc.music_channel.send(embed=embed)
+        await get_rekt(vc)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['media']['music']}")
     async def music(self, ctx: commands.Context):

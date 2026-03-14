@@ -15,9 +15,10 @@ async def setup_hook_music(bot: commands.Bot):
     global fixing
     fixing=True
     nodes = []
+    pool: lava_lyra.NodePool = bot.pool
     for n in bot.node_ids:
         try:
-            n: lava_lyra.Node = bot.pool.get_node(identifier=n)
+            n = pool.get_node(identifier=n)
             if n: await n.disconnect()
         except Exception as e: print(e)
     bot.node_ids = []
@@ -27,7 +28,7 @@ async def setup_hook_music(bot: commands.Bot):
         bot.node_ids.append(node_id)
         host_val, port_val, secure_val = _parse_address(lava["host"])
         nodes.append(
-            await bot.pool.create_node(
+            await pool.create_node(
                 bot=bot,
                 secure=secure_val,
                 host=host_val,
@@ -40,6 +41,7 @@ async def setup_hook_music(bot: commands.Bot):
             )
         )
     fixing=False
+    print(nodes)
     print(f"{bot.identifier}: setup_hook_music ok")
 
 def _parse_address(addr: str):
@@ -299,7 +301,8 @@ async def voice_channel_connector(ctx: commands.Context | discord.Interaction):
     nodes: list[lava_lyra.Node] = []
     for n in ctx.bot.node_ids:
         try:
-            node = ctx.bot.pool.get_node(n)
+            pool: lava_lyra.NodePool = ctx.bot.pool
+            node = pool.get_node(n)
             nodes.append(node)
         except: pass
     vc = await member.voice.channel.connect(cls=NoobGPTPlayer, self_deaf=True)
@@ -331,7 +334,8 @@ class AutoPlayMode(enum.Enum):
     disabled = 2
 
 class NoobGPTPlayer(lava_lyra.Player):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.queue = lava_lyra.Queue()
         self.music_channel: discord.channel.TextChannel = None
         self.autoplay: AutoPlayMode = AutoPlayMode.enabled
@@ -339,7 +343,7 @@ class NoobGPTPlayer(lava_lyra.Player):
 
 # smart shuffle algorithm
 async def get_rekt(vc: NoobGPTPlayer):
-    recs = await vc.get_recommendations(vc.current)
+    recs = await vc.get_recommendations(track=vc.current)
     for t in recs: vc.auto_queue.put(t)
 
 class MusicUtil2(commands.Cog):

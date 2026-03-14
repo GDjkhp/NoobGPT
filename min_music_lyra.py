@@ -12,9 +12,9 @@ class CogYouTubePlayerMin(commands.Cog):
     @commands.Cog.listener()
     async def on_lyra_track_start(self, vc: NoobGPTPlayer, track: lava_lyra.Track):
         if not vc: return
-        await get_rekt(vc)
         embed = music_now_playing_embed(self.bot, vc.current)
         await vc.music_channel.send(embed=embed)
+        await get_rekt(vc)
 
     @commands.command(name="mreset")
     async def reset(self, ctx: commands.Context):
