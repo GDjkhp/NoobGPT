@@ -81,7 +81,7 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
     try:
         pool: lava_lyra.NodePool = bot.pool
         node = pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
-        tracks = await node.get_tracks(search, search_type=lava_lyra.SearchType.spsearch)
+        tracks = await node.get_tracks(search)
     except Exception as e:
         if isinstance(ctx, commands.Context):
             return await msg.edit(content=f'Error :(\n{e}')
@@ -640,7 +640,7 @@ async def search_auto_spotify(interaction: discord.Interaction, current: str) ->
     if not current: return []
     pool: lava_lyra.NodePool = interaction.client.pool
     node = pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
-    tracks = await node.get_tracks(current, source="spsearch:")
+    tracks = await node.get_tracks(current, search_type=lava_lyra.SearchType.spsearch)
     return [
         app_commands.Choice(name=f"{track.author} - {track.title}"[:100], value=track.uri) for track in tracks
     ][:25]
@@ -716,6 +716,15 @@ class CogYouTubePlayer(commands.Cog):
         embed = music_now_playing_embed(self.bot, vc.current)
         await vc.music_channel.send(embed=embed)
         await get_rekt(vc)
+    
+    @commands.Cog.listener()
+    async def on_lyra_track_end(self, vc: NoobGPTPlayer, track: lava_lyra.Track, reason: str):
+        if vc.queue.is_empty:
+            if vc.autoplay == AutoPlayMode.enabled and not vc.auto_queue.is_empty:
+                for x in vc.auto_queue:
+                    vc.queue.put(x)
+                vc.auto_queue.clear()
+        await vc.play(vc.queue.get())
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['media']['music']}")
     async def music(self, ctx: commands.Context):

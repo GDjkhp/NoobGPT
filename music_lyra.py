@@ -140,21 +140,21 @@ def music_now_playing_embed(bot: commands.Context, track: lava_lyra.Track):
     # elif track.album.url: embed.set_thumbnail(url=track.album.url)
     # elif track.artist.url: embed.set_thumbnail(url=track.artist.url)
 
-    # if track.source == "spotify":
-    #     embed.set_author(name="Spotify", icon_url="https://gdjkhp.github.io/img/Spotify_App_Logo.svg.png")
-    # elif track.source == "youtube":
-    #     embed.set_author(name="YouTube", icon_url="https://gdjkhp.github.io/img/771384-512.png")
-    # elif track.source == "soundcloud":
-    #     embed.set_author(name="SoundCloud", icon_url="https://gdjkhp.github.io/img/soundcloud-icon.png")
-    # elif track.source == "bandcamp":
+    if track.track_type == lava_lyra.TrackType.SPOTIFY:
+        embed.set_author(name="Spotify", icon_url="https://gdjkhp.github.io/img/Spotify_App_Logo.svg.png")
+    elif track.track_type == lava_lyra.TrackType.YOUTUBE:
+        embed.set_author(name="YouTube", icon_url="https://gdjkhp.github.io/img/771384-512.png")
+    elif track.track_type == lava_lyra.TrackType.SOUNDCLOUD:
+        embed.set_author(name="SoundCloud", icon_url="https://gdjkhp.github.io/img/soundcloud-icon.png")
+    # elif track.track_type == "bandcamp":
     #     embed.set_author(name="Bandcamp", icon_url="https://gdjkhp.github.io/img/bandcamp-button-circle-aqua-512.png")
-    # elif track.source == "applemusic":
-    #     embed.set_author(name="Apple Music", icon_url="https://gdjkhp.github.io/img/applemoosic.png")
-    # elif track.source == "deezer":
+    elif track.track_type == lava_lyra.TrackType.APPLE_MUSIC:
+        embed.set_author(name="Apple Music", icon_url="https://gdjkhp.github.io/img/applemoosic.png")
+    # elif track.track_type == "deezer":
     #     embed.set_author(name="Deezer", icon_url="https://gdjkhp.github.io/img/deez.png")
-    # else:
-    #     embed.set_author(name=track.source)
-    #     print(track.source)
+    else:
+        embed.set_author(name=track.track_type)
+        print(track.track_type)
     return embed
 
 def requester_string(bot: commands.Bot, track: lava_lyra.Track):
