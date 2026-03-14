@@ -23,6 +23,7 @@ class CogYouTubePlayerMin(commands.Cog):
                 for x in vc.auto_queue:
                     vc.queue.put(x)
                 vc.auto_queue.clear()
+            else: return
         await vc.play(vc.queue.get())
 
     @commands.command(name="mreset")
