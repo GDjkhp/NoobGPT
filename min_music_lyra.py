@@ -18,6 +18,7 @@ class CogYouTubePlayerMin(commands.Cog):
     
     @commands.Cog.listener()
     async def on_lyra_track_end(self, vc: NoobGPTPlayer, track: lava_lyra.Track, reason: str):
+        if not vc: return
         if vc.queue.is_empty:
             if vc.autoplay == AutoPlayMode.enabled and not vc.auto_queue.is_empty:
                 for x in vc.auto_queue:
