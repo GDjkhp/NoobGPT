@@ -298,13 +298,6 @@ async def voice_channel_connector(ctx: commands.Context | discord.Interaction):
         member = ctx.author
     if isinstance(ctx, discord.Interaction):
         member = ctx.user
-    nodes: list[lava_lyra.Node] = []
-    for n in ctx.bot.node_ids:
-        try:
-            pool: lava_lyra.NodePool = ctx.bot.pool
-            node = pool.get_node(n)
-            nodes.append(node)
-        except: pass
     vc = await member.voice.channel.connect(cls=NoobGPTPlayer, self_deaf=True)
     return vc
 
