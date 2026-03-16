@@ -10,12 +10,12 @@ from util_discord import command_check, get_database2, set_dj_role_db, set_dj_ch
 from util_database import myclient
 mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 fixing=False
+pool = lava_lyra.NodePool()
 
 async def setup_hook_music(bot: commands.Bot):
     global fixing
     fixing=True
     nodes = []
-    pool: lava_lyra.NodePool = bot.pool
     for n in bot.node_ids:
         try:
             n = pool.get_node(identifier=n)
@@ -158,7 +158,7 @@ def music_now_playing_embed(bot: commands.Context, track: lava_lyra.Track):
     return embed
 
 def requester_string(bot: commands.Bot, track: lava_lyra.Track):
-    # if dict(track.extras).get("requester"): return f"<@{track.extras.requester}>"
+    if track.requester: return f"<@{track.requester.id}>"
     return f"<@{bot.user.id}>"
 
 def filter_embed(title: str, description: str, filter: dict):
