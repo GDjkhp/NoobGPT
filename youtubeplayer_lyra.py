@@ -94,11 +94,11 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
         if isinstance(ctx, discord.Interaction):
             return await ctx.edit_original_response(content='No results found')
 
-    # for track in tracks:
-    #     if isinstance(ctx, commands.Context):
-    #         track.extras = {"requester": ctx.author.id}
-    #     if isinstance(ctx, discord.Interaction):
-    #         track.extras = {"requester": ctx.user.id}
+    for track in tracks:
+        if isinstance(ctx, commands.Context):
+            track.requester = ctx.author
+        if isinstance(ctx, discord.Interaction):
+            track.requester = ctx.user
     
     if not ctx.guild.voice_client:
         try:
@@ -396,9 +396,9 @@ async def queue_remove(ctx: commands.Context, index: str = None, index2: str = N
             # Find all tracks with no requester (bot recommendations)
             for i in range(len(vc.queue)):
                 track = vc.queue[i]
-                # track_requester = dict(track.extras).get("requester")
-                # if not track_requester:
-                #     tracks_to_remove.append(track)
+                track_requester = track.requester
+                if not track_requester:
+                    tracks_to_remove.append(track)
 
             if not tracks_to_remove:
                 return await ctx.reply(embed=music_embed("🗑️ Remove tracks", "No bot recommendations found in queue"))
@@ -432,9 +432,9 @@ async def queue_remove(ctx: commands.Context, index: str = None, index2: str = N
         # Find all tracks queued by the specified member
         for i in range(len(vc.queue)):
             track = vc.queue[i]
-            # track_requester = dict(track.extras).get("requester")
-            # if track_requester and str(track_requester) == member_id:
-            #     tracks_to_remove.append(track)
+            track_requester = track.requester
+            if track_requester and str(track_requester.id) == member_id:
+                tracks_to_remove.append(track)
 
         if not tracks_to_remove:
             return await ctx.reply(embed=music_embed("🗑️ Remove tracks", f"No tracks found queued by {member_obj.display_name}"))
@@ -670,9 +670,9 @@ async def remove_member_auto(interaction: discord.Interaction, current: str):
 
     for i in range(len(vc.queue)):
         track = vc.queue[i]
-        # requester_id = dict(track.extras).get("requester")
+        requester_id = track.requester
         if requester_id:
-            requesters.add(int(requester_id))
+            requesters.add(requester_id.id)
         else:
             # Track with no requester = bot recommendation
             has_bot_recommendations = True
