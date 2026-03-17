@@ -101,7 +101,7 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
     
     if not ctx.guild.voice_client:
         try:
-            vc = await voice_channel_connector(ctx)
+            vc = await voice_channel_connector(bot, ctx)
         except:
             # if fixing: 
             #     if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="Please try again later")
