@@ -10,12 +10,11 @@ from util_discord import command_check, get_database2, set_dj_role_db, set_dj_ch
 from util_database import myclient
 mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 fixing=False
-pool = lava_lyra.NodePool()
 
 async def setup_hook_music(bot: commands.Bot):
     global fixing
     fixing=True
-    nodes = []
+    pool: lava_lyra.NodePool = bot.pool
     for n in bot.node_ids:
         try:
             n = pool.get_node(identifier=n)
@@ -27,21 +26,18 @@ async def setup_hook_music(bot: commands.Bot):
         node_id = secrets.token_urlsafe(12)
         bot.node_ids.append(node_id)
         host_val, port_val, secure_val = _parse_address(lava["host"])
-        nodes.append(
-            await pool.create_node(
-                bot=bot,
-                secure=secure_val,
-                host=host_val,
-                port=port_val,
-                password=lava["password"],
-                identifier=node_id,
-                lyrics=True,
-                search=True,
-                fallback=True,
-            )
+        await pool.create_node(
+            bot=bot,
+            secure=secure_val,
+            host=host_val,
+            port=port_val,
+            password=lava["password"],
+            identifier=node_id,
+            lyrics=True,
+            search=True,
+            fallback=True,
         )
     fixing=False
-    print(nodes)
     print(f"{bot.identifier}: setup_hook_music ok")
 
 def _parse_address(addr: str):
@@ -276,7 +272,7 @@ class SelectChoice(discord.ui.Select):
         await interaction.response.edit_message(content="Loading…", embed=None, view=None)
         if not self.ctx.guild.voice_client:
             try: 
-                vc = await voice_channel_connector(self.ctx)
+                vc = await voice_channel_connector(self.bot, self.ctx)
             except:
                 # if fixing: return await interaction.edit_original_response(content="Please try again later")
                 print("ChannelTimeoutException")
@@ -293,12 +289,14 @@ class SelectChoice(discord.ui.Select):
         text, desc = "🎵 Queue music", f'`{selected.author} - {selected.title}` has been added to the queue'
         await interaction.edit_original_response(content=None, embed=music_embed(text, desc), view=None)
 
-async def voice_channel_connector(ctx: commands.Context | discord.Interaction):
+async def voice_channel_connector(bot: commands.Bot, ctx: commands.Context | discord.Interaction):
     if isinstance(ctx, commands.Context):
         member = ctx.author
     if isinstance(ctx, discord.Interaction):
         member = ctx.user
-    vc = await member.voice.channel.connect(cls=NoobGPTPlayer, self_deaf=True, node=pool.get_node(ctx.bot.node_ids[0]))
+    pool: lava_lyra.NodePool = bot.pool
+    node = pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
+    vc = await member.voice.channel.connect(cls=NoobGPTPlayer(bot, member.voice.channel, node=node), self_deaf=True)
     return vc
 
 def check_bot_conflict(ctx: commands.Context | discord.Interaction):
@@ -327,8 +325,8 @@ class AutoPlayMode(enum.Enum):
     disabled = 2
 
 class NoobGPTPlayer(lava_lyra.Player):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, client, channel, node):
+        super().__init__(client, channel, node=node)
         self.queue = lava_lyra.Queue()
         self.music_channel: discord.channel.TextChannel = None
         self.autoplay: AutoPlayMode = AutoPlayMode.enabled
