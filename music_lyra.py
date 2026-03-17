@@ -298,10 +298,7 @@ async def voice_channel_connector(ctx: commands.Context | discord.Interaction):
         member = ctx.author
     if isinstance(ctx, discord.Interaction):
         member = ctx.user
-
-    # Get a healthy node from the pool that belongs to this bot
-    node = pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
-    vc = await member.voice.channel.connect(cls=NoobGPTPlayer, self_deaf=True, node=node)
+    vc = await member.voice.channel.connect(cls=NoobGPTPlayer, self_deaf=True)
     return vc
 
 def check_bot_conflict(ctx: commands.Context | discord.Interaction):
@@ -331,7 +328,7 @@ class AutoPlayMode(enum.Enum):
 
 class NoobGPTPlayer(lava_lyra.Player):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs, node=pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health))
         self.queue = lava_lyra.Queue()
         self.music_channel: discord.channel.TextChannel = None
         self.autoplay: AutoPlayMode = AutoPlayMode.enabled
