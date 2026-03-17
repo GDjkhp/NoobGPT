@@ -295,7 +295,7 @@ async def voice_channel_connector(bot: commands.Bot, ctx: commands.Context | dis
     if isinstance(ctx, discord.Interaction):
         member = ctx.user
     pool: lava_lyra.NodePool = bot.pool
-    node = pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
+    node = pool.get_node(identifier=bot.node_ids[0])
     vc = await member.voice.channel.connect(cls=NoobGPTPlayer(bot, member.voice.channel, node=node), self_deaf=True)
     return vc
 

@@ -80,7 +80,7 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
 
     try:
         pool: lava_lyra.NodePool = bot.pool
-        node = pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
+        node = pool.get_node(identifier=bot.node_ids[0])
         tracks = await node.get_tracks(search, search_type=lava_lyra.SearchType.ytmsearch)
     except Exception as e:
         if isinstance(ctx, commands.Context):
@@ -258,7 +258,7 @@ async def queue_search(bot: commands.Bot, ctx: commands.Context | discord.Intera
 
     try:
         pool: lava_lyra.NodePool = bot.pool
-        node = pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
+        node = pool.get_node(identifier=bot.node_ids[0])
         tracks = await node.get_tracks(search, search_type=lava_lyra.SearchType.ytmsearch)
     except Exception as e:
         if isinstance(ctx, commands.Context):
@@ -630,7 +630,7 @@ async def queue_fair(ctx: commands.Context):
 async def search_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     if not current: return []
     pool: lava_lyra.NodePool = interaction.client.pool
-    node = pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
+    node = pool.get_node(identifier=interaction.client.node_ids[0])
     tracks = await node.get_tracks(current, search_type=lava_lyra.SearchType.ytmsearch)
     return [
         app_commands.Choice(name=f"{track.author} - {track.title}"[:100], value=track.uri) for track in tracks
@@ -639,7 +639,7 @@ async def search_auto(interaction: discord.Interaction, current: str) -> list[ap
 async def search_auto_spotify(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     if not current: return []
     pool: lava_lyra.NodePool = interaction.client.pool
-    node = pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
+    node = pool.get_node(identifier=interaction.client.node_ids[0])
     tracks = await node.get_tracks(current, search_type=lava_lyra.SearchType.spsearch)
     return [
         app_commands.Choice(name=f"{track.author} - {track.title}"[:100], value=track.uri) for track in tracks
