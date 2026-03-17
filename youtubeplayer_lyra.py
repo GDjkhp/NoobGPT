@@ -80,7 +80,7 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
 
     try:
         node = pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
-        tracks = await node.get_tracks(search)
+        tracks = await node.get_tracks(search, search_type=lava_lyra.SearchType.ytmsearch)
     except Exception as e:
         if isinstance(ctx, commands.Context):
             return await msg.edit(content=f'Error :(\n{e}')
@@ -257,7 +257,7 @@ async def queue_search(bot: commands.Bot, ctx: commands.Context | discord.Intera
 
     try:
         node = pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
-        tracks = await node.get_tracks(search) # TODO: source
+        tracks = await node.get_tracks(search, search_type=lava_lyra.SearchType.ytmsearch)
     except Exception as e:
         if isinstance(ctx, commands.Context):
             return await msg.edit(content=f'Error :(\n{e}')
@@ -495,7 +495,7 @@ async def queue_replace(ctx: commands.Context, index: str, query: str): # TODO: 
         return await ctx.reply(f'Join the voice channel with the bot first')
     if not index.isdigit() or not int(index): return await ctx.reply("not a digit :(")
     if vc.queue.is_empty: return await ctx.reply(embed=music_embed("➡️ Replace track", "The queue is empty"))
-    try: tracks = await vc.get_tracks(query)
+    try: tracks = await vc.get_tracks(query, search_type=lava_lyra.SearchType.ytmsearch)
     except Exception as e: return await ctx.reply(f'Error :(\n{e}')
     if not tracks: return await ctx.reply('No results found')
     real_index = min(int(index)-1, len(vc.queue)-1)
