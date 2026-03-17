@@ -631,7 +631,7 @@ async def search_auto(interaction: discord.Interaction, current: str) -> list[ap
     if not current: return []
     pool: lava_lyra.NodePool = interaction.client.pool
     node = pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
-    tracks = await node.get_tracks(current)
+    tracks = await node.get_tracks(current, search_type=lava_lyra.SearchType.ytmsearch)
     return [
         app_commands.Choice(name=f"{track.author} - {track.title}"[:100], value=track.uri) for track in tracks
     ][:25]
