@@ -49,7 +49,6 @@ class NoobGPT(commands.Bot):
         self.token = os.getenv(identifier)
         self.modules = modules
         self.node_ids = []
-        self.pool = lava_lyra.NodePool()
         super().__init__(
             command_prefix = get_prefix, intents = intents, help_command = None, allowed_mentions = mentions
         )

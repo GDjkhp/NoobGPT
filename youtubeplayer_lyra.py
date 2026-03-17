@@ -79,7 +79,6 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
             return await ctx.edit_original_response(content=f"usage: `{p}play <query>`")
 
     try:
-        pool: lava_lyra.NodePool = bot.pool
         node = pool.get_node(identifier=bot.node_ids[0])
         tracks = await node.get_tracks(search, search_type=lava_lyra.SearchType.ytmsearch)
     except Exception as e:
@@ -257,7 +256,6 @@ async def queue_search(bot: commands.Bot, ctx: commands.Context | discord.Intera
             return await ctx.edit_original_response(content=f"usage: `{p}search <query>`")
 
     try:
-        pool: lava_lyra.NodePool = bot.pool
         node = pool.get_node(identifier=bot.node_ids[0])
         tracks = await node.get_tracks(search, search_type=lava_lyra.SearchType.ytmsearch)
     except Exception as e:
@@ -629,7 +627,6 @@ async def queue_fair(ctx: commands.Context):
 
 async def search_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     if not current: return []
-    pool: lava_lyra.NodePool = interaction.client.pool
     node = pool.get_node(identifier=interaction.client.node_ids[0])
     tracks = await node.get_tracks(current, search_type=lava_lyra.SearchType.ytmsearch)
     return [
@@ -638,7 +635,6 @@ async def search_auto(interaction: discord.Interaction, current: str) -> list[ap
 
 async def search_auto_spotify(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     if not current: return []
-    pool: lava_lyra.NodePool = interaction.client.pool
     node = pool.get_node(identifier=interaction.client.node_ids[0])
     tracks = await node.get_tracks(current, search_type=lava_lyra.SearchType.spsearch)
     return [
