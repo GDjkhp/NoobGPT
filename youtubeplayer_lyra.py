@@ -10,7 +10,7 @@ async def music_help(ctx: commands.Context):
     await HALP_MOOSIC(ctx)
 
 # player commands
-async def music_summon(ctx: commands.Context):
+async def music_summon(bot: commands.Bot, ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
     if check_bot_conflict(ctx): return await ctx.reply("use moosic instead :)", ephemeral=True)
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
@@ -22,7 +22,7 @@ async def music_summon(ctx: commands.Context):
 
     if ctx.voice_client: return await ctx.reply(f"I'm already connected to {ctx.voice_client.channel.jump_url}\nPlease use a different bot (>_<)")
     try:
-        vc = await voice_channel_connector(ctx)
+        vc = await voice_channel_connector(bot, ctx)
     except:
         # if fixing: return await ctx.reply(content="Please try again later")
         print("ChannelTimeoutException")
@@ -79,6 +79,7 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
             return await ctx.edit_original_response(content=f"usage: `{p}play <query>`")
 
     try:
+        pool: lava_lyra.NodePool = bot.pool
         node = pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
         tracks = await node.get_tracks(search, search_type=lava_lyra.SearchType.ytmsearch)
     except Exception as e:
@@ -256,6 +257,7 @@ async def queue_search(bot: commands.Bot, ctx: commands.Context | discord.Intera
             return await ctx.edit_original_response(content=f"usage: `{p}search <query>`")
 
     try:
+        pool: lava_lyra.NodePool = bot.pool
         node = pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
         tracks = await node.get_tracks(search, search_type=lava_lyra.SearchType.ytmsearch)
     except Exception as e:
@@ -627,6 +629,7 @@ async def queue_fair(ctx: commands.Context):
 
 async def search_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     if not current: return []
+    pool: lava_lyra.NodePool = interaction.client.pool
     node = pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
     tracks = await node.get_tracks(current, search_type=lava_lyra.SearchType.ytmsearch)
     return [
@@ -635,6 +638,7 @@ async def search_auto(interaction: discord.Interaction, current: str) -> list[ap
 
 async def search_auto_spotify(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     if not current: return []
+    pool: lava_lyra.NodePool = interaction.client.pool
     node = pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
     tracks = await node.get_tracks(current, search_type=lava_lyra.SearchType.spsearch)
     return [
@@ -744,7 +748,7 @@ class CogYouTubePlayer(commands.Cog):
     # player
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['player']['summon']}")
     async def summon(self, ctx: commands.Context):
-        await music_summon(ctx)
+        await music_summon(self.bot, ctx)
 
     @commands.command() # alias
     async def p(self, ctx: commands.Context, *, query: str=None):
