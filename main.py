@@ -17,7 +17,7 @@ from gde_hall_of_fame import main_gde, main_rob
 from c_ai_discord import c_ai
 from custom_status import silly_activities, phone_status
 # from music import setup_hook_music
-from music_lyra import setup_hook_music
+from music_lyra import setup_hook_music, pool
 from util_message import message_snitcher
 
 discord.utils.setup_logging()
@@ -49,7 +49,6 @@ class NoobGPT(commands.Bot):
         self.token = os.getenv(identifier)
         self.modules = modules
         self.node_ids = []
-        self.pool = lava_lyra.NodePool()
         super().__init__(
             command_prefix = get_prefix, intents = intents, help_command = None, allowed_mentions = mentions
         )

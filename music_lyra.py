@@ -10,12 +10,12 @@ from util_discord import command_check, get_database2, set_dj_role_db, set_dj_ch
 from util_database import myclient
 mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 fixing=False
+pool = lava_lyra.NodePool()
 
 async def setup_hook_music(bot: commands.Bot):
     global fixing
     fixing=True
     nodes = []
-    pool: lava_lyra.NodePool = bot.pool
     for n in bot.node_ids:
         try:
             n = pool.get_node(identifier=n)
@@ -298,7 +298,10 @@ async def voice_channel_connector(ctx: commands.Context | discord.Interaction):
         member = ctx.author
     if isinstance(ctx, discord.Interaction):
         member = ctx.user
-    vc = await member.voice.channel.connect(cls=NoobGPTPlayer, self_deaf=True)
+
+    # Get a healthy node from the pool that belongs to this bot
+    node = pool.get_best_node(algorithm=lava_lyra.NodeAlgorithm.by_health)
+    vc = await member.voice.channel.connect(cls=NoobGPTPlayer, self_deaf=True, node=node)
     return vc
 
 def check_bot_conflict(ctx: commands.Context | discord.Interaction):
