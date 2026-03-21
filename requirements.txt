@@ -12,7 +12,7 @@ pycryptodome
 motor
 yt-dlp
 yt-dlp-ejs
-ytdlp-jsc --target ~/.yt-dlp/plugins/
+ytdlp-jsc
 ffmpeg-python
 lxml
 pydub
