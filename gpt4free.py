@@ -1,14 +1,15 @@
-import io, base64
-import time
+import io, base64, os, time
 import discord
 from discord import app_commands
 from discord.ext import commands
 from util_discord import description_helper, command_check, get_guild_prefix, check_if_not_owner
 from perplexity import loopMsgGH, loopMsgSlash, strip_dash
-from g4f.client import AsyncClient
-client = AsyncClient()
 from util_database import myclient
 mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
+
+from g4f.client import AsyncClient
+client = AsyncClient()
+client.api_key = os.getenv("G4F")
 
 async def get_models():
     cursor = mycol.find()
@@ -41,7 +42,8 @@ async def the_free_req_img(prompt: str, model: str):
     response = await client.images.generate(
         prompt=prompt,
         model=model,
-        response_format="b64_json"
+        response_format="b64_json",
+        base_url=os.getenv("G4F_URL"),
     )
     return response.data[0].b64_json
     
@@ -54,7 +56,8 @@ async def the_free_req_text(msgs: list, model: str):
                 "content": "Be precise and concise."
             }
         ] + msgs,
-        web_search=True
+        web_search=True,
+        base_url=os.getenv("G4F_URL"),
     )
     return response.choices[0].message.content
 
