@@ -326,15 +326,20 @@ class AutoPlayMode(enum.Enum):
 class NoobGPTPlayer(lava_lyra.Player):
     def __init__(self, client, channel, node):
         super().__init__(client, channel, node=node)
-        self.queue = lava_lyra.Queue()
         self.music_channel: discord.channel.TextChannel = None
         self.autoplay: AutoPlayMode = AutoPlayMode.enabled
+        self.queue = lava_lyra.Queue()
         self.auto_queue = lava_lyra.Queue()
+        self.history_queue = lava_lyra.Queue()
 
 # smart shuffle algorithm
 async def get_rekt(vc: NoobGPTPlayer):
+    vc.history_queue.put(vc.current)
     recs = await vc.get_recommendations(track=vc.current)
-    for t in recs: vc.auto_queue.put(t)
+    if not recs: return
+    history_ids = [track.identifier for track in vc.history_queue]
+    for t in recs:
+        if t.identifier not in history_ids: vc.auto_queue.put(t)
 
 class MusicUtil2(commands.Cog):
     def __init__(self, bot):

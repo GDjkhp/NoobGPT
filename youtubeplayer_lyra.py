@@ -190,8 +190,7 @@ async def music_stop(ctx: commands.Context):
     if not vc: return await ctx.reply("voice client not found")
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first')
-
-    await vc.disconnect()
+    await vc.destroy()
     embed = music_embed("⏹️ Stop music", "The music has been stopped")
     await ctx.reply(embed=embed)
 
