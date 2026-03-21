@@ -13,6 +13,7 @@ motor
 yt-dlp
 yt-dlp-ejs
 ytdlp-jsc
+libclang
 ffmpeg-python
 lxml
 pydub
