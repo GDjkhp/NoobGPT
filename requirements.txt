@@ -12,8 +12,7 @@ pycryptodome
 motor
 yt-dlp
 yt-dlp-ejs
-ytdlp-jsc
-libclang
+# ytdlp-jsc
 ffmpeg-python
 lxml
 pydub
