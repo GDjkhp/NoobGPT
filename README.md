@@ -1,6 +1,6 @@
 <div align="center">
-<h1 class="github"><a href="https://gdjkhp.github.io/NoobGPT">NoobGPT</a></h1>
-<img src="https://gdjkhp.github.io/img/tama-anim-merge.gif" width=256 style="background-color: transparent;" class="right">
+<h1 class="github"><a href="https://gdjkhp.com/NoobGPT">NoobGPT</a></h1>
+<img src="https://gdjkhp.com/img/tama-anim-merge.gif" width=256 style="background-color: transparent;" class="right">
 <br class="br">
 A <b>very simple yet complicated</b> multi-purpose Discord bot that does pretty much nothing but insult you.
 <h3><a href="https://discord.com/api/oauth2/authorize?client_id=1120259379715903508&permissions=633731823291392&scope=applications.commands%20bot">Add to server</a>, <a href="https://discord.com/oauth2/authorize?client_id=1090254079609020447">install as user</a>, or <a href="discord://discord.com/users/1090254079609020447">send a direct message</a></h3>
@@ -46,7 +46,7 @@ A <b>very simple yet complicated</b> multi-purpose Discord bot that does pretty 
 
 ### Requirements
 Host your bots for free: [Bot-Hosting.net](https://bot-hosting.net/?aff=729554186777133088)
-* [`Python 3.10+`](https://www.python.org/downloads), [`FFmpeg`](https://www.ffmpeg.org/download.html), [`requirements.txt`](http://gdjkhp.github.io/NoobGPT/requirements.txt) packages, [`.env`](https://gdjkhp.github.io/NoobGPT/example.env) for secret keys.
+* [`Python 3.10+`](https://www.python.org/downloads), [`FFmpeg`](https://www.ffmpeg.org/download.html), [`requirements.txt`](http://gdjkhp.github.io/NoobGPT/requirements.txt) packages, [`.env`](https://gdjkhp.com/NoobGPT/example.env) for secret keys.
 * A working [`MongoDB`](https://www.mongodb.com) instance. [How do I find my MongoDB connection string?](https://www.mongodb.com/resources/products/fundamentals/mongodb-connection-string)
 * A `cookies.txt` for downloading YouTube videos. [How do I pass cookies to yt-dlp?](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp)
 * Google Cloud Console OAuth 2.0 User and Client credentials (Production) + `.../auth/drive.file` scope. [Generate token.json with quickstart.](https://developers.google.com/docs/api/quickstart/python)
@@ -55,13 +55,13 @@ Host your bots for free: [Bot-Hosting.net](https://bot-hosting.net/?aff=72955418
 ## Support
 Feature requests, contributions, and improvements are welcome!
 <br>
-Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) or reach out [GDjkhp](https://gdjkhp.github.io)
+Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) or reach out [GDjkhp](https://gdjkhp.com)
 
 ## Donate
 [`Paypal`](https://paypal.me/GDjkhp) • [`Patreon`](https://www.patreon.com/GDjkhp)
 <details><summary><b>Why you should invest in NoobGPT?</b></summary>
 <h3>Running this bot has cost me nothing so far!</h3>
-<img src="https://gdjkhp.github.io/img/tenor.gif">
+<img src="https://gdjkhp.com/img/tenor.gif">
 <h3>Sponsors</h3>
 <li><code>jaicraft</code> Premium AI subscription access</li>
 <li><code>aychelletroller</code> $4.64 from Patreon (Join <a href="https://discord.gg/fv4st">Eternal Discord Server</a>)</li>
@@ -74,12 +74,12 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 * `-stats` Show statistics page
 
 ## AI 🤖
-<a href="https://openai.com"><img width=128 style="padding: 15px; background-color: black;" src="https://gdjkhp.github.io/img/openai-white-lockup.png"></a>
-<a href="https://gemini.google.com"><img width=128 style="padding: 15px; background-color: black;" src="https://gdjkhp.github.io/img/gemini.png"></a>
-<a href="https://mistral.ai"><img width=128 style="padding: 15px; background-color: black;" src="https://gdjkhp.github.io/img/mistral.png"></a>
-<a href="https://www.anthropic.com"><img width=128 style="padding: 15px; background-color: black;" src="https://gdjkhp.github.io/img/idGmbIn6Mx_logos.png"></a>
-<a href="https://www.deepseek.com"><img width=128 style="padding: 15px; background-color: black;" src="https://gdjkhp.github.io/img/deepseek.png"></a>
-<a href="https://c.ai"><img width=128 style="padding: 15px; background-color: black;" src="https://gdjkhp.github.io/img/Character.AI.png"></a>
+<a href="https://openai.com"><img width=128 style="padding: 15px; background-color: black;" src="https://gdjkhp.com/img/openai-white-lockup.png"></a>
+<a href="https://gemini.google.com"><img width=128 style="padding: 15px; background-color: black;" src="https://gdjkhp.com/img/gemini.png"></a>
+<a href="https://mistral.ai"><img width=128 style="padding: 15px; background-color: black;" src="https://gdjkhp.com/img/mistral.png"></a>
+<a href="https://www.anthropic.com"><img width=128 style="padding: 15px; background-color: black;" src="https://gdjkhp.com/img/idGmbIn6Mx_logos.png"></a>
+<a href="https://www.deepseek.com"><img width=128 style="padding: 15px; background-color: black;" src="https://gdjkhp.com/img/deepseek.png"></a>
+<a href="https://c.ai"><img width=128 style="padding: 15px; background-color: black;" src="https://gdjkhp.com/img/Character.AI.png"></a>
 
 ### Note: Use `-ask` or `-imagine` for generating text and images respectively. Use the slash command variants for the list of available models. Use `-aimode` to set up AI response mode.
 
@@ -125,8 +125,8 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 * `-quote` Reply to a message to make it a quote.
 
 <div align="center">
-<h2><a href="https://gdjkhp.github.io/NoobGPT/#moosic">Moosic</a></h2>
-<img src="https://gdjkhp.github.io/img/baka.jpg" width=256 style="background-color: transparent;" class="right">
+<h2><a href="https://gdjkhp.com/NoobGPT/#moosic">Moosic</a></h2>
+<img src="https://gdjkhp.com/img/baka.jpg" width=256 style="background-color: transparent;" class="right">
 <br class="br">
 grass is greenr on the othr side
 <h3><a href="https://discord.com/api/oauth2/authorize?client_id=1073823671392686162&permissions=412588788736&scope=applications.commands%20bot">Add to server</a></h3>
