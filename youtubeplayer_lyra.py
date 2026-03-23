@@ -469,7 +469,7 @@ async def queue_remove(ctx: commands.Context, index: str = None, index2: str = N
         # Get tracks to remove
         tracks_to_remove = []
         for i in range(start_idx, end_idx + 1):
-            tracks_to_remove.append(vc.queue.peek(i))
+            tracks_to_remove.append(vc.queue[i])
 
         # Remove tracks (remove in reverse order to maintain indices)
         for track in reversed(tracks_to_remove):
