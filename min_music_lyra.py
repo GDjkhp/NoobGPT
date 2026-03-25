@@ -20,9 +20,10 @@ class CogYouTubePlayerMin(commands.Cog):
     async def on_lyra_track_end(self, vc: NoobGPTPlayer, track: lava_lyra.Track, reason: str):
         if not vc: return
         if vc.queue.is_empty:
+            history_ids = [track.identifier for track in vc.history_queue]
             if vc.autoplay == AutoPlayMode.enabled and not vc.auto_queue.is_empty:
                 for x in vc.auto_queue:
-                    vc.queue.put(x)
+                    if x.identifier not in history_ids: vc.queue.put(x)
                 vc.auto_queue.clear()
             else: return
         await vc.play(vc.queue.get())
