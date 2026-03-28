@@ -1,2 +1,2 @@
 pip install ytdlp-jsc --only-binary=:all:
-pip install -r requirements.txt
+pip install -U -r requirements.txt
