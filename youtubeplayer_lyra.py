@@ -718,6 +718,7 @@ class CogYouTubePlayer(commands.Cog):
         if vc.queue.is_empty:
             history_ids = [track.identifier for track in vc.history_queue]
             if vc.autoplay == AutoPlayMode.enabled and not vc.auto_queue.is_empty:
+                random.shuffle(vc.auto_queue)
                 for x in vc.auto_queue:
                     if x.identifier not in history_ids: vc.queue.put(x)
                 vc.auto_queue.clear()
