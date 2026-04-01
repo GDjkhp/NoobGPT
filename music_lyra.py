@@ -337,6 +337,7 @@ async def get_rekt(vc: NoobGPTPlayer):
     vc.history_queue.put(vc.current)
     recs = await vc.get_recommendations(track=vc.current)
     if not recs: return
+    recs = recs.tracks if isinstance(recs, lava_lyra.Playlist) else recs
     random.shuffle(recs)
     history_ids = [track.identifier for track in vc.history_queue]
     for t in recs:
