@@ -337,6 +337,7 @@ async def get_rekt(vc: NoobGPTPlayer):
     vc.history_queue.put(vc.current)
     recs = await vc.get_recommendations(track=vc.current)
     if not recs: return
+    random.shuffle(recs)
     history_ids = [track.identifier for track in vc.history_queue]
     for t in recs:
         if t.identifier not in history_ids: vc.auto_queue.put(t)
