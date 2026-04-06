@@ -3,14 +3,16 @@ from bs4 import BeautifulSoup as BS
 import aiohttp
 from discord.ext import commands
 import re
-from util_discord import command_check, description_helper, get_guild_prefix, is_valid_uuid
+from util_discord import command_check, description_helper, get_guild_prefix, is_valid_uuid, check_if_not_owner
 from curl_cffi.requests import AsyncSession
 from discord import app_commands
+from util_database import myclient
+mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 
-base="https://animepahe.si"
+pahe="https://animepahe.com"
 provider="https://gdjkhp.github.io/img/apdoesnthavelogotheysaidapistooplaintheysaid.png"
 pagelimit=12
-headers = {"cookie": "__ddg2_=", "referer": base}
+headers = {"cookie": "__ddg2_=", "referer": pahe}
 session = AsyncSession(impersonate='chrome')
 
 # feat: mp4 dl (it just works): https://github.com/justfoolingaround/animdl/blob/master/animdl/core/codebase/providers/animepahe/inner/__init__.py
@@ -19,6 +21,17 @@ KWIK_PARAMS_RE = re.compile(r'\("(\w+)",\d+,"(\w+)",(\d+),(\d+),\d+\)')
 KWIK_D_URL = re.compile(r'action="(.+?)"')
 KWIK_D_TOKEN = re.compile(r'value="(.+?)"')
 regex_extract = lambda rgx, txt, grp: re.search(rgx, txt).group(grp) if re.search(rgx, txt) else False
+
+async def get_domain():
+    global pahe
+    cursor = mycol.find()
+    data = await cursor.to_list(None)
+    pahe = data[0]["pahe"]
+
+async def set_domain(ctx: commands.Context, arg: str):
+    await mycol.update_one({}, {"$set": {"pahe": arg}})
+    await get_domain()
+    await ctx.reply(pahe)
 
 async def help_anime(ctx: commands.Context):
     if await command_check(ctx, "anime", "media"): return await ctx.reply("command disabled", ephemeral=True)
@@ -125,8 +138,9 @@ def buildAnime(details: dict) -> discord.Embed:
 
 async def pahe_search(ctx: commands.Context, arg: str):
     if await command_check(ctx, "anime", "media"): return await ctx.reply("command disabled", ephemeral=True)
+    await get_domain()
     if not arg: return await ctx.reply(f"usage: `{await get_guild_prefix(ctx)}pahe <query>`")
-    results = await new_req(f"{base}/api?m=search&q={arg.replace(' ', '+')}", headers, True)
+    results = await new_req(f"{pahe}/api?m=search&q={arg.replace(' ', '+')}", headers, True)
     if not results: return await ctx.reply("none found")
     await ctx.reply(embed=buildSearch(arg, results["data"], 0), view=SearchView(ctx, arg, results["data"], 0))
 
@@ -208,16 +222,16 @@ class SelectChoice(discord.ui.Select):
         await interaction.edit_original_response(embed=buildAnime(selected), view=EpisodeView(self.ctx, selected, urls, ep_texts, 0))
 
 async def fetch_anime(selected_session):
-    r_search = await new_req(f"{base}/api?m=release&id={selected_session}&sort=episode_asc&page=1", headers, True)
+    r_search = await new_req(f"{pahe}/api?m=release&id={selected_session}&sort=episode_asc&page=1", headers, True)
     if not r_search.get('data'): return None, None, None
 
-    req = await new_req(f"{base}/play/{selected_session}/{r_search['data'][0]['session']}", headers, False)
+    req = await new_req(f"{pahe}/play/{selected_session}/{r_search['data'][0]['session']}", headers, False)
     soup = soupify(req)
     items = soup.find("div", {"class": "clusterize-scroll"}).findAll("a")
     urls = [items[i].get("href") for i in range(len(items))]
     ep_texts = [items[i].text for i in range(len(items))]
 
-    req = await new_req(f"{base}/anime/{selected_session}", headers, False)
+    req = await new_req(f"{pahe}/anime/{selected_session}", headers, False)
     soup = soupify(req)
     selected = {}
 
@@ -239,7 +253,7 @@ async def fetch_anime(selected_session):
 
 async def pahe_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     if not current: return []
-    results = await new_req(f"{base}/api?m=search&q={current.replace(' ', '+')}", headers, True)
+    results = await new_req(f"{pahe}/api?m=search&q={current.replace(' ', '+')}", headers, True)
     if not results: return []
     return [
         app_commands.Choice(name=f"{anime['title']} [{anime['type']} - {anime['episodes']} {'episodes' if anime['episodes'] > 1 else 'episode'} / {anime['season']} {anime['year']}]"[:100],
@@ -294,7 +308,7 @@ class ButtonEpisode(discord.ui.Button):
             return await interaction.response.send_message(f"Only <@{self.ctx.author.id}> can interact with this message.",
                                                            ephemeral=True)
         await interaction.response.defer()
-        req = await new_req(f"{base}{self.url_session}", headers, False)
+        req = await new_req(f"{pahe}{self.url_session}", headers, False)
         soup = soupify(req)
         items = soup.find("div", {"id": "pickDownload"}).findAll("a")
         embeds = soup.find("div", {"id": "resolutionMenu"}).findAll("button")
@@ -389,6 +403,11 @@ class CogPahe(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def anime(self, ctx: commands.Context):
         await help_anime(ctx)
+
+    @commands.command()
+    async def rpahe(self, ctx: commands.Context, arg=None):
+        if check_if_not_owner(ctx): return
+        await set_domain(ctx, arg)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogPahe(bot))
