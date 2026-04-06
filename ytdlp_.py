@@ -141,6 +141,10 @@ def checkSize(info, *, incomplete):
         return f'File too large! {filesize} bytes'
 
 def get_ydl_opts(arg):
+    try:
+        import ytdlp_jsc
+    except ImportError:
+        print("plugin not found")
     options = {
         'cookiefile': './res/cookies.txt',
         'outtmpl': '%(title).100s.%(ext)s',
@@ -159,11 +163,6 @@ def get_ydl_opts(arg):
                 'already_have_subtitle': False,
             },
         ],
-        'extractor_args': {
-            'youtube': {
-                'jsc_trace': ['true'],
-            }
-        },
     }
     if arg in audio_formats:
         options['postprocessors'].append({
