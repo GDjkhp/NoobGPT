@@ -159,6 +159,11 @@ def get_ydl_opts(arg):
                 'already_have_subtitle': False,
             },
         ],
+        'extractor_args': {
+            'youtube': {
+                'jsc_trace': ['true'],
+            }
+        },
     }
     if arg in audio_formats:
         options['postprocessors'].append({
