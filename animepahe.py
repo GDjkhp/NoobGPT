@@ -253,6 +253,7 @@ async def fetch_anime(selected_session):
 
 async def pahe_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
     if not current: return []
+    await get_domain()
     results = await new_req(f"{pahe}/api?m=search&q={current.replace(' ', '+')}", headers, True)
     if not results: return []
     return [
