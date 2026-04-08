@@ -336,39 +336,46 @@ class ButtonDownload(discord.ui.Button):
         soup = soupify(req)
         script_tag = soup.find("script")
         match = re.search(r"https://kwik\.cx/f/\w+", script_tag.string)
-        dl_page = await new_req(match.group(), None, False)
-        full_key, key, v1, v2 = KWIK_PARAMS_RE.search(dl_page.decode()).group(1, 2, 3, 4)
-        decrypted = decrypt(full_key, key, v1, v2)
-        head = {"Referer": "https://kwik.cx/"}
-        data = {"_token": KWIK_D_TOKEN.search(decrypted).group(1)}
-        semi_final = await session.post(KWIK_D_URL.search(decrypted).group(1), data=data, headers=head, allow_redirects=False)
-        final_mp4 = semi_final.headers["Location"]
-        req_embed = await new_req(self.embed, headers, False)
-        m3u8 = parse_m3u8_link(req_embed.decode())
-        soup_code = soupify(dl_page)
-        code_tags = soup_code.find_all('code')
         txt_content = [
             f"{self.details['title']}: {self.ep_text} [{self.text}]",
-            f"CRC32: `{code_tags[0].text}`",
-            f"MD5: `{code_tags[1].text}`"
         ]
         real_links = [
             {
-                "emoji": "▶️",
-                "label": "Stream",
-                "url": f"https://gdjkhp.github.io/ubel/?url={m3u8}",
-            },
-            {
-                "emoji": "⬇️",
-                "label": "Download",
-                "url": final_mp4,
-            },
-            {
-                "emoji": "🌏",
+                "emoji": "🔗",
                 "label": "Link",
                 "url": match.group(),
             },
         ]
+        try:
+            dl_page = await new_req(match.group(), None, False)
+            full_key, key, v1, v2 = KWIK_PARAMS_RE.search(dl_page.decode()).group(1, 2, 3, 4)
+            decrypted = decrypt(full_key, key, v1, v2)
+            head = {"Referer": "https://kwik.cx/"}
+            data = {"_token": KWIK_D_TOKEN.search(decrypted).group(1)}
+            semi_final = await session.post(KWIK_D_URL.search(decrypted).group(1), data=data, headers=head, allow_redirects=False)
+            final_mp4 = semi_final.headers["Location"]
+            req_embed = await new_req(self.embed, headers, False)
+            m3u8 = parse_m3u8_link(req_embed.decode())
+            soup_code = soupify(dl_page)
+            code_tags = soup_code.find_all('code')
+            txt_content += [
+                f"CRC32: `{code_tags[0].text}`",
+                f"MD5: `{code_tags[1].text}`",
+            ]
+            real_links += [
+                {
+                    "emoji": "▶️",
+                    "label": "Stream",
+                    "url": f"https://gdjkhp.github.io/ubel/?url={m3u8}",
+                },
+                {
+                    "emoji": "⬇️",
+                    "label": "Download",
+                    "url": final_mp4,
+                },
+            ]
+        except:
+            txt_content += ["hash not available: cloudflare blocked kwik.cx"]
         await interaction.followup.send("\n".join(txt_content), view=WatchView(real_links), ephemeral=True)
 
 class DownloadView(discord.ui.View):
