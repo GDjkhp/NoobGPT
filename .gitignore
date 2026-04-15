@@ -2,6 +2,8 @@
 *.pyc
 test.py
 test2.py
+file_has_been_takendown.py
+kiss_api.py
 meeseeks.py
 cookies.txt
 token.json
