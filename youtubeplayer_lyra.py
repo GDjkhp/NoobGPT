@@ -633,11 +633,12 @@ async def queue_on_start(bot, vc: NoobGPTPlayer):
 async def queue_on_end(vc: NoobGPTPlayer):
     if not vc: return
     if vc.queue.is_empty:
-        history_ids = [track.identifier for track in vc.history_queue]
         if vc.autoplay == AutoPlayMode.enabled and not vc.auto_queue.is_empty:
+            history_ids = [track.identifier for track in vc.history_queue]
             vc.auto_queue.shuffle()
             for x in vc.auto_queue:
                 if x.identifier not in history_ids: vc.queue.put(x)
+                else: print(f"queue_on_end -> dedupe: {x}")
             vc.auto_queue.clear()
         else: return
     await vc.play(vc.queue.get())
