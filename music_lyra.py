@@ -340,8 +340,9 @@ async def get_rekt(vc: NoobGPTPlayer):
     recs = recs.tracks if isinstance(recs, lava_lyra.Playlist) else recs
     random.shuffle(recs)
     history_ids = [track.identifier for track in vc.history_queue]
+    current_ids = [track.identifier for track in vc.queue]
     for t in recs:
-        if t.identifier not in history_ids: vc.auto_queue.put(t)
+        if t.identifier not in history_ids and t.identifier not in current_ids: vc.auto_queue.put(t)
         else: print(f"get_rekt -> dedupe: {t}")
 
 class MusicUtil2(commands.Cog):
