@@ -178,8 +178,8 @@ async def music_skip(ctx: commands.Context):
                 vc.queue.put(x)
             vc.auto_queue.clear()
         else: return await ctx.reply("There are no songs in the queue to skip")
-    await ctx.reply(embed=music_embed("⏭️ Skip music", f"`{vc.current.author} - {vc.current.title}` has been skipped"))
     await vc.stop()
+    await ctx.reply(embed=music_embed("⏭️ Skip music", f"`{vc.current.author} - {vc.current.title}` has been skipped"))
 
 async def music_stop(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
