@@ -82,10 +82,16 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
         node = pool.get_node(identifier=bot.node_ids[0])
         tracks = await node.get_tracks(search, search_type=lava_lyra.SearchType.ytmsearch)
     except Exception as e:
-        if isinstance(ctx, commands.Context):
-            return await msg.edit(content=f'Error :(\n{e}')
-        if isinstance(ctx, discord.Interaction):
-            return await ctx.edit_original_response(content=f'Error :(\n{e}')
+        # if isinstance(ctx, commands.Context):
+        #     return await msg.edit(content=f'Error :(\n{e}')
+        # if isinstance(ctx, discord.Interaction):
+        #     return await ctx.edit_original_response(content=f'Error :(\n{e}')
+        print("ChannelTimeoutException")
+        if isinstance(ctx, discord.Interaction): await ctx.edit_original_response(content="An error occured. Reconnecting…")
+        if isinstance(ctx, commands.Context): await msg.edit(content="An error occured. Reconnecting…")
+        await setup_hook_music(bot)
+        if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="Please re-run the command")
+        if isinstance(ctx, commands.Context): return await msg.edit(content="Please re-run the command")
 
     if not tracks:
         if isinstance(ctx, commands.Context):
@@ -258,10 +264,16 @@ async def queue_search(bot: commands.Bot, ctx: commands.Context | discord.Intera
         node = pool.get_node(identifier=bot.node_ids[0])
         tracks = await node.get_tracks(search, search_type=lava_lyra.SearchType.ytmsearch)
     except Exception as e:
-        if isinstance(ctx, commands.Context):
-            return await msg.edit(content=f'Error :(\n{e}')
-        if isinstance(ctx, discord.Interaction):
-            return await ctx.edit_original_response(content=f'Error :(\n{e}')
+        # if isinstance(ctx, commands.Context):
+        #     return await msg.edit(content=f'Error :(\n{e}')
+        # if isinstance(ctx, discord.Interaction):
+        #     return await ctx.edit_original_response(content=f'Error :(\n{e}')
+        print("ChannelTimeoutException")
+        if isinstance(ctx, discord.Interaction): await ctx.edit_original_response(content="An error occured. Reconnecting…")
+        if isinstance(ctx, commands.Context): await msg.edit(content="An error occured. Reconnecting…")
+        await setup_hook_music(bot)
+        if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="Please re-run the command")
+        if isinstance(ctx, commands.Context): return await msg.edit(content="Please re-run the command")
 
     if not tracks:
         if isinstance(ctx, commands.Context):
