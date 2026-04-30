@@ -639,7 +639,6 @@ async def queue_on_end(vc: NoobGPTPlayer):
         for x in vc.auto_queue:
             current_ids = [track.identifier for track in vc.queue]
             if x.identifier not in history_ids and x.identifier not in current_ids: vc.queue.put(x)
-            else: print(f"queue_on_end -> dedupe: {x}")
         vc.auto_queue.clear()
         await queue_on_end(vc)
 

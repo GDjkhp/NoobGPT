@@ -343,7 +343,6 @@ async def get_rekt(vc: NoobGPTPlayer):
     current_ids = [track.identifier for track in vc.queue]
     for t in recs:
         if t.identifier not in history_ids and t.identifier not in current_ids: vc.auto_queue.put(t)
-        else: print(f"get_rekt -> dedupe: {t}")
 
 class MusicUtil2(commands.Cog):
     def __init__(self, bot):
