@@ -53,7 +53,7 @@ async def the_free_req_text(msgs: list, model: str):
         messages=[
             {
                 "role": "system",
-                "content": "Be precise and concise."
+                "content": "Be precise and concise. Don't add unnecessary comments."
             }
         ] + msgs,
         web_search=True,
