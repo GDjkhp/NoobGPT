@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
-from akinator import AsyncAkinator, CantGoBackAnyFurther
+from aki_2025 import AsyncAkinator, CantGoBackAnyFurther
 from util_discord import command_check, description_helper, get_guild_prefix
 
 CATEGORIES = {
@@ -37,6 +37,7 @@ def create_final_embed(ctx: commands.Context, aki: AsyncAkinator) -> discord.Emb
         embed_win.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
     else:
         embed_win.set_author(name=ctx.author)
+    embed_win.set_footer(text=aki.question)
     return embed_win
 
 def create_loss_embed(ctx: commands.Context) -> discord.Embed:
@@ -137,6 +138,7 @@ class ResultButton(discord.ui.Button):
             )
         try:
             if self.action == 'y':
+                await self.aki.answer(self.action)
                 embed_win = create_final_embed(self.ctx, self.aki)
                 await interaction.response.edit_message(embed=embed_win, view=None)
             else:

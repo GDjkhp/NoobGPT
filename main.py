@@ -88,19 +88,19 @@ class NoobGPT(commands.Bot):
 
     async def on_wavelink_node_ready(self, payload: wavelink.NodeReadyEventPayload):
         print(f"{self.identifier}: {payload.node} | Resumed: {payload.resumed}")
-    
+
     async def on_lyra_node_connected(self, node_id, is_nodelink, reconnect):
         print(f"{self.identifier}: node_id - {node_id} | is_nodelink - {is_nodelink} | reconnect - {reconnect}")
-    
+
     async def on_lyra_node_disconnected(self, node_id, is_nodelink, player_count):
         print(f"{self.identifier}: node_id - {node_id} | is_nodelink - {is_nodelink} | player_count - {player_count}")
-    
+
     async def on_lyra_node_reconnecting(self, node_id, is_nodelink, retry_in):
         print(f"{self.identifier}: node_id - {node_id} | is_nodelink - {is_nodelink} | retry_in - {retry_in}")
-    
+
     async def on_lyra_player_created(self, player, guild_id):
         print(f"{self.identifier}: player - {player} | guild_id - {guild_id}")
-    
+
     async def on_lyra_player_connected(self, player, voice):
         print(f"{self.identifier}: player - {player} | voice - {voice}")
 
