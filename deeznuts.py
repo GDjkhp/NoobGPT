@@ -35,7 +35,7 @@ async def set_qob(ctx: commands.Context, tok: str, usr: str, app_id: str = "", a
     await mycol.update_one({}, {"$set": {"qob_user": usr}})
     await mycol.update_one({}, {"$set": {"qob_app_id": app_id}})
     await mycol.update_one({}, {"$set": {"qob_app_secret": app_secret}})
-    tok, usr = await get_qob()
+    tok, usr, app_id, app_secret = await get_qob()
     await cook_deez(ctx, f"qobc {tok} {usr}", "qob")
 
 async def cook_deez(ctx: commands.Context, links: str, mode: str):
