@@ -24,15 +24,17 @@ async def get_deez():
 async def get_qob():
     cursor = mycol.find()
     data = await cursor.to_list(None)
-    return data[0]["qob_token"], data[0]["qob_user"]
+    return data[0]["qob_token"], data[0]["qob_user"], data[0]["qob_app_id"], data[0]["qob_app_secret"]
 
 async def set_deez(ctx: commands.Context, arg: str):
     await mycol.update_one({}, {"$set": {"deez": arg}})
     await cook_deez(ctx, f"arlc {await get_deez()}", "deez")
 
-async def set_qob(ctx: commands.Context, tok: str, usr: str):
+async def set_qob(ctx: commands.Context, tok: str, usr: str, app_id: str = "", app_secret: str = ""):
     await mycol.update_one({}, {"$set": {"qob_token": tok}})
     await mycol.update_one({}, {"$set": {"qob_user": usr}})
+    await mycol.update_one({}, {"$set": {"qob_app_id": app_id}})
+    await mycol.update_one({}, {"$set": {"qob_app_secret": app_secret}})
     tok, usr = await get_qob()
     await cook_deez(ctx, f"qobc {tok} {usr}", "qob")
 
@@ -76,8 +78,8 @@ async def cook_deez(ctx: commands.Context, links: str, mode: str):
 
     # QOBUZ START
     if mode=="qob":
-        qob_token, qob_user = await get_qob()
-        if urls[0]=="qobc" and len(urls)==3:
+        qob_token, qob_user, qob_app_id, qob_app_secret = await get_qob()
+        if urls[0]=="qobc":
             try:
                 referenced_message = None
                 if ctx.message.reference: # check reply
@@ -100,10 +102,13 @@ async def cook_deez(ctx: commands.Context, links: str, mode: str):
                 print(f"Exception in qobc: {e}")
                 return await ctx.reply("**Error! :(**")
         info = await ctx.reply("Logging in")
-        session_token= urls[1] if urls[0]=='qobc' and len(urls)==3 and len(urls[1])==qob_token_magic and len(urls[2])==qob_user_magic else qob_token
-        session_user = urls[2] if urls[0]=='qobc' and len(urls)==3 and len(urls[1])==qob_token_magic and len(urls[2])==qob_user_magic else qob_user
+        session_token= urls[1] if urls[0]=='qobc' and len(urls[1])==qob_token_magic and len(urls[2])==qob_user_magic else qob_token
+        session_user = urls[2] if urls[0]=='qobc' and len(urls[1])==qob_token_magic and len(urls[2])==qob_user_magic else qob_user
         config.session.qobuz.email_or_userid = session_user
         config.session.qobuz.password_or_token = session_token
+        if qob_app_id and qob_app_secret:
+            config.session.qobuz.app_id = qob_app_id
+            config.session.qobuz.secrets = [qob_app_secret]
         client = QobuzClient(config)
 
     # STREAMRIP START
@@ -267,9 +272,9 @@ class CogDeez(commands.Cog):
         await set_deez(ctx, arg)
 
     @commands.command()
-    async def rqob(self, ctx: commands.Context, tok=None, usr=None):
+    async def rqob(self, ctx: commands.Context, tok=None, usr=None, app_id=None, app_secret=None):
         if check_if_not_owner(ctx): return
-        await set_qob(ctx, tok, usr)
+        await set_qob(ctx, tok, usr, app_id, app_secret)
 
     # @commands.hybrid_command(description=f"{description_helper['emojis']['media']} {description_helper['media']['deez']}")
     # @app_commands.describe(links="Link queries")
