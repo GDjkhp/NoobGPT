@@ -118,7 +118,7 @@ def format_links(string: str, links: list):
     items = string.split('\n', 1)[-1].split(', ')
     result = "**External Links:**\n"
     for i in range(len(links)):
-        result += f"[{items[i]}]({links[i]}), "
+        result += f"[{items[i].replace('**External Links:** ', '')}]({links[i]}), "
     return result.rstrip(", ")
 def enclose_words(texts: list[str]):
     new_list = []
