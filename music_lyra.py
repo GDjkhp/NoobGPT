@@ -36,6 +36,7 @@ async def setup_hook_music(bot: commands.Bot):
             lyrics=True,
             search=True,
             fallback=True,
+            total_timeout=300,
         )
     fixing=False
     print(f"{bot.identifier}: setup_hook_music ok")
