@@ -28,11 +28,11 @@ A <b>very simple yet complicated</b> multi-purpose Discord bot that does pretty 
 ## Instances
 ### Note: Discord keeps rejecting my message content application because they said my bot isn't unique enough. Use KAGURA instance for now.
 
-| **alias** | **servers** | **remarks**                        |
-| :-------- | ----------: | :--------------------------------- |
-| NOOBGPT   | 100/100     | multipurpose / [invite link](https://discord.com/oauth2/authorize?client_id=1090254079609020447&permissions=633731823291392&scope=applications.commands%20bot) |
-| KAGURA    | ?/100       | multipurpose / [invite link](https://discord.com/oauth2/authorize?client_id=1120259379715903508&permissions=633731823291392&scope=applications.commands%20bot) |
-| MOOSIC    | ?/100       | music only / [invite link](https://discord.com/api/oauth2/authorize?client_id=1073823671392686162&permissions=412588788736&scope=applications.commands%20bot) |
+| **alias** | **servers** | **latency** | **uptime**  | **remarks**                        |
+| :-------- | ----------: | ----------: | ----------: | :--------------------------------- |
+| NOOBGPT   | ?/100       | ?ms         | ??:??:??:?? | multipurpose / [invite link](https://discord.com/oauth2/authorize?client_id=1090254079609020447&permissions=633731823291392&scope=applications.commands%20bot) |
+| KAGURA    | ?/100       | ?ms         | ??:??:??:?? | multipurpose / [invite link](https://discord.com/oauth2/authorize?client_id=1120259379715903508&permissions=633731823291392&scope=applications.commands%20bot) |
+| MOOSIC    | ?/100       | ?ms         | ??:??:??:?? | music only / [invite link](https://discord.com/api/oauth2/authorize?client_id=1073823671392686162&permissions=412588788736&scope=applications.commands%20bot)  |
 
 ## Source Code
 ![](https://img.shields.io/github/created-at/GDjkhp/level-up-loser-python-branch)
