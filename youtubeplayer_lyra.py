@@ -3,6 +3,28 @@ from discord import app_commands
 from music_lyra import *
 from help import HALP_MOOSIC
 from util_discord import command_check, description_helper, get_guild_prefix
+import re
+
+def extract_links(text: str) -> list[str]:
+    """
+    Extract all links from a string (with or without http).
+    Links are identified as space-separated URLs.
+
+    Args:
+        text: String that may contain links separated by spaces
+
+    Returns:
+        List of links found in the string, or empty list if no links found
+    """
+    if not text:
+        return []
+
+    # Pattern to match URLs with or without http(s)://
+    # Matches: http://, https://, www., or common domain patterns
+    url_pattern = r'(?:https?://|www\.)?(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?:/[^\s]*)?|https?://[^\s]+'
+
+    links = re.findall(url_pattern, text)
+    return links
 
 async def music_help(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
@@ -78,6 +100,87 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
         if isinstance(ctx, discord.Interaction):
             return await ctx.edit_original_response(content=f"usage: `{p}play <query>`")
 
+    # Check if search contains multiple links
+    links = extract_links(search)
+
+    if links and len(links) > 1:
+        # Handle multiple links
+        if not ctx.guild.voice_client:
+            try:
+                vc = await voice_channel_connector(bot, ctx)
+            except:
+                print("ChannelTimeoutException")
+                if isinstance(ctx, discord.Interaction): await ctx.edit_original_response(content="An error occured. Reconnecting…")
+                if isinstance(ctx, commands.Context): await msg.edit(content="An error occured. Reconnecting…")
+                await setup_hook_music(bot)
+                if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="Please re-run the command")
+                if isinstance(ctx, commands.Context): return await msg.edit(content="Please re-run the command")
+
+            vc.autoplay = AutoPlayMode.enabled
+
+        vc.music_channel = ctx.channel
+
+        # Process each link
+        queued_count = 0
+        failed_links = []
+        added_tracks = []
+
+        for link in links:
+            try:
+                node = pool.get_node(identifier=bot.node_ids[0])
+                tracks = await node.get_tracks(link, search_type=lava_lyra.SearchType.ytmsearch)
+
+                if tracks:
+                    if isinstance(tracks, lava_lyra.Playlist):
+                        added: int = vc.queue.put(tracks)
+                        queued_count += added
+                        for track in tracks:
+                            if isinstance(ctx, commands.Context):
+                                track.requester = ctx.author
+                            if isinstance(ctx, discord.Interaction):
+                                track.requester = ctx.user
+                            added_tracks.append(track)
+                    else:
+                        for track in tracks:
+                            if isinstance(ctx, commands.Context):
+                                track.requester = ctx.author
+                            if isinstance(ctx, discord.Interaction):
+                                track.requester = ctx.user
+                        vc.queue.put(tracks[0])
+                        queued_count += 1
+                        added_tracks.append(tracks[0])
+                else:
+                    failed_links.append(link)
+            except Exception as e:
+                failed_links.append(link)
+
+        if not vc.is_playing and queued_count > 0:
+            await vc.play(vc.queue.get())
+
+        # Create embed with queued tracks
+        embed = music_embed(f"🎵 Queue tracks", f"Queued {queued_count} track{'s' if queued_count != 1 else ''}")
+
+        # Add queued tracks to embed
+        if added_tracks:
+            track_list = "\n".join([f"{i + 1}. `{track.author} - {track.title}` ({format_mil(track.length)})" for i, track in enumerate(added_tracks[:10])])
+            embed.add_field(name="Queued Tracks", value=track_list, inline=False)
+            if len(added_tracks) > 10:
+                embed.add_field(name="More", value=f"... and {len(added_tracks) - 10} more track{'s' if len(added_tracks) - 10 != 1 else ''}", inline=False)
+
+        # Add failed links to embed
+        if failed_links:
+            failed_text = "\n".join(failed_links[:5])
+            embed.add_field(name=f"❌ Failed Links ({len(failed_links)})", value=failed_text, inline=False)
+            if len(failed_links) > 5:
+                embed.add_field(name="More Failed", value=f"... and {len(failed_links) - 5} more", inline=False)
+
+        if isinstance(ctx, commands.Context):
+            await msg.edit(content=None, embed=embed)
+        if isinstance(ctx, discord.Interaction):
+            await ctx.edit_original_response(content=None, embed=embed)
+        return
+
+    # Original single search handling
     try:
         node = pool.get_node(identifier=bot.node_ids[0])
         tracks = await node.get_tracks(search, search_type=lava_lyra.SearchType.ytmsearch)
