@@ -184,6 +184,27 @@ def format_mil(milliseconds: int):
 
     return ":".join(formatted_time)
 
+def extract_links(text: str) -> list[str]:
+    """
+    Extract all links from a string (with or without http).
+    Links are identified as space-separated URLs.
+
+    Args:
+        text: String that may contain links separated by spaces
+
+    Returns:
+        List of links found in the string, or empty list if no links found
+    """
+    if not text:
+        return []
+
+    # Pattern to match URLs with or without http(s)://
+    # Matches: http://, https://, www., or common domain patterns
+    url_pattern = r'(?:https?://|www\.)?(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?:/[^\s]*)?|https?://[^\s]+'
+
+    links = re.findall(url_pattern, text)
+    return links
+
 # music search functions
 pagelimit=12
 def search_embed(arg: str, result: list[lava_lyra.Track], index: int) -> discord.Embed:

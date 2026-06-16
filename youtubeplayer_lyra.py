@@ -3,28 +3,6 @@ from discord import app_commands
 from music_lyra import *
 from help import HALP_MOOSIC
 from util_discord import command_check, description_helper, get_guild_prefix
-import re
-
-def extract_links(text: str) -> list[str]:
-    """
-    Extract all links from a string (with or without http).
-    Links are identified as space-separated URLs.
-
-    Args:
-        text: String that may contain links separated by spaces
-
-    Returns:
-        List of links found in the string, or empty list if no links found
-    """
-    if not text:
-        return []
-
-    # Pattern to match URLs with or without http(s)://
-    # Matches: http://, https://, www., or common domain patterns
-    url_pattern = r'(?:https?://|www\.)?(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?:/[^\s]*)?|https?://[^\s]+'
-
-    links = re.findall(url_pattern, text)
-    return links
 
 async def music_help(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
@@ -999,6 +977,250 @@ class CogYouTubePlayer(commands.Cog):
     @app_commands.describe(value="Set value (Must be a valid integer: 0-100)")
     async def volume(self, ctx: commands.Context, value: str=None):
         await music_volume(ctx, value)
+
+    @commands.hybrid_command(description="Apply or reset audio filters")
+    async def filters(self, ctx: commands.Context, reset: str = None, filter: str = None):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+
+        vc: NoobGPTPlayer = ctx.voice_client
+        if not vc: return await ctx.reply("voice client not found")
+
+        # ── reset branch ────────────────────────────────────────────────────────
+        valid_filters = ["karaoke", "timescale", "lowpass", "rotation", "distortion", "channelmix", "tremolo", "vibrato"]
+        if reset and reset.lower() == "reset":
+            if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
+                return await ctx.reply(f'Join the voice channel with the bot first')
+            if filter and filter.lower() in valid_filters:
+                tag = filter.lower()
+                if vc.filters.has_filter(filter_tag=tag):
+                    await vc.remove_filter(filter_tag=tag, fast_apply=True)
+                    return await ctx.reply(f"`{filter}` filter has been reset.")
+                else:
+                    return await ctx.reply(f"`{filter}` filter is not active.")
+            else:
+                await vc.reset_filters(fast_apply=True)
+                return await ctx.reply("All filters have been reset.")
+
+        # ── help text ────────────────────────────────────────────────────────────
+        texts = [
+            "`-karaoke <level> <mono_level> <filter_band> <filter_width>`",
+            "`-timescale <pitch> <speed> <rate>`",
+            "`-lowpass <smoothing>`",
+            "`-rotation <rotation_hz>`",
+            "`-distortion <sin_offset> <sin_scale> <cos_offset> <cos_scale> <tan_offset> <tan_scale> <offset> <scale>`",
+            "`-channelmix <left_to_left> <left_to_right> <right_to_left> <right_to_right>`",
+            "`-tremolo <frequency> <depth>`",
+            "`-vibrato <frequency> <depth>`",
+            "`-filters reset` — reset all filters",
+            "`-filters reset <filter>` — reset a specific filter",
+        ]
+        await ctx.reply("\n".join(texts))
+    
+    # ── individual filter sub-commands ──────────────────────────────────────────
+    @commands.hybrid_command(description="Karaoke filter – removes vocals")
+    async def karaoke(
+        self, ctx: commands.Context,
+        level: float = 1.0,
+        mono_level: float = 1.0,
+        filter_band: float = 220.0,
+        filter_width: float = 100.0,
+    ):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+        vc: NoobGPTPlayer = ctx.voice_client
+        if not vc: return await ctx.reply("voice client not found")
+        if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
+            return await ctx.reply(f'Join the voice channel with the bot first')
+
+        f = lava_lyra.Karaoke(
+            tag="karaoke",
+            level=level,
+            mono_level=mono_level,
+            filter_band=filter_band,
+            filter_width=filter_width,
+        )
+        await vc.add_filter(f, fast_apply=True)
+        # await ctx.reply(
+        #     f"Karaoke filter applied — level: `{level}`, mono_level: `{mono_level}`, "
+        #     f"filter_band: `{filter_band}`, filter_width: `{filter_width}`"
+        # )
+        await ctx.reply(embed=filter_embed("🎚️ Filter", "karaoke", {
+            "level": level,
+            "mono_level": mono_level,
+            "filter_band": filter_band,
+            "filter_width": filter_width,
+        }))
+
+    @commands.hybrid_command(description="Timescale filter – change pitch / speed / rate")
+    async def timescale(
+        self, ctx: commands.Context,
+        pitch: float = 1.0,
+        speed: float = 1.0,
+        rate: float = 1.0,
+    ):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+        vc: NoobGPTPlayer = ctx.voice_client
+        if not vc: return await ctx.reply("voice client not found")
+        if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
+            return await ctx.reply(f'Join the voice channel with the bot first')
+
+        try:
+            f = lava_lyra.Timescale(tag="timescale", pitch=pitch, speed=speed, rate=rate)
+        except lava_lyra.FilterInvalidArgument as e:
+            return await ctx.reply(f"Invalid argument: {e}")
+
+        await vc.add_filter(f, fast_apply=True)
+        # await ctx.reply(f"Timescale filter applied — pitch: `{pitch}`, speed: `{speed}`, rate: `{rate}`")
+        await ctx.reply(embed=filter_embed("🎚️ Filter", "timescale", {
+            "pitch": pitch, "speed": speed, "rate": rate
+        }))
+
+    @commands.hybrid_command(description="Low-pass filter – suppress high frequencies")
+    async def lowpass(self, ctx: commands.Context, smoothing: float = 20.0):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+        vc: NoobGPTPlayer = ctx.voice_client
+        if not vc: return await ctx.reply("voice client not found")
+        if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
+            return await ctx.reply(f'Join the voice channel with the bot first')
+
+        f = lava_lyra.LowPass(tag="lowpass", smoothing=smoothing)
+        await vc.add_filter(f, fast_apply=True)
+        # await ctx.reply(f"Low-pass filter applied — smoothing: `{smoothing}`")
+        await ctx.reply(embed=filter_embed("🎚️ Filter", "lowpass", {"smoothing": smoothing}))
+
+    @commands.hybrid_command(description="Rotation filter – 8D / rotating audio effect")
+    async def rotation(self, ctx: commands.Context, rotation_hz: float = 5.0):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+        vc: NoobGPTPlayer = ctx.voice_client
+        if not vc: return await ctx.reply("voice client not found")
+        if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
+            return await ctx.reply(f'Join the voice channel with the bot first')
+
+        f = lava_lyra.Rotation(tag="rotation", rotation_hertz=rotation_hz)
+        await vc.add_filter(f, fast_apply=True)
+        # await ctx.reply(f"Rotation filter applied — rotation_hz: `{rotation_hz}`")
+        await ctx.reply(embed=filter_embed("🎚️ Filter", "???", {"rotation_hertz": rotation_hz}))
+
+    @commands.hybrid_command(description="Distortion filter")
+    async def distortion(
+        self, ctx: commands.Context,
+        sin_offset: float = 0.0,
+        sin_scale: float = 1.0,
+        cos_offset: float = 0.0,
+        cos_scale: float = 1.0,
+        tan_offset: float = 0.0,
+        tan_scale: float = 1.0,
+        offset: float = 0.0,
+        scale: float = 1.0,
+    ):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+        vc: NoobGPTPlayer = ctx.voice_client
+        if not vc: return await ctx.reply("voice client not found")
+        if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
+            return await ctx.reply(f'Join the voice channel with the bot first')
+
+        f = lava_lyra.Distortion(
+            tag="distortion",
+            sin_offset=sin_offset, sin_scale=sin_scale,
+            cos_offset=cos_offset, cos_scale=cos_scale,
+            tan_offset=tan_offset, tan_scale=tan_scale,
+            offset=offset, scale=scale,
+        )
+        await vc.add_filter(f, fast_apply=True)
+        # await ctx.reply(
+        #     f"Distortion filter applied — sin: `{sin_offset}/{sin_scale}`, "
+        #     f"cos: `{cos_offset}/{cos_scale}`, tan: `{tan_offset}/{tan_scale}`, "
+        #     f"offset: `{offset}`, scale: `{scale}`"
+        # )
+        await ctx.reply(embed=filter_embed("🎚️ Filter", "distortion", {
+            "sin_offset": sin_offset, "sin_scale": sin_scale,
+            "cos_offset": cos_offset, "cos_scale": cos_scale,
+            "tan_offset": tan_offset, "tan_scale": tan_scale,
+            "offset": offset, "scale": scale,
+        }))
+
+    @commands.hybrid_command(description="Channel mix filter – adjust stereo panning")
+    async def channelmix(
+        self, ctx: commands.Context,
+        left_to_left: float = 1.0,
+        left_to_right: float = 0.0,
+        right_to_left: float = 0.0,
+        right_to_right: float = 1.0,
+    ):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+        vc: NoobGPTPlayer = ctx.voice_client
+        if not vc: return await ctx.reply("voice client not found")
+        if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
+            return await ctx.reply(f'Join the voice channel with the bot first')
+
+        try:
+            f = lava_lyra.ChannelMix(
+                tag="channelmix",
+                left_to_left=left_to_left,
+                left_to_right=left_to_right,
+                right_to_left=right_to_left,
+                right_to_right=right_to_right,
+            )
+        except ValueError as e:
+            return await ctx.reply(f"Invalid argument: {e}")
+
+        await vc.add_filter(f, fast_apply=True)
+        # await ctx.reply(
+        #     f"Channel mix applied — LL: `{left_to_left}`, LR: `{left_to_right}`, "
+        #     f"RL: `{right_to_left}`, RR: `{right_to_right}`"
+        # )
+        await ctx.reply(embed=filter_embed("🎚️ Filter", "channelmix", {
+            "left_to_left": left_to_left,
+            "left_to_right": left_to_right,
+            "right_to_left": right_to_left,
+            "right_to_right": right_to_right,
+        }))
+
+    @commands.hybrid_command(description="Tremolo filter – wavering volume effect")
+    async def tremolo(self, ctx: commands.Context, frequency: float = 2.0, depth: float = 0.5):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+        vc: NoobGPTPlayer = ctx.voice_client
+        if not vc: return await ctx.reply("voice client not found")
+        if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
+            return await ctx.reply(f'Join the voice channel with the bot first')
+
+        try:
+            f = lava_lyra.Tremolo(tag="tremolo", frequency=frequency, depth=depth)
+        except lava_lyra.FilterInvalidArgument as e:
+            return await ctx.reply(f"Invalid argument: {e}")
+
+        await vc.add_filter(f, fast_apply=True)
+        # await ctx.reply(f"Tremolo filter applied — frequency: `{frequency}`, depth: `{depth}`")
+        await ctx.reply(embed=filter_embed("🎚️ Filter", "tremolo", {
+            "frequency": frequency, "depth": depth
+        }))
+
+    @commands.hybrid_command(description="Vibrato filter – wavering pitch effect")
+    async def vibrato(self, ctx: commands.Context, frequency: float = 2.0, depth: float = 0.5):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+        vc: NoobGPTPlayer = ctx.voice_client
+        if not vc: return await ctx.reply("voice client not found")
+        if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
+            return await ctx.reply(f'Join the voice channel with the bot first')
+
+        try:
+            f = lava_lyra.Vibrato(tag="vibrato", frequency=frequency, depth=depth)
+        except lava_lyra.FilterInvalidArgument as e:
+            return await ctx.reply(f"Invalid argument: {e}")
+
+        await vc.add_filter(f, fast_apply=True)
+        # await ctx.reply(f"Vibrato filter applied — frequency: `{frequency}`, depth: `{depth}`")
+        await ctx.reply(embed=filter_embed("🎚️ Filter", "vibrato", {
+            "frequency": frequency, "depth": depth
+        }))
 
     # @commands.hybrid_command(description="")
     # async def filters(self, ctx: commands.Context, reset: str=None, filter: str=None):
