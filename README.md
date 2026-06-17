@@ -140,6 +140,8 @@ grass is greenr on the othr side
 * DJ role and spam channel setup
 * Autoplay recommendations, smart shuffle, and fair queue
 * Multi voice channel support via NoobGPT
+* Filters: karaoke, timescale, lowpass, rotation, distortion, channelmix, tremolo, vibrato
+* Lyrics, why not?
 
 > No paywall BS! You get everything out-of-the-box for free :)
 
@@ -160,6 +162,8 @@ grass is greenr on the othr side
 * `-repeat <off/one/all>` Repeat music modes
 * `-autoplay <partial/enabled/disabled>` Toggle autoplay and recommended music
 * `-volume <value>` Set volume
+* `-filters` Apply or reset audio filters
+* `-lyrics` Fetch lyrics
 * `-summon` Join voice channel
 * `-dj` Create DJ role
 * `-djspam` Set DJ spam channel
@@ -248,7 +252,7 @@ grass is greenr on the othr side
 * <https://reddit.com/r/place>
 * <https://mongodb.com>
 * <https://cobalt.tools>
-* <https://animepahe.ru>
+* <https://animepahe.pw>
 * <https://actvid.rs>
 * <https://anitaku.bz>
 * <https://sflix.to>
