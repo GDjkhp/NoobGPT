@@ -1222,6 +1222,32 @@ class CogYouTubePlayer(commands.Cog):
             "frequency": frequency, "depth": depth
         }))
 
+    @commands.hybrid_command(description="Fetch lyrics")
+    async def lyrics(self, ctx: commands.Context):
+        if not ctx.guild: return await ctx.reply("not supported")
+        if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+        vc: NoobGPTPlayer = ctx.voice_client
+        if not vc: return await ctx.reply("voice client not found")
+        if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
+            return await ctx.reply(f'Join the voice channel with the bot first')
+        lyrics = await vc.fetch_lyrics()
+        if lyrics:
+            strings_by_4096: list[str] = []
+            lyric_page = ""
+            for l in lyrics.lines:
+                if len(lyric_page) + len(l.text) < 4096:
+                    lyric_page += f"{l.text}\n"
+                else:
+                    strings_by_4096.append(lyric_page)
+                    lyric_page = ""
+            strings_by_4096.append(lyric_page)
+            for i, l in enumerate(strings_by_4096):
+                embed = discord.Embed(title=vc.current.title, description=l, color=0x00ff00)
+                if vc.current.thumbnail: embed.set_thumbnail(url=vc.current.thumbnail)
+                embed.set_footer(text=f"page: {i+1}/{len(strings_by_4096)} | lines: {len(lyrics)} | source_name: {lyrics.source_name} | provider: {lyrics.provider} | synced: {lyrics.synced} | name: {lyrics.name} | lang: {lyrics.lang}")
+                await ctx.reply(embed=embed)
+        else: await ctx.reply("not found :(")
+
     # @commands.hybrid_command(description="")
     # async def filters(self, ctx: commands.Context, reset: str=None, filter: str=None):
     #     if not ctx.guild: return await ctx.reply("not supported")
