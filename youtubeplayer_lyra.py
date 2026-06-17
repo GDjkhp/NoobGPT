@@ -978,7 +978,7 @@ class CogYouTubePlayer(commands.Cog):
     async def volume(self, ctx: commands.Context, value: str=None):
         await music_volume(ctx, value)
 
-    @commands.hybrid_command(description="Apply or reset audio filters")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Apply or reset audio filters")
     async def filters(self, ctx: commands.Context, reset: str = None, filter: str = None):
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
@@ -1018,7 +1018,7 @@ class CogYouTubePlayer(commands.Cog):
         await ctx.reply("\n".join(texts))
     
     # ── individual filter sub-commands ──────────────────────────────────────────
-    @commands.hybrid_command(description="Karaoke filter – removes vocals")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Karaoke filter – removes vocals")
     async def karaoke(
         self, ctx: commands.Context,
         level: float = 1.0,
@@ -1052,7 +1052,7 @@ class CogYouTubePlayer(commands.Cog):
             "filter_width": filter_width,
         }))
 
-    @commands.hybrid_command(description="Timescale filter – change pitch / speed / rate")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Timescale filter – change pitch / speed / rate")
     async def timescale(
         self, ctx: commands.Context,
         pitch: float = 1.0,
@@ -1077,7 +1077,7 @@ class CogYouTubePlayer(commands.Cog):
             "pitch": pitch, "speed": speed, "rate": rate
         }))
 
-    @commands.hybrid_command(description="Low-pass filter – suppress high frequencies")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Low-pass filter – suppress high frequencies")
     async def lowpass(self, ctx: commands.Context, smoothing: float = 20.0):
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
@@ -1091,7 +1091,7 @@ class CogYouTubePlayer(commands.Cog):
         # await ctx.reply(f"Low-pass filter applied — smoothing: `{smoothing}`")
         await ctx.reply(embed=filter_embed("🎚️ Filter", "lowpass", {"smoothing": smoothing}))
 
-    @commands.hybrid_command(description="Rotation filter – 8D / rotating audio effect")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Rotation filter – 8D / rotating audio effect")
     async def rotation(self, ctx: commands.Context, rotation_hz: float = 5.0):
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
@@ -1105,7 +1105,7 @@ class CogYouTubePlayer(commands.Cog):
         # await ctx.reply(f"Rotation filter applied — rotation_hz: `{rotation_hz}`")
         await ctx.reply(embed=filter_embed("🎚️ Filter", "???", {"rotation_hertz": rotation_hz}))
 
-    @commands.hybrid_command(description="Distortion filter")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Distortion filter")
     async def distortion(
         self, ctx: commands.Context,
         sin_offset: float = 0.0,
@@ -1144,7 +1144,7 @@ class CogYouTubePlayer(commands.Cog):
             "offset": offset, "scale": scale,
         }))
 
-    @commands.hybrid_command(description="Channel mix filter – adjust stereo panning")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Channel mix filter – adjust stereo panning")
     async def channelmix(
         self, ctx: commands.Context,
         left_to_left: float = 1.0,
@@ -1182,7 +1182,7 @@ class CogYouTubePlayer(commands.Cog):
             "right_to_right": right_to_right,
         }))
 
-    @commands.hybrid_command(description="Tremolo filter – wavering volume effect")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Tremolo filter – wavering volume effect")
     async def tremolo(self, ctx: commands.Context, frequency: float = 2.0, depth: float = 0.5):
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
@@ -1202,7 +1202,7 @@ class CogYouTubePlayer(commands.Cog):
             "frequency": frequency, "depth": depth
         }))
 
-    @commands.hybrid_command(description="Vibrato filter – wavering pitch effect")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Vibrato filter – wavering pitch effect")
     async def vibrato(self, ctx: commands.Context, frequency: float = 2.0, depth: float = 0.5):
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
@@ -1222,7 +1222,7 @@ class CogYouTubePlayer(commands.Cog):
             "frequency": frequency, "depth": depth
         }))
 
-    @commands.hybrid_command(description="Fetch lyrics")
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Fetch lyrics")
     async def lyrics(self, ctx: commands.Context):
         if not ctx.guild: return await ctx.reply("not supported")
         if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
@@ -1247,166 +1247,6 @@ class CogYouTubePlayer(commands.Cog):
                 embed.set_footer(text=f"page: {i+1}/{len(strings_by_4096)} | lines: {len(lyrics)} | source_name: {lyrics.source_name} | provider: {lyrics.provider} | synced: {lyrics.synced} | name: {lyrics.name} | lang: {lyrics.lang}")
                 await ctx.reply(embed=embed)
         else: await ctx.reply("not found :(")
-
-    # @commands.hybrid_command(description="")
-    # async def filters(self, ctx: commands.Context, reset: str=None, filter: str=None):
-    #     if not ctx.guild: return await ctx.reply("not supported")
-    #     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
-    #     vc: wavelink.Player = ctx.voice_client
-    #     if not vc: return await ctx.reply("voice client not found")
-    #     if reset and reset == "reset":
-    #         filters: wavelink.Filters = vc.filters
-    #         if filter and filter in ["karaoke", "timescale", "lowpass", "rotation", "distortion", "channelmix", "tremolo", "vibrato"]:
-    #             if filter == "karaoke":
-    #                 filters.karaoke.reset()
-    #             if filter == "timescale":
-    #                 filters.timescale.reset()
-    #             if filter == "lowpass":
-    #                 filters.low_pass.reset()
-    #             if filter == "rotation":
-    #                 filters.rotation.reset()
-    #             if filter == "distortion":
-    #                 filters.distortion.reset()
-    #             if filter == "channelmix":
-    #                 filters.channel_mix.reset()
-    #             if filter == "tremolo":
-    #                 filters.tremolo.reset()
-    #             if filter == "vibrato":
-    #                 filters.vibrato.reset()
-    #         else: filters.reset()
-    #         await vc.set_filters(filters)
-    #         return await ctx.reply("all filters have been reset")
-
-    #     texts = [
-    #         "`-karaoke <level> <mono_level> <filter_band> <filter_width>`",
-    #         "`-timescale <pitch> <speed> <rate>`",
-    #         "`-lowpass <smoothing>`",
-    #         "`-rotation <rotation_hz>`",
-    #         "`-distortion <sin_offset> <sin_scale> <cos_offset> <cos_scale> <tan_offset> <tan_scale> <offset> <scale>`",
-    #         "`-channelmix <left_to_left> <left_to_right> <right_to_left> <right_to_right>`",
-    #         "`-tremolo <frequency> <depth>`",
-    #         "`-vibrato <frequency> <depth>`",
-    #         "`-filters reset` will reset all filters",
-    #         "`-filters reset <filter>` will reset specific filter"
-    #     ]
-    #     await ctx.reply("\n".join(texts))
-
-    # @commands.hybrid_command(description="")
-    # async def timescale(self, ctx: commands.Context, pitch:float=None, speed:float=None, rate:float=None):
-    #     if not ctx.guild: return await ctx.reply("not supported")
-    #     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
-    #     vc: wavelink.Player = ctx.voice_client
-    #     if not vc: return await ctx.reply("voice client not found")
-    #     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
-    #         return await ctx.reply(f'Join the voice channel with the bot first')
-
-    #     filters: wavelink.Filters = vc.filters
-    #     filters.timescale.set(pitch=pitch, speed=speed, rate=rate)
-    #     await vc.set_filters(filters)
-    #     await ctx.reply(embed=filter_embed("🎚️ Filter", "Timescale", filters.timescale.payload))
-
-    # @commands.hybrid_command(description="")
-    # async def karaoke(self, ctx: commands.Context, level:float=None, mono_level:float=None, filter_band:float=None, filter_width:float=None):
-    #     if not ctx.guild: return await ctx.reply("not supported")
-    #     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
-    #     vc: wavelink.Player = ctx.voice_client
-    #     if not vc: return await ctx.reply("voice client not found")
-    #     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
-    #         return await ctx.reply(f'Join the voice channel with the bot first')
-
-    #     filters: wavelink.Filters = vc.filters
-    #     filters.karaoke.set(level=level, mono_level=mono_level, filter_band=filter_band, filter_width=filter_width)
-    #     await vc.set_filters(filters)
-    #     await ctx.reply(embed=filter_embed("🎚️ Filter", "Karaoke", filters.karaoke.payload))
-
-    # @commands.hybrid_command(description="")
-    # async def lowpass(self, ctx: commands.Context, smoothing:float=None):
-    #     if not ctx.guild: return await ctx.reply("not supported")
-    #     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
-    #     vc: wavelink.Player = ctx.voice_client
-    #     if not vc: return await ctx.reply("voice client not found")
-    #     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
-    #         return await ctx.reply(f'Join the voice channel with the bot first')
-
-    #     filters: wavelink.Filters = vc.filters
-    #     filters.low_pass.set(smoothing=smoothing)
-    #     await vc.set_filters(filters)
-    #     await ctx.reply(embed=filter_embed("🎚️ Filter", "Low Pass", filters.low_pass.payload))
-
-    # @commands.hybrid_command(description="")
-    # async def distortion(self, ctx: commands.Context, 
-    #                      sin_offset:float=None, sin_scale:float=None, cos_offset:float=None, cos_scale:float=None, 
-    #                      tan_offset:float=None, tan_scale:float=None, offset:float=None, scale:float=None):
-    #     if not ctx.guild: return await ctx.reply("not supported")
-    #     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
-    #     vc: wavelink.Player = ctx.voice_client
-    #     if not vc: return await ctx.reply("voice client not found")
-    #     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
-    #         return await ctx.reply(f'Join the voice channel with the bot first')
-
-    #     filters: wavelink.Filters = vc.filters
-    #     filters.distortion.set(sin_offset=sin_offset, sin_scale=sin_scale, cos_offset=cos_offset, cos_scale=cos_scale, 
-    #                            tan_offset=tan_offset, tan_scale=tan_scale, offset=offset, scale=scale)
-    #     await vc.set_filters(filters)
-    #     await ctx.reply(embed=filter_embed("🎚️ Filter", "Distortion", filters.distortion.payload))
-
-    # @commands.hybrid_command(description="")
-    # async def rotation(self, ctx: commands.Context, rotation_hz:float=None):
-    #     if not ctx.guild: return await ctx.reply("not supported")
-    #     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
-    #     vc: wavelink.Player = ctx.voice_client
-    #     if not vc: return await ctx.reply("voice client not found")
-    #     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
-    #         return await ctx.reply(f'Join the voice channel with the bot first')
-
-    #     filters: wavelink.Filters = vc.filters
-    #     filters.rotation.set(rotation_hz=rotation_hz)
-    #     await vc.set_filters(filters)
-    #     await ctx.reply(embed=filter_embed("🎚️ Filter", "Rotation", filters.rotation.payload))
-
-    # @commands.hybrid_command(description="")
-    # async def channelmix(self, ctx: commands.Context, left_to_left:float=None, left_to_right:float=None, 
-    #                      right_to_left:float=None, right_to_right:float=None):
-    #     if not ctx.guild: return await ctx.reply("not supported")
-    #     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
-    #     vc: wavelink.Player = ctx.voice_client
-    #     if not vc: return await ctx.reply("voice client not found")
-    #     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
-    #         return await ctx.reply(f'Join the voice channel with the bot first')
-
-    #     filters: wavelink.Filters = vc.filters
-    #     filters.channel_mix.set(left_to_left=left_to_left, left_to_right=left_to_right, 
-    #                             right_to_left=right_to_left, right_to_right=right_to_right)
-    #     await vc.set_filters(filters)
-    #     await ctx.reply(embed=filter_embed("🎚️ Filter", "Channel Mix", filters.channel_mix.payload))
-
-    # @commands.hybrid_command(description="")
-    # async def tremolo(self, ctx: commands.Context, frequency:float=None, depth:float=None):
-    #     if not ctx.guild: return await ctx.reply("not supported")
-    #     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
-    #     vc: wavelink.Player = ctx.voice_client
-    #     if not vc: return await ctx.reply("voice client not found")
-    #     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
-    #         return await ctx.reply(f'Join the voice channel with the bot first')
-
-    #     filters: wavelink.Filters = vc.filters
-    #     filters.tremolo.set(frequency=frequency, depth=depth)
-    #     await vc.set_filters(filters)
-    #     await ctx.reply(embed=filter_embed("🎚️ Filter", "Tremolo", filters.tremolo.payload))
-
-    # @commands.hybrid_command(description="")
-    # async def vibrato(self, ctx: commands.Context, frequency:float=None, depth:float=None):
-    #     if not ctx.guild: return await ctx.reply("not supported")
-    #     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
-    #     vc: wavelink.Player = ctx.voice_client
-    #     if not vc: return await ctx.reply("voice client not found")
-    #     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
-    #         return await ctx.reply(f'Join the voice channel with the bot first')
-
-    #     filters: wavelink.Filters = vc.filters
-    #     filters.vibrato.set(frequency=frequency, depth=depth)
-    #     await vc.set_filters(filters)
-    #     await ctx.reply(embed=filter_embed("🎚️ Filter", "Vibrato", filters.vibrato.payload))
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogYouTubePlayer(bot))
