@@ -812,10 +812,10 @@ class CogYouTubePlayer(commands.Cog):
         await queue_on_end(vc)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['media']['music']}")
-    async def music(self, ctx: commands.Context):
+    async def help(self, ctx: commands.Context):
         await music_help(ctx)
 
-    @commands.command(aliases=['musichelp', 'helpmusic', 'helpm', 'help']) # alias
+    @commands.command(aliases=['musichelp', 'helpmusic', 'helpm', 'music']) # alias
     async def mhelp(self, ctx: commands.Context):
         await music_help(ctx)
 
