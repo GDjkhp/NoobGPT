@@ -68,6 +68,8 @@
             "repeat": "Repeat music",
             "autoplay": "Toggle autoplay and recommended music",
             "voulume": "Set volume",
+            "filters": "Apply or reset audio filters",
+            "lyrics": "Fetch lyrics",
             "summon": "Join voice channel",
             "dj": "Create DJ role",
             "djspam": "Set DJ spam channel"
