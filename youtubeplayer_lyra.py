@@ -26,9 +26,7 @@ async def music_summon(bot: commands.Bot, ctx: commands.Context):
     except:
         # if fixing: return await ctx.reply(content="Please try again later")
         print("ChannelTimeoutException")
-        msg=await ctx.reply(content="An error occured. Reconnecting…")
-        await setup_hook_music(ctx.bot)
-        return await msg.edit(content="Please re-run the command")
+        return await ctx.reply(content="An error occured.")
     vc.autoplay = AutoPlayMode.enabled
     await ctx.reply(f"Connected to {vc.channel.jump_url}")
 
@@ -88,11 +86,8 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
                 vc = await voice_channel_connector(bot, ctx)
             except:
                 print("ChannelTimeoutException")
-                if isinstance(ctx, discord.Interaction): await ctx.edit_original_response(content="An error occured. Reconnecting…")
-                if isinstance(ctx, commands.Context): await msg.edit(content="An error occured. Reconnecting…")
-                await setup_hook_music(bot)
-                if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="Please re-run the command")
-                if isinstance(ctx, commands.Context): return await msg.edit(content="Please re-run the command")
+                if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="An error occured.")
+                if isinstance(ctx, commands.Context): return await msg.edit(content="An error occured.")
 
             vc.autoplay = AutoPlayMode.enabled
 
@@ -168,11 +163,8 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
         # if isinstance(ctx, discord.Interaction):
         #     return await ctx.edit_original_response(content=f'Error :(\n{e}')
         print("ChannelTimeoutException")
-        if isinstance(ctx, discord.Interaction): await ctx.edit_original_response(content="An error occured. Reconnecting…")
-        if isinstance(ctx, commands.Context): await msg.edit(content="An error occured. Reconnecting…")
-        await setup_hook_music(bot)
-        if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="Please re-run the command")
-        if isinstance(ctx, commands.Context): return await msg.edit(content="Please re-run the command")
+        if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="An error occured.")
+        if isinstance(ctx, commands.Context): return await msg.edit(content="An error occured.")
 
     if not tracks:
         if isinstance(ctx, commands.Context):
@@ -194,11 +186,8 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
             #     if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="Please try again later")
             #     if isinstance(ctx, commands.Context): return await msg.edit(content="Please try again later")
             print("ChannelTimeoutException")
-            if isinstance(ctx, discord.Interaction): await ctx.edit_original_response(content="An error occured. Reconnecting…")
-            if isinstance(ctx, commands.Context): await msg.edit(content="An error occured. Reconnecting…")
-            await setup_hook_music(bot)
-            if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="Please re-run the command")
-            if isinstance(ctx, commands.Context): return await msg.edit(content="Please re-run the command")
+            if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="An error occured.")
+            if isinstance(ctx, commands.Context): return await msg.edit(content="An error occured.")
 
         vc.autoplay = AutoPlayMode.enabled
     vc.music_channel = ctx.channel
@@ -351,11 +340,8 @@ async def queue_search(bot: commands.Bot, ctx: commands.Context | discord.Intera
         # if isinstance(ctx, discord.Interaction):
         #     return await ctx.edit_original_response(content=f'Error :(\n{e}')
         print("ChannelTimeoutException")
-        if isinstance(ctx, discord.Interaction): await ctx.edit_original_response(content="An error occured. Reconnecting…")
-        if isinstance(ctx, commands.Context): await msg.edit(content="An error occured. Reconnecting…")
-        await setup_hook_music(bot)
-        if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="Please re-run the command")
-        if isinstance(ctx, commands.Context): return await msg.edit(content="Please re-run the command")
+        if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="An error occured.")
+        if isinstance(ctx, commands.Context): return await msg.edit(content="An error occured.")
 
     if not tracks:
         if isinstance(ctx, commands.Context):

@@ -298,9 +298,7 @@ class SelectChoice(discord.ui.Select):
             except:
                 # if fixing: return await interaction.edit_original_response(content="Please try again later")
                 print("ChannelTimeoutException")
-                await interaction.edit_original_response(content="An error occured. Reconnecting…")
-                await setup_hook_music(self.bot)
-                return await interaction.edit_original_response(content="Please re-run the command")
+                return await interaction.edit_original_response(content="An error occured.")
             vc.autoplay = AutoPlayMode.enabled
         else: vc: NoobGPTPlayer = self.ctx.guild.voice_client
         vc.music_channel = self.ctx.channel
