@@ -92,69 +92,69 @@ class NoobGPT(commands.Bot):
 
     # lyra: track events
     async def on_lyra_track_start(self, player: lava_lyra.Player, track: lava_lyra.Track):
-        print(f"{self.identifier} / on_lyra_track_start: player - {player} | track - {track}")
+        print(f"{self.identifier} / on_lyra_track_start:\nplayer - {player} | track - {track}")
 
     async def on_lyra_track_end(self, player: lava_lyra.Player, track: lava_lyra.Track, reason: str):
-        print(f"{self.identifier} / on_lyra_track_end: player - {player} | track - {track} | reason - {reason}")
+        print(f"{self.identifier} / on_lyra_track_end:\nplayer - {player} | track - {track} | reason - {reason}")
 
     async def on_lyra_track_stuck(self, player: lava_lyra.Player, track: lava_lyra.Track, threshold: float):
-        print(f"{self.identifier} / on_lyra_track_stuck: player - {player} | track - {track} | threshold - {threshold}")
+        print(f"{self.identifier} / on_lyra_track_stuck:\nplayer - {player} | track - {track} | threshold - {threshold}")
 
     async def on_lyra_track_exception(self, player: lava_lyra.Player, track: lava_lyra.Track, error: str):
-        print(f"{self.identifier} / on_lyra_track_exception: player - {player} | track - {track} | error - {error}")
+        print(f"{self.identifier} / on_lyra_track_exception:\nplayer - {player} | track - {track} | error - {error}")
 
     # lyra: websocket events
     async def on_lyra_websocket_closed(self, payload: lava_lyra.WebSocketClosedPayload):
-        print(f"{self.identifier} / on_lyra_websocket_closed: payload - {payload}")
+        print(f"{self.identifier} / on_lyra_websocket_closed:\npayload - {payload}")
 
     async def on_lyra_websocket_open(self, target: str, ssrc: int):
-        print(f"{self.identifier} / on_lyra_websocket_open: target - {target} | ssrc - {ssrc}")
+        print(f"{self.identifier} / on_lyra_websocket_open:\ntarget - {target} | ssrc - {ssrc}")
 
     # lyra: lyrics events
     async def on_lyra_lyrics_found(self, player: lava_lyra.Player, track: lava_lyra.Player, lyrics: lava_lyra.Lyrics):
-        print(f"{self.identifier} / on_lyra_lyrics_found: player - {player} | track - {track} | lyrics - {lyrics}")
+        print(f"{self.identifier} / on_lyra_lyrics_found:\nplayer - {player} | track - {track} | lyrics - {lyrics}")
 
     async def on_lyra_lyrics_unavailable(self, player: lava_lyra.Player, track: lava_lyra.Player):
-        print(f"{self.identifier} / on_lyra_lyrics_unavailable: player - {player} | track - {track}")
+        print(f"{self.identifier} / on_lyra_lyrics_unavailable:\nplayer - {player} | track - {track}")
 
     async def on_lyra_lyrics_update(self, player: lava_lyra.Player, track: lava_lyra.Player, line: lava_lyra.LyricLine):
-        print(f"{self.identifier} / on_lyra_lyrics_update: player - {player} | track - {track} | line - {line}")
+        print(f"{self.identifier} / on_lyra_lyrics_update:\nplayer - {player} | track - {track} | line - {line}")
 
     # lyra: node events
     async def on_lyra_node_connected(self, node_id: str, is_nodelink: bool, reconnect: bool):
-        print(f"{self.identifier} / on_lyra_node_connected: node_id - {node_id} | is_nodelink - {is_nodelink} | reconnect - {reconnect}")
+        print(f"{self.identifier} / on_lyra_node_connected:\nnode_id - {node_id} | is_nodelink - {is_nodelink} | reconnect - {reconnect}")
 
     async def on_lyra_node_disconnected(self, node_id: str, is_nodelink: bool, player_count: int):
-        print(f"{self.identifier} / on_lyra_node_disconnected: node_id - {node_id} | is_nodelink - {is_nodelink} | player_count - {player_count}")
+        print(f"{self.identifier} / on_lyra_node_disconnected:\nnode_id - {node_id} | is_nodelink - {is_nodelink} | player_count - {player_count}")
 
     async def on_lyra_node_reconnecting(self, node_id: str, is_nodelink: bool, retry_in: float):
-        print(f"{self.identifier} / on_lyra_node_reconnecting: node_id - {node_id} | is_nodelink - {is_nodelink} | retry_in - {retry_in}")
+        print(f"{self.identifier} / on_lyra_node_reconnecting:\nnode_id - {node_id} | is_nodelink - {is_nodelink} | retry_in - {retry_in}")
 
     # lyra: player state events
     async def on_lyra_player_created(self, player: lava_lyra.Player, guild_id: int):
-        print(f"{self.identifier} / on_lyra_player_created: player - {player} | guild_id - {guild_id}")
+        print(f"{self.identifier} / on_lyra_player_created:\nplayer - {player} | guild_id - {guild_id}")
 
     async def on_lyra_volume_changed(self, player: lava_lyra.Player, volume: int):
-        print(f"{self.identifier} / on_lyra_volume_changed: player - {player} | volume - {volume}")
+        print(f"{self.identifier} / on_lyra_volume_changed:\nplayer - {player} | volume - {volume}")
 
     async def on_lyra_player_connected(self, player: lava_lyra.Player, voice: dict):
-        print(f"{self.identifier} / on_lyra_player_connected: player - {player} | voice - {voice}")
+        print(f"{self.identifier} / on_lyra_player_connected:\nplayer - {player} | voice - {voice}")
 
     async def on_lyra_filters_changed(self, player: lava_lyra.Player, filters: dict):
-        print(f"{self.identifier} / on_lyra_filters_changed: player - {player} | filters - {filters}")
+        print(f"{self.identifier} / on_lyra_filters_changed:\nplayer - {player} | filters - {filters}")
 
     # lyra: undocumented nodelink exclusive
     async def on_lyra_pause(self, player: lava_lyra.Player, paused: bool):
-        print(f"{self.identifier} / on_lyra_pause: player - {player} | paused - {paused}")
+        print(f"{self.identifier} / on_lyra_pause:\nplayer - {player} | paused - {paused}")
 
     async def on_lyra_seek(self, player: lava_lyra.Player, position: int):
-        print(f"{self.identifier} / on_lyra_seek: player - {player} | position - {position}")
+        print(f"{self.identifier} / on_lyra_seek:\nplayer - {player} | position - {position}")
 
     async def on_lyra_mix_started(self, player: lava_lyra.Player, mix_id: str, track: lava_lyra.Track, volume: float):
-        print(f"{self.identifier} / on_lyra_mix_started: player - {player} | mix_id - {mix_id} | track - {track} | volume - {volume}")
+        print(f"{self.identifier} / on_lyra_mix_started:\nplayer - {player} | mix_id - {mix_id} | track - {track} | volume - {volume}")
 
     async def on_lyra_mix_ended(self, player: lava_lyra.Player, mix_id: str, reason: str):
-        print(f"{self.identifier} / on_lyra_mix_ended: player - {player} | mix_id - {mix_id} | reason - {reason}")
+        print(f"{self.identifier} / on_lyra_mix_ended:\nplayer - {player} | mix_id - {mix_id} | reason - {reason}")
 
     async def setup_hook(self):
         self.loop.create_task(silly_activities(self))

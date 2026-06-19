@@ -815,7 +815,7 @@ class CogYouTubePlayer(commands.Cog):
     async def music(self, ctx: commands.Context):
         await music_help(ctx)
 
-    @commands.command(aliases=['musichelp', 'helpmusic', 'helpm']) # alias
+    @commands.command(aliases=['musichelp', 'helpmusic', 'helpm', 'help']) # alias
     async def mhelp(self, ctx: commands.Context):
         await music_help(ctx)
 
