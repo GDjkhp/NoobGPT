@@ -11,6 +11,7 @@ from util_database import myclient
 mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 fixing=False
 pool = lava_lyra.NodePool()
+valid_filters = ["karaoke", "timescale", "lowpass", "rotation", "distortion", "channelmix", "tremolo", "vibrato"]
 
 async def setup_hook_music(bot: commands.Bot):
     global fixing
@@ -224,7 +225,7 @@ class CancelButton(discord.ui.Button):
     def __init__(self, ctx: commands.Context, r: int):
         super().__init__(emoji="❌", style=discord.ButtonStyle.success, row=r)
         self.ctx = ctx
-    
+
     async def callback(self, interaction: discord.Interaction):
         if isinstance(self.ctx, commands.Context):
             if interaction.user != self.ctx.author:

@@ -97,6 +97,14 @@ class CogYouTubePlayerMin(commands.Cog):
     async def nowplaying(self, ctx: commands.Context):
         await music_nowplaying(ctx)
 
+    @commands.command()
+    async def summon(self, ctx: commands.Context):
+        await music_summon(self.bot, ctx)
+
+    @commands.command()
+    async def lyrics(self, ctx: commands.Context):
+        await music_lyrics(ctx)
+
     # queue
     @commands.command()
     async def search(self, ctx: commands.Context, *, query: str=None):
@@ -188,9 +196,72 @@ class CogYouTubePlayerMin(commands.Cog):
         await queue_move(ctx, init, dest)
 
     @commands.command()
-    @app_commands.describe(value="Set value (Must be a valid integer: 0-100)")
     async def volume(self, ctx: commands.Context, value: str=None):
         await music_volume(ctx, value)
+
+    @commands.command()
+    async def filters(self, ctx: commands.Context, reset: str = None, filter: str = None):
+        await music_filters(ctx, reset, filter)
+
+    # ── individual filter sub-commands ──────────────────────────────────────────
+    @commands.command()
+    async def karaoke(
+        self, ctx: commands.Context,
+        level: float = 1.0,
+        mono_level: float = 1.0,
+        filter_band: float = 220.0,
+        filter_width: float = 100.0,
+    ):
+        await filter_karaoke(ctx, level, mono_level, filter_band, filter_width)
+
+    @commands.command()
+    async def timescale(
+        self, ctx: commands.Context,
+        pitch: float = 1.0,
+        speed: float = 1.0,
+        rate: float = 1.0,
+    ):
+        await filter_timescale(ctx, pitch, speed, rate)
+
+    @commands.command()
+    async def lowpass(self, ctx: commands.Context, smoothing: float = 20.0):
+        await filter_lowpass(ctx, smoothing)
+
+    @commands.command()
+    async def rotation(self, ctx: commands.Context, rotation_hz: float = 5.0):
+        await filter_rotation(ctx, rotation_hz)
+
+    @commands.command()
+    async def distortion(
+        self, ctx: commands.Context,
+        sin_offset: float = 0.0,
+        sin_scale: float = 1.0,
+        cos_offset: float = 0.0,
+        cos_scale: float = 1.0,
+        tan_offset: float = 0.0,
+        tan_scale: float = 1.0,
+        offset: float = 0.0,
+        scale: float = 1.0,
+    ):
+        await filter_distortion(ctx, sin_offset, sin_scale, cos_offset, cos_scale, tan_offset, tan_scale, offset, scale)
+
+    @commands.command()
+    async def channelmix(
+        self, ctx: commands.Context,
+        left_to_left: float = 1.0,
+        left_to_right: float = 0.0,
+        right_to_left: float = 0.0,
+        right_to_right: float = 1.0,
+    ):
+        await filter_channelmix(ctx, left_to_left, left_to_right, right_to_left, right_to_right)
+
+    @commands.command()
+    async def tremolo(self, ctx: commands.Context, frequency: float = 2.0, depth: float = 0.5):
+        await filter_tremolo(ctx, frequency, depth)
+
+    @commands.command()
+    async def vibrato(self, ctx: commands.Context, frequency: float = 2.0, depth: float = 0.5):
+        await filter_vibrato(ctx, frequency, depth)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogYouTubePlayerMin(bot))

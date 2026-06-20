@@ -67,7 +67,7 @@
             "stop": "Stop music and disconnect from voice channel",
             "repeat": "Repeat music",
             "autoplay": "Toggle autoplay and recommended music",
-            "voulume": "Set volume",
+            "volume": "Set volume",
             "filters": "Apply or reset audio filters",
             "lyrics": "Fetch lyrics",
             "summon": "Join voice channel",
