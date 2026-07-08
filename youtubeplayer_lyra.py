@@ -305,11 +305,10 @@ async def music_lyrics(ctx: commands.Context): # TODO: add user input support
         strings_by_4096: list[str] = []
         lyric_page = ""
         for l in lyrics.lines:
-            if len(lyric_page) + len(l.text) < 4096:
-                lyric_page += f"{l.text}\n"
-            else:
+            if not len(lyric_page) + len(l.text) < 4096:
                 strings_by_4096.append(lyric_page)
                 lyric_page = ""
+            lyric_page += f"{l.text}\n"
         strings_by_4096.append(lyric_page)
         for i, l in enumerate(strings_by_4096):
             embed = discord.Embed(title=vc.current.title, description=l, color=0x00ff00)
