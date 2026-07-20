@@ -37,7 +37,8 @@ async def help_anime(ctx: commands.Context):
     if await command_check(ctx, "anime", "media"): return await ctx.reply("command disabled", ephemeral=True)
     p = await get_guild_prefix(ctx)
     sources = [
-        f"`{p}pahe` animepahe",
+        "no sources available :(",
+        # f"`{p}pahe` animepahe",
         # f"`{p}aniwatch` hianime",
     ]
     await ctx.reply("\n".join(sources))
@@ -395,17 +396,17 @@ class CogPahe(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    async def pahe(self, ctx: commands.Context, *, query:str=None):
-        await pahe_search(ctx, query)
+    # @commands.command()
+    # async def pahe(self, ctx: commands.Context, *, query:str=None):
+    #     await pahe_search(ctx, query)
 
-    @app_commands.command(name="pahe", description=f"{description_helper['emojis']['anime']} animepahe")
-    @app_commands.describe(query="Search query")
-    @app_commands.autocomplete(query=pahe_auto)
-    @app_commands.allowed_installs(guilds=True, users=True)
-    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def pahe_slash(self, ctx: discord.Interaction, *, query:str=None):
-        await pahe_anime(self.bot, ctx, query)
+    # @app_commands.command(name="pahe", description=f"{description_helper['emojis']['anime']} animepahe")
+    # @app_commands.describe(query="Search query")
+    # @app_commands.autocomplete(query=pahe_auto)
+    # @app_commands.allowed_installs(guilds=True, users=True)
+    # @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    # async def pahe_slash(self, ctx: discord.Interaction, *, query:str=None):
+    #     await pahe_anime(self.bot, ctx, query)
 
     @commands.hybrid_command(description=f'{description_helper["emojis"]["media"]} {description_helper["media"]["anime"]}')
     @app_commands.allowed_installs(guilds=True, users=True)

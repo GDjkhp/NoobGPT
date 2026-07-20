@@ -24,7 +24,7 @@ async def help_tv(ctx: commands.Context):
     if await command_check(ctx, "tv", "media"): return await ctx.reply("command disabled", ephemeral=True)
     p = await get_guild_prefix(ctx)
     sources = [
-        "no sources available :("
+        "no sources available :(",
         # f"`{p}flix` sflix",
         # f"`{p}kiss` kisskh",
         # f"`{p}kiss` kissasian",
