@@ -13,7 +13,10 @@ pagelimit=12
 async def help_manga(ctx: commands.Context):
     if await command_check(ctx, "manga", "media"): return await ctx.reply("command disabled", ephemeral=True)
     p = await get_guild_prefix(ctx)
-    sources = [f"`{p}dex` mangadex", f"`{p}nato` manganato"]
+    sources = [
+        f"`{p}dex` mangadex", 
+        # f"`{p}nato` manganato",
+    ]
     await ctx.reply("\n".join(sources))
 
 async def dex_search(ctx: commands.Context, arg: str):

@@ -11,73 +11,80 @@ import datetime as dt
 from pydantic import BaseModel
 import aiohttp
 
-class RequestError(BaseException):
-	...
+from curl_cffi.requests import AsyncSession
+session = AsyncSession(impersonate='chrome')
 
-ROOT_URL = "http://manganato.com"
+class RequestError(BaseException):
+    ...
+
+ROOT_URL = "http://manganato.com" # "http://www.mangabats.com" (cloudflare blocked)
 HOME_TOOLTIPS_URL = f"{ROOT_URL}/home_tooltips_json"
 STORY_SEARCH_URL = f"{ROOT_URL}/search/story/" + "{title}"
 
 async def download_chapter(url):
-	r = await request(url)
-	soup = BeautifulSoup(r, "html.parser")
-	return _get_image_urls_from_soup(soup)
+    r = await request(url)
+    soup = BeautifulSoup(r, "html.parser")
+    return _get_image_urls_from_soup(soup)
 
 def _get_image_urls_from_soup(soup):
-	def valid(url: str):
-		return url.endswith((".png", ".jpg")) and not url.startswith("https://chapmanganato.to")
-	return [url for url in map(lambda ele: ele["src"], soup.find_all("img")) if valid(url)]
+    def valid(url: str):
+        return url.endswith((".png", ".jpg")) and not url.startswith("https://chapmanganato.to")
+    return [url for url in map(lambda ele: ele["src"], soup.find_all("img")) if valid(url)]
     
-async def request(url: str, **kwargs):
+async def request_old(url: str, **kwargs):
     async with aiohttp.ClientSession() as session:
         async with session.get(url, **kwargs) as response:
             if response.status == 200: return await response.read()
 
+async def request(url: str, headers: dict = None):
+    req = await session.get(url, headers=headers)
+    return req.content
+
 async def fetch_image(url):
-	headers = {
-		'Host': urllib.parse.urlparse(url).netloc, 'Accept-Language': 'en-ca', 'Referer': ROOT_URL,
-	}
-	return await request(url, headers=headers)
+    headers = {
+        'Host': urllib.parse.urlparse(url).netloc, 'Accept-Language': 'en-ca', 'Referer': ROOT_URL,
+    }
+    return await request(url, headers=headers)
 
 async def get_story_page(url) -> "StoryPage":
-	r = await request(url)
-	soup = BeautifulSoup(r, "html.parser")
-	if "404" in soup.find("title").text: raise RequestError(f"Page '{url}' was not found")
-	return StoryPage.from_soup(url, soup)
+    r = await request(url)
+    soup = BeautifulSoup(r, "html.parser")
+    if "404" in soup.find("title").text: raise RequestError(f"Page '{url}' was not found")
+    return StoryPage.from_soup(url, soup)
 
 async def get_search_results(title: str) -> list["SearchResult"]:
-	r = await request(STORY_SEARCH_URL.format(title=encode_querystring(title)))
-	if not r: raise RequestError(f"Search request failed")
-	soup = BeautifulSoup(r, "html.parser")
-	return [SearchResult.from_soup(ele) for ele in soup.find_all(class_="search-story-item")]
+    r = await request(STORY_SEARCH_URL.format(title=encode_querystring(title)))
+    if not r: raise RequestError(f"Search request failed")
+    soup = BeautifulSoup(r, "html.parser")
+    return [SearchResult.from_soup(ele) for ele in soup.find_all(class_="search-story-item")]
 
 def parse_views(number_string: str) -> int:
-	with cl.suppress(Exception): return ast.literal_eval(number_string)
-	number_string, unit = number_string[:-1], number_string[-1].upper()
-	multiplier = {
-		"B": 1_000_000_000,
-		"M": 1_000_000,
-		"K": 1_000
-	}.get(unit, 1)
-	with cl.suppress(Exception): return int(float(number_string) * multiplier)
-	return -1
+    with cl.suppress(Exception): return ast.literal_eval(number_string)
+    number_string, unit = number_string[:-1], number_string[-1].upper()
+    multiplier = {
+        "B": 1_000_000_000,
+        "M": 1_000_000,
+        "K": 1_000
+    }.get(unit, 1)
+    with cl.suppress(Exception): return int(float(number_string) * multiplier)
+    return -1
 
 def unescape_html(s: str) -> str:
-	return html.unescape(s).strip()
+    return html.unescape(s).strip()
 
 def split_at(s: str, sep: str) -> list[str]:
-	return [x.strip() for x in s.split(sep)]
+    return [x.strip() for x in s.split(sep)]
 
 def encode_querystring(s: str) -> str:
-	allowed_characters: str = string.ascii_letters + string.digits + "_"
-	return "".join([char.lower() for char in s.strip().replace(" ", "_") if char in allowed_characters])
+    allowed_characters: str = string.ascii_letters + string.digits + "_"
+    return "".join([char.lower() for char in s.strip().replace(" ", "_") if char in allowed_characters])
 
 def parse_date(s: str, _format: str):
-	try:
-		locale.setlocale(locale.LC_ALL, "en_US.UTF8")
-		return dt.datetime.strptime(s, _format)
-	finally:
-		locale.setlocale(locale.LC_ALL, '')
+    try:
+        locale.setlocale(locale.LC_ALL, "en_US.UTF8")
+        return dt.datetime.strptime(s, _format)
+    finally:
+        locale.setlocale(locale.LC_ALL, '')
 
 class Chapter(BaseModel):
     title: str
