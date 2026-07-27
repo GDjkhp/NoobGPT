@@ -15,7 +15,7 @@ class CogYouTubePlayerMin(commands.Cog):
 
     @commands.Cog.listener()
     async def on_lyra_track_end(self, vc: NoobGPTPlayer, track: lava_lyra.Track, reason: str):
-        await queue_on_end(vc)
+        await queue_on_end(vc, reason)
 
     @commands.command(name="mreset")
     async def reset(self, ctx: commands.Context):

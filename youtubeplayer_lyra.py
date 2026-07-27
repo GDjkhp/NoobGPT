@@ -982,7 +982,8 @@ async def queue_on_start(bot, vc: NoobGPTPlayer):
     await vc.music_channel.send(embed=embed)
     await get_rekt(vc)
 
-async def queue_on_end(vc: NoobGPTPlayer):
+async def queue_on_end(vc: NoobGPTPlayer, reason: str):
+    if reason == "replaced": return await vc.destroy()
     if not vc: return
     if not vc.queue.is_empty: return await vc.play(vc.queue.get())
     if vc.autoplay == AutoPlayMode.enabled and not vc.auto_queue.is_empty:
@@ -992,7 +993,7 @@ async def queue_on_end(vc: NoobGPTPlayer):
             current_ids = [track.identifier for track in vc.queue]
             if x.identifier not in history_ids and x.identifier not in current_ids: vc.queue.put(x)
         vc.auto_queue.clear()
-        await queue_on_end(vc)
+        await queue_on_end(vc, reason)
 
 # autocomplete
 async def search_auto(interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
@@ -1092,7 +1093,7 @@ class CogYouTubePlayer(commands.Cog):
 
     @commands.Cog.listener()
     async def on_lyra_track_end(self, vc: NoobGPTPlayer, track: lava_lyra.Track, reason: str):
-        await queue_on_end(vc)
+        await queue_on_end(vc, reason)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['media']['music']}")
     async def help(self, ctx: commands.Context):

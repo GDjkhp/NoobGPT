@@ -33,7 +33,7 @@ noobgpt_modules = [
     "c_ai_discord", "stablehorde", "gpt4free", "perplexity", "openai_", "googleai", # "petals",
     "tictactoe", "aki", "hangman", "quiz", "wordle_", "rps_game",
     "gelbooru", "deeznuts", "ytdlp_", "magick_pillow", "min_music_lyra", "sflix", # "kiss_api", "hianime_api", "cobalt", "kissasian",
-    "mangadex", "animepahe", # "manganato", "mangadex", "gogoanime",
+    "mangadex", "animepahe", # "manganato", "gogoanime",
     "custom_status", "level_insult", "respond_mode", "quoteport", "help", # "weather",
     "util_discord", "util_member", "util_message", # "util_geometryjump",
     "mister_squid", "roshidere", "util_channel", # squid + zero modules
