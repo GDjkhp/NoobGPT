@@ -150,6 +150,10 @@ def music_now_playing_embed(bot: commands.Context, track: lava_lyra.Track):
         embed.set_author(name="Apple Music", icon_url="https://gdjkhp.github.io/img/applemoosic.png")
     # elif track.track_type == "deezer":
     #     embed.set_author(name="Deezer", icon_url="https://gdjkhp.github.io/img/deez.png")
+
+    # TODO: update the source list + images when lava_lyra updates
+    # FIXME: only run recommendation for spotify and youtube for now :)
+    # FIXME: chain of thought: check config -> sponsorblock -> gapless playback -> reason: replaced
     else:
         embed.set_author(name=track.track_type)
         print(track.track_type)

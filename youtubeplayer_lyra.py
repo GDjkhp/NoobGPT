@@ -983,7 +983,7 @@ async def queue_on_start(bot, vc: NoobGPTPlayer):
     await get_rekt(vc)
 
 async def queue_on_end(vc: NoobGPTPlayer, reason: str):
-    if reason == "replaced": return await vc.destroy()
+    if reason == "replaced": return # await vc.destroy()
     if not vc: return
     if not vc.queue.is_empty: return await vc.play(vc.queue.get())
     if vc.autoplay == AutoPlayMode.enabled and not vc.auto_queue.is_empty:
