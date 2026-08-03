@@ -980,6 +980,7 @@ async def queue_on_start(bot, vc: NoobGPTPlayer):
     if not vc: return
     embed = music_now_playing_embed(bot, vc.current)
     await vc.music_channel.send(embed=embed)
+    # await vc.channel.edit(status=vc.current.title) # nice vc status changes (requires manage channels)
     await get_rekt(vc)
 
 async def queue_on_end(vc: NoobGPTPlayer, reason: str):

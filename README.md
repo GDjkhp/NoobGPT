@@ -135,7 +135,7 @@ grass is greenr on the othr side
 </div>
 
 **Packed with features I stole from other music discord bots!**
-* Supports YouTube, Spotify, SoundCloud, Apple Music, Deezer, and more!
+* Supports YouTube, Spotify, Tidal, Apple Music, Deezer, Qobuz, and more!
 * DJ role and spam channel setup
 * Autoplay recommendations, smart shuffle, and fair queue
 * Multi voice channel support via NoobGPT
