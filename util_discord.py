@@ -86,9 +86,13 @@ async def add_master_user(ctx: commands.Context, arg: str):
     if not member: return await ctx.reply("user not found")
 
     db = await get_database2(ctx.guild.id)
-    if not db.get("bot_master_role") or not ctx.guild.get_role(db["bot_master_role"]):
-        await create_bot_master_role(ctx)
-        db = await get_database2(ctx.guild.id) # update
+    if db.get("bot_master_role"):
+        role = ctx.guild.get_role(db["bot_master_role"])
+        if role: await role.delete()
+        await set_dj_role_db(ctx.guild.id, 0)
+        # await ctx.reply("bot master role has been removed")
+    await create_bot_master_role(ctx)
+    db = await get_database2(ctx.guild.id) # update
 
     role = ctx.guild.get_role(db["bot_master_role"])
     await member.add_roles(role)

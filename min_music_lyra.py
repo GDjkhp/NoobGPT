@@ -33,10 +33,11 @@ class CogYouTubePlayerMin(commands.Cog):
         await music_help(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['player']['dj']}")
+    @app_commands.describe(user_id="User ID of the member you want to be a DJ")
     @app_commands.allowed_installs(guilds=True, users=False)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def dj(self, ctx: commands.Context):
-        await set_dj_role(ctx)
+    async def dj(self, ctx: commands.Context, user_id:str=None):
+        await set_dj_role(ctx, user_id)
 
     @commands.command()
     async def djspam(self, ctx: commands.Context, channel_id: str=None):

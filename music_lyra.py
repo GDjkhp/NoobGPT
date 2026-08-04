@@ -1,6 +1,6 @@
 import lava_lyra
 import secrets
-import asyncio
+import os
 import random
 import enum
 from discord.ext import commands
@@ -92,7 +92,7 @@ async def set_dj_channel(ctx: commands.Context, chan_id: str):
     await set_dj_channel_db(ctx.guild.id, chan.id)
     await ctx.reply(f"{chan.jump_url} has been set as **THE DJ SPAM CHANNEL!**")
 
-async def set_dj_role(ctx: commands.Context):
+async def set_dj_role(ctx: commands.Context, arg: str):
     if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     if not await check_if_master_or_admin(ctx): return await ctx.reply("not a bot master or an admin", ephemeral=True)
@@ -100,18 +100,32 @@ async def set_dj_role(ctx: commands.Context):
     if not permissions.manage_roles:
         return await ctx.reply("**manage roles permission is disabled :(**")
 
+    if not arg: arg = str(ctx.author.id)
+    if ctx.message.mentions: member = ctx.message.mentions[0]
+    elif arg.isdigit(): member = ctx.guild.get_member(int(arg))
+    else: return await ctx.reply("not a user id")
+    if not member: return await ctx.reply("user not found")
+
     db = await get_database2(ctx.guild.id)
-    if not db.get("bot_dj_role") or not db["bot_dj_role"]:
-        role = await ctx.guild.create_role(name="noobgpt disc jockey", mentionable=False)
-        await set_dj_role_db(ctx.guild.id, role.id)
-        await ctx.reply(f"dj role <@&{role.id}> has been created")
-    else:
+    if db.get("bot_dj_role"):
         role = ctx.guild.get_role(db["bot_dj_role"])
         if role: await role.delete()
         await set_dj_role_db(ctx.guild.id, 0)
-        await ctx.reply("dj role has been removed")
+        # await ctx.reply("dj role has been removed")
+
+    role = await ctx.guild.create_role(name="noobgpt disc jockey", mentionable=False)
+    await set_dj_role_db(ctx.guild.id, role.id)
+    db = await get_database2(ctx.guild.id) # update
+    await ctx.reply(f"dj role <@&{role.id}> has been created")
+
+    role = ctx.guild.get_role(db["bot_dj_role"])
+    await member.add_roles(role)
+    await ctx.reply(f"dj role <@&{role.id}> added to <@{member.id}>")
 
 async def check_if_dj(ctx: commands.Context | discord.Interaction):
+    if isinstance(ctx, commands.Context): uid = ctx.author.id
+    if isinstance(ctx, discord.Interaction): uid = ctx.user.id
+    if uid == int(os.getenv("OWNER")): return True # GODMODE
     db = await get_database2(ctx.guild.id)
     if db.get("bot_dj_channel"):
         if db["bot_dj_channel"]:
@@ -384,7 +398,7 @@ class MusicUtil2(commands.Cog):
         await delete_node(ctx, index)
 
     @commands.command()
-    async def nodeview(self, ctx: commands.Context):
+    async def nodelist(self, ctx: commands.Context):
         if check_if_not_owner(ctx): return
         await view_nodes(ctx)
 

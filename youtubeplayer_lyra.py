@@ -1105,8 +1105,8 @@ class CogYouTubePlayer(commands.Cog):
         await music_help(ctx)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['player']['dj']}")
-    async def dj(self, ctx: commands.Context):
-        await set_dj_role(ctx)
+    async def dj(self, ctx: commands.Context, user_id:str=None):
+        await set_dj_role(ctx, user_id)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['player']['djspam']}")
     @app_commands.describe(channel_id="Channel ID")
