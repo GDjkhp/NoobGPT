@@ -171,6 +171,7 @@ def music_now_playing_embed(bot: commands.Context, track: lava_lyra.Track):
     # TODO: nice vc status changes (requires manage channels) line 983 youtubeplayer_lyra.py
     # TODO: save playlist/favorites, control player outside the server, save and load queue on bot crash
     # TODO: seek position, update music slash commands for noobgpt
+    # TODO: lastfm scrobbling, sort/rank by genre (danceable %)
     # TODO: look at https://gdjkhp.com/nodelink.txt for more shit
     else:
         embed.set_author(name=track.track_type)
