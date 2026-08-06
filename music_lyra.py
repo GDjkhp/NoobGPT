@@ -168,6 +168,9 @@ def music_now_playing_embed(bot: commands.Context, track: lava_lyra.Track):
     # TODO: update the source list + images when lava_lyra updates
     # FIXME: only run recommendation for spotify and youtube for now :)
     # FIXME: chain of thought: check config -> sponsorblock -> gapless playback -> reason: replaced
+    # TODO: nice vc status changes (requires manage channels) line 983 youtubeplayer_lyra.py
+    # TODO: save playlist/favorites, control player outside the server, save and load queue on bot crash
+    # TODO: look at https://gdjkhp.com/nodelink.txt for more shit
     else:
         embed.set_author(name=track.track_type)
         print(track.track_type)
