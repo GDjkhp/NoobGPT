@@ -152,22 +152,25 @@ def music_now_playing_embed(bot: commands.Context, track: lava_lyra.Track):
     # elif track.album.url: embed.set_thumbnail(url=track.album.url)
     # elif track.artist.url: embed.set_thumbnail(url=track.artist.url)
 
-    if track.track_type == lava_lyra.TrackType.SPOTIFY:
-        embed.set_author(name="Spotify", icon_url="https://gdjkhp.github.io/img/Spotify_App_Logo.svg.png")
-    elif track.track_type == lava_lyra.TrackType.YOUTUBE:
+    if track.track_type == lava_lyra.TrackType.YOUTUBE:
         embed.set_author(name="YouTube", icon_url="https://gdjkhp.github.io/img/771384-512.png")
+    elif track.track_type == lava_lyra.TrackType.YOUTUBE_MUSIC:
+        embed.set_author(name="YouTube Music", icon_url="https://gdjkhp.github.io/img/ytmusic.png")
+    elif track.track_type == lava_lyra.TrackType.SPOTIFY:
+        embed.set_author(name="Spotify", icon_url="https://gdjkhp.github.io/img/Spotify_App_Logo.svg.png")
     elif track.track_type == lava_lyra.TrackType.SOUNDCLOUD:
         embed.set_author(name="SoundCloud", icon_url="https://gdjkhp.github.io/img/soundcloud-icon.png")
-    # elif track.track_type == "bandcamp":
-    #     embed.set_author(name="Bandcamp", icon_url="https://gdjkhp.github.io/img/bandcamp-button-circle-aqua-512.png")
+    elif track.track_type == lava_lyra.TrackType.BANDCAMP:
+        embed.set_author(name="Bandcamp", icon_url="https://gdjkhp.github.io/img/bandcamp-button-circle-aqua-512.png")
     elif track.track_type == lava_lyra.TrackType.APPLE_MUSIC:
         embed.set_author(name="Apple Music", icon_url="https://gdjkhp.github.io/img/applemoosic.png")
-    # elif track.track_type == "deezer":
-    #     embed.set_author(name="Deezer", icon_url="https://gdjkhp.github.io/img/deez.png")
-
+    elif track.track_type == lava_lyra.TrackType.DEEZER:
+        embed.set_author(name="Deezer", icon_url="https://gdjkhp.github.io/img/deez.png")
+    elif track.track_type == lava_lyra.TrackType.QOBUZ:
+        embed.set_author(name="Qobuz", icon_url="https://gdjkhp.github.io/img/qobuz.png")
+    elif track.track_type == lava_lyra.TrackType.TIDAL:
+        embed.set_author(name="Tidal", icon_url="https://gdjkhp.github.io/img/tidal.png")
     # TODO: update the source list + images when lava_lyra updates
-    # FIXME: only run recommendation for spotify and youtube for now :)
-    # FIXME: chain of thought: check config -> sponsorblock -> gapless playback -> reason: replaced
     # TODO: nice vc status changes (requires manage channels) line 983 youtubeplayer_lyra.py
     # TODO: save playlist/favorites, control player outside the server, save and load queue on bot crash
     # TODO: seek position, update music slash commands for noobgpt
@@ -329,7 +332,10 @@ class SelectChoice(discord.ui.Select):
 
         selected = self.result[int(self.values[0])]
         vc.queue.put(selected)
-        if not vc.is_playing: await vc.play(vc.queue.get())
+        if not vc.is_playing:
+            await vc.play(vc.queue.get())
+            if vc.gapless and not vc.queue.is_empty:
+                await vc.play(vc.queue[0] if not vc.queue.loop_mode else vc.queue.get(), gapless=True)
         text, desc = "🎵 Queue music", f'`{selected.author} - {selected.title}` has been added to the queue'
         await interaction.edit_original_response(content=None, embed=music_embed(text, desc), view=None)
 
@@ -372,13 +378,19 @@ class NoobGPTPlayer(lava_lyra.Player):
         super().__init__(client, channel, node=node)
         self.music_channel: discord.channel.TextChannel = None
         self.autoplay: AutoPlayMode = AutoPlayMode.enabled
-        self.queue = lava_lyra.Queue()
-        self.auto_queue = lava_lyra.Queue()
-        self.history_queue = lava_lyra.Queue()
+        self.queue: lava_lyra.Queue = lava_lyra.Queue()
+        self.auto_queue: lava_lyra.Queue = lava_lyra.Queue()
+        self.history_queue: lava_lyra.Queue = lava_lyra.Queue()
+        self.gapless: bool = True
 
 # smart shuffle algorithm
 async def get_rekt(vc: NoobGPTPlayer):
     vc.history_queue.put(vc.current)
+    if vc.current.track_type not in [
+        lava_lyra.TrackType.SPOTIFY,
+        lava_lyra.TrackType.YOUTUBE,
+        lava_lyra.TrackType.YOUTUBE_MUSIC
+    ]: return # TODO: add support for more (lava-lyra)
     recs = await vc.get_recommendations(track=vc.current)
     if not recs: return
     recs = recs.tracks if isinstance(recs, lava_lyra.Playlist) else recs

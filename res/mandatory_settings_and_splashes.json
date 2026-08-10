@@ -64,6 +64,7 @@
             "pause": "Pause music",
             "resume": "Resume music",
             "skip": "Skip music",
+            "previous": "Previous music",
             "stop": "Stop music and disconnect from voice channel",
             "repeat": "Repeat music",
             "autoplay": "Toggle autoplay and recommended music",

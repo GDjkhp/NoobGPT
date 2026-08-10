@@ -45,7 +45,7 @@ A <b>very simple yet complicated</b> multi-purpose Discord bot that does pretty 
 
 ### Requirements
 Host your bots for free: [Bot-Hosting.net](https://bot-hosting.net/?aff=729554186777133088)
-* [`Python 3.10+`](https://www.python.org/downloads), [`FFmpeg`](https://www.ffmpeg.org/download.html), [`requirements.txt`](http://gdjkhp.github.io/NoobGPT/requirements.txt) packages, [`.env`](https://gdjkhp.com/NoobGPT/example.env) for secret keys.
+* [`Python 3.12+`](https://www.python.org/downloads), [`FFmpeg`](https://www.ffmpeg.org/download.html), [`requirements.txt`](http://gdjkhp.github.io/NoobGPT/requirements.txt) packages, [`.env`](https://gdjkhp.com/NoobGPT/example.env) for secret keys.
 * A working [`MongoDB`](https://www.mongodb.com) instance. [How do I find my MongoDB connection string?](https://www.mongodb.com/resources/products/fundamentals/mongodb-connection-string)
 * A `cookies.txt` for downloading YouTube videos. [How do I pass cookies to yt-dlp?](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp)
 * Google Cloud Console OAuth 2.0 User and Client credentials (Production) + `.../auth/drive.file` scope. [Generate token.json with quickstart.](https://developers.google.com/docs/api/quickstart/python)
@@ -141,6 +141,7 @@ grass is greenr on the othr side
 * Multi voice channel support via NoobGPT
 * Filters: karaoke, timescale, lowpass, rotation, distortion, channelmix, tremolo, vibrato
 * Lyrics, why not?
+* Gapless playback? yeah. it's here.
 
 > No paywall BS! You get everything out-of-the-box for free :)
 
@@ -157,6 +158,7 @@ grass is greenr on the othr side
 * `-pause` Pause music
 * `-resume` Resume music
 * `-skip` Skip music
+* `-previous` Previous music
 * `-stop` Stop music and disconnect from voice channel
 * `-repeat <off/one/all>` Repeat music modes
 * `-autoplay <partial/enabled/disabled>` Toggle autoplay and recommended music

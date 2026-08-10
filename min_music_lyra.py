@@ -4,7 +4,8 @@ from youtubeplayer_lyra import *
 from util_discord import description_helper
 
 # min_music for noobgpt (only essential commands)
-# list np play pause resume stop skip autoplay shuffle remove clear dj repeat swap replace move
+# ok: list np play pause resume stop skip prev autoplay shuffle remove clear dj repeat swap replace move
+# no: djspam summon lyrics search peek smart fair volume filters
 class CogYouTubePlayerMin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -87,6 +88,16 @@ class CogYouTubePlayerMin(commands.Cog):
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def skip(self, ctx: commands.Context):
         await music_skip(ctx)
+
+    @commands.command() # alias
+    async def prev(self, ctx: commands.Context):
+        await music_previous(ctx)
+
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['player']['previous']}")
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def previous(self, ctx: commands.Context):
+        await music_previous(ctx)
 
     @commands.command() # alias
     async def np(self, ctx: commands.Context):

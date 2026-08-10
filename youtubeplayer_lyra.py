@@ -129,6 +129,8 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
 
         if not vc.is_playing and queued_count > 0:
             await vc.play(vc.queue.get())
+            if vc.gapless and not vc.queue.is_empty:
+                await vc.play(vc.queue[0] if not vc.queue.loop_mode else vc.queue.get(), gapless=True)
 
         # Create embed with queued tracks
         embed = music_embed(f"🎵 Queue tracks", f"Queued {queued_count} track{'s' if queued_count != 1 else ''}")
@@ -204,7 +206,10 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
         vc.queue.put(tracks[0])
         text, desc = "🎵 Play music", f'`{tracks[0].author} - {tracks[0].title}` has been added to the queue at position `{len(vc.queue)}`'
         embed = music_embed(text, desc)
-    if not vc.is_playing: await vc.play(vc.queue.get())
+    if not vc.is_playing:
+        await vc.play(vc.queue.get())
+        if vc.gapless and not vc.queue.is_empty:
+            await vc.play(vc.queue[0] if not vc.queue.loop_mode else vc.queue.get(), gapless=True)
     if isinstance(ctx, commands.Context):
         await msg.edit(content=None, embed=embed)
     if isinstance(ctx, discord.Interaction):
@@ -257,6 +262,23 @@ async def music_skip(ctx: commands.Context):
     prev = vc.current
     await vc.stop()
     if prev: await ctx.reply(embed=music_embed("⏭️ Skip music", f"`{prev.author} - {prev.title}` has been skipped"))
+
+async def music_previous(ctx: commands.Context):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if check_bot_conflict(ctx): return await ctx.reply("use moosic instead :)", ephemeral=True)
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+    if not await check_if_dj(ctx): return await ctx.reply("not a disc jockey and/or in music spam channel")
+    vc: NoobGPTPlayer = ctx.voice_client
+    if not vc: return await ctx.reply("voice client not found")
+    if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
+        return await ctx.reply(f'Join the voice channel with the bot first')
+
+    if vc.history_queue.is_empty: return await ctx.reply("There are no songs in the history queue")
+    vc.queue.put_at_front(vc.current)
+    await vc.play(vc.history_queue[-1])
+    vc.history_queue.pop(len(vc.history_queue)-1)
+    embed = music_embed("▶️ Previous music", "The music went to the previous track")
+    await ctx.reply(embed=embed)
 
 async def music_stop(ctx: commands.Context):
     if not ctx.guild: return await ctx.reply("not supported")
@@ -501,6 +523,8 @@ async def queue_shuffle(ctx: commands.Context):
         return await ctx.reply(f'Join the voice channel with the bot first')
     if vc.queue.is_empty: return await ctx.reply(embed=music_embed("🔀 Shuffle queue", "The queue is empty"))
     vc.queue.shuffle()
+    if vc.gapless:
+        await vc.play(vc.queue[0] if not vc.queue.loop_mode else vc.queue.get(), gapless=True)
     embed = music_embed("🔀 Shuffle queue", f"`{len(vc.queue)}` songs have been randomized")
     await ctx.reply(embed=embed)
 
@@ -514,6 +538,7 @@ async def queue_reset(ctx: commands.Context):
         return await ctx.reply(f'Join the voice channel with the bot first')
     vc.queue.clear()
     vc.auto_queue.clear()
+    if vc.gapless: await vc.stop(gapless=True)
     await ctx.reply(embed=music_embed("🗑️ Clear queue", "The queue has been emptied"))
 
 async def queue_remove(ctx: commands.Context, index: str = None, index2: str = None, member: str = None):
@@ -608,23 +633,24 @@ async def queue_remove(ctx: commands.Context, index: str = None, index2: str = N
         if start_idx > end_idx:
             start_idx, end_idx = end_idx, start_idx
 
-        # Get tracks to remove
-        tracks_to_remove = []
-        for i in range(start_idx, end_idx + 1):
-            tracks_to_remove.append(vc.queue[i])
+        # Pop in reverse order so earlier indices stay valid
+        count = 0
+        for i in range(end_idx, start_idx - 1, -1):
+            vc.queue.pop(i)
+            count += 1
 
-        # Remove tracks (remove in reverse order to maintain indices)
-        for track in reversed(tracks_to_remove):
-            vc.queue.remove(track)
-
-        count = len(tracks_to_remove)
         await ctx.reply(embed=music_embed("🗑️ Remove tracks", f"Removed {count} track{'s' if count != 1 else ''} from position {int(index)} to {int(index2)}"))
 
     # Handle single track removal
     else:
-        track = vc.queue[min(int(index)-1, len(vc.queue)-1)]
-        vc.queue.remove(track)
+        idx = min(int(index) - 1, len(vc.queue) - 1)
+        track = vc.queue.pop(idx)
         await ctx.reply(embed=music_embed("🗑️ Remove track", f"`{track.author} - {track.title}` has been removed"))
+
+    if vc.gapless:
+        if not vc.queue.is_empty:
+            await vc.play(vc.queue[0] if not vc.queue.loop_mode else vc.queue.get(), gapless=True)
+        else: await vc.stop(gapless=True)
 
 async def queue_replace(ctx: commands.Context, index: str, query: str): # TODO: source
     if not ctx.guild: return await ctx.reply("not supported")
@@ -642,6 +668,8 @@ async def queue_replace(ctx: commands.Context, index: str, query: str): # TODO: 
     real_index = min(int(index)-1, len(vc.queue)-1)
     track = vc.queue[real_index]
     vc.queue[real_index] = tracks[0] # TODO: let the user choose
+    if vc.gapless:
+        await vc.play(vc.queue[0] if not vc.queue.loop_mode else vc.queue.get(), gapless=True)
     await ctx.reply(embed=music_embed("➡️ Replace track", f"`{track.author} - {track.title}` has been removed and `{tracks[0].author} - {tracks[0].title}` has been replaced"))
 
 async def queue_swap(ctx: commands.Context, init: str, dest: str):
@@ -659,6 +687,8 @@ async def queue_swap(ctx: commands.Context, init: str, dest: str):
     first = vc.queue[index1]
     second = vc.queue[index2]
     vc.queue[index1], vc.queue[index2] = vc.queue[index2], vc.queue[index1]
+    if vc.gapless:
+        await vc.play(vc.queue[0] if not vc.queue.loop_mode else vc.queue.get(), gapless=True)
     await ctx.reply(embed=music_embed("🔄 Swap tracks", f"`{first.author} - {first.title}` is at position `{index2+1}` and `{second.author} - {second.title}` is at position `{index1+1}`"))
 
 async def queue_peek(ctx: commands.Context, index: str):
@@ -690,6 +720,8 @@ async def queue_move(ctx: commands.Context, init: str, dest: str):
     track = vc.queue[index1]
     vc.queue.remove(track)
     vc.queue.put_at_index(index2, track)
+    if vc.gapless:
+        await vc.play(vc.queue[0] if not vc.queue.loop_mode else vc.queue.get(), gapless=True)
     await ctx.reply(embed=music_embed("↕️ Move track", f"`{track.author} - {track.title}` is now at position `{index2+1}`"))
 
 async def queue_smart(ctx: commands.Context, count: str):
@@ -708,6 +740,8 @@ async def queue_smart(ctx: commands.Context, count: str):
     vc.queue.shuffle()
     embed = music_embed("🔀 Smart Shuffle", f"`{len(vc.auto_queue)}` songs have been added")
     vc.auto_queue.clear()
+    if vc.gapless and not vc.queue.is_empty:
+        await vc.play(vc.queue[0] if not vc.queue.loop_mode else vc.queue.get(), gapless=True)
     await ctx.reply(embed=embed)
 
 async def queue_fair(ctx: commands.Context):
@@ -757,6 +791,9 @@ async def queue_fair(ctx: commands.Context):
     vc.queue.clear()
     for track in new_queue:
         vc.queue.put(track)
+
+    if vc.gapless:
+        await vc.play(vc.queue[0] if not vc.queue.loop_mode else vc.queue.get(), gapless=True)
 
     # Create summary of the new distribution
     distribution = {requester: len(tracks) for requester, tracks in requester_tracks.items()}
@@ -984,9 +1021,20 @@ async def queue_on_start(bot, vc: NoobGPTPlayer):
     await get_rekt(vc)
 
 async def queue_on_end(vc: NoobGPTPlayer, reason: str):
-    if reason == "replaced": return # await vc.destroy()
     if not vc: return
-    if not vc.queue.is_empty: return await vc.play(vc.queue.get())
+    if reason == "replaced": return # await vc.destroy()
+
+    if reason == "gapless":
+        vc.queue.get() # its already playing
+        if not vc.queue.is_empty:
+            return await vc.play(vc.queue[0] if not vc.queue.loop_mode else vc.queue.get(), gapless=True)
+
+    if not vc.queue.is_empty:
+        await vc.play(vc.queue.get())
+        if vc.gapless and not vc.queue.is_empty:
+            await vc.play(vc.queue[0] if not vc.queue.loop_mode else vc.queue.get(), gapless=True)
+        return
+
     if vc.autoplay == AutoPlayMode.enabled and not vc.auto_queue.is_empty:
         history_ids = [track.identifier for track in vc.history_queue]
         vc.auto_queue.shuffle()
@@ -1075,7 +1123,7 @@ async def remove_member_auto(interaction: discord.Interaction, current: str):
                 if not current or current.lower() in member.display_name.lower() or current.lower() in member.name.lower():
                     choices.append(app_commands.Choice(
                         name=f"{member.display_name} ({member.name})",
-                        value=member.id
+                        value=str(member.id)
                     ))
         except:
             continue
@@ -1157,6 +1205,14 @@ class CogYouTubePlayer(commands.Cog):
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['player']['skip']}")
     async def skip(self, ctx: commands.Context):
         await music_skip(ctx)
+
+    @commands.command() # alias
+    async def prev(self, ctx: commands.Context):
+        await music_previous(ctx)
+
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} {description_helper['player']['previous']}")
+    async def previous(self, ctx: commands.Context):
+        await music_previous(ctx)
 
     @commands.command() # alias
     async def np(self, ctx: commands.Context):
