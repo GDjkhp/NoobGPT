@@ -448,8 +448,10 @@ async def queue_list(ctx: commands.Context, page: str):
     current_queue = vc.queue
     if current_queue.is_empty:
         if vc.autoplay == AutoPlayMode.enabled and not vc.auto_queue.is_empty:
-            current_queue = vc.auto_queue
-        else: return await ctx.reply(embed=music_embed("📜 Playlist", "The queue is empty"))
+            # current_queue = vc.auto_queue
+            return await ctx.reply(embed=music_embed("📜 Playlist", "The queue is empty and will play recommended tracks after this one"))
+        else:
+            return await ctx.reply(embed=music_embed("📜 Playlist", "The queue is empty"))
     if not page: page = "1"
     if not page.isdigit(): return await ctx.reply("not a digit :(")
     page: int = int(page)
