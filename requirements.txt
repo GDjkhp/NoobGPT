@@ -11,7 +11,7 @@ imagetext-py
 pycryptodome
 motor
 yt-dlp
-yt-dlp-ejs
+# yt-dlp-ejs
 # ytdlp-jsc
 ffmpeg-python
 lxml
