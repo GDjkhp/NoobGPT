@@ -373,6 +373,12 @@ async def music_filters(ctx: commands.Context, reset: str = None, filter: str = 
         "`-channelmix <left_to_left> <left_to_right> <right_to_left> <right_to_right>`",
         "`-tremolo <frequency> <depth>`",
         "`-vibrato <frequency> <depth>`",
+        "`-echo <delay> <feedback> <mix>`",
+        "`-chorus <rate> <depth> <delay> <mix> <feedback>`",
+        "`-compressor <threshold> <ratio> <attack> <release> <gain>`",
+        "`-highpass <smoothing>`",
+        "`-phaser <stages> <rate> <depth> <feedback> <mix> <min_frequency> <max_frequency>`",
+        "`-spatial <depth> <rate>`",
         "`-filters reset` — reset all filters",
         "`-filters reset <filter>` — reset a specific filter",
     ]
@@ -1015,6 +1021,162 @@ async def filter_vibrato(ctx: commands.Context, frequency: float = 2.0, depth: f
         "frequency": frequency, "depth": depth
     }))
 
+# nodelink-exclusive filter commands
+async def filter_echo(
+    ctx: commands.Context,
+    delay: float = 500,
+    feedback: float = 0.3,
+    mix: float = 0.5,
+):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+    vc: NoobGPTPlayer = ctx.voice_client
+    if not vc: return await ctx.reply("voice client not found")
+    if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
+        return await ctx.reply(f'Join the voice channel with the bot first')
+
+    try:
+        f = lava_lyra.Echo(tag="echo", delay=delay, feedback=feedback, mix=mix)
+    except lava_lyra.FilterInvalidArgument as e:
+        return await ctx.reply(f"Invalid argument: {e}")
+
+    try:
+        await vc.add_filter(f, fast_apply=True)
+    except lava_lyra.NodelinkExclusive as e:
+        return await ctx.reply(f"Not supported: {e}")
+    await ctx.reply(embed=filter_embed("🎚️ Filter", "echo", {
+        "delay": delay, "feedback": feedback, "mix": mix
+    }))
+
+async def filter_chorus(
+    ctx: commands.Context,
+    rate: float = 1.5,
+    depth: float = 0.5,
+    delay: float = 25,
+    mix: float = 0.6,
+    feedback: float = 0.2,
+):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+    vc: NoobGPTPlayer = ctx.voice_client
+    if not vc: return await ctx.reply("voice client not found")
+    if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
+        return await ctx.reply(f'Join the voice channel with the bot first')
+
+    try:
+        f = lava_lyra.Chorus(tag="chorus", rate=rate, depth=depth, delay=delay, mix=mix, feedback=feedback)
+    except lava_lyra.FilterInvalidArgument as e:
+        return await ctx.reply(f"Invalid argument: {e}")
+
+    try:
+        await vc.add_filter(f, fast_apply=True)
+    except lava_lyra.NodelinkExclusive as e:
+        return await ctx.reply(f"Not supported: {e}")
+    await ctx.reply(embed=filter_embed("🎚️ Filter", "chorus", {
+        "rate": rate, "depth": depth, "delay": delay, "mix": mix, "feedback": feedback
+    }))
+
+async def filter_compressor(
+    ctx: commands.Context,
+    threshold: float = -20,
+    ratio: float = 4,
+    attack: float = 10,
+    release: float = 100,
+    gain: float = 5,
+):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+    vc: NoobGPTPlayer = ctx.voice_client
+    if not vc: return await ctx.reply("voice client not found")
+    if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
+        return await ctx.reply(f'Join the voice channel with the bot first')
+
+    try:
+        f = lava_lyra.Compressor(tag="compressor", threshold=threshold, ratio=ratio, attack=attack, release=release, gain=gain)
+    except lava_lyra.FilterInvalidArgument as e:
+        return await ctx.reply(f"Invalid argument: {e}")
+
+    try:
+        await vc.add_filter(f, fast_apply=True)
+    except lava_lyra.NodelinkExclusive as e:
+        return await ctx.reply(f"Not supported: {e}")
+    await ctx.reply(embed=filter_embed("🎚️ Filter", "compressor", {
+        "threshold": threshold, "ratio": ratio, "attack": attack, "release": release, "gain": gain
+    }))
+
+async def filter_highpass(ctx: commands.Context, smoothing: float = 20.0):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+    vc: NoobGPTPlayer = ctx.voice_client
+    if not vc: return await ctx.reply("voice client not found")
+    if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
+        return await ctx.reply(f'Join the voice channel with the bot first')
+
+    try:
+        f = lava_lyra.Highpass(tag="highpass", smoothing=smoothing)
+    except lava_lyra.FilterInvalidArgument as e:
+        return await ctx.reply(f"Invalid argument: {e}")
+
+    try:
+        await vc.add_filter(f, fast_apply=True)
+    except lava_lyra.NodelinkExclusive as e:
+        return await ctx.reply(f"Not supported: {e}")
+    await ctx.reply(embed=filter_embed("🎚️ Filter", "highpass", {"smoothing": smoothing}))
+
+async def filter_phaser(
+    ctx: commands.Context,
+    stages: int = 6,
+    rate: float = 0.5,
+    depth: float = 0.7,
+    feedback: float = 0.5,
+    mix: float = 0.5,
+    min_frequency: float = 200,
+    max_frequency: float = 2000,
+):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+    vc: NoobGPTPlayer = ctx.voice_client
+    if not vc: return await ctx.reply("voice client not found")
+    if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
+        return await ctx.reply(f'Join the voice channel with the bot first')
+
+    try:
+        f = lava_lyra.Phaser(
+            tag="phaser",
+            stages=stages, rate=rate, depth=depth, feedback=feedback, mix=mix,
+            min_frequency=min_frequency, max_frequency=max_frequency,
+        )
+    except lava_lyra.FilterInvalidArgument as e:
+        return await ctx.reply(f"Invalid argument: {e}")
+
+    try:
+        await vc.add_filter(f, fast_apply=True)
+    except lava_lyra.NodelinkExclusive as e:
+        return await ctx.reply(f"Not supported: {e}")
+    await ctx.reply(embed=filter_embed("🎚️ Filter", "phaser", {
+        "stages": stages, "rate": rate, "depth": depth, "feedback": feedback,
+        "mix": mix, "min_frequency": min_frequency, "max_frequency": max_frequency,
+    }))
+
+async def filter_spatial(ctx: commands.Context, depth: float = 0.8, rate: float = 0.3):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+    vc: NoobGPTPlayer = ctx.voice_client
+    if not vc: return await ctx.reply("voice client not found")
+    if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
+        return await ctx.reply(f'Join the voice channel with the bot first')
+
+    try:
+        f = lava_lyra.Spatial(tag="spatial", depth=depth, rate=rate)
+    except lava_lyra.FilterInvalidArgument as e:
+        return await ctx.reply(f"Invalid argument: {e}")
+
+    try:
+        await vc.add_filter(f, fast_apply=True)
+    except lava_lyra.NodelinkExclusive as e:
+        return await ctx.reply(f"Not supported: {e}")
+    await ctx.reply(embed=filter_embed("🎚️ Filter", "spatial", {"depth": depth, "rate": rate}))
+
 # utils
 async def queue_on_start(bot, vc: NoobGPTPlayer):
     if not vc: return
@@ -1397,6 +1559,70 @@ class CogYouTubePlayer(commands.Cog):
     @app_commands.describe(frequency="frequency: float = 2.0", depth="depth: float = 0.5")
     async def vibrato(self, ctx: commands.Context, frequency: float = 2.0, depth: float = 0.5):
         await filter_vibrato(ctx, frequency, depth)
+
+    # ── nodelink-exclusive filter sub-commands ──────────────────────────────────
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Filter which creates delay-based repetitions of the audio")
+    @app_commands.describe(delay="delay: float = 500 (ms, 0-5000)", feedback="feedback: float = 0.3 (0-1)", mix="mix: float = 0.5 (0-1)")
+    async def echo(self, ctx: commands.Context, delay: float = 500, feedback: float = 0.3, mix: float = 0.5):
+        await filter_echo(ctx, delay, feedback, mix)
+
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Filter which simulates multiple voices playing at once")
+    @app_commands.describe(
+        rate="rate: float = 1.5 (Hz)", depth="depth: float = 0.5 (0-1)",
+        delay="delay: float = 25 (ms, 1-45)", mix="mix: float = 0.6 (0-1)", feedback="feedback: float = 0.2 (0-0.95)"
+    )
+    async def chorus(
+        self, ctx: commands.Context,
+        rate: float = 1.5,
+        depth: float = 0.5,
+        delay: float = 25,
+        mix: float = 0.6,
+        feedback: float = 0.2,
+    ):
+        await filter_chorus(ctx, rate, depth, delay, mix, feedback)
+
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Filter which applies dynamic range compression")
+    @app_commands.describe(
+        threshold="threshold: float = -20 (dB)", ratio="ratio: float = 4 (>=1.0)",
+        attack="attack: float = 10 (ms)", release="release: float = 100 (ms)", gain="gain: float = 5 (dB)"
+    )
+    async def compressor(
+        self, ctx: commands.Context,
+        threshold: float = -20,
+        ratio: float = 4,
+        attack: float = 10,
+        release: float = 100,
+        gain: float = 5,
+    ):
+        await filter_compressor(ctx, threshold, ratio, attack, release, gain)
+
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Filter which supresses lower frequencies and allows higher frequencies to pass")
+    @app_commands.describe(smoothing="smoothing: float = 20.0 (must be > 1.0)")
+    async def highpass(self, ctx: commands.Context, smoothing: float = 20.0):
+        await filter_highpass(ctx, smoothing)
+
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Filter which sweeps a series of all-pass filters for a swirling effect")
+    @app_commands.describe(
+        stages="stages: int = 6 (2-12)", rate="rate: float = 0.5 (Hz)", depth="depth: float = 0.7 (0-1)",
+        feedback="feedback: float = 0.5 (0-0.9)", mix="mix: float = 0.5 (0-1)",
+        min_frequency="min_frequency: float = 200 (Hz)", max_frequency="max_frequency: float = 2000 (Hz)"
+    )
+    async def phaser(
+        self, ctx: commands.Context,
+        stages: int = 6,
+        rate: float = 0.5,
+        depth: float = 0.7,
+        feedback: float = 0.5,
+        mix: float = 0.5,
+        min_frequency: float = 200,
+        max_frequency: float = 2000,
+    ):
+        await filter_phaser(ctx, stages, rate, depth, feedback, mix, min_frequency, max_frequency)
+
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Filter which creates a spatial audio effect using modulated cross-channel delays")
+    @app_commands.describe(depth="depth: float = 0.8 (0-1)", rate="rate: float = 0.3 (Hz)")
+    async def spatial(self, ctx: commands.Context, depth: float = 0.8, rate: float = 0.3):
+        await filter_spatial(ctx, depth, rate)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogYouTubePlayer(bot))

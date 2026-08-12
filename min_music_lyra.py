@@ -275,5 +275,53 @@ class CogYouTubePlayerMin(commands.Cog):
     async def vibrato(self, ctx: commands.Context, frequency: float = 2.0, depth: float = 0.5):
         await filter_vibrato(ctx, frequency, depth)
 
+    # ── nodelink-exclusive filter sub-commands ──────────────────────────────────
+    @commands.command()
+    async def echo(self, ctx: commands.Context, delay: float = 500, feedback: float = 0.3, mix: float = 0.5):
+        await filter_echo(ctx, delay, feedback, mix)
+
+    @commands.command()
+    async def chorus(
+        self, ctx: commands.Context,
+        rate: float = 1.5,
+        depth: float = 0.5,
+        delay: float = 25,
+        mix: float = 0.6,
+        feedback: float = 0.2,
+    ):
+        await filter_chorus(ctx, rate, depth, delay, mix, feedback)
+
+    @commands.command()
+    async def compressor(
+        self, ctx: commands.Context,
+        threshold: float = -20,
+        ratio: float = 4,
+        attack: float = 10,
+        release: float = 100,
+        gain: float = 5,
+    ):
+        await filter_compressor(ctx, threshold, ratio, attack, release, gain)
+
+    @commands.command()
+    async def highpass(self, ctx: commands.Context, smoothing: float = 20.0):
+        await filter_highpass(ctx, smoothing)
+
+    @commands.command()
+    async def phaser(
+        self, ctx: commands.Context,
+        stages: int = 6,
+        rate: float = 0.5,
+        depth: float = 0.7,
+        feedback: float = 0.5,
+        mix: float = 0.5,
+        min_frequency: float = 200,
+        max_frequency: float = 2000,
+    ):
+        await filter_phaser(ctx, stages, rate, depth, feedback, mix, min_frequency, max_frequency)
+
+    @commands.command()
+    async def spatial(self, ctx: commands.Context, depth: float = 0.8, rate: float = 0.3):
+        await filter_spatial(ctx, depth, rate)
+
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogYouTubePlayerMin(bot))

@@ -139,9 +139,9 @@ grass is greenr on the othr side
 * DJ role and spam channel setup
 * Autoplay recommendations, smart shuffle, and fair queue
 * Multi voice channel support via NoobGPT
-* Filters: karaoke, timescale, lowpass, rotation, distortion, channelmix, tremolo, vibrato
 * Lyrics, why not?
 * Gapless playback? yeah. it's here.
+* Filters: karaoke, timescale, lowpass, rotation, distortion, channelmix, tremolo, vibrato, echo, chorus, compressor, highpass, phaser, spatial
 
 > No paywall BS! You get everything out-of-the-box for free :)
 
@@ -192,6 +192,7 @@ grass is greenr on the othr side
 * <https://github.com/yt-dlp/yt-dlp>
 * <https://github.com/lavalink-devs/Lavalink>
 * <https://github.com/topi314/LavaSrc>
+* <https://github.com/PerformanC/NodeLink>
 * <https://github.com/PythonistaGuild/Wavelink>
 * <https://github.com/ParrotXray/lava-lyra>
 * <https://github.com/Ombucha/akinator.py>
