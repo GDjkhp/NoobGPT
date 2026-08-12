@@ -1025,7 +1025,7 @@ async def filter_vibrato(ctx: commands.Context, frequency: float = 2.0, depth: f
 # nodelink-exclusive filter commands
 async def filter_echo(
     ctx: commands.Context,
-    delay: float = 500,
+    delay: float = 500.0,
     feedback: float = 0.3,
     mix: float = 0.5,
 ):
@@ -1053,7 +1053,7 @@ async def filter_chorus(
     ctx: commands.Context,
     rate: float = 1.5,
     depth: float = 0.5,
-    delay: float = 25,
+    delay: float = 25.0,
     mix: float = 0.6,
     feedback: float = 0.2,
 ):
@@ -1079,11 +1079,11 @@ async def filter_chorus(
 
 async def filter_compressor(
     ctx: commands.Context,
-    threshold: float = -20,
-    ratio: float = 4,
-    attack: float = 10,
-    release: float = 100,
-    gain: float = 5,
+    threshold: float = -20.0,
+    ratio: float = 4.0,
+    attack: float = 10.0,
+    release: float = 100.0,
+    gain: float = 5.0,
 ):
     if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
@@ -1131,8 +1131,8 @@ async def filter_phaser(
     depth: float = 0.7,
     feedback: float = 0.5,
     mix: float = 0.5,
-    min_frequency: float = 200,
-    max_frequency: float = 2000,
+    min_frequency: float = 200.0,
+    max_frequency: float = 2000.0,
 ):
     if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
@@ -1564,7 +1564,7 @@ class CogYouTubePlayer(commands.Cog):
     # ── nodelink-exclusive filter sub-commands ──────────────────────────────────
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Filter which creates delay-based repetitions of the audio")
     @app_commands.describe(delay="delay: float = 500 (ms, 0-5000)", feedback="feedback: float = 0.3 (0-1)", mix="mix: float = 0.5 (0-1)")
-    async def echo(self, ctx: commands.Context, delay: float = 500, feedback: float = 0.3, mix: float = 0.5):
+    async def echo(self, ctx: commands.Context, delay: float = 500.0, feedback: float = 0.3, mix: float = 0.5):
         await filter_echo(ctx, delay, feedback, mix)
 
     @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Filter which simulates multiple voices playing at once")
@@ -1576,7 +1576,7 @@ class CogYouTubePlayer(commands.Cog):
         self, ctx: commands.Context,
         rate: float = 1.5,
         depth: float = 0.5,
-        delay: float = 25,
+        delay: float = 25.0,
         mix: float = 0.6,
         feedback: float = 0.2,
     ):
@@ -1589,11 +1589,11 @@ class CogYouTubePlayer(commands.Cog):
     )
     async def compressor(
         self, ctx: commands.Context,
-        threshold: float = -20,
-        ratio: float = 4,
-        attack: float = 10,
-        release: float = 100,
-        gain: float = 5,
+        threshold: float = -20.0,
+        ratio: float = 4.0,
+        attack: float = 10.0,
+        release: float = 100.0,
+        gain: float = 5.0,
     ):
         await filter_compressor(ctx, threshold, ratio, attack, release, gain)
 
@@ -1615,8 +1615,8 @@ class CogYouTubePlayer(commands.Cog):
         depth: float = 0.7,
         feedback: float = 0.5,
         mix: float = 0.5,
-        min_frequency: float = 200,
-        max_frequency: float = 2000,
+        min_frequency: float = 200.0,
+        max_frequency: float = 2000.0,
     ):
         await filter_phaser(ctx, stages, rate, depth, feedback, mix, min_frequency, max_frequency)
 
