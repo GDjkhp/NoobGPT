@@ -390,7 +390,7 @@ async def get_rekt(vc: NoobGPTPlayer):
         lava_lyra.TrackType.SPOTIFY,
         lava_lyra.TrackType.YOUTUBE,
         lava_lyra.TrackType.YOUTUBE_MUSIC
-    ]: return # TODO: add support for more (lava-lyra)
+    ]: return # TODO: add support for more sources (lava-lyra)
     recs = await vc.get_recommendations(track=vc.current)
     if not recs: return
     recs = recs.tracks if isinstance(recs, lava_lyra.Playlist) else recs

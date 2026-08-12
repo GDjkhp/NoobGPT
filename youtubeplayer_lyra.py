@@ -275,6 +275,7 @@ async def music_previous(ctx: commands.Context):
 
     if vc.history_queue.is_empty: return await ctx.reply("There are no songs in the history queue")
     vc.queue.put_at_front(vc.current)
+    vc.history_queue.pop() # currently playing already in history
     await vc.play(vc.history_queue.pop())
     embed = music_embed("⏮️ Previous music", "The music went to the previous track")
     if vc.gapless:
