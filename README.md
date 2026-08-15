@@ -63,7 +63,7 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 <h3>Sponsors</h3>
 <li><code>jaicraft</code> for giving me access to premium AI models back in 2024</li>
 <li><code>aychelletroller</code> for $4.64 + $4.05 from Patreon (i hope you're doing well man)</li>
-<li><code>IT Avenue</code> for giving me a job (definitely not using company resources for hosting this bot)</li>
+<li><code>IT Avenue</code> for giving me a job (definitely not using company resources to host this bot)</li>
 <li><code>Bot-Hosting.net</code> for letting me host this bot from 2024-2026</li>
 </details>
 
@@ -269,9 +269,8 @@ grass is greenr on the othr side
 
 ### Special Thanks
 * `NoobGPT#5766` for developing itself 🤨
-* `bridgetown`, `ppiece`, `revizgd`, `itzcata`, `craftip`, `darkgamma`, `jkrt2`, `realstyx`, `ambientamend`, `vitalworm`, `gojowashere`, `misshxkari`, `zephryx`, `khaenbyhimself`, `laxergd`, `matahbey`, `qtemiii`, `asrielxl`, `youraveragevania`, `boaz3`, `aychelletroller`, `_youraverageperson`, and to everyone i forgot to mention for all the silly ideas and chaos 🤝
-* `jaicraft` for providing paid AI access 🤖
 * `ausbitbank` for AI image generation ideas and making [arty](https://peakd.com/@ausbitbank/our-new-stable-diffusion-discord-bot) 🎨
+* `bridgetown`, `ppiece`, `revizgd`, `itzcata`, `craftip`, `darkgamma`, `jkrt2`, `realstyx`, `ambientamend`, `vitalworm`, `gojowashere`, `misshxkari`, `zephryx`, `khaenbyhimself`, `laxergd`, `matahbey`, `qtemiii`, `asrielxl`, `youraveragevania`, `boaz3`, `aychelletroller`, `_youraverageperson`, `jaicraft`, and to everyone i forgot to mention for all the silly ideas and chaos 🤝
 * `fc_clint`, `dryleechseed`, `chimed`, `sky47`, `shiro`, `wychee`, `horyx`, `stantheills`, `antnio`, and to all the filipino pride chicken reading this 🇵🇭
 * `A group chat/GDSBB`, `Geometry Dash Extras`, `GDShrimp`, `Khaens' Kingdom`, `The Bot Appreciation Society`, `IVO`, `ausbit's stuff and things`, `GDS general-english-3`, `WORM CULT`, `SickoMenu`, and to all the servers for letting me in 👋
 
