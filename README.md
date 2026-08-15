@@ -61,8 +61,10 @@ Report issues here: [Unofficial Discord Server](https://discord.gg/ZbvhQYv9Ka) o
 <h3>Running this bot has cost me nothing so far!</h3>
 <img src="https://gdjkhp.com/img/tenor.gif">
 <h3>Sponsors</h3>
-<li><code>jaicraft</code> Premium AI subscription access</li>
-<li><code>aychelletroller</code> $4.64 from Patreon (Join <a href="https://discord.gg/fv4st">Eternal Discord Server</a>)</li>
+<li><code>jaicraft</code> for giving me access to premium AI models back in 2024</li>
+<li><code>aychelletroller</code> for $4.64 + $4.05 from Patreon (i hope you're doing well man)</li>
+<li><code>IT Avenue</code> for giving me a job (definitely not using company resources for hosting this bot)</li>
+<li><code>Bot-Hosting.net</code> for letting me host this bot from 2024-2026</li>
 </details>
 
 ## Bot Commands
