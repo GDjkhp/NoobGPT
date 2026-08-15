@@ -1,14 +1,17 @@
 from discord.ext.commands import Bot
-from quart import Quart, jsonify, request
+from quart import Quart, jsonify, request, send_file
 from quart_cors import cors
 from gpt4free import get_models
 from time import time
+import os
 # from util_geometryjump import gj_song_info
 
 app = Quart('')
 app = cors(app, allow_origin="*")
 bot_instances: dict[str, Bot] = {}
 bot_starttime: dict[str, int] = {}
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def register_bot(identifier: str, bot: Bot):
     bot_instances[identifier] = bot
@@ -53,6 +56,10 @@ async def get_models_info():
         "TEXT": models_text,
         "IMAGE": models_image,
     })
+
+@app.route('/robots.txt', methods=['GET'])
+async def robots():
+    return send_file(os.path.join(BASE_DIR, 'robots.txt'))
 
 # @app.route('/song-info', methods=['GET'])
 # async def song_info_endpoint():
