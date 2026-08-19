@@ -130,7 +130,7 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
         if not vc.is_playing and queued_count > 0:
             await vc.play(vc.queue.get())
             if vc.gapless and not vc.queue.is_empty:
-                await vc.play(vc.queue[0] if not vc.queue.loop_mode else vc.queue.get(), gapless=True)
+                await vc.play(vc.queue.peek_next(), gapless=True)
 
         # Create embed with queued tracks
         embed = music_embed(f"🎵 Queue tracks", f"Queued {queued_count} track{'s' if queued_count != 1 else ''}")
@@ -209,7 +209,7 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
     if not vc.is_playing:
         await vc.play(vc.queue.get())
         if vc.gapless and not vc.queue.is_empty:
-            await vc.play(vc.queue[0] if not vc.queue.loop_mode else vc.queue.get(), gapless=True)
+            await vc.play(vc.queue.peek_next(), gapless=True)
     if isinstance(ctx, commands.Context):
         await msg.edit(content=None, embed=embed)
     if isinstance(ctx, discord.Interaction):
@@ -275,10 +275,12 @@ async def music_previous(ctx: commands.Context):
 
     if len(vc.history_queue) < 2: return await ctx.reply("There are no songs in the history queue")
     vc.queue.put_at_front(vc.history_queue.pop())
-    await vc.play(vc.history_queue.pop())
+    previous_track = vc.history_queue.pop()
+    await vc.play(previous_track)
+    vc.queue.set_current(previous_track) # keep loop-mode aware lookups in sync with what's actually playing
     embed = music_embed("⏮️ Previous music", "The music went to the previous track")
     if vc.gapless:
-        await vc.play(vc.queue[0] if not vc.queue.loop_mode else vc.queue.get(), gapless=True)
+        await vc.play(vc.queue.peek_next(), gapless=True)
     await ctx.reply(embed=embed)
 
 async def music_stop(ctx: commands.Context):
@@ -533,7 +535,7 @@ async def queue_shuffle(ctx: commands.Context):
     if vc.queue.is_empty: return await ctx.reply(embed=music_embed("🔀 Shuffle queue", "The queue is empty"))
     vc.queue.shuffle()
     if vc.gapless:
-        await vc.play(vc.queue[0] if not vc.queue.loop_mode else vc.queue.get(), gapless=True)
+        await vc.play(vc.queue.peek_next(), gapless=True)
     embed = music_embed("🔀 Shuffle queue", f"`{len(vc.queue)}` songs have been randomized")
     await ctx.reply(embed=embed)
 
@@ -658,7 +660,7 @@ async def queue_remove(ctx: commands.Context, index: str = None, index2: str = N
 
     if vc.gapless:
         if not vc.queue.is_empty:
-            await vc.play(vc.queue[0] if not vc.queue.loop_mode else vc.queue.get(), gapless=True)
+            await vc.play(vc.queue.peek_next(), gapless=True)
         else: await vc.stop(gapless=True)
 
 async def queue_replace(ctx: commands.Context, index: str, query: str): # TODO: source
@@ -678,7 +680,7 @@ async def queue_replace(ctx: commands.Context, index: str, query: str): # TODO: 
     track = vc.queue[real_index]
     vc.queue[real_index] = tracks[0] # TODO: let the user choose
     if vc.gapless:
-        await vc.play(vc.queue[0] if not vc.queue.loop_mode else vc.queue.get(), gapless=True)
+        await vc.play(vc.queue.peek_next(), gapless=True)
     await ctx.reply(embed=music_embed("➡️ Replace track", f"`{track.author} - {track.title}` has been removed and `{tracks[0].author} - {tracks[0].title}` has been replaced"))
 
 async def queue_swap(ctx: commands.Context, init: str, dest: str):
@@ -697,7 +699,7 @@ async def queue_swap(ctx: commands.Context, init: str, dest: str):
     second = vc.queue[index2]
     vc.queue[index1], vc.queue[index2] = vc.queue[index2], vc.queue[index1]
     if vc.gapless:
-        await vc.play(vc.queue[0] if not vc.queue.loop_mode else vc.queue.get(), gapless=True)
+        await vc.play(vc.queue.peek_next(), gapless=True)
     await ctx.reply(embed=music_embed("🔄 Swap tracks", f"`{first.author} - {first.title}` is at position `{index2+1}` and `{second.author} - {second.title}` is at position `{index1+1}`"))
 
 async def queue_peek(ctx: commands.Context, index: str):
@@ -730,7 +732,7 @@ async def queue_move(ctx: commands.Context, init: str, dest: str):
     vc.queue.remove(track)
     vc.queue.put_at_index(index2, track)
     if vc.gapless:
-        await vc.play(vc.queue[0] if not vc.queue.loop_mode else vc.queue.get(), gapless=True)
+        await vc.play(vc.queue.peek_next(), gapless=True)
     await ctx.reply(embed=music_embed("↕️ Move track", f"`{track.author} - {track.title}` is now at position `{index2+1}`"))
 
 async def queue_smart(ctx: commands.Context, count: str):
@@ -750,7 +752,7 @@ async def queue_smart(ctx: commands.Context, count: str):
     embed = music_embed("🔀 Smart Shuffle", f"`{len(vc.auto_queue)}` songs have been added")
     vc.auto_queue.clear()
     if vc.gapless and not vc.queue.is_empty:
-        await vc.play(vc.queue[0] if not vc.queue.loop_mode else vc.queue.get(), gapless=True)
+        await vc.play(vc.queue.peek_next(), gapless=True)
     await ctx.reply(embed=embed)
 
 async def queue_fair(ctx: commands.Context):
@@ -802,7 +804,7 @@ async def queue_fair(ctx: commands.Context):
         vc.queue.put(track)
 
     if vc.gapless:
-        await vc.play(vc.queue[0] if not vc.queue.loop_mode else vc.queue.get(), gapless=True)
+        await vc.play(vc.queue.peek_next(), gapless=True)
 
     # Create summary of the new distribution
     distribution = {requester: len(tracks) for requester, tracks in requester_tracks.items()}
@@ -1192,12 +1194,12 @@ async def queue_on_end(vc: NoobGPTPlayer, reason: str):
     if reason == "gapless":
         vc.queue.get() # its already playing
         if not vc.queue.is_empty:
-            return await vc.play(vc.queue[0] if not vc.queue.loop_mode else vc.queue.get(), gapless=True)
+            return await vc.play(vc.queue.peek_next(), gapless=True)
 
     if not vc.queue.is_empty:
         await vc.play(vc.queue.get())
         if vc.gapless and not vc.queue.is_empty:
-            await vc.play(vc.queue[0] if not vc.queue.loop_mode else vc.queue.get(), gapless=True)
+            await vc.play(vc.queue.peek_next(), gapless=True)
         return
 
     if vc.autoplay == AutoPlayMode.enabled and not vc.auto_queue.is_empty:
