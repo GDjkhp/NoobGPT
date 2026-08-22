@@ -22,9 +22,9 @@ from util_message import message_snitcher
 
 discord.utils.setup_logging()
 intents = discord.Intents.default()
-intents.message_content = True
+# intents.message_content = True
 # intents.presences = True
-intents.members = True
+# intents.members = True
 mentions = discord.AllowedMentions(everyone=False, users=True, roles=True, replied_user=True)
 DiscordWebSocket.identify = phone_status
 if sys.platform == 'win32': asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
