@@ -96,7 +96,7 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
         # Process each link
         queued_count = 0
         failed_links = []
-        added_tracks = []
+        added_tracks: list[lava_lyra.Track] = []
 
         for link in links:
             try:

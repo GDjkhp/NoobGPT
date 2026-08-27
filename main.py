@@ -21,10 +21,6 @@ from music_lyra import setup_hook_music
 from util_message import message_snitcher
 
 discord.utils.setup_logging()
-intents = discord.Intents.default()
-# intents.message_content = True
-# intents.presences = True
-# intents.members = True
 mentions = discord.AllowedMentions(everyone=False, users=True, roles=True, replied_user=True)
 DiscordWebSocket.identify = phone_status
 if sys.platform == 'win32': asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -49,6 +45,13 @@ class NoobGPT(commands.Bot):
         self.token = os.getenv(identifier)
         self.modules = modules
         self.node_ids = []
+
+        intents = discord.Intents.default()
+        if identifier in ["NOOBGPT", "KAGURA"]:
+            # intents.presences = True
+            intents.message_content = True
+            intents.members = True
+
         super().__init__(
             command_prefix = get_prefix, intents = intents, help_command = None, allowed_mentions = mentions
         )
