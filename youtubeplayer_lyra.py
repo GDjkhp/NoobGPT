@@ -25,7 +25,7 @@ async def music_summon(bot: commands.Bot, ctx: commands.Context):
         vc = await voice_channel_connector(bot, ctx)
     except Exception as e:
         # if fixing: return await ctx.reply(content="Please try again later")
-        print(e.with_traceback())
+        print(e)
         return await ctx.reply(content="An error occured.")
     vc.autoplay = AutoPlayMode.enabled
     await ctx.reply(f"Connected to {vc.channel.jump_url}")
@@ -85,7 +85,7 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
             try:
                 vc = await voice_channel_connector(bot, ctx)
             except Exception as e:
-                print(e.with_traceback())
+                print(e)
                 if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="An error occured.")
                 if isinstance(ctx, commands.Context): return await msg.edit(content="An error occured.")
 
@@ -164,7 +164,7 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
         #     return await msg.edit(content=f'Error :(\n{e}')
         # if isinstance(ctx, discord.Interaction):
         #     return await ctx.edit_original_response(content=f'Error :(\n{e}')
-        print(e.with_traceback())
+        print(e)
         if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="An error occured.")
         if isinstance(ctx, commands.Context): return await msg.edit(content="An error occured.")
 
@@ -187,7 +187,7 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
             # if fixing: 
             #     if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="Please try again later")
             #     if isinstance(ctx, commands.Context): return await msg.edit(content="Please try again later")
-            print(e.with_traceback())
+            print(e)
             if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="An error occured.")
             if isinstance(ctx, commands.Context): return await msg.edit(content="An error occured.")
 
@@ -432,7 +432,7 @@ async def queue_search(bot: commands.Bot, ctx: commands.Context | discord.Intera
         #     return await msg.edit(content=f'Error :(\n{e}')
         # if isinstance(ctx, discord.Interaction):
         #     return await ctx.edit_original_response(content=f'Error :(\n{e}')
-        print(e.with_traceback())
+        print(e)
         if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="An error occured.")
         if isinstance(ctx, commands.Context): return await msg.edit(content="An error occured.")
 
