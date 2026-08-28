@@ -46,14 +46,14 @@ class NoobGPT(commands.Bot):
         self.modules = modules
         self.node_ids = []
 
-        intents = discord.Intents.default()
+        custom_intents = discord.Intents.default()
         if identifier in ["NOOBGPT", "KAGURA"]:
             # intents.presences = True
-            intents.message_content = True
-            intents.members = True
+            custom_intents.message_content = True
+            custom_intents.members = True
 
         super().__init__(
-            command_prefix = get_prefix, intents = intents, help_command = None, allowed_mentions = mentions
+            command_prefix = get_prefix, intents = custom_intents, help_command = None, allowed_mentions = mentions
         )
 
     async def on_ready(self):
