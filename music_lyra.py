@@ -346,6 +346,7 @@ async def voice_channel_connector(bot: commands.Bot, ctx: commands.Context | dis
     if isinstance(ctx, discord.Interaction):
         member = ctx.user
     node = pool.get_node(identifier=bot.node_ids[0])
+
     vc = await member.voice.channel.connect(cls=NoobGPTPlayer(bot, member.voice.channel, node=node), self_deaf=True)
     return vc
 
@@ -383,6 +384,8 @@ class NoobGPTPlayer(lava_lyra.Player):
         self.auto_queue: lava_lyra.Queue = lava_lyra.Queue()
         self.history_queue: lava_lyra.Queue = lava_lyra.Queue()
         self.gapless: bool = True
+    def __call__(self):
+        return self
 
 # smart shuffle algorithm
 async def get_rekt(vc: NoobGPTPlayer):
