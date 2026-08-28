@@ -384,7 +384,12 @@ class NoobGPTPlayer(lava_lyra.Player):
         self.auto_queue: lava_lyra.Queue = lava_lyra.Queue()
         self.history_queue: lava_lyra.Queue = lava_lyra.Queue()
         self.gapless: bool = True
-    def __call__(self):
+
+    def __call__(self, client, channel) -> lava_lyra.Player:
+        self.client = client
+        self.channel = channel
+        self._guild = channel.guild
+
         return self
 
 # smart shuffle algorithm
