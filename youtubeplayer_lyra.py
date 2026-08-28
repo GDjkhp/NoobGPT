@@ -23,9 +23,9 @@ async def music_summon(bot: commands.Bot, ctx: commands.Context):
     if ctx.voice_client: return await ctx.reply(f"I'm already connected to {ctx.voice_client.channel.jump_url}\nPlease use a different bot (>_<)")
     try:
         vc = await voice_channel_connector(bot, ctx)
-    except:
+    except Exception as e:
         # if fixing: return await ctx.reply(content="Please try again later")
-        print("ChannelTimeoutException")
+        print(e.with_traceback())
         return await ctx.reply(content="An error occured.")
     vc.autoplay = AutoPlayMode.enabled
     await ctx.reply(f"Connected to {vc.channel.jump_url}")
@@ -84,8 +84,8 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
         if not ctx.guild.voice_client:
             try:
                 vc = await voice_channel_connector(bot, ctx)
-            except:
-                print("ChannelTimeoutException")
+            except Exception as e:
+                print(e.with_traceback())
                 if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="An error occured.")
                 if isinstance(ctx, commands.Context): return await msg.edit(content="An error occured.")
 
@@ -164,7 +164,7 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
         #     return await msg.edit(content=f'Error :(\n{e}')
         # if isinstance(ctx, discord.Interaction):
         #     return await ctx.edit_original_response(content=f'Error :(\n{e}')
-        print("ChannelTimeoutException")
+        print(e.with_traceback())
         if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="An error occured.")
         if isinstance(ctx, commands.Context): return await msg.edit(content="An error occured.")
 
@@ -183,11 +183,11 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
     if not ctx.guild.voice_client:
         try:
             vc = await voice_channel_connector(bot, ctx)
-        except:
+        except Exception as e:
             # if fixing: 
             #     if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="Please try again later")
             #     if isinstance(ctx, commands.Context): return await msg.edit(content="Please try again later")
-            print("ChannelTimeoutException")
+            print(e.with_traceback())
             if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="An error occured.")
             if isinstance(ctx, commands.Context): return await msg.edit(content="An error occured.")
 
@@ -432,7 +432,7 @@ async def queue_search(bot: commands.Bot, ctx: commands.Context | discord.Intera
         #     return await msg.edit(content=f'Error :(\n{e}')
         # if isinstance(ctx, discord.Interaction):
         #     return await ctx.edit_original_response(content=f'Error :(\n{e}')
-        print("ChannelTimeoutException")
+        print(e.with_traceback())
         if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="An error occured.")
         if isinstance(ctx, commands.Context): return await msg.edit(content="An error occured.")
 

@@ -322,9 +322,9 @@ class SelectChoice(discord.ui.Select):
         if not self.ctx.guild.voice_client:
             try: 
                 vc = await voice_channel_connector(self.bot, self.ctx)
-            except:
+            except Exception as e:
                 # if fixing: return await interaction.edit_original_response(content="Please try again later")
-                print("ChannelTimeoutException")
+                print(e.with_traceback())
                 return await interaction.edit_original_response(content="An error occured.")
             vc.autoplay = AutoPlayMode.enabled
         else: vc: NoobGPTPlayer = self.ctx.guild.voice_client
