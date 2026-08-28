@@ -39,6 +39,8 @@ moosic_modules = ["util_discord", "youtubeplayer_lyra", "music_lyra"]
 # squid_modules = ["util_discord", "mister_squid", "roshidere"]
 exclude_bots = ["MOOSIC", "SQUID"]
 
+custom_intents = discord.Intents.default()
+
 class NoobGPT(commands.Bot):
     def __init__(self, identifier, modules):
         self.identifier = identifier
@@ -46,11 +48,11 @@ class NoobGPT(commands.Bot):
         self.modules = modules
         self.node_ids = []
 
-        custom_intents = discord.Intents.default()
-        if identifier in ["NOOBGPT", "KAGURA"]:
-            # intents.presences = True
-            custom_intents.message_content = True
-            custom_intents.members = True
+        # custom_intents = discord.Intents.default()
+        # if identifier in ["NOOBGPT", "KAGURA"]:
+        #     # intents.presences = True
+        #     custom_intents.message_content = True
+        #     custom_intents.members = True
 
         super().__init__(
             command_prefix = get_prefix, intents = custom_intents, help_command = None, allowed_mentions = mentions
