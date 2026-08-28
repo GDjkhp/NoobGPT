@@ -1,6 +1,7 @@
 import lava_lyra
 import secrets
 import os
+import traceback
 import random
 import enum
 from discord.ext import commands
@@ -322,8 +323,9 @@ class SelectChoice(discord.ui.Select):
         if not self.ctx.guild.voice_client:
             try: 
                 vc = await voice_channel_connector(self.bot, self.ctx)
-            finally:
+            except Exception:
                 # if fixing: return await interaction.edit_original_response(content="Please try again later")
+                traceback.print_exc()
                 return await interaction.edit_original_response(content="An error occured.")
             vc.autoplay = AutoPlayMode.enabled
         else: vc: NoobGPTPlayer = self.ctx.guild.voice_client
