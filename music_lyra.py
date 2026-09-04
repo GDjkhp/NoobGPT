@@ -334,7 +334,11 @@ class SelectChoice(discord.ui.Select):
         selected = self.result[int(self.values[0])]
         vc.queue.put(selected)
         if not vc.is_playing:
-            await vc.play(vc.queue.get())
+            try:
+                await vc.play(vc.queue.get())
+            except Exception:
+                traceback.print_exc()
+                return await interaction.edit_original_response(content="An error occured.")
             if vc.gapless and not vc.queue.is_empty:
                 await vc.play(vc.queue.peek_next(), gapless=True)
         text, desc = "🎵 Queue music", f'`{selected.author} - {selected.title}` has been added to the queue'

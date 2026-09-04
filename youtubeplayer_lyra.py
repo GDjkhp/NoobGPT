@@ -129,7 +129,12 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
                 failed_links.append(link)
 
         if not vc.is_playing and queued_count > 0:
-            await vc.play(vc.queue.get())
+            try:
+                await vc.play(vc.queue.get())
+            except Exception:
+                traceback.print_exc()
+                if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="An error occured.")
+                if isinstance(ctx, commands.Context): return await msg.edit(content="An error occured.")
             if vc.gapless and not vc.queue.is_empty:
                 await vc.play(vc.queue.peek_next(), gapless=True)
 
@@ -208,7 +213,12 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
         text, desc = "🎵 Play music", f'`{tracks[0].author} - {tracks[0].title}` has been added to the queue at position `{len(vc.queue)}`'
         embed = music_embed(text, desc)
     if not vc.is_playing:
-        await vc.play(vc.queue.get())
+        try:
+            await vc.play(vc.queue.get())
+        except Exception:
+            traceback.print_exc()
+            if isinstance(ctx, discord.Interaction): return await ctx.edit_original_response(content="An error occured.")
+            if isinstance(ctx, commands.Context): return await msg.edit(content="An error occured.")
         if vc.gapless and not vc.queue.is_empty:
             await vc.play(vc.queue.peek_next(), gapless=True)
     if isinstance(ctx, commands.Context):
@@ -1198,7 +1208,11 @@ async def queue_on_end(vc: NoobGPTPlayer, reason: str):
             return await vc.play(vc.queue.peek_next(), gapless=True)
 
     if not vc.queue.is_empty:
-        await vc.play(vc.queue.get())
+        try:
+            await vc.play(vc.queue.get())
+        except Exception:
+            return traceback.print_exc()
+
         if vc.gapless and not vc.queue.is_empty:
             await vc.play(vc.queue.peek_next(), gapless=True)
         return
