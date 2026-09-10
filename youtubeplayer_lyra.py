@@ -513,7 +513,9 @@ async def queue_loop(ctx: commands.Context, mode: str):
         return await ctx.reply(f"Mode not found.\nUsage: `{await get_guild_prefix(ctx)}repeat <off/one/all>`")
     try:
         if vc.gapless:
-            await vc.play(vc.queue.peek_next(), gapless=True)
+            if not vc.queue.is_empty:
+                await vc.play(vc.queue.peek_next(), gapless=True)
+            else: await vc.stop(gapless=True)
     except Exception:
         traceback.print_exc()
         return await ctx.reply("An error occured.")
