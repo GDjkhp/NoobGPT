@@ -506,17 +506,17 @@ async def queue_loop(ctx: commands.Context, mode: str):
     elif mode == 'one':
         vc.queue.set_loop_mode(lava_lyra.LoopMode.TRACK)
         text, desc = "🔂 Repeat one", "Queue mode is now set to loop"
-        try:
-            if vc.gapless:
-                await vc.play(vc.queue.peek_next(), gapless=True)
-        except Exception:
-            traceback.print_exc()
-            return await ctx.reply("An error occured.")
     elif mode == 'all':
         vc.queue.set_loop_mode(lava_lyra.LoopMode.QUEUE)
         text, desc = "🔁 Repeat all", "Queue mode is now set to loop all"
     else:
         return await ctx.reply(f"Mode not found.\nUsage: `{await get_guild_prefix(ctx)}repeat <off/one/all>`")
+    try:
+        if vc.gapless:
+            await vc.play(vc.queue.peek_next(), gapless=True)
+    except Exception:
+        traceback.print_exc()
+        return await ctx.reply("An error occured.")
     embed = music_embed(text, desc)
     await ctx.reply(embed=embed)
 
