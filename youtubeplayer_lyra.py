@@ -506,6 +506,12 @@ async def queue_loop(ctx: commands.Context, mode: str):
     elif mode == 'one':
         vc.queue.set_loop_mode(lava_lyra.LoopMode.TRACK)
         text, desc = "🔂 Repeat one", "Queue mode is now set to loop"
+        try:
+            if vc.gapless:
+                await vc.play(vc.queue.peek_next(), gapless=True)
+        except Exception:
+            traceback.print_exc()
+            return await ctx.reply("An error occured.")
     elif mode == 'all':
         vc.queue.set_loop_mode(lava_lyra.LoopMode.QUEUE)
         text, desc = "🔁 Repeat all", "Queue mode is now set to loop all"
