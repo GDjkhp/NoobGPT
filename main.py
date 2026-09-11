@@ -169,6 +169,9 @@ class NoobGPT(commands.Bot):
             exclude = ["custom_status"]
             if self.identifier != "NOOBGPT" and module in exclude: continue
             await self.load_extension(module)
+        if self.identifier == "MOOSIC":
+            synced = await self.tree.sync() # go fuck yourself discord
+            print(f"MOOSIC: Synced {len(synced)} slash commands")
 
 async def start_bot(bot: NoobGPT):
     register_bot(bot.identifier, bot)
