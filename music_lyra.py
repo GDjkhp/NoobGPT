@@ -402,7 +402,10 @@ async def get_rekt(vc: NoobGPTPlayer):
     if vc.current.track_type not in [
         lava_lyra.TrackType.SPOTIFY,
         lava_lyra.TrackType.YOUTUBE,
-        lava_lyra.TrackType.YOUTUBE_MUSIC
+        lava_lyra.TrackType.YOUTUBE_MUSIC,
+        lava_lyra.TrackType.DEEZER,
+        lava_lyra.TrackType.TIDAL,
+        lava_lyra.TrackType.JIOSAAVN,
     ]: return # TODO: add support for more sources (lava-lyra)
     recs = await vc.get_recommendations(track=vc.current)
     if not recs: return
