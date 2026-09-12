@@ -333,13 +333,17 @@ async def music_volume(ctx: commands.Context, value: str):
     await vc.set_volume(value)
     await ctx.reply(embed=music_embed(f"{'🔊' if value > 0 else '🔇'} Volume", f"Volume is now set to `{value}`"))
 
-async def music_lyrics(ctx: commands.Context): # TODO: add user input support
+async def music_lyrics(ctx: commands.Context):
+    # TODO: add user input support
+    # TODO: translate
+    # TODO: karaoke sync
     if not ctx.guild: return await ctx.reply("not supported")
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     vc: NoobGPTPlayer = ctx.voice_client
     if not vc: return await ctx.reply("voice client not found")
     if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
         return await ctx.reply(f'Join the voice channel with the bot first')
+    msg = await ctx.reply("please wait")
     lyrics = await vc.fetch_lyrics()
     if lyrics:
         strings_by_4096: list[str] = []
@@ -354,8 +358,9 @@ async def music_lyrics(ctx: commands.Context): # TODO: add user input support
             embed = discord.Embed(title=vc.current.title, description=l, color=0x00ff00)
             if vc.current.thumbnail: embed.set_thumbnail(url=vc.current.thumbnail)
             embed.set_footer(text=f"page: {i+1}/{len(strings_by_4096)} | lines: {len(lyrics)} | source_name: {lyrics.source_name} | provider: {lyrics.provider} | synced: {lyrics.synced} | name: {lyrics.name} | lang: {lyrics.lang}")
-            await ctx.reply(embed=embed)
-    else: await ctx.reply("not found :(")
+            if i == 0: await msg.edit(content=None, embed=embed)
+            else: await ctx.reply(embed=embed)
+    else: await msg.edit(content="not found :(")
 
 async def music_filters(ctx: commands.Context, reset: str = None, filter: str = None):
     if not ctx.guild: return await ctx.reply("not supported")
