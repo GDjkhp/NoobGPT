@@ -1251,7 +1251,8 @@ async def queue_on_end(vc: NoobGPTPlayer, reason: str):
         if reason == "gapless":
             vc.queue.get() # its already playing
             if not vc.queue.is_empty:
-                return await vc.play(vc.queue.peek_next(), gapless=True)
+                await vc.play(vc.queue.peek_next(), gapless=True)
+            return
 
         if not vc.queue.is_empty:
             await vc.play(vc.queue.get())
