@@ -5,7 +5,7 @@ import discord
 import os
 import asyncio
 import time
-from util_discord import command_check, description_helper
+from util_discord import command_check, description_helper, check_if_not_owner
 from api_gdrive import AsyncDriveUploader
 
 audio_formats = ['aiff', 'alac', 'flac', 'm4a', 'mka', 'mp3', 'ogg', 'opus', 'wav']
@@ -30,6 +30,7 @@ async def ytdlp_thumb(ctx: commands.Context, url: str):
 async def YTDLP(ctx: commands.Context, arg1: str, arg2: str):
     if await command_check(ctx, "ytdlp", "media"): return await ctx.reply("command disabled", ephemeral=True)
     # async with ctx.typing():  # Use async ctx.typing() to indicate the bot is working on it.
+    if check_if_not_owner(ctx): return await ctx.reply("only gdjkhp can use this. you think you're slick, huh…")
     old = round(time.time() * 1000)
     url, format = None, None
     arg_list = []
