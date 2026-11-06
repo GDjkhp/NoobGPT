@@ -276,7 +276,7 @@ grass is greenr on the othr side
 
 ## Legal
 ### License
-NoobGPT and Moosic are licensed under the [Do What The Fuck You Want To Public License](http://www.wtfpl.net)
+NoobGPT and Moosic are licensed under the [Do What The Fuck You Want To Public License](https://www.wtfpl.net)
 
 ## Data collection
 Required privilaged gateway intents: **Server members and message content**
