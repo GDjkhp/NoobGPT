@@ -47,9 +47,14 @@ class NoobGPT(commands.Bot):
         self.node_ids = []
 
         custom_intents = discord.Intents.default()
-        if identifier in ["NOOBGPT", "KAGURA"]:
+        if identifier in ["KAGURA"]:
             # intents.presences = True
             custom_intents.message_content = True
+            custom_intents.members = True
+
+        if identifier in ["NOOBGPT"]:
+            # intents.presences = True
+            # custom_intents.message_content = True
             custom_intents.members = True
 
         super().__init__(
