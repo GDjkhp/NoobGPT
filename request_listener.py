@@ -59,7 +59,7 @@ async def get_models_info():
 
 @app.route('/robots.txt', methods=['GET'])
 async def robots():
-    return send_file(os.path.join(BASE_DIR, 'robots.txt'))
+    return await send_file(os.path.join(BASE_DIR, 'robots.txt'))
 
 # @app.route('/song-info', methods=['GET'])
 # async def song_info_endpoint():
