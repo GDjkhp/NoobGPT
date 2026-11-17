@@ -205,7 +205,7 @@ async def music_play(bot: commands.Bot, ctx: commands.Context | discord.Interact
         text, desc = f"🎵 Queue playlist", f'Added `{added}` songs to the queue'
         embed = music_embed(text, desc)
         embed.add_field(name="Name", value=f"[{tracks.name}]({tracks.uri})" if tracks.uri else tracks.name, inline=False)
-        embed.add_field(name="Author", value=tracks.playlist_info, inline=False) # omg there's no helpers
+        embed.add_field(name="Author", value=tracks.author or "???", inline=False)
         embed.add_field(name="Type", value=tracks.playlist_type, inline=False)
         if tracks.thumbnail: embed.set_thumbnail(url=tracks.thumbnail)
     else:

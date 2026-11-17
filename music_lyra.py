@@ -238,6 +238,7 @@ pagelimit=12
 def search_embed(arg: str, result: list[lava_lyra.Track], index: int) -> discord.Embed:
     embed = discord.Embed(title=f"🔍 Search results: `{result.name if isinstance(result, lava_lyra.Playlist) else arg}`",
                           description=f"{len(result)} found", color=0x00ff00)
+    if result.thumbnail: embed.set_thumbnail(url=result.thumbnail)
     i = index
     while i < len(result):
         if (i < index+pagelimit): embed.add_field(name=f"[{i + 1}] `{result[i].title}`", value=f"by `{result[i].author}`")
