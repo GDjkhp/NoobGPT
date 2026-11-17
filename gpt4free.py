@@ -9,7 +9,8 @@ mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 
 from g4f.client import AsyncClient
 client = AsyncClient()
-client.api_key = os.getenv("G4F")
+# client.api_key = os.getenv("G4F")
+# client.base_url = os.getenv("G4F_URL")
 
 async def get_models():
     cursor = mycol.find()
@@ -43,7 +44,6 @@ async def the_free_req_img(prompt: str, model: str):
         prompt=prompt,
         model=model,
         response_format="b64_json",
-        base_url=os.getenv("G4F_URL"),
     )
     return response.data[0].b64_json
     
@@ -57,7 +57,6 @@ async def the_free_req_text(msgs: list, model: str):
             }
         ] + msgs,
         web_search=True,
-        base_url=os.getenv("G4F_URL"),
     )
     return response.choices[0].message.content
 
