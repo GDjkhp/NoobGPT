@@ -317,7 +317,10 @@ async def music_nowplaying(ctx: commands.Context):
     if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
     vc: NoobGPTPlayer = ctx.voice_client
     if not vc: return await ctx.reply("voice client not found")
-    if vc.is_playing: await ctx.reply(embed=music_now_playing_embed(ctx.bot, vc.current))
+    if vc.is_playing:
+        thumb = await resolve_track_thumbnail(vc.current)
+        embed = music_now_playing_embed(ctx.bot, vc.current, thumb)
+        await ctx.reply(embed=embed)
 
 async def music_volume(ctx: commands.Context, value: str):
     if not ctx.guild: return await ctx.reply("not supported")
@@ -346,6 +349,7 @@ async def music_lyrics(ctx: commands.Context):
     msg = await ctx.reply("please wait")
     lyrics = await vc.fetch_lyrics()
     if lyrics:
+        thumb = await resolve_track_thumbnail(vc.current)
         strings_by_4096: list[str] = []
         lyric_page = ""
         for l in lyrics.lines:
@@ -356,7 +360,7 @@ async def music_lyrics(ctx: commands.Context):
         strings_by_4096.append(lyric_page)
         for i, l in enumerate(strings_by_4096):
             embed = discord.Embed(title=vc.current.title, description=l, color=0x00ff00)
-            if vc.current.thumbnail: embed.set_thumbnail(url=vc.current.thumbnail)
+            if thumb: embed.set_thumbnail(url=thumb)
             embed.set_footer(text=f"page: {i+1}/{len(strings_by_4096)} | lines: {len(lyrics)} | source_name: {lyrics.source_name} | provider: {lyrics.provider} | synced: {lyrics.synced} | name: {lyrics.name} | lang: {lyrics.lang}")
             if i == 0: await msg.edit(content=None, embed=embed)
             else: await ctx.reply(embed=embed)
@@ -401,6 +405,10 @@ async def music_filters(ctx: commands.Context, reset: str = None, filter: str = 
         "`-highpass <smoothing>`",
         "`-phaser <stages> <rate> <depth> <feedback> <mix> <min_frequency> <max_frequency>`",
         "`-spatial <depth> <rate>`",
+        "`-reverb <room_size> <damping> <width> <mix> [delays] [gains]` — delays/gains: comma-separated, give both or neither",
+        "`-flanger <rate> <depth> <feedback>`",
+        "`-phonograph <frequency> <depth> <crackle> <flutter> <room> <mic_agc> <drive>`",
+        "`-tesseract <rotation_hz>`",
         "`-filters reset` — reset all filters",
         "`-filters reset <filter>` — reset a specific filter",
     ]
@@ -1150,7 +1158,7 @@ async def filter_compressor(
         return await ctx.reply(f'Join the voice channel with the bot first')
 
     try:
-        f = lava_lyra.Compressor(tag="compressor", threshold=threshold, ratio=ratio, attack=attack, release=release, gain=gain)
+        f = lava_lyra.Compressor(tag="compressor", threshold=threshold, ratio=ratio, attack=attack, release=release, makeup_gain=gain)
     except lava_lyra.FilterInvalidArgument as e:
         return await ctx.reply(f"Invalid argument: {e}")
 
@@ -1235,10 +1243,132 @@ async def filter_spatial(ctx: commands.Context, depth: float = 0.8, rate: float 
         return await ctx.reply(f"Not supported: {e}")
     await ctx.reply(embed=filter_embed("🎚️ Filter", "spatial", {"depth": depth, "rate": rate}))
 
+def _parse_float_list(raw: str | None) -> list[float] | None:
+    """'0.03, 0.05,0.07' -> [0.03, 0.05, 0.07]; None/blank -> None."""
+    if raw is None or not raw.strip(): return None
+    return [float(x) for x in re.split(r"[,\s]+", raw.strip()) if x]
+
+async def filter_reverb(
+    ctx: commands.Context,
+    room_size: float = 0.5,
+    damping: float = 0.5,
+    width: float = 1.0,
+    mix: float = 0.5,
+    delays: str = None,
+    gains: str = None,
+):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+    vc: NoobGPTPlayer = ctx.voice_client
+    if not vc: return await ctx.reply("voice client not found")
+    if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
+        return await ctx.reply(f'Join the voice channel with the bot first')
+
+    try:
+        delay_list, gain_list = _parse_float_list(delays), _parse_float_list(gains)
+    except ValueError:
+        return await ctx.reply("Invalid argument: delays and gains must be comma-separated numbers")
+    try:
+        f = lava_lyra.Reverb(
+            tag="reverb", room_size=room_size, damping=damping, width=width, mix=mix,
+            delays=delay_list, gains=gain_list,
+        )
+    except lava_lyra.FilterInvalidArgument as e:
+        return await ctx.reply(f"Invalid argument: {e}")
+
+    try:
+        await vc.add_filter(f, fast_apply=True)
+    except lava_lyra.NodelinkExclusive as e:
+        return await ctx.reply(f"Not supported: {e}")
+    fields = {"room_size": room_size, "damping": damping, "width": width, "mix": mix}
+    if delay_list is not None and gain_list is not None:
+        fields["delays"] = ", ".join(map(str, delay_list))
+        fields["gains"] = ", ".join(map(str, gain_list))
+    await ctx.reply(embed=filter_embed("🎚️ Filter", "reverb", fields))
+
+async def filter_flanger(
+    ctx: commands.Context,
+    rate: float = 0.5,
+    depth: float = 0.7,
+    feedback: float = 0.5,
+):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+    vc: NoobGPTPlayer = ctx.voice_client
+    if not vc: return await ctx.reply("voice client not found")
+    if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
+        return await ctx.reply(f'Join the voice channel with the bot first')
+
+    try:
+        f = lava_lyra.Flanger(tag="flanger", rate=rate, depth=depth, feedback=feedback)
+    except lava_lyra.FilterInvalidArgument as e:
+        return await ctx.reply(f"Invalid argument: {e}")
+
+    try:
+        await vc.add_filter(f, fast_apply=True)
+    except lava_lyra.NodelinkExclusive as e:
+        return await ctx.reply(f"Not supported: {e}")
+    await ctx.reply(embed=filter_embed("🎚️ Filter", "flanger", {"rate": rate, "depth": depth, "feedback": feedback}))
+
+async def filter_phonograph(
+    ctx: commands.Context,
+    frequency: float = 0.8,
+    depth: float = 0.25,
+    crackle: float = 0.18,
+    flutter: float = 0.18,
+    room: float = 0.22,
+    mic_agc: float = 0.25,
+    drive: float = 0.25,
+):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+    vc: NoobGPTPlayer = ctx.voice_client
+    if not vc: return await ctx.reply("voice client not found")
+    if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
+        return await ctx.reply(f'Join the voice channel with the bot first')
+
+    try:
+        f = lava_lyra.Phonograph(
+            tag="phonograph",
+            frequency=frequency, depth=depth, crackle=crackle, flutter=flutter,
+            room=room, mic_agc=mic_agc, drive=drive,
+        )
+    except lava_lyra.FilterInvalidArgument as e:
+        return await ctx.reply(f"Invalid argument: {e}")
+
+    try:
+        await vc.add_filter(f, fast_apply=True)
+    except lava_lyra.NodelinkExclusive as e:
+        return await ctx.reply(f"Not supported: {e}")
+    await ctx.reply(embed=filter_embed("🎚️ Filter", "phonograph", {
+        "frequency": frequency, "depth": depth, "crackle": crackle, "flutter": flutter,
+        "room": room, "mic_agc": mic_agc, "drive": drive,
+    }))
+
+async def filter_tesseract(ctx: commands.Context, rotation_hz: float = 0.2):
+    if not ctx.guild: return await ctx.reply("not supported")
+    if await command_check(ctx, "music", "media"): return await ctx.reply("command disabled", ephemeral=True)
+    vc: NoobGPTPlayer = ctx.voice_client
+    if not vc: return await ctx.reply("voice client not found")
+    if not ctx.author.voice or not ctx.author.voice.channel == vc.channel:
+        return await ctx.reply(f'Join the voice channel with the bot first')
+
+    try:
+        f = lava_lyra.Tesseract(tag="tesseract", rotation_hertz=rotation_hz)
+    except lava_lyra.FilterInvalidArgument as e:
+        return await ctx.reply(f"Invalid argument: {e}")
+
+    try:
+        await vc.add_filter(f, fast_apply=True)
+    except lava_lyra.NodelinkExclusive as e:
+        return await ctx.reply(f"Not supported: {e}")
+    await ctx.reply(embed=filter_embed("🎚️ Filter", "tesseract", {"rotation_hertz": rotation_hz}))
+
 # utils
 async def queue_on_start(bot, vc: NoobGPTPlayer):
     if not vc: return
-    embed = music_now_playing_embed(bot, vc.current)
+    thumb = await resolve_track_thumbnail(vc.current)
+    embed = music_now_playing_embed(bot, vc.current, thumb)
     await vc.music_channel.send(embed=embed)
     # await vc.channel.edit(status=vc.current.title) # nice vc status changes (requires manage channels)
     await get_rekt(vc)
@@ -1685,6 +1815,52 @@ class CogYouTubePlayer(commands.Cog):
     @app_commands.describe(depth="depth: float = 0.8 (0-1)", rate="rate: float = 0.3 (Hz)")
     async def spatial(self, ctx: commands.Context, depth: float = 0.8, rate: float = 0.3):
         await filter_spatial(ctx, depth, rate)
+
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Filter which simulates the acoustics of a room with decaying reflections")
+    @app_commands.describe(
+        room_size="room_size: float = 0.5 (0-1)", damping="damping: float = 0.5 (0-1)",
+        width="width: float = 1.0 (0-1)", mix="mix: float = 0.5 (0-1)",
+        delays="optional custom comb delays in seconds, comma-separated (needs gains too)",
+        gains="optional custom comb gains 0-0.95, comma-separated (needs delays too)"
+    )
+    async def reverb(
+        self, ctx: commands.Context,
+        room_size: float = 0.5,
+        damping: float = 0.5,
+        width: float = 1.0,
+        mix: float = 0.5,
+        delays: str = None,
+        gains: str = None,
+    ):
+        await filter_reverb(ctx, room_size, damping, width, mix, delays, gains)
+
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Filter which mixes in a short modulated delay for a sweeping, jet-like effect")
+    @app_commands.describe(rate="rate: float = 0.5 (Hz)", depth="depth: float = 0.7 (0-1)", feedback="feedback: float = 0.5 (0-0.95)")
+    async def flanger(self, ctx: commands.Context, rate: float = 0.5, depth: float = 0.7, feedback: float = 0.5):
+        await filter_flanger(ctx, rate, depth, feedback)
+
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Filter which emulates an old phonograph recording")
+    @app_commands.describe(
+        frequency="frequency: float = 0.8 (Hz, >0)", depth="depth: float = 0.25 (0-1)",
+        crackle="crackle: float = 0.18 (0-1)", flutter="flutter: float = 0.18 (0-1)",
+        room="room: float = 0.22 (0-1)", mic_agc="mic_agc: float = 0.25 (0-1)", drive="drive: float = 0.25 (0-1)"
+    )
+    async def phonograph(
+        self, ctx: commands.Context,
+        frequency: float = 0.8,
+        depth: float = 0.25,
+        crackle: float = 0.18,
+        flutter: float = 0.18,
+        room: float = 0.22,
+        mic_agc: float = 0.25,
+        drive: float = 0.25,
+    ):
+        await filter_phonograph(ctx, frequency, depth, crackle, flutter, room, mic_agc, drive)
+
+    @commands.hybrid_command(description=f"{description_helper['emojis']['music']} Filter which rotates the audio through a simulated 4D space")
+    @app_commands.describe(rotation_hz="rotation_hz: float = 0.2 (>=0, only active above 0.001)")
+    async def tesseract(self, ctx: commands.Context, rotation_hz: float = 0.2):
+        await filter_tesseract(ctx, rotation_hz)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogYouTubePlayer(bot))

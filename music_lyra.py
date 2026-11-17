@@ -7,12 +7,21 @@ import enum
 from discord.ext import commands
 import discord
 import re
+import asyncio
+import aiohttp
+from io import BytesIO
+from PIL import Image
 from util_discord import command_check, get_database2, set_dj_role_db, set_dj_channel_db, check_if_master_or_admin, check_if_not_owner
 from util_database import myclient
 mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 fixing=False
 pool = lava_lyra.NodePool()
-valid_filters = ["karaoke", "timescale", "lowpass", "rotation", "distortion", "channelmix", "tremolo", "vibrato"]
+valid_filters = [
+    "karaoke", "timescale", "lowpass", "rotation", "distortion", "channelmix", "tremolo", "vibrato",
+    # nodelink-exclusive
+    "echo", "chorus", "compressor", "highpass", "phaser", "spatial",
+    "reverb", "flanger", "phonograph", "tesseract",
+]
 
 async def setup_hook_music(bot: commands.Bot):
     global fixing
@@ -141,7 +150,48 @@ async def check_if_dj(ctx: commands.Context | discord.Interaction):
 def music_embed(title: str, description: str):
     return discord.Embed(title=title, description=description, color=0x00ff00)
 
-def music_now_playing_embed(bot: commands.Context, track: lava_lyra.Track):
+# youtube thumbnail fallbacks (ported from noobplayer's _artUrls / _artProbe, minus the square crop)
+# biggest first: YouTube answers 404 (or a 120px grey placeholder) for sizes a video doesn't have
+YT_THUMB_QUALITIES = ("maxresdefault", "sddefault", "hqdefault", "mqdefault", "default")
+_yt_thumb_cache: dict[str, str] = {}
+_YT_THUMB_CACHE_MAX = 256
+
+async def resolve_track_thumbnail(track: lava_lyra.Track) -> str | None:
+    """Pick the best thumbnail for a track. Makes network requests, so await it BEFORE
+    building an embed (embed builders are sync) and pass the result in.
+
+    YouTube / YouTube Music: maxresdefault -> sddefault -> hqdefault -> mqdefault -> default,
+    first one that really loads wins, then the track's own thumbnail. Everything else just
+    returns track.thumbnail untouched (no requests)."""
+    own = track.thumbnail
+    if track.track_type not in (lava_lyra.TrackType.YOUTUBE, lava_lyra.TrackType.YOUTUBE_MUSIC): return own
+    vid = track.identifier
+    if not vid or not re.fullmatch(r"[\w-]{6,}", vid): return own
+    if vid in _yt_thumb_cache: return _yt_thumb_cache[vid]
+
+    try:
+        # per-request timeout is 3s (aiohttp's total is per request), plus an overall 5s cap so a hanging host can't stall the embed
+        async with asyncio.timeout(5), aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=3)) as session:
+            for q in YT_THUMB_QUALITIES:
+                url = f"https://i.ytimg.com/vi/{vid}/{q}.jpg"
+                try:
+                    async with session.get(url) as response:
+                        if response.status != 200: continue
+                        data = await response.read()
+                    try: width = Image.open(BytesIO(data)).size[0]
+                    except Exception: width = None
+                    # default.jpg is legitimately 120px wide; any bigger size at 120px is YouTube's placeholder
+                    if width is not None and width <= 120 and q != "default": continue
+                    if len(_yt_thumb_cache) >= _YT_THUMB_CACHE_MAX: _yt_thumb_cache.pop(next(iter(_yt_thumb_cache)))
+                    _yt_thumb_cache[vid] = url
+                    return url
+                except (aiohttp.ClientError, asyncio.TimeoutError): continue
+    except TimeoutError: pass
+    except Exception: traceback.print_exc()
+    return own
+
+def music_now_playing_embed(bot: commands.Context, track: lava_lyra.Track, thumbnail: str | None = None):
+    """thumbnail: pre-resolved via `await resolve_track_thumbnail(track)`; falls back to track.thumbnail."""
     embed = discord.Embed(title="🎵 Now playing", color=0x00ff00,
                           description=f"[{track.title}]({track.uri})" if track.uri else track.title)
     embed.add_field(name="Author", value=track.author, inline=False)
@@ -149,7 +199,8 @@ def music_now_playing_embed(bot: commands.Context, track: lava_lyra.Track):
     embed.add_field(name="Duration", value=format_mil(track.length), inline=False)
     embed.add_field(name="Requested by", value=requester_string(bot, track), inline=False)
 
-    if track.thumbnail: embed.set_thumbnail(url=track.thumbnail)
+    thumbnail = thumbnail or track.thumbnail
+    if thumbnail: embed.set_thumbnail(url=thumbnail)
     # elif track.album.url: embed.set_thumbnail(url=track.album.url)
     # elif track.artist.url: embed.set_thumbnail(url=track.artist.url)
 

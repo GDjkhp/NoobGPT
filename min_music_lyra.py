@@ -323,5 +323,38 @@ class CogYouTubePlayerMin(commands.Cog):
     async def spatial(self, ctx: commands.Context, depth: float = 0.8, rate: float = 0.3):
         await filter_spatial(ctx, depth, rate)
 
+    @commands.command()
+    async def reverb(
+        self, ctx: commands.Context,
+        room_size: float = 0.5,
+        damping: float = 0.5,
+        width: float = 1.0,
+        mix: float = 0.5,
+        delays: str = None,
+        gains: str = None,
+    ):
+        await filter_reverb(ctx, room_size, damping, width, mix, delays, gains)
+
+    @commands.command()
+    async def flanger(self, ctx: commands.Context, rate: float = 0.5, depth: float = 0.7, feedback: float = 0.5):
+        await filter_flanger(ctx, rate, depth, feedback)
+
+    @commands.command()
+    async def phonograph(
+        self, ctx: commands.Context,
+        frequency: float = 0.8,
+        depth: float = 0.25,
+        crackle: float = 0.18,
+        flutter: float = 0.18,
+        room: float = 0.22,
+        mic_agc: float = 0.25,
+        drive: float = 0.25,
+    ):
+        await filter_phonograph(ctx, frequency, depth, crackle, flutter, room, mic_agc, drive)
+
+    @commands.command()
+    async def tesseract(self, ctx: commands.Context, rotation_hz: float = 0.2):
+        await filter_tesseract(ctx, rotation_hz)
+
 async def setup(bot: commands.Bot):
     await bot.add_cog(CogYouTubePlayerMin(bot))
