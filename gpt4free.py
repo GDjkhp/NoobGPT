@@ -9,8 +9,8 @@ mycol = myclient["utils"]["cant_do_json_shit_dynamically_on_docker"]
 
 from g4f.client import AsyncClient
 client = AsyncClient()
-# client.api_key = os.getenv("G4F")
-# client.base_url = os.getenv("G4F_URL")
+client.api_key = os.getenv("G4F")
+client.base_url = os.getenv("G4F_URL")
 
 async def get_models():
     cursor = mycol.find()
